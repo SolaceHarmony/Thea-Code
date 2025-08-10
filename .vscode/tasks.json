@@ -13,6 +13,28 @@
 			}
 		},
 		{
+			"label": "e2e: compile",
+			"type": "shell",
+			"command": "cd e2e && npm run compile",
+			"group": "build",
+			"problemMatcher": ["$tsc"],
+			"presentation": { "group": "tests", "reveal": "always" }
+		},
+		{
+			"label": "e2e: test",
+			"type": "shell",
+			"command": "cd e2e && npm run test",
+			"group": "test",
+			"isBackground": false,
+			"presentation": { "group": "tests", "reveal": "always" }
+		},
+		{
+			"label": "test: integration",
+			"dependsOn": ["e2e: compile", "e2e: test"],
+			"group": "test",
+			"presentation": { "group": "tests", "reveal": "always" }
+		},
+		{
 			"label": "npm: dev",
 			"type": "npm",
 			"script": "dev",
@@ -39,7 +61,7 @@
 			"type": "npm",
 			"script": "watch:esbuild",
 			"group": "build",
-			"problemMatcher": "$esbuild-watch",
+			"problemMatcher": [],
 			"isBackground": true,
 			"presentation": {
 				"group": "watch",
