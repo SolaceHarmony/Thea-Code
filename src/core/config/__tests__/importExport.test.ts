@@ -8,7 +8,7 @@ import * as path from "path"
 
 import * as vscode from "vscode"
 
-import { SPECIFIC_STRINGS } from "../../../../dist/thea-config" // Import branded constant
+import { SPECIFIC_STRINGS } from "../../../shared/config/thea-config"
 import type { ProviderName } from "../../../schemas"
 import { importSettings, exportSettings } from "../importExport"
 import { ProviderSettingsManager } from "../ProviderSettingsManager"

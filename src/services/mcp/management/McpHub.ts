@@ -19,7 +19,7 @@ import * as vscode from "vscode"
 import { parse as parseJSONC } from "jsonc-parser"
 import { z } from "zod"
 import { t } from "../../../i18n"
-import { EXTENSION_DISPLAY_NAME, CONFIG_DIR_NAME } from "../../../../dist/thea-config" // Import branded constants
+import { EXTENSION_DISPLAY_NAME, CONFIG_DIR_NAME } from "../../../shared/config/thea-config"
 import { TheaProvider } from "../../../core/webview/TheaProvider" // Renamed import
 import { GlobalFileNames } from "../../../shared/globalFileNames"
 import {

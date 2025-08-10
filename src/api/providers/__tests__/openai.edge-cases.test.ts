@@ -7,8 +7,14 @@ import { describe, expect, it, jest, beforeEach, afterEach } from "@jest/globals
 import { OpenAiHandler } from "../openai"
 import OpenAI from "openai"
 import { ApiHandlerOptions, ModelInfo } from "../../../shared/api"
-import type { NeutralConversationHistory, NeutralMessageContent } from "../../../shared/neutral-history"
-import { XmlMatcher } from "../../../utils/xml-matcher"
+import type { 
+	NeutralConversationHistory, 
+	NeutralMessageContent,
+	NeutralMessage,
+	NeutralContentBlock,
+	NeutralTextContentBlock 
+} from "../../../shared/neutral-history"
+import { XmlMatcher, XmlMatcherResult } from "../../../utils/xml-matcher"
 
 // Mock OpenAI client
 jest.mock("openai", () => {
@@ -20,6 +26,7 @@ jest.mock("openai", () => {
 		}
 	}
 	return {
+		__esModule: true,
 		default: jest.fn(() => mockClient),
 		AzureOpenAI: jest.fn(() => mockClient)
 	}
@@ -35,17 +42,17 @@ jest.mock("../../../utils/xml-matcher", () => ({
 
 // Mock conversion functions
 jest.mock("../../transform/neutral-openai-format", () => ({
-	convertToOpenAiHistory: jest.fn((messages) => {
+	convertToOpenAiHistory: jest.fn((messages: NeutralMessage[]) => {
 		// Simple mock conversion
-		return messages.map((msg: any) => ({
+		return messages.map((msg: NeutralMessage) => ({
 			role: msg.role,
 			content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
 		}))
 	}),
-	convertToOpenAiContentBlocks: jest.fn((content) => {
+	convertToOpenAiContentBlocks: jest.fn((content: string | NeutralMessageContent) => {
 		if (typeof content === 'string') return content
-		return content.map((block: any) => {
-			if (block.type === 'text') return { type: 'text', text: block.text }
+		return content.map((block: NeutralContentBlock) => {
+			if (block.type === 'text') return { type: 'text', text: (block as NeutralTextContentBlock).text }
 			if (block.type === 'image') return { type: 'image_url', image_url: { url: 'data:image/png;base64,test' } }
 			return block
 		})
@@ -100,7 +107,7 @@ jest.mock("../constants", () => ({
 }))
 
 // Mock branded constants
-jest.mock("../../../../dist/thea-config", () => ({
+jest.mock("../../../shared/config/thea-config", () => ({
 	API_REFERENCES: {
 		HOMEPAGE: "https://example.com",
 		APP_TITLE: "Test App"
@@ -149,14 +156,14 @@ describe("OpenAiHandler - Edge Cases", () => {
 		const OpenAIMock = jest.requireMock("openai").default
 		mockClient = OpenAIMock.mock.results[0]?.value || OpenAIMock()
 
-		// Create mock XmlMatcher
+		// Create mock XmlMatcher with update/final API
 		mockXmlMatcher = {
-			processChunk: jest.fn(),
+			update: jest.fn().mockReturnValue([]),
 			final: jest.fn().mockReturnValue([])
 		} as any
 
-		// Mock XmlMatcher constructor
-		(XmlMatcher as jest.Mock).mockImplementation(() => mockXmlMatcher)
+		// Mock XmlMatcher constructor to return our mock
+		;(XmlMatcher as unknown as jest.Mock).mockImplementation(() => mockXmlMatcher)
 	})
 
 	afterEach(() => {
@@ -193,8 +200,8 @@ describe("OpenAiHandler - Edge Cases", () => {
 			mockClient.chat.completions.create.mockReturnValue(mockStream as any)
 			
 			// Mock XmlMatcher to extract thinking tags
-			mockXmlMatcher.processChunk.mockReturnValueOnce([
-				{ type: "thinking", text: "Internal reasoning" },
+			mockXmlMatcher.update.mockReturnValueOnce([
+				{ type: "reasoning", text: "Internal reasoning" },
 				{ type: "text", text: "Regular text" }
 			])
 
@@ -203,7 +210,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 			]
 
 			const stream = handler.createMessage("System prompt", messages)
-			const results = []
+			const results: unknown[] = []
 			
 			for await (const chunk of stream) {
 				results.push(chunk)
@@ -249,17 +256,17 @@ describe("OpenAiHandler - Edge Cases", () => {
 			]
 
 			const stream = handler.createMessage("System", messages)
-			const results = []
+			const results: unknown[] = []
 			
 			for await (const chunk of stream) {
 				results.push(chunk)
 			}
 
 			// Should return text and usage
-			expect(results).toEqual([
-				{ type: "text", text: "Response text" },
-				{ type: "usage", input_tokens: 15, output_tokens: 25 }
-			])
+		    expect(results).toEqual([
+			    { type: "text", text: "Response text" },
+			    { type: "usage", inputTokens: 15, outputTokens: 25 }
+		    ])
 		})
 
 		it("should handle streaming with no usage data", async () => {

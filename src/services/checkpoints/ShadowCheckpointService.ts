@@ -14,7 +14,7 @@ import { CheckpointStorage } from "../../shared/checkpoints"
 import { GIT_DISABLED_SUFFIX } from "./constants"
 import { CheckpointDiff, CheckpointResult, CheckpointEventMap } from "./types"
 import { getExcludePatterns } from "./excludes"
-import { EXTENSION_DISPLAY_NAME, BRANCH_PREFIX, AUTHOR_EMAIL } from "../../../dist/thea-config" // Import branded constants
+import { EXTENSION_DISPLAY_NAME, BRANCH_PREFIX, AUTHOR_EMAIL } from "../../shared/config/thea-config"
 
 export abstract class ShadowCheckpointService extends EventEmitter {
 	public readonly taskId: string

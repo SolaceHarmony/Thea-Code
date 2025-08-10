@@ -26,7 +26,7 @@ import { migrateSettings } from "./utils/migrateSettings"
 
 import { handleUri, registerCommands, registerCodeActions, registerTerminalActions } from "./activate"
 import { formatLanguage } from "./shared/language"
-import { EXTENSION_DISPLAY_NAME, EXTENSION_NAME, configSection } from "../dist/thea-config" // Import branded constants
+import { EXTENSION_DISPLAY_NAME, EXTENSION_NAME, configSection } from "./shared/config/thea-config"
 
 /**
  * Built using https://github.com/microsoft/vscode-webview-ui-toolkit
@@ -47,17 +47,27 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(outputChannel)
 	outputChannel.appendLine(`${EXTENSION_DISPLAY_NAME} extension activated`)
 
+	// Detect e2e/test mode to reduce heavy startup during integration tests
+	const isE2E = process.env.THEA_E2E === '1' || process.env.NODE_ENV === 'test'
+	outputChannel.appendLine(`Activation starting (testMode=${isE2E})`)
+
 	// Migrate old settings to new
 	await migrateSettings(context, outputChannel)
 
 	// Initialize telemetry service after environment variables are loaded.
-	telemetryService.initialize()
+	if (!isE2E) {
+		telemetryService.initialize()
+	}
 
 	// Initialize i18n for internationalization support
-	await initializeI18n(context.globalState.get("language") ?? formatLanguage(vscode.env.language))
+	if (!isE2E) {
+		await initializeI18n(context.globalState.get("language") ?? formatLanguage(vscode.env.language))
+	}
 
 	// Initialize terminal shell execution handlers.
-	TerminalRegistry.initialize()
+	if (!isE2E) {
+		TerminalRegistry.initialize()
+	}
 
 	// Get default commands from configuration.
 	const defaultCommands =
@@ -68,8 +78,12 @@ export async function activate(context: vscode.ExtensionContext) {
 		context.globalState.update("allowedCommands", defaultCommands)
 	}
 
+	outputChannel.appendLine("Creating TheaProvider...")
 	const provider = new TheaProvider(context, outputChannel, "sidebar") // Renamed constructor
-	telemetryService.setProvider(provider)
+	outputChannel.appendLine("TheaProvider created")
+	if (!isE2E) {
+		telemetryService.setProvider(provider)
+	}
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(String(TheaProvider.sideBarId), provider, {

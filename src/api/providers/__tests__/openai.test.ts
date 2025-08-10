@@ -2,7 +2,7 @@
 import { OpenAiHandler } from "../openai"
 import { ApiHandlerOptions } from "../../../shared/api"
 import type { NeutralConversationHistory } from "../../../shared/neutral-history"
-import { API_REFERENCES } from "../../../../dist/thea-config" // Import branded constants
+import { API_REFERENCES } from "../../../shared/config/thea-config"
 import { Readable } from "stream"
 import openaiSetup, { openAIMock } from "../../../../test/openai-mock/setup.ts"
 import { openaiTeardown } from "../../../../test/openai-mock/teardown.ts"

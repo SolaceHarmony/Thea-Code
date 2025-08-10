@@ -110,7 +110,7 @@ export default [
 		"mock/",
 		"package.json",
 		"package-lock.json",
-		"branding.json",
+		// branding.json removed; branding is now static in src/shared/config/thea-config.ts
 		"knip.json",
 		"tsconfig.json",
 		"transformer_architecture.md",

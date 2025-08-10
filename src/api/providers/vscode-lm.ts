@@ -7,7 +7,7 @@ import { SELECTOR_SEPARATOR, stringifyVsCodeLmModelSelector } from "../../shared
 import { BaseProvider } from "./base-provider"
 import { ApiHandlerOptions, ModelInfo, openAiModelInfoSaneDefaults } from "../../shared/api"
 import { NeutralConversationHistory, NeutralMessageContent } from "../../shared/neutral-history"
-import { TEXT_PATTERNS, EXTENSION_DISPLAY_NAME } from "../../../dist/thea-config"
+import { TEXT_PATTERNS, EXTENSION_DISPLAY_NAME } from "../../shared/config/thea-config"
 /**
  * Handles interaction with VS Code's Language Model API for chat-based operations.
  * This handler extends BaseProvider to provide VS Code LM specific functionality.

@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import { arePathsEqual } from "../../utils/path"
 import { Terminal } from "./Terminal"
 import { TerminalProcess } from "./TerminalProcess"
-import { EXTENSION_DISPLAY_NAME } from "../../../dist/thea-config" // Import branded constant
+import { EXTENSION_DISPLAY_NAME } from "../../shared/config/thea-config"
 
 // Although vscode.window.terminals provides a list of all open terminals, there's no way to know whether they're busy or not (exitStatus does not provide useful information for most commands). In order to prevent creating too many terminals, we need to keep track of terminals through the life of the extension, as well as session specific terminals for the life of a task (to get latest unretrieved output).
 // Since we have promises keeping track of terminal processes, we get the added benefit of keep track of busy terminals even after a task is closed.

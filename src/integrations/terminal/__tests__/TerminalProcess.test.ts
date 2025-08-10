@@ -5,7 +5,7 @@ import * as vscode from "vscode"
 import { TerminalProcess, mergePromise } from "../TerminalProcess"
 import { Terminal } from "../Terminal"
 import { TerminalRegistry } from "../TerminalRegistry"
-import { EXTENSION_DISPLAY_NAME } from "../../../../dist/thea-config" // Import branded constant
+import { EXTENSION_DISPLAY_NAME } from "../../../shared/config/thea-config"
 
 // Mock vscode.window.createTerminal
 const mockCreateTerminal = jest.fn()

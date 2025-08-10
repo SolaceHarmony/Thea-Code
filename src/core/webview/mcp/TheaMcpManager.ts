@@ -6,7 +6,7 @@ import type { McpServer } from "../../../shared/mcp"
 
 import { McpHub } from "../../../services/mcp/management/McpHub" // Adjusted path
 // Assuming McpServerManager is not directly needed here, but constants are
-import { EXTENSION_DISPLAY_NAME, EXTENSION_CONFIG_DIR } from "../../../../dist/thea-config" // Adjusted path
+import { EXTENSION_DISPLAY_NAME, EXTENSION_CONFIG_DIR } from "../../../shared/config/thea-config"
 
 /**
  * Manages interactions with the McpHub for Model Control Protocol services.

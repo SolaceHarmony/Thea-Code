@@ -2,7 +2,7 @@ import fs from "fs/promises"
 import path from "path"
 import { Mode } from "../../../shared/modes"
 import { fileExistsAtPath } from "../../../utils/fs"
-import { EXTENSION_CONFIG_DIR } from "../../../../dist/thea-config" // Import branded constant
+import { EXTENSION_CONFIG_DIR } from "../../../shared/config/thea-config"
 
 /**
  * Safely reads a file, returning an empty string if the file doesn't exist
@@ -13,11 +13,17 @@ async function safeReadFile(filePath: string): Promise<string> {
 		// When reading with "utf-8" encoding, content should be a string
 		return content.trim()
 	} catch (err) {
-		const errorCode = (err as NodeJS.ErrnoException).code
-		if (!errorCode || !["ENOENT", "EISDIR"].includes(errorCode)) {
-			throw err
+		const e = err as NodeJS.ErrnoException
+		const errorCode = e.code
+		const message = (e.message || "").toUpperCase()
+		if (
+			(errorCode && ["ENOENT", "EISDIR"].includes(errorCode)) ||
+			message.includes("ENOENT") ||
+			message.includes("EISDIR")
+		) {
+			return ""
 		}
-		return ""
+		throw err
 	}
 }
 

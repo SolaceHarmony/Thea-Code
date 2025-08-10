@@ -3,7 +3,7 @@ import { fileExistsAtPath } from "../../utils/fs"
 import fs from "fs/promises"
 import ignore, { Ignore } from "ignore"
 import * as vscode from "vscode"
-import { GLOBAL_FILENAMES } from "../../../dist/thea-config" // Import branded constant
+import { GLOBAL_FILENAMES } from "../../shared/config/thea-config"
 
 export const LOCK_TEXT_SYMBOL = "\u{1F512}"
 
