@@ -114,6 +114,13 @@ const ApiOptions = ({
 	})
 
 	const [openAiModels, setOpenAiModels] = useState<Record<string, ModelInfo> | null>(null)
+	
+	const [anthropicModels, setAnthropicModels] = useState<Record<string, ModelInfo> | null>(null)
+	const [bedrockModels, setBedrockModels] = useState<Record<string, ModelInfo> | null>(null)  
+	const [vertexModels, setVertexModels] = useState<Record<string, ModelInfo> | null>(null)
+	const [geminiModels, setGeminiModels] = useState<Record<string, ModelInfo> | null>(null)
+	const [mistralModels, setMistralModels] = useState<Record<string, ModelInfo> | null>(null)
+	const [deepseekModels, setDeepseekModels] = useState<Record<string, ModelInfo> | null>(null)
 
 	const [anthropicBaseUrlSelected, setAnthropicBaseUrlSelected] = useState(!!apiConfiguration?.anthropicBaseUrl)
 	const [azureApiVersionSelected, setAzureApiVersionSelected] = useState(!!apiConfiguration?.azureApiVersion)
@@ -138,36 +145,70 @@ const ApiOptions = ({
 	)
 
 	const { selectedProvider, selectedModelId, selectedModelInfo } = useMemo(
-		() => normalizeApiConfiguration(apiConfiguration),
-		[apiConfiguration],
+		() => normalizeApiConfiguration(apiConfiguration, { 
+			anthropicModels,
+			bedrockModels,
+			vertexModels,
+			geminiModels,
+			mistralModels,
+			deepseekModels,
+		}),
+		[apiConfiguration, anthropicModels, bedrockModels, vertexModels, geminiModels, mistralModels, deepseekModels],
 	)
 
 	// Debounced refresh model updates, only executed 250ms after the user
 	// stops typing.
 	useDebounce(
 		() => {
-			if (selectedProvider === "openrouter") {
-				vscode.postMessage({ type: "refreshOpenRouterModels" })
-			} else if (selectedProvider === "glama") {
-				vscode.postMessage({ type: "refreshGlamaModels" })
-			} else if (selectedProvider === "unbound") {
-				vscode.postMessage({ type: "refreshUnboundModels" })
-			} else if (selectedProvider === "requesty") {
-				vscode.postMessage({
-					type: "refreshRequestyModels",
-					values: { apiKey: apiConfiguration?.requestyApiKey },
-				})
-			} else if (selectedProvider === "openai") {
-				vscode.postMessage({
-					type: "refreshOpenAiModels",
-					values: { baseUrl: apiConfiguration?.openAiBaseUrl, apiKey: apiConfiguration?.openAiApiKey },
-				})
-			} else if (selectedProvider === "ollama") {
-				vscode.postMessage({ type: "requestOllamaModels", text: apiConfiguration?.ollamaBaseUrl })
-			} else if (selectedProvider === "lmstudio") {
-				vscode.postMessage({ type: "requestLmStudioModels", text: apiConfiguration?.lmStudioBaseUrl })
-			} else if (selectedProvider === "vscode-lm") {
-				vscode.postMessage({ type: "requestVsCodeLmModels" })
+			switch(selectedProvider) {
+				case "anthropic":
+					vscode.postMessage({ type: "refreshAnthropicModels" })
+					break
+				case "bedrock":
+					vscode.postMessage({ type: "refreshBedrockModels" })
+					break
+				case "vertex":
+					vscode.postMessage({ type: "refreshVertexModels" })
+					break
+				case "gemini":
+					vscode.postMessage({ type: "refreshGeminiModels" })
+					break
+				case "mistral":
+					vscode.postMessage({ type: "refreshMistralModels" })
+					break
+				case "deepseek":
+					vscode.postMessage({ type: "refreshDeepSeekModels" })
+					break
+				case "openrouter":
+					vscode.postMessage({ type: "refreshOpenRouterModels" })
+					break
+				case "glama":
+					vscode.postMessage({ type: "refreshGlamaModels" })
+					break
+				case "unbound":
+					vscode.postMessage({ type: "refreshUnboundModels" })
+					break
+				case "requesty":
+					vscode.postMessage({
+						type: "refreshRequestyModels",
+						values: { apiKey: apiConfiguration?.requestyApiKey },
+					})
+					break
+				case "openai":
+					vscode.postMessage({
+						type: "refreshOpenAiModels",
+						values: { baseUrl: apiConfiguration?.openAiBaseUrl, apiKey: apiConfiguration?.openAiApiKey },
+					})
+					break
+				case "ollama":
+					vscode.postMessage({ type: "requestOllamaModels", text: apiConfiguration?.ollamaBaseUrl })
+					break
+				case "lmstudio":
+					vscode.postMessage({ type: "requestLmStudioModels", text: apiConfiguration?.lmStudioBaseUrl })
+					break
+				case "vscode-lm":
+					vscode.postMessage({ type: "requestVsCodeLmModels" })
+					break
 			}
 		},
 		250,
@@ -225,6 +266,36 @@ const ApiOptions = ({
 				setOpenAiModels(Object.fromEntries(updatedModels.map((item) => [item, openAiModelInfoSaneDefaults])))
 				break
 			}
+			case "anthropicModels": {
+				const updatedModels = message.anthropicModels ?? {}
+				setAnthropicModels(updatedModels)
+				break
+			}
+			case "bedrockModels": {
+				const updatedModels = message.bedrockModels ?? {}
+				setBedrockModels(updatedModels)
+				break
+			}
+			case "vertexModels": {
+				const updatedModels = message.vertexModels ?? {}
+				setVertexModels(updatedModels)
+				break
+			}
+			case "geminiModels": {
+				const updatedModels = message.geminiModels ?? {}
+				setGeminiModels(updatedModels)
+				break
+			}
+			case "mistralModels": {
+				const updatedModels = message.mistralModels ?? {}
+				setMistralModels(updatedModels)
+				break
+			}
+			case "deepseekModels": {
+				const updatedModels = message.deepseekModels ?? {}
+				setDeepseekModels(updatedModels)
+				break
+			}
 			case "ollamaModels":
 				{
 					const newModels = message.ollamaModels ?? []
@@ -249,14 +320,37 @@ const ApiOptions = ({
 	useEvent("message", onMessage)
 
 	const selectedProviderModelOptions = useMemo(
-		() =>
-			MODELS_BY_PROVIDER[selectedProvider]
+		() => {
+			// Map of providers to their dynamic models
+			const dynamicProviders = {
+				anthropic: anthropicModels,
+				bedrock: bedrockModels,
+				vertex: vertexModels,
+				gemini: geminiModels,
+				mistral: mistralModels,
+				deepseek: deepseekModels,
+			}
+			
+			// Check if the current provider has dynamic models available
+			if (selectedProvider in dynamicProviders) {
+				const models = dynamicProviders[selectedProvider as keyof typeof dynamicProviders]
+				if (models && Object.keys(models).length > 0) {
+					return Object.keys(models).map((modelId) => ({
+						value: modelId,
+						label: modelId,
+					}))
+				}
+			}
+			
+			// Fallback to static models (for providers that haven't been migrated yet)
+			return MODELS_BY_PROVIDER[selectedProvider]
 				? Object.keys(MODELS_BY_PROVIDER[selectedProvider]).map((modelId) => ({
 						value: modelId,
 						label: modelId,
 					}))
-				: [],
-		[selectedProvider],
+				: []
+		},
+		[selectedProvider, anthropicModels, bedrockModels, vertexModels, geminiModels, mistralModels, deepseekModels],
 	)
 
 	// Base URL for provider documentation
@@ -1601,7 +1695,17 @@ const ApiOptions = ({
 	)
 }
 
-export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration) {
+export function normalizeApiConfiguration(
+	apiConfiguration?: ApiConfiguration,
+	dynamicModels?: {
+		anthropicModels?: Record<string, ModelInfo> | null
+		bedrockModels?: Record<string, ModelInfo> | null
+		vertexModels?: Record<string, ModelInfo> | null
+		geminiModels?: Record<string, ModelInfo> | null
+		mistralModels?: Record<string, ModelInfo> | null
+		deepseekModels?: Record<string, ModelInfo> | null
+	}
+) {
 	const provider = apiConfiguration?.apiProvider || "anthropic"
 	const modelId = apiConfiguration?.apiModelId
 
@@ -1627,7 +1731,9 @@ export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration) {
 
 	switch (provider) {
 		case "anthropic":
-			return getProviderData(anthropicModels, anthropicDefaultModelId)
+			// Use dynamic models if available, otherwise fall back to static
+			const anthropicModelsToUse = dynamicModels?.anthropicModels || anthropicModels
+			return getProviderData(anthropicModelsToUse, anthropicDefaultModelId)
 		case "bedrock":
 			// Special case for custom ARN
 			if (modelId === "custom-arn") {
@@ -1642,17 +1748,22 @@ export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration) {
 					},
 				}
 			}
-			return getProviderData(bedrockModels, bedrockDefaultModelId)
+			const bedrockModelsToUse = dynamicModels?.bedrockModels || bedrockModels
+			return getProviderData(bedrockModelsToUse, bedrockDefaultModelId)
 		case "vertex":
-			return getProviderData(vertexModels, vertexDefaultModelId)
+			const vertexModelsToUse = dynamicModels?.vertexModels || vertexModels
+			return getProviderData(vertexModelsToUse, vertexDefaultModelId)
 		case "gemini":
-			return getProviderData(geminiModels, geminiDefaultModelId)
+			const geminiModelsToUse = dynamicModels?.geminiModels || geminiModels
+			return getProviderData(geminiModelsToUse, geminiDefaultModelId)
+		case "mistral":
+			const mistralModelsToUse = dynamicModels?.mistralModels || mistralModels
+			return getProviderData(mistralModelsToUse, mistralDefaultModelId)
 		case "deepseek":
-			return getProviderData(deepSeekModels, deepSeekDefaultModelId)
+			const deepseekModelsToUse = dynamicModels?.deepseekModels || deepSeekModels
+			return getProviderData(deepseekModelsToUse, deepSeekDefaultModelId)
 		case "openai-native":
 			return getProviderData(openAiNativeModels, openAiNativeDefaultModelId)
-		case "mistral":
-			return getProviderData(mistralModels, mistralDefaultModelId)
 		case "openrouter":
 			return {
 				selectedProvider: provider,
