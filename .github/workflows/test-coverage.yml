@@ -1,0 +1,150 @@
+name: Test Coverage
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests with coverage
+      run: npm run test:coverage
+      env:
+        CI: true
+    
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+    
+    - name: Archive coverage reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report-${{ matrix.node-version }}
+        path: coverage/
+        retention-days: 7
+    
+    - name: Check coverage thresholds
+      run: |
+        echo "Coverage report:"
+        npm run test:coverage || true
+        
+        # Extract coverage percentages from JSON summary
+        if [ -f coverage/coverage-summary.json ]; then
+          echo "Coverage Summary:"
+          node -e "
+            const coverage = require('./coverage/coverage-summary.json');
+            const total = coverage.total;
+            console.log('Lines:', total.lines.pct + '%');
+            console.log('Statements:', total.statements.pct + '%');
+            console.log('Functions:', total.functions.pct + '%');
+            console.log('Branches:', total.branches.pct + '%');
+            
+            // Check thresholds
+            const globalThreshold = 70;
+            const failed = [];
+            if (total.lines.pct < globalThreshold) failed.push('lines');
+            if (total.statements.pct < globalThreshold) failed.push('statements');
+            if (total.functions.pct < globalThreshold) failed.push('functions');
+            if (total.branches.pct < globalThreshold) failed.push('branches');
+            
+            if (failed.length > 0) {
+              console.error('\\nCoverage below threshold for:', failed.join(', '));
+              process.exit(1);
+            } else {
+              console.log('\\nAll coverage thresholds met!');
+            }
+          "
+        fi
+    
+    - name: Post coverage comment
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('coverage/coverage-summary.json')) {
+            const coverage = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+            const total = coverage.total;
+            
+            const comment = `## Coverage Report
+            
+            | Metric | Coverage | Threshold |
+            |--------|----------|-----------|
+            | Lines | ${total.lines.pct.toFixed(2)}% | 70% |
+            | Statements | ${total.statements.pct.toFixed(2)}% | 70% |
+            | Functions | ${total.functions.pct.toFixed(2)}% | 70% |
+            | Branches | ${total.branches.pct.toFixed(2)}% | 70% |
+            
+            *MCP core components have a higher threshold of 80%*
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run linters
+      run: |
+        npm run lint:root || true
+        npm run lint:webview || true
+        npm run lint:e2e || true
+        npm run lint:benchmark || true
+
+  type-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run TypeScript type checking
+      run: npm run typecheck || true

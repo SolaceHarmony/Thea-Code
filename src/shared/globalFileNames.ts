@@ -7,4 +7,10 @@ export const GlobalFileNames = {
 	mcpSettings: "mcp_settings.json",
 	unboundModels: "unbound_models.json",
 	customModes: "custom_modes.json",
+	anthropicModels: "anthropic_models.json",
+	bedrockModels: "bedrock_models.json",
+	vertexModels: "vertex_models.json",
+	geminiModels: "gemini_models.json",
+	mistralModels: "mistral_models.json",
+	deepseekModels: "deepseek_models.json",
 }

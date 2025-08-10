@@ -34,6 +34,8 @@ import { getOllamaModels } from "../../api/providers/ollama"
 import { getVsCodeLmModels } from "../../api/providers/vscode-lm"
 import { getLmStudioModels } from "../../api/providers/lmstudio"
 import { getOpenRouterModels } from "../../api/providers/openrouter"
+import { ModelRegistry } from "../../api/providers/model-registry"
+import { getBedrockModels, getGeminiModels, getVertexModels, getMistralModels, getDeepSeekModels } from "../../api/providers/provider-helpers"
 import { openMention } from "../mentions"
 import { telemetryService } from "../../services/telemetry/TelemetryService"
 import { TelemetrySetting } from "../../shared/TelemetrySetting"
@@ -168,6 +170,43 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 					void provider.postMessageToWebview({ type: "requestyModels", requestyModels })
 				}
 			})
+			
+			// Load cached Anthropic models
+			void provider.readModelsFromCache(GlobalFileNames.anthropicModels).then((anthropicModels) => {
+				if (anthropicModels) {
+					void provider.postMessageToWebview({ type: "anthropicModels", anthropicModels })
+				}
+			})
+			
+			// Fetch dynamic Anthropic models
+			void (async () => {
+				const modelRegistry = ModelRegistry.getInstance()
+				const anthropicModelsList = await modelRegistry.getModels("anthropic")
+				
+				if (anthropicModelsList.length > 0) {
+					// Convert to Record<string, ModelInfo> format expected by frontend
+					const anthropicModels: Record<string, any> = {}
+					for (const model of anthropicModelsList) {
+						anthropicModels[model.modelId] = model.info
+					}
+					
+					await fs.writeFile(
+						path.join(cacheDir, GlobalFileNames.anthropicModels),
+						JSON.stringify(anthropicModels)
+					)
+					await provider.postMessageToWebview({ type: "anthropicModels", anthropicModels })
+					
+					const { apiConfiguration } = await provider.getState()
+					
+					if (apiConfiguration?.anthropicModelId && anthropicModels[apiConfiguration.anthropicModelId]) {
+						await provider.updateGlobalState(
+							"anthropicModelInfo",
+							anthropicModels[apiConfiguration.anthropicModelId]
+						)
+						await provider.postStateToWebview()
+					}
+				}
+			})()
 
 			void getRequestyModels().then(async (requestyModels) => {
 				if (Object.keys(requestyModels).length > 0) {
@@ -481,6 +520,120 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				await provider.postMessageToWebview({ type: "openAiModels", openAiModels: normalizedModels })
 			}
 
+			break
+		}
+		case "refreshAnthropicModels": {
+			const modelRegistry = ModelRegistry.getInstance()
+			const anthropicModels = await modelRegistry.getModels("anthropic", true)
+			
+			if (anthropicModels.length > 0) {
+				// Convert to Record<string, ModelInfo> format expected by frontend
+				const modelsRecord: Record<string, any> = {}
+				for (const model of anthropicModels) {
+					modelsRecord[model.modelId] = model.info
+				}
+				
+				const cacheDir = await provider.ensureCacheDirectoryExists()
+				await fs.writeFile(
+					path.join(cacheDir, GlobalFileNames.anthropicModels),
+					JSON.stringify(modelsRecord)
+				)
+				await provider.postMessageToWebview({ type: "anthropicModels", anthropicModels: modelsRecord })
+			}
+			
+			break
+		}
+		case "refreshBedrockModels": {
+			const { apiConfiguration: configForRefresh } = await provider.getState()
+			const bedrockModels = await getBedrockModels({
+				awsRegion: configForRefresh.awsRegion,
+				awsAccessKeyId: configForRefresh.awsAccessKeyId,
+				awsSecretAccessKey: configForRefresh.awsSecretAccessKey,
+				awsUseProfile: configForRefresh.awsUseProfile,
+				awsProfile: configForRefresh.awsProfile,
+			})
+			
+			if (Object.keys(bedrockModels).length > 0) {
+				const cacheDir = await provider.ensureCacheDirectoryExists()
+				await fs.writeFile(
+					path.join(cacheDir, GlobalFileNames.bedrockModels),
+					JSON.stringify(bedrockModels)
+				)
+				await provider.postMessageToWebview({ type: "bedrockModels", bedrockModels })
+			}
+			
+			break
+		}
+		case "refreshVertexModels": {
+			const { apiConfiguration: configForRefresh } = await provider.getState()
+			const vertexModels = await getVertexModels({
+				vertexProjectId: configForRefresh.vertexProjectId,
+				vertexRegion: configForRefresh.vertexRegion,
+				vertexJsonCredentials: configForRefresh.vertexJsonCredentials,
+				vertexKeyFile: configForRefresh.vertexKeyFile,
+			})
+			
+			if (Object.keys(vertexModels).length > 0) {
+				const cacheDir = await provider.ensureCacheDirectoryExists()
+				await fs.writeFile(
+					path.join(cacheDir, GlobalFileNames.vertexModels),
+					JSON.stringify(vertexModels)
+				)
+				await provider.postMessageToWebview({ type: "vertexModels", vertexModels })
+			}
+			
+			break
+		}
+		case "refreshGeminiModels": {
+			const { apiConfiguration: configForRefresh } = await provider.getState()
+			const geminiModels = await getGeminiModels({
+				geminiApiKey: configForRefresh.geminiApiKey,
+				googleGeminiBaseUrl: configForRefresh.googleGeminiBaseUrl,
+			})
+			
+			if (Object.keys(geminiModels).length > 0) {
+				const cacheDir = await provider.ensureCacheDirectoryExists()
+				await fs.writeFile(
+					path.join(cacheDir, GlobalFileNames.geminiModels),
+					JSON.stringify(geminiModels)
+				)
+				await provider.postMessageToWebview({ type: "geminiModels", geminiModels })
+			}
+			
+			break
+		}
+		case "refreshMistralModels": {
+			const { apiConfiguration: configForRefresh } = await provider.getState()
+			const mistralModels = await getMistralModels({
+				mistralApiKey: configForRefresh.mistralApiKey,
+			})
+			
+			if (Object.keys(mistralModels).length > 0) {
+				const cacheDir = await provider.ensureCacheDirectoryExists()
+				await fs.writeFile(
+					path.join(cacheDir, GlobalFileNames.mistralModels),
+					JSON.stringify(mistralModels)
+				)
+				await provider.postMessageToWebview({ type: "mistralModels", mistralModels })
+			}
+			
+			break
+		}
+		case "refreshDeepSeekModels": {
+			const { apiConfiguration: configForRefresh } = await provider.getState()
+			const deepSeekModels = await getDeepSeekModels({
+				deepSeekApiKey: configForRefresh.deepSeekApiKey,
+			})
+			
+			if (Object.keys(deepSeekModels).length > 0) {
+				const cacheDir = await provider.ensureCacheDirectoryExists()
+				await fs.writeFile(
+					path.join(cacheDir, GlobalFileNames.deepseekModels),
+					JSON.stringify(deepSeekModels)
+				)
+				await provider.postMessageToWebview({ type: "deepseekModels", deepseekModels: deepSeekModels })
+			}
+			
 			break
 		}
 		case "requestOllamaModels": {

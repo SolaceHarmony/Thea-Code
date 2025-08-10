@@ -72,7 +72,8 @@ console.debug = () => {}
 // Propagate mock server base URLs from global port into env for provider clients
 (() => {
 	const g = globalThis as Record<string, unknown>
-	const port = g.__OLLAMA_PORT__ as number | undefined
+	// Support both new and old global variable names for backward compatibility
+	const port = (g.__GENERIC_MOCK_PORT__ || g.__OLLAMA_PORT__) as number | undefined
 	if (port && typeof port === 'number') {
 		const base = `http://127.0.0.1:${port}`
 		process.env.OLLAMA_BASE_URL = base
