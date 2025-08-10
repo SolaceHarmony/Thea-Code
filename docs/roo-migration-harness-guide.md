@@ -1,10 +1,10 @@
-# Roo Migration Test Harness – Tips, Tricks, and Style Guide
+# Extension API Test Harness – Tips, Tricks, and Style Guide
 
-This guide covers best practices for writing and converting tests to the in-repo hostless harness under `test/roo-migration/`.
+This guide covers best practices for writing and converting tests to the in-repo hostless harness under `test/extension-api-harness/`.
 
 ## Quick recap
-- Runner: `node test/roo-migration/runTest.js` or `npm run test:roo-migration`
-- Discovers: all `*.test.js` under `test/roo-migration/suite/`
+- Runner: `node test/extension-api-harness/runTest.js` or `npm run test:extension-harness`
+- Discovers: all `*.test.js` under `test/roo-migration/suite/` (currently aliased). Existing suites remain in `test/roo-migration/suite/` and are executed by the new harness alias. Migrate files at your convenience.
 - Loader: `helpers/thea-loader.js` bundles TS from this repo, externalizing host-only deps
 - Stubs: local `vscode/` and `tcp-port-used/` under `test/roo-migration/node_modules/`
 
