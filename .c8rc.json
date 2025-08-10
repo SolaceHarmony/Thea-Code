@@ -1,0 +1,24 @@
+{
+  "all": true,
+  "src": ["src"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**",
+    "**/__mocks__/**",
+    "**/test/**",
+    "**/extension.ts",
+    "webview-ui/**",
+    "**/*.d.ts",
+    "coverage/**",
+    "dist/**",
+    "node_modules/**"
+  ],
+  "reporter": ["text", "lcov", "json-summary"],
+  "reportsDirectory": "./coverage",
+  "checkCoverage": true,
+  "lines": 70,
+  "functions": 70,
+  "branches": 70,
+  "statements": 70
+}

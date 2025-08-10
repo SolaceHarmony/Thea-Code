@@ -45,6 +45,12 @@ export interface ExtensionMessage {
 		| "unboundModels"
 		| "requestyModels"
 		| "openAiModels"
+		| "anthropicModels"
+		| "bedrockModels"
+		| "vertexModels"
+		| "geminiModels"
+		| "mistralModels"
+		| "deepseekModels"
 		| "mcpServers"
 		| "enhancedPrompt"
 		| "commitSearchResults"
@@ -92,6 +98,12 @@ export interface ExtensionMessage {
 	unboundModels?: Record<string, ModelInfo>
 	requestyModels?: Record<string, ModelInfo>
 	openAiModels?: string[]
+	anthropicModels?: Record<string, ModelInfo>
+	bedrockModels?: Record<string, ModelInfo>
+	vertexModels?: Record<string, ModelInfo>
+	geminiModels?: Record<string, ModelInfo>
+	mistralModels?: Record<string, ModelInfo>
+	deepseekModels?: Record<string, ModelInfo>
 	mcpServers?: McpServer[]
 	commits?: GitCommit[]
 	listApiConfig?: ApiConfigMeta[]
