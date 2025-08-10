@@ -2,8 +2,6 @@
  * Export all model providers for easy registration
  */
 
-export { AnthropicModelProvider } from "./anthropic-model-provider"
-export { OpenAIModelProvider } from "./openai-model-provider"
 export { BedrockModelProvider } from "./bedrock-model-provider"
 export { GeminiModelProvider } from "./gemini-model-provider"
 export { VertexModelProvider } from "./vertex-model-provider"

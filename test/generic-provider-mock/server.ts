@@ -231,7 +231,7 @@ class GenericProviderMock {
 		// Google Vertex AI endpoints
 		this.app.get("/v1/projects/:project/locations/:location/publishers/:publisher/models", this.handleVertexPublisherModels.bind(this))
 		this.app.get("/v1/projects/:project/locations/:location/models", this.handleVertexFoundationModels.bind(this))
-		this.app.post("/v1/projects/:project/locations/:location/publishers/:publisher/models/:model:streamGenerateContent", this.handleVertexGenerate.bind(this))
+		this.app.post("/v1/projects/:project/locations/:location/publishers/:publisher/models/:model/streamGenerateContent", this.handleVertexGenerate.bind(this))
 		
 		// Ollama-specific endpoints
 		this.app.post("/api/generate", this.handleOllamaGenerate.bind(this))

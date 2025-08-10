@@ -8,9 +8,9 @@
 
 import { ModelInfo } from "../../schemas"
 import { ApiHandlerOptions } from "../../shared/api"
+import { AnthropicModelProvider } from "./anthropic-model-provider"
+import { OpenAIModelProvider } from "./openai-model-provider"
 import { 
-	AnthropicModelProvider,
-	OpenAIModelProvider,
 	BedrockModelProvider,
 	GeminiModelProvider,
 	VertexModelProvider,
