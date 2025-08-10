@@ -6,7 +6,7 @@ import { ApiHandlerOptions } from "../../../shared/api" // ModelInfo, requestyDe
 import { RequestyHandler } from "../requesty"
 import { convertToOpenAiHistory } from "../../transform/neutral-openai-format"
 import { convertToR1Format } from "../../transform/r1-format"
-import { API_REFERENCES } from "../../../../dist/thea-config" // Import branded constants
+import { API_REFERENCES } from "../../../shared/config/thea-config"
 // Mock OpenAI and transform functions
 jest.mock("openai")
 jest.mock("../../transform/neutral-openai-format")

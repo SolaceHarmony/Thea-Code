@@ -1,13 +1,13 @@
 import axios from "axios"
 import { ModelProvider, ModelListing } from "../model-registry"
-import { ModelInfo } from "../../../shared/api"
+import { ModelInfo, ApiHandlerOptions } from "../../../shared/api"
 
 interface OpenAICompatibleModel {
   id: string
   object: string
   created?: number
   owned_by?: string
-  permission?: any[]
+  permission?: unknown[]
 }
 
 interface OpenAICompatibleResponse {
@@ -129,7 +129,7 @@ export class MistralModelProvider implements ModelProvider {
     },
   }
 
-  configure(options: any): void {
+  configure(options: ApiHandlerOptions): void {
     this.apiKey = options.mistralApiKey || ""
   }
 

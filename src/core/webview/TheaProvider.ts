@@ -35,7 +35,7 @@ import { telemetryService } from "../../services/telemetry/TelemetryService"
 import { getWorkspacePath } from "../../utils/path"
 import { webviewMessageHandler } from "./webviewMessageHandler"
 import { WebviewMessage } from "../../shared/WebviewMessage"
-import { EXTENSION_DISPLAY_NAME, VIEWS, CONFIG } from "../../../dist/thea-config" // Correct import path and add EXTENSION_CONFIG_DIR, CONFIG
+import { EXTENSION_DISPLAY_NAME, VIEWS, CONFIG } from "../../shared/config/thea-config"
 import { TheaTaskStack } from "./thea/TheaTaskStack" // Renamed import
 import { TheaStateManager } from "./thea/TheaStateManager" // Renamed import
 import { TheaApiManager } from "./api/TheaApiManager" // Renamed import
@@ -104,15 +104,19 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 	) {
 		super()
 
-		this.outputChannel.appendLine("TheaProvider instantiated")
+		const isTest = process.env.THEA_E2E === "1" || process.env.NODE_ENV === "test"
+		this.outputChannel.appendLine(`TheaProvider instantiated (testMode=${isTest})`)
 		this.contextProxy = new ContextProxy(context)
 		TheaProvider.activeInstances.add(this)
 
 		// Register this provider with the telemetry service to enable it to add
 		// properties like mode and provider.
-		telemetryService.setProvider(this)
+		if (!isTest) {
+			telemetryService.setProvider(this)
+		}
 
-		this.workspaceTracker = new WorkspaceTracker(this)
+		// Defer WorkspaceTracker to when the webview is actually resolved (avoids heavy FS watching during activation)
+		this.workspaceTracker = undefined
 
 		this.providerSettingsManager = new ProviderSettingsManager(this.context)
 
@@ -136,16 +140,21 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		this.theaCacheManager = new TheaCacheManager(this.context) // Renamed property and constructor
 		this.theaMcpManager = new TheaMcpManager(this.context) // Renamed property and constructor
 
-		// Initialize MCP Hub through the singleton manager
-		McpServerManager.getInstance(this.context, this)
-			.then((hub) => {
-				this.mcpHub = hub // Keep local reference
-				this.mcpHub = hub // Keep local reference if needed
-				this.theaMcpManager.setMcpHub(hub) // Renamed property
-			})
-			.catch((error) => {
-				this.outputChannel.appendLine(`Failed to initialize MCP Hub: ${error}`)
-			})
+		// Initialize MCP Hub through the singleton manager (skipped in tests/e2e)
+		if (!isTest) {
+			this.outputChannel.appendLine("Initializing MCP Hub (non-test mode)")
+			McpServerManager.getInstance(this.context, this)
+				.then((hub) => {
+					this.mcpHub = hub // Keep local reference
+					this.theaMcpManager.setMcpHub(hub) // Renamed property
+					this.outputChannel.appendLine("MCP Hub initialized")
+				})
+				.catch((error) => {
+					this.outputChannel.appendLine(`Failed to initialize MCP Hub: ${error instanceof Error ? error.message : String(error)}`)
+				})
+		} else {
+			this.outputChannel.appendLine("Skipping MCP Hub initialization in test/e2e mode")
+		}
 	}
 
 	// Stack related methods (addToStack, removeFromStack, getCurrent, getStackSize, getCurrentTaskStack, finishSubTask)
@@ -299,6 +308,11 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 
 	async resolveWebviewView(webviewView: vscode.WebviewView | vscode.WebviewPanel) {
 		this.outputChannel.appendLine("Resolving webview view")
+		const isTest = process.env.THEA_E2E === "1" || process.env.NODE_ENV === "test"
+		// Lazily initialize WorkspaceTracker unless in test mode (to avoid heavy file system watchers during e2e)
+		if (!this.workspaceTracker && !isTest) {
+			this.workspaceTracker = new WorkspaceTracker(this)
+		}
 
 		if (!this.contextProxy.isInitialized) {
 			await this.contextProxy.initialize()
@@ -343,8 +357,9 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 			localResourceRoots: [this.contextProxy.extensionUri],
 		}
 
+		// In tests/e2e, avoid HMR and use static HTML to prevent network timeouts or prompts
 		webviewView.webview.html =
-			this.contextProxy.extensionMode === vscode.ExtensionMode.Development
+			!isTest && this.contextProxy.extensionMode === vscode.ExtensionMode.Development
 				? await this.getHMRHtmlContent(webviewView.webview)
 				: this.getHtmlContent(webviewView.webview)
 
@@ -550,7 +565,7 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 
 		// Check if local dev server is running.
 		try {
-			await axios.get(`http://${localServerUrl}`)
+			await axios.get(`http://${localServerUrl}`, { timeout: 1500 })
 		} catch {
 			vscode.window.showErrorMessage(t("common:errors.hmr_not_running"))
 

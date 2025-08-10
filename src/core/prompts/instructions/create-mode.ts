@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as vscode from "vscode"
 import { GlobalFileNames } from "../../../shared/globalFileNames" // Re-add original import
-import { GLOBAL_FILENAMES as BRANDED_FILENAMES, AI_IDENTITY_NAME } from "../../../../dist/thea-config" // Alias branded import
+import { GLOBAL_FILENAMES as BRANDED_FILENAMES, AI_IDENTITY_NAME } from "../../../shared/config/thea-config"
 
 export function createModeInstructions(context: vscode.ExtensionContext | undefined): string {
 	if (!context) throw new Error("Missing VSCode Extension Context")

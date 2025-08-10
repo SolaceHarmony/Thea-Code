@@ -3,7 +3,7 @@ import * as path from "path"
 import * as fs from "fs/promises"
 import { convertTheme } from "monaco-vscode-textmate-theme-converter/lib/cjs"
 import type { IVSCodeTheme } from "monaco-vscode-textmate-theme-converter/lib/cjs"
-import { EXTENSION_ID } from "../../../dist/thea-config" // Import branded constant
+import { EXTENSION_ID } from "../../shared/config/thea-config"
 
 interface StandaloneThemeData {
 	inherit: boolean

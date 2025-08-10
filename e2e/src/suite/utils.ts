@@ -1,6 +1,9 @@
 import * as vscode from "vscode"
 
-import { EXTENSION_NAME } from "../../../dist/thea-config" // Import branded constant
+import * as path from "path"
+import * as fs from "fs"
+const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../../package.json"), "utf-8"))
+const EXTENSION_NAME: string = pkg.name
 import { TheaCodeAPI } from "../../../src/exports/thea-code"
 
 type WaitForOptions = {

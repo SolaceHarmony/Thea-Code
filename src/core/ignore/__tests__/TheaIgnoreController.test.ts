@@ -5,7 +5,7 @@ import * as vscode from "vscode"
 import * as path from "path"
 import * as fs from "fs/promises"
 import { fileExistsAtPath } from "../../../utils/fs"
-import { GLOBAL_FILENAMES, AI_IDENTITY_NAME } from "../../../../dist/thea-config" // Import branded constants
+import { GLOBAL_FILENAMES, AI_IDENTITY_NAME } from "../../../shared/config/thea-config"
 
 // Mock dependencies
 jest.mock("fs/promises")

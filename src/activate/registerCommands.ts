@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import delay from "delay"
 
 import { TheaProvider } from "../core/webview/TheaProvider" // Renamed import
-import { EXTENSION_NAME, EXTENSION_DISPLAY_NAME, HOMEPAGE_URL, COMMANDS } from "../../dist/thea-config" // Import branded constants
+import { EXTENSION_NAME, EXTENSION_DISPLAY_NAME, HOMEPAGE_URL, COMMANDS } from "../shared/config/thea-config"
 
 import { handleNewTask } from "./handleTask" // Fixed: removed type-only import
 

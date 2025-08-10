@@ -3,9 +3,13 @@
 	"tasks": [
 		{
 			"label": "watch",
-			"dependsOn": ["npm: dev", "npm: watch:tsc", "npm: watch:esbuild"],
+			"dependsOn": [
+				"npm: watch:esbuild",
+				"npm: watch:tsc",
+				"npm: webview:watch"
+			],
 			"presentation": {
-				"reveal": "never"
+				"reveal": "always"
 			},
 			"group": {
 				"kind": "build",
@@ -13,12 +17,51 @@
 			}
 		},
 		{
+			"label": "npm: webview:watch",
+			"type": "npm",
+			"script": "webview:watch",
+			"group": "build",
+			"problemMatcher": {
+				"owner": "vite",
+				"pattern": {
+					"regexp": "^$"
+				},
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": ".*building.*",
+					"endsPattern": ".*built in .*"
+				}
+			},
+			"isBackground": true,
+			"presentation": {
+				"group": "webview-ui",
+				"reveal": "always"
+			}
+		},
+		{
+			"label": "tests: env",
+			"dependsOn": [
+				"watch",
+				"e2e: compile"
+			],
+			"group": "test",
+			"presentation": {
+				"group": "tests",
+				"reveal": "always"
+			}
+		},
+		{
 			"label": "e2e: compile",
 			"type": "shell",
 			"command": "cd e2e && npm run compile",
 			"group": "build",
-			"problemMatcher": ["$tsc"],
-			"presentation": { "group": "tests", "reveal": "always" }
+			"problemMatcher": [
+				"$tsc"
+			],
+			"presentation": {
+				"group": "tests",
+				"reveal": "always"
+			}
 		},
 		{
 			"label": "e2e: test",
@@ -26,13 +69,22 @@
 			"command": "cd e2e && npm run test",
 			"group": "test",
 			"isBackground": false,
-			"presentation": { "group": "tests", "reveal": "always" }
+			"presentation": {
+				"group": "tests",
+				"reveal": "always"
+			}
 		},
 		{
 			"label": "test: integration",
-			"dependsOn": ["e2e: compile", "e2e: test"],
+			"dependsOn": [
+				"e2e: compile",
+				"e2e: test"
+			],
 			"group": "test",
-			"presentation": { "group": "tests", "reveal": "always" }
+			"presentation": {
+				"group": "tests",
+				"reveal": "always"
+			}
 		},
 		{
 			"label": "npm: dev",
@@ -79,6 +131,56 @@
 				"group": "watch",
 				"reveal": "always"
 			}
+		},
+		{
+			"label": "jest: quick",
+			"type": "shell",
+			"command": "npx jest -u --passWithNoTests --reporters=default",
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "test"
+		},
+		{
+			"label": "tsc: noEmit",
+			"type": "shell",
+			"command": "npm run test:types",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "e2e: compile (run)",
+			"type": "shell",
+			"command": "cd e2e && npm run compile",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "jest: targeted thea-config tests",
+			"type": "shell",
+			"command": "npx jest src/api/providers/__tests__/openai.edge-cases.test.ts src/core/webview/__tests__/TheaMcpManager.test.ts src/core/ignore/__tests__/TheaIgnoreController.test.ts src/core/prompts/__tests__/custom-system-prompt.test.ts --reporters=default",
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "test"
+		},
+		{
+			"label": "jest: re-run targeted tests",
+			"type": "shell",
+			"command": "npx jest src/api/providers/__tests__/openai.edge-cases.test.ts src/core/prompts/__tests__/custom-system-prompt.test.ts --reporters=default",
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "test"
 		}
 	]
 }

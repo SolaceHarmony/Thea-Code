@@ -34,9 +34,10 @@ export class SseTransport implements IMcpTransport {
 		// Non-test env original logic
 		try {
 			// Import via ESM path; SDK supports ESM in Node >=18
-			type ModShape = { StreamableHTTPServerTransport?: new (opts: any) => StreamableHTTPServerTransportLike }
+			type TransportOptions = { sessionIdGenerator?: (() => string) | undefined }
+			type ModShape = { StreamableHTTPServerTransport?: new (opts: TransportOptions) => StreamableHTTPServerTransportLike }
 			const mod = (await import("@modelcontextprotocol/sdk/server/streamableHttp.js")) as unknown as ModShape
-			const TransportCtor = mod?.StreamableHTTPServerTransport as unknown as new (opts: any) => StreamableHTTPServerTransportLike
+			const TransportCtor = mod?.StreamableHTTPServerTransport as unknown as new (opts: TransportOptions) => StreamableHTTPServerTransportLike
 			if (typeof TransportCtor !== 'function') {
 				throw new Error('StreamableHTTPServerTransport constructor not found')
 			}

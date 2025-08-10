@@ -4,7 +4,7 @@ import { z, ZodError } from "zod"
 import { providerSettingsSchema, ApiConfigMeta } from "../../schemas"
 import { Mode, modes } from "../../shared/modes"
 import { telemetryService } from "../../services/telemetry/TelemetryService"
-import { EXTENSION_SECRETS_PREFIX } from "../../../dist/thea-config" // Import branded constant
+import { EXTENSION_SECRETS_PREFIX } from "../../shared/config/thea-config"
 
 const providerSettingsWithIdSchema = providerSettingsSchema.extend({ id: z.string().optional() })
 

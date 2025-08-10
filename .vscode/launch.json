@@ -2,14 +2,54 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Run Extension",
+			"name": "Extension Tests (watch)",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--disable-extensions",
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--extensionTestsPath=${workspaceFolder}/e2e/out/suite/index"
+			],
+			"outFiles": ["${workspaceFolder}/e2e/out/**/*.js", "${workspaceFolder}/dist/**/*.js"],
+			"preLaunchTask": "tests: env",
+			"env": {
+				"NODE_ENV": "development",
+				"VSCODE_DEBUG_MODE": "true"
+			},
+			"presentation": {
+				"hidden": false,
+				"group": "extension",
+				"order": 3
+			}
+		},
+		{
+			"name": "Extension Tests (watch, Insiders)",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "/Applications/Visual Studio Code - Insiders.app/Contents/MacOS/Electron",
+			"args": [
+				"--disable-extensions",
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--extensionTestsPath=${workspaceFolder}/e2e/out/suite/index"
+			],
+			"outFiles": ["${workspaceFolder}/e2e/out/**/*.js", "${workspaceFolder}/dist/**/*.js"],
+			"preLaunchTask": "tests: env",
+			"env": {
+				"NODE_ENV": "development",
+				"VSCODE_DEBUG_MODE": "true"
+			},
+			"presentation": { "hidden": false, "group": "extension", "order": 4 }
+		},
+		{
+			"name": "Run Extension (watch)",
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
 			"args": ["--extensionDevelopmentPath=${workspaceFolder}"],
 			"sourceMaps": true,
 			"outFiles": ["${workspaceFolder}/dist/**/*.js"],
-			"preLaunchTask": "${defaultBuildTask}",
+			"preLaunchTask": "watch",
 			"env": {
 				"NODE_ENV": "development",
 				"VSCODE_DEBUG_MODE": "true"
@@ -17,8 +57,28 @@
 			"resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
 			"presentation": {
 				"hidden": false,
-				"group": "tasks",
+				"group": "extension",
 				"order": 1
+			}
+		},
+		{
+			"name": "Run Extension + Webview UI (watch)",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+			"sourceMaps": true,
+			"outFiles": ["${workspaceFolder}/dist/**/*.js"],
+			"preLaunchTask": "watch",
+			"env": {
+				"NODE_ENV": "development",
+				"VSCODE_DEBUG_MODE": "true"
+			},
+			"resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
+			"presentation": {
+				"hidden": false,
+				"group": "extension",
+				"order": 2
 			}
 		}
 	]
