@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react"
-import { GLOBAL_FILENAMES } from "../../../../dist/thea-config" // Import branded constant
-import { CONFIG_DIR_NAME } from "../../../../dist/thea-config" // Import branded constant
+import { GLOBAL_FILENAMES, CONFIG_DIR_NAME } from "../../../../src/shared/config/thea-config"
 import {
 	VSCodeButton,
 	VSCodeTextArea,

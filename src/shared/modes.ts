@@ -3,7 +3,7 @@ import * as vscode from "vscode"
 import { GroupOptions, GroupEntry, ModeConfig, PromptComponent, CustomModePrompts } from "../schemas"
 import { TOOL_GROUPS, ToolGroup, ALWAYS_AVAILABLE_TOOLS } from "./tool-groups"
 import { addCustomInstructions } from "../core/prompts/sections/custom-instructions"
-import { AI_IDENTITY_NAME } from "../../dist/thea-config" // Import branded constant
+import { AI_IDENTITY_NAME } from "./config/thea-config"
 
 export type Mode = string
 

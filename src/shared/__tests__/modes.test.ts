@@ -7,7 +7,7 @@ jest.mock("../../core/prompts/sections/custom-instructions", () => ({
 
 import { isToolAllowedForMode, FileRestrictionError, ModeConfig, getFullModeDetails, modes } from "../modes"
 import { addCustomInstructions } from "../../core/prompts/sections/custom-instructions"
-import { AI_IDENTITY_NAME } from "../../../dist/thea-config" // Import branded constant
+import { AI_IDENTITY_NAME } from "../../shared/config/thea-config"
 describe("isToolAllowedForMode", () => {
 	const customModes: ModeConfig[] = [
 		{

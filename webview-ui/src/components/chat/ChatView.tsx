@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useDeepCompareEffect, useEvent, useMount } from "react-use"
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso"
 import styled from "styled-components"
-import { SPECIFIC_STRINGS } from "../../../../dist/thea-config"
+import { SPECIFIC_STRINGS } from "../../../../src/shared/config/thea-config"
 import {
 	TheaAsk, // Corrected import
 	TheaMessage, // Corrected import

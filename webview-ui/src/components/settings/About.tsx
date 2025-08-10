@@ -4,7 +4,7 @@ import { Trans } from "react-i18next"
 import { Info, Download, Upload, TriangleAlert } from "lucide-react"
 
 import { VSCodeCheckbox, VSCodeLink } from "@/components/ui/vscode-components"
-import { API_REFERENCES } from "../../../../dist/thea-config" // Import branded constants
+import { API_REFERENCES } from "../../../../src/shared/config/thea-config"
 
 import { TelemetrySetting } from "../../../../src/shared/TelemetrySetting"
 

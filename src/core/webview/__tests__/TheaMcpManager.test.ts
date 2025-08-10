@@ -3,7 +3,7 @@ import * as os from "os"
 import fs from "fs/promises"
 import { TheaMcpManager } from "../mcp/TheaMcpManager"
 import { McpHub } from "../../../services/mcp/management/McpHub"
-import { EXTENSION_DISPLAY_NAME, EXTENSION_CONFIG_DIR } from "../../../../dist/thea-config"
+import { EXTENSION_DISPLAY_NAME, EXTENSION_CONFIG_DIR } from "../../../shared/config/thea-config"
 
 // Mock dependencies
 jest.mock("vscode")

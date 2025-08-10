@@ -3,7 +3,7 @@
 import { formatResponse } from "../responses"
 import { TheaIgnoreController, LOCK_TEXT_SYMBOL } from "../../ignore/TheaIgnoreController" // Keep original path, use renamed class
 import { fileExistsAtPath } from "../../../utils/fs"
-import { GLOBAL_FILENAMES } from "../../../../dist/thea-config" // Import branded constant
+import { GLOBAL_FILENAMES } from "../../../shared/config/thea-config"
 import * as fs from "fs/promises"
 import { toPosix } from "./utils"
 

@@ -2,7 +2,7 @@ import * as path from "path"
 import type { NeutralTextContentBlock, NeutralImageContentBlock } from "../../shared/neutral-history"
 import * as diff from "diff"
 import { TheaIgnoreController, LOCK_TEXT_SYMBOL } from "../ignore/TheaIgnoreController"
-import { GLOBAL_FILENAMES } from "../../../dist/thea-config"
+import { GLOBAL_FILENAMES } from "../../shared/config/thea-config"
 
 export const formatResponse = {
 	toolDenied: () => `The user denied this operation.`,

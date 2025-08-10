@@ -8,7 +8,7 @@ import { ModeConfig } from "../../../shared/modes"
 import { fileExistsAtPath } from "../../../utils/fs"
 import { getWorkspacePath, arePathsEqual } from "../../../utils/path"
 import { GlobalFileNames } from "../../../shared/globalFileNames"
-import { GLOBAL_FILENAMES as BRANDED_FILENAMES } from "../../../../dist/thea-config" // Import branded constant
+import { GLOBAL_FILENAMES as BRANDED_FILENAMES } from "../../../shared/config/thea-config"
 jest.mock("vscode")
 jest.mock("fs/promises")
 jest.mock("../../../utils/fs")

@@ -6,7 +6,7 @@ import { NeutralMessage } from "../../../shared/neutral-history"
 import type { ApiStreamChunk } from "../../transform/stream" // Added for chunk typing
 import { OpenRouterHandler } from "../openrouter"
 import { ApiHandlerOptions, ModelInfo } from "../../../shared/api"
-import { API_REFERENCES } from "../../../../dist/thea-config" // Import branded constants
+import { API_REFERENCES } from "../../../shared/config/thea-config"
 // Mock dependencies
 jest.mock("axios")
 jest.mock("delay", () => jest.fn(() => Promise.resolve()))

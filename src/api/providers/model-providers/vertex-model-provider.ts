@@ -1,7 +1,7 @@
 import { GoogleAuth } from "google-auth-library"
 import axios from "axios"
 import { ModelProvider, ModelListing } from "../model-registry"
-import { ModelInfo } from "../../../shared/api"
+import { ModelInfo, ApiHandlerOptions } from "../../../shared/api"
 
 interface VertexModel {
   name: string
@@ -10,7 +10,7 @@ interface VertexModel {
   versionId?: string
   createTime?: string
   updateTime?: string
-  deployedModels?: any[]
+  deployedModels?: unknown[]
   supportedActions?: string[]
 }
 
@@ -31,7 +31,7 @@ interface CacheEntry {
 export class VertexModelProvider implements ModelProvider {
   private projectId: string = ""
   private region: string = "us-east5"
-  private credentials: any = null
+  private credentials: Record<string, unknown> | null = null
   private keyFile: string = ""
   private cache: Map<string, CacheEntry> = new Map()
   private cacheTTL = 3600000 // 1 hour
@@ -118,7 +118,7 @@ export class VertexModelProvider implements ModelProvider {
     },
   }
 
-  configure(options: any): void {
+  configure(options: ApiHandlerOptions): void {
     this.projectId = options.vertexProjectId || ""
     this.region = options.vertexRegion || "us-east5"
     this.keyFile = options.vertexKeyFile || ""
@@ -137,7 +137,7 @@ export class VertexModelProvider implements ModelProvider {
 
   private initializeAuth(): void {
     try {
-      const authOptions: any = {
+      const authOptions: Record<string, unknown> = {
         scopes: ["https://www.googleapis.com/auth/cloud-platform"],
       }
       

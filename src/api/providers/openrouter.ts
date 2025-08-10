@@ -14,7 +14,7 @@ import { getModelParams, SingleCompletionHandler, ApiHandler } from ".."
 import { BaseProvider } from "./base-provider"
 import { OpenAiHandler } from "./openai"
 
-import { API_REFERENCES } from "../../../dist/thea-config" // Import API_REFERENCES
+import { API_REFERENCES } from "../../shared/config/thea-config"
 import { supportsPromptCaching } from "../../utils/model-capabilities" // Import capability detection functions
 import { isDeepSeekR1Model, setCapabilitiesFromModelId } from "../../utils/model-pattern-detection" // Import pattern detection functions
 

@@ -11,9 +11,15 @@ async function safeReadFile(filePath: string): Promise<string> {
 		// Safely check if the error has a code property
 		const error = err as Error & { code?: string }
 		const errorCode = error.code
-		
+		const message = (error.message || "").toUpperCase()
+
 		// Handle ENOENT (file not found) and EISDIR (is a directory) errors by returning empty string
-		if (errorCode && ["ENOENT", "EISDIR"].includes(errorCode)) {
+		// Some mocks throw plain Error("ENOENT") without a code, so check message too
+		if (
+			(errorCode && ["ENOENT", "EISDIR"].includes(errorCode)) ||
+			message.includes("ENOENT") ||
+			message.includes("EISDIR")
+		) {
 			return ""
 		}
 		

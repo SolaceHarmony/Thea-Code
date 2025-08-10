@@ -44,7 +44,7 @@ import { Mode, defaultModeSlug, getModeBySlug, getGroupName } from "../../shared
 import { getDiffStrategy } from "../diff/DiffStrategy"
 import { SYSTEM_PROMPT } from "../prompts/system"
 import { buildApiHandler } from "../../api"
-import { EXTENSION_CONFIG_DIR, configSection } from "../../../dist/thea-config" // Import branded constants
+import { EXTENSION_CONFIG_DIR, configSection } from "../../shared/config/thea-config"
 
 // Export for testing
 export const webviewMessageHandler = async (provider: TheaProvider, message: WebviewMessage) => {

@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { EditorUtils } from "./EditorUtils"
-import { EXTENSION_DISPLAY_NAME, COMMANDS } from "../../dist/thea-config" // Import branded constants
+import { EXTENSION_DISPLAY_NAME, COMMANDS } from "../shared/config/thea-config"
 export const ACTION_NAMES = {
 	EXPLAIN: `${EXTENSION_DISPLAY_NAME}: Explain Code`,
 	FIX: `${EXTENSION_DISPLAY_NAME}: Fix Code`,

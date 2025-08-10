@@ -1,6 +1,6 @@
 import axios from "axios"
 import { ModelProvider, ModelListing } from "../model-registry"
-import { ModelInfo } from "../../../shared/api"
+import { ModelInfo, ApiHandlerOptions } from "../../../shared/api"
 
 interface GeminiModel {
   name: string
@@ -64,7 +64,7 @@ export class GeminiModelProvider implements ModelProvider {
     },
   }
 
-  configure(options: any): void {
+  configure(options: ApiHandlerOptions): void {
     this.apiKey = options.geminiApiKey || ""
   }
 

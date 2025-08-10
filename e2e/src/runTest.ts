@@ -12,8 +12,27 @@ async function main() {
 		// Passed to --extensionTestsPath
 		const extensionTestsPath = path.resolve(__dirname, "./suite/index")
 
+		console.log("Extension path:", extensionDevelopmentPath)
+		console.log("Test path:", extensionTestsPath)
+		
 		// Download VS Code, unzip it and run the integration test
-		await runTests({ extensionDevelopmentPath, extensionTestsPath })
+		await runTests({ 
+			extensionDevelopmentPath, 
+			extensionTestsPath,
+			launchArgs: [
+				'--disable-gpu',
+				'--no-sandbox',
+				'--disable-dev-shm-usage',
+				'--log=trace',
+				'--disable-extensions',
+				'--skip-welcome',
+				'--skip-release-notes'
+			],
+			extensionTestsEnv: {
+				THEA_E2E: '1',
+				NODE_ENV: 'test'
+			}
+		})
 	} catch {
 		console.error("Failed to run tests")
 		process.exit(1)

@@ -3,7 +3,7 @@ import { defaultModeSlug, modes } from "../../../shared/modes"
 import * as vscode from "vscode"
 import * as fs from "fs/promises"
 import { toPosix } from "./utils"
-import { EXTENSION_CONFIG_DIR } from "../../../../dist/thea-config" // Import branded constant
+import { EXTENSION_CONFIG_DIR } from "../../../shared/config/thea-config"
 
 // Mock the fs/promises module
 jest.mock("fs/promises", () => ({

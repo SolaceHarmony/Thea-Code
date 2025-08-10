@@ -1,6 +1,6 @@
 import { BedrockClient, ListFoundationModelsCommand } from "@aws-sdk/client-bedrock"
 import { ModelProvider, ModelListing } from "../model-registry"
-import { ModelInfo } from "../../../shared/api"
+import { ModelInfo, ApiHandlerOptions } from "../../../shared/api"
 
 interface BedrockModelSummary {
   modelArn?: string
@@ -30,7 +30,7 @@ export class BedrockModelProvider implements ModelProvider {
   private cache: Map<string, CacheEntry> = new Map()
   private cacheTTL = 3600000 // 1 hour
   private region: string = "us-east-1"
-  private credentials: any = null
+  private credentials: Record<string, unknown> | null = null
 
   /**
    * Known model capabilities based on model ID patterns
@@ -118,7 +118,7 @@ export class BedrockModelProvider implements ModelProvider {
     },
   }
 
-  configure(options: any): void {
+  configure(options: ApiHandlerOptions): void {
     this.region = options.awsRegion || "us-east-1"
     this.credentials = options.awsCredentials || null
     

@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import * as path from "path"
 import * as fs from "fs/promises"
 import { t } from "../i18n"
-import { configSection } from "../../dist/thea-config" // Import configSection
+import { configSection } from "./config/thea-config"
 
 /**
  * Gets the base storage path for conversations

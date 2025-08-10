@@ -6,7 +6,7 @@ import os from "os"
 import { EventEmitter } from "events"
 
 import { simpleGit, SimpleGit } from "simple-git"
-import { EXTENSION_DISPLAY_NAME, AUTHOR_EMAIL } from "../../../../dist/thea-config" // Import branded constants
+import { EXTENSION_DISPLAY_NAME, AUTHOR_EMAIL } from "../../../shared/config/thea-config"
 import { fileExistsAtPath } from "../../../utils/fs"
 
 import { ShadowCheckpointService } from "../ShadowCheckpointService"

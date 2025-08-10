@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 
 import { TheaCodeAPI, TokenUsage } from "../../src/exports/thea-code"
-import { EXTENSION_NAME } from "../../dist/thea-config" // Import branded constant
+import { EXTENSION_NAME } from "../../src/shared/config/thea-config"
 
 type WaitForOptions = {
 	timeout?: number

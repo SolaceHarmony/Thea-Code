@@ -7,7 +7,7 @@ import { fileExistsAtPath } from "../../utils/fs"
 import { arePathsEqual, getWorkspacePath } from "../../utils/path"
 import { logger } from "../../utils/logging"
 import { GlobalFileNames } from "../../shared/globalFileNames"
-import { GLOBAL_FILENAMES as BRANDED_FILENAMES } from "../../../dist/thea-config" // Import branded constant
+import { GLOBAL_FILENAMES as BRANDED_FILENAMES } from "../../shared/config/thea-config"
 
 export class CustomModesManager {
 	private disposables: vscode.Disposable[] = []

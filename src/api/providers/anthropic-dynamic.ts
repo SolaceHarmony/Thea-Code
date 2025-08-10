@@ -7,7 +7,7 @@
 
 import { NeutralAnthropicClient } from "../../services/anthropic"
 import { ApiHandlerOptions, ModelInfo } from "../../shared/api"
-import type { NeutralConversationHistory } from "../../shared/neutral-history"
+import type { NeutralConversationHistory, NeutralMessageContent } from "../../shared/neutral-history"
 import { ApiStream } from "../transform/stream"
 import { BaseProvider } from "./base-provider"
 import { ANTHROPIC_DEFAULT_MAX_TOKENS } from "./constants"
@@ -231,7 +231,7 @@ export class DynamicAnthropicHandler extends BaseProvider implements SingleCompl
 		return text
 	}
 	
-	override async countTokens(content: any): Promise<number> {
+	override async countTokens(content: string | NeutralMessageContent): Promise<number> {
 		try {
 			const model = await this.getModelAsync()
 			return await this.client.countTokens(model.id, content)

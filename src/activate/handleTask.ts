@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import { COMMAND_IDS } from "../core/CodeActionProvider"
 import { TheaProvider } from "../core/webview/TheaProvider" // Renamed import
 import { t } from "../i18n"
-import { VIEWS } from "../../dist/thea-config" // Import branded constants
+import { VIEWS } from "../shared/config/thea-config"
 
 export const handleNewTask = async (params: { prompt?: string } | null | undefined) => {
 	let prompt = params?.prompt

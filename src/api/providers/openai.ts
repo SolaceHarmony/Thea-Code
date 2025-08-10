@@ -14,7 +14,7 @@ import { ApiStream, ApiStreamUsageChunk } from "../transform/stream"
 import { BaseProvider } from "./base-provider"
 import { XmlMatcher } from "../../utils/xml-matcher"
 import { hasToolCalls as sharedHasToolCalls, ToolCallAggregator } from "./shared/tool-use"
-import { API_REFERENCES } from "../../../dist/thea-config" // Import branded constants
+import { API_REFERENCES } from "../../shared/config/thea-config"
 import { ANTHROPIC_DEFAULT_MAX_TOKENS } from "./constants" // Import ANTHROPIC_DEFAULT_MAX_TOKENS
 import { supportsTemperature, hasCapability } from "../../utils/model-capabilities" // Import capability detection functions
 

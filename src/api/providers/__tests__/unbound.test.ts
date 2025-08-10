@@ -2,7 +2,7 @@ import { UnboundHandler } from "../unbound"
 import { ApiHandlerOptions } from "../../../shared/api"
 import type { NeutralConversationHistory } from "../../../shared/neutral-history"
 import type OpenAI from "openai" // Added for types
-import { EXTENSION_NAME } from "../../../../dist/thea-config" // Import branded constant
+import { EXTENSION_NAME } from "../../../shared/config/thea-config"
 import type { ApiStreamChunk } from "../../transform/stream" // Added for chunk typing
 
 // Mock OpenAI client  
