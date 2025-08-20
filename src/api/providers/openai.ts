@@ -173,16 +173,17 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 			let lastUsage
 
 			for await (const chunk of stream) {
-				const delta = chunk.choices[0]?.delta ?? {}
+				const choices = (chunk as Partial<OpenAI.Chat.Completions.ChatCompletionChunk>).choices
+				const delta = (choices && choices[0] && (choices[0] as any).delta) ?? ({} as Record<string, unknown>)
 
-				if (delta.content) {
-					for (const chunk of matcher.update(delta.content)) {
+				if ((delta as any).content) {
+					for (const chunk of matcher.update((delta as any).content as string)) {
 						yield chunk
 					}
 				}
 
 				// Handle tool use (function calls) using the helper method
-				const toolCalls = this.extractToolCalls(delta)
+				const toolCalls = this.extractToolCalls(delta as Record<string, unknown>)
 				for (const toolCall of toolCalls) {
 					if (toolCall.function) {
 						// Process tool use using MCP integration
@@ -205,10 +206,10 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 					}
 				}
 
-				if ("reasoning_content" in delta && delta.reasoning_content) {
+				if ("reasoning_content" in (delta as any) && (delta as any).reasoning_content) {
 					yield {
 						type: "reasoning",
-						text: (delta.reasoning_content as string | undefined) || "",
+						text: ((delta as any).reasoning_content as string | undefined) || "",
 					}
 				}
 				if (chunk.usage) {
