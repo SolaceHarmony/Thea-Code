@@ -22,6 +22,6 @@
 		"allowImportingTsExtensions": true,
 		"noEmit": true
 	},
-	"include": ["src/**/*", ".changeset/**/*"],
+	"include": ["src/**/*", "e2e/src/**/*", ".changeset/**/*"],
 	"exclude": ["node_modules", ".vscode-test", "webview-ui", "src/__mocks__"]
 }
