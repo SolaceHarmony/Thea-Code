@@ -3,21 +3,23 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"build": "cd .. && npm run build:extension && npm run build:webui",
-		"compile": "rm -rf out && tsc -p tsconfig.json",
+		"build": "cd .. && npm run build",
+		"compile": "rm -rf out && tsc -p .",
 		"lint": "eslint src --ext ts",
 		"check-types": "tsc --noEmit",
-		"test": "npm run build && npm run compile && npx dotenvx run -f .env.local -- node ./out/runTest.js",
+		"test": "npm run build && npm run compile && node ../out/e2e/runTest.js",
+		"test:full": "npm run build && npm run compile && node ../out/e2e/runTest.js",
 		"ci": "npm run build && npm run test",
-		"clean": "rimraf out"
+		"clean": "rimraf out .vscode-test ../.vscode-test"
 	},
 	"devDependencies": {
 		"@types/mocha": "^10.0.10",
 		"@types/node": "^22.15.21",
 		"@vscode/test-cli": "^0.0.9",
-		"@vscode/test-electron": "^2.4.0",
+		"@vscode/test-electron": "^2.4.1",
 		"mocha": "^11.1.0",
-		"typescript": "^5.4.5"
+		"typescript": "^5.8.3",
+		"rimraf": "^6.0.1"
 	},
 	"overrides": {
 		"glob": "^11.0.2"

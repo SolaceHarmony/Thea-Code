@@ -33,12 +33,16 @@ export class ProviderSettingsManager {
 	}
 
 	private readonly context: ExtensionContext
+	private readonly enableInitialize: boolean
 
-	constructor(context: ExtensionContext) {
+	constructor(context: ExtensionContext, options?: { enableInitialize?: boolean }) {
 		this.context = context
+		this.enableInitialize = options?.enableInitialize ?? true
 
 		// TODO: We really shouldn't have async methods in the constructor.
-		this.initialize().catch(console.error)
+		if (this.enableInitialize) {
+			this.initialize().catch(console.error)
+		}
 	}
 
 	private generateId() {

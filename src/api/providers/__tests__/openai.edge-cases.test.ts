@@ -6,7 +6,7 @@
 import { describe, expect, it, jest, beforeEach, afterEach } from "@jest/globals"
 import { OpenAiHandler } from "../openai"
 import OpenAI from "openai"
-import { ApiHandlerOptions, ModelInfo } from "../../../shared/api"
+import { ApiHandlerOptions } from "../../../shared/api"
 import type { 
 	NeutralConversationHistory, 
 	NeutralMessageContent,
@@ -71,7 +71,7 @@ jest.mock("../shared/tool-use", () => ({
 // Mock BaseProvider
 jest.mock("../base-provider", () => ({
 	BaseProvider: class MockBaseProvider {
-		mcpIntegration: any
+		mcpIntegration: { registerTool: jest.Mock; executeTool: jest.Mock }
 		
 		constructor() {
 			this.mcpIntegration = {
@@ -82,19 +82,19 @@ jest.mock("../base-provider", () => ({
 		
 		registerTools() {}
 		
-		async processToolUse(toolUse: any) {
-			return `Tool result for ${toolUse.name}`
+		processToolUse(toolUse: { name: string }) {
+			return Promise.resolve(`Tool result for ${toolUse.name}`)
 		}
 		
-		async countTokens(content: any) {
-			return 100
+		countTokens(_content: string | NeutralMessageContent) {
+			return Promise.resolve(100)
 		}
 	}
 }))
 
 // Mock model capabilities
 jest.mock("../../../utils/model-capabilities", () => ({
-	supportsTemperature: jest.fn((model) => {
+	supportsTemperature: jest.fn((model: { reasoningEffort?: string }) => {
 		// Mock that most models support temperature
 		return model?.reasoningEffort !== 'extreme'
 	}),
@@ -118,14 +118,14 @@ describe("OpenAiHandler - Edge Cases", () => {
 	let handler: OpenAiHandler
 	let mockClient: jest.Mocked<OpenAI>
 	let mockOptions: ApiHandlerOptions
-	let consoleWarnSpy: jest.SpyInstance
+	let consoleWarnSpy: jest.SpyInstance<void, [message?: unknown, ...optionalParams: unknown[]]>
 	let mockXmlMatcher: jest.Mocked<XmlMatcher>
 
 	beforeEach(() => {
 		jest.clearAllMocks()
 		
 		// Setup console spy
-		consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation()
+		consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
 
 		// Default options - define first
 		mockOptions = {
@@ -139,7 +139,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 		handler = new OpenAiHandler(mockOptions)
 		
 		// Mock getModel to return reasonable defaults
-		handler.getModel = jest.fn().mockReturnValue({
+		;(handler.getModel as unknown as jest.Mock) = jest.fn().mockReturnValue({
 			id: mockOptions.openAiModelId || "gpt-4",
 			info: {
 				maxTokens: 8192,
@@ -159,8 +159,9 @@ describe("OpenAiHandler - Edge Cases", () => {
 		// Create mock XmlMatcher with update/final API
 		mockXmlMatcher = {
 			update: jest.fn().mockReturnValue([]),
-			final: jest.fn().mockReturnValue([])
-		} as any
+			final: jest.fn().mockReturnValue([]),
+			processChunk: jest.fn().mockReturnValue([])
+		} as unknown as jest.Mocked<XmlMatcher>
 
 		// Mock XmlMatcher constructor to return our mock
 		;(XmlMatcher as unknown as jest.Mock).mockImplementation(() => mockXmlMatcher)
@@ -173,7 +174,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 	describe("Streaming vs Non-Streaming", () => {
 		it("should handle streaming mode with XmlMatcher for reasoning", async () => {
 			const mockStream = {
-				async *[Symbol.asyncIterator]() {
+				*[Symbol.asyncIterator]() {
 					yield {
 						choices: [{
 							delta: {
@@ -197,12 +198,12 @@ describe("OpenAiHandler - Edge Cases", () => {
 				}
 			}
 
-			mockClient.chat.completions.create.mockReturnValue(mockStream as any)
+			mockClient.chat.completions.create.mockReturnValue(mockStream as unknown as ReturnType<typeof mockClient.chat.completions.create>)
 			
 			// Mock XmlMatcher to extract thinking tags
 			mockXmlMatcher.update.mockReturnValueOnce([
-				{ type: "reasoning", text: "Internal reasoning" },
-				{ type: "text", text: "Regular text" }
+				{ content: "Internal reasoning", tag: "reasoning" },
+				{ content: "Regular text", tag: "text" }
 			])
 
 			const messages: NeutralConversationHistory = [
@@ -217,7 +218,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 			}
 
 			// Should have processed through XmlMatcher
-			expect(mockXmlMatcher.processChunk).toHaveBeenCalled()
+			expect(mockXmlMatcher.update).toHaveBeenCalled()
 			
 			// Should include reasoning from reasoning_content
 			expect(results).toContainEqual({
@@ -228,8 +229,8 @@ describe("OpenAiHandler - Edge Cases", () => {
 			// Should include usage
 			expect(results).toContainEqual({
 				type: "usage",
-				input_tokens: 10,
-				output_tokens: 20
+				inputTokens: 10,
+				outputTokens: 20
 			})
 		})
 
@@ -249,7 +250,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 				}
 			}
 
-			mockClient.chat.completions.create.mockResolvedValue(mockResponse as any)
+			mockClient.chat.completions.create.mockResolvedValue(mockResponse as unknown as Awaited<ReturnType<typeof mockClient.chat.completions.create>>)
 
 			const messages: NeutralConversationHistory = [
 				{ role: "user", content: "Test" }
@@ -271,7 +272,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 
 		it("should handle streaming with no usage data", async () => {
 			const mockStream = {
-				async *[Symbol.asyncIterator]() {
+				*[Symbol.asyncIterator]() {
 					yield {
 						choices: [{
 							delta: {
@@ -282,7 +283,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 				}
 			}
 
-			mockClient.chat.completions.create.mockReturnValue(mockStream as any)
+			mockClient.chat.completions.create.mockReturnValue(mockStream as unknown as ReturnType<typeof mockClient.chat.completions.create>)
 
 			const messages: NeutralConversationHistory = []
 			const stream = handler.createMessage("", messages)
@@ -302,7 +303,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 	describe("Tool Calls to MCP Conversion", () => {
 		it("should convert tool_calls to MCP tool_result", async () => {
 			const mockStream = {
-				async *[Symbol.asyncIterator]() {
+				*[Symbol.asyncIterator]() {
 					yield {
 						choices: [{
 							delta: {
@@ -319,7 +320,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 				}
 			}
 
-			mockClient.chat.completions.create.mockReturnValue(mockStream as any)
+			mockClient.chat.completions.create.mockReturnValue(mockStream as unknown as ReturnType<typeof mockClient.chat.completions.create>)
 
 			// Mock ToolCallAggregator to return completed calls
 			const mockAggregator = {
@@ -351,7 +352,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 
 		it("should handle multiple tool calls in sequence", async () => {
 			const mockStream = {
-				async *[Symbol.asyncIterator]() {
+				*[Symbol.asyncIterator]() {
 					yield {
 						choices: [{
 							delta: {
@@ -375,7 +376,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 				}
 			}
 
-			mockClient.chat.completions.create.mockReturnValue(mockStream as any)
+			mockClient.chat.completions.create.mockReturnValue(mockStream as unknown as ReturnType<typeof mockClient.chat.completions.create>)
 
 			const mockAggregator = {
 				processChunk: jest.fn(),
@@ -402,7 +403,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 	describe("XmlMatcher Reasoning Extraction", () => {
 		it("should extract thinking tags from content", async () => {
 			const mockStream = {
-				async *[Symbol.asyncIterator]() {
+				*[Symbol.asyncIterator]() {
 					yield {
 						choices: [{
 							delta: {
@@ -413,9 +414,9 @@ describe("OpenAiHandler - Edge Cases", () => {
 				}
 			}
 
-			mockClient.chat.completions.create.mockReturnValue(mockStream as any)
+			mockClient.chat.completions.create.mockReturnValue(mockStream as unknown as ReturnType<typeof mockClient.chat.completions.create>)
 			
-			mockXmlMatcher.processChunk.mockReturnValue([
+			mockXmlMatcher.update.mockReturnValue([
 				{ type: "thinking", text: "Let me analyze this" },
 				{ type: "text", text: "The answer is 42" }
 			])
@@ -435,7 +436,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 
 		it("should call XmlMatcher.final() for remaining content", async () => {
 			const mockStream = {
-				async *[Symbol.asyncIterator]() {
+				*[Symbol.asyncIterator]() {
 					yield {
 						choices: [{
 							delta: { content: "Partial <thinking>incomplete" }
@@ -444,13 +445,13 @@ describe("OpenAiHandler - Edge Cases", () => {
 				}
 			}
 
-			mockClient.chat.completions.create.mockReturnValue(mockStream as any)
+			mockClient.chat.completions.create.mockReturnValue(mockStream as unknown as ReturnType<typeof mockClient.chat.completions.create>)
 			
-			mockXmlMatcher.processChunk.mockReturnValue([])
+			mockXmlMatcher.update.mockReturnValue([])
 			mockXmlMatcher.final.mockReturnValue([
-				{ type: "text", text: "Partial " },
-				{ type: "thinking", text: "incomplete" }
-			])
+				{ matched: true, data: "Partial " },
+				{ matched: true, data: "incomplete" }
+			] as XmlMatcherResult[])
 
 			const messages: NeutralConversationHistory = []
 			const stream = handler.createMessage("", messages)
@@ -471,7 +472,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 			mockClient.chat.completions.create.mockResolvedValue({
 				choices: [{ message: { content: "" } }],
 				usage: { prompt_tokens: 42, completion_tokens: 0 }
-			} as any)
+			} as Awaited<ReturnType<typeof mockClient.chat.completions.create>>)
 
 			const content: NeutralMessageContent = [
 				{ type: "text", text: "Test content" }
@@ -509,7 +510,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 			mockClient.chat.completions.create.mockResolvedValue({
 				choices: [{ message: { content: "" } }],
 				usage: { prompt_tokens: 150, completion_tokens: 0 }
-			} as any)
+			} as Awaited<ReturnType<typeof mockClient.chat.completions.create>>)
 
 			const content: NeutralMessageContent = [
 				{ type: "text", text: "Text" },
@@ -567,7 +568,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 	describe("Model-Specific Handling", () => {
 		it("should handle models without temperature support", async () => {
 			// Mock a model that doesn't support temperature
-			handler.getModel = jest.fn().mockReturnValue({
+			;(handler.getModel as unknown as jest.Mock) = jest.fn().mockReturnValue({
 				id: "o3-mini",
 				info: {
 					reasoningEffort: "extreme",
@@ -576,7 +577,8 @@ describe("OpenAiHandler - Edge Cases", () => {
 			})
 
 			// Mock the O3 family handler
-			handler.handleO3FamilyMessage = jest.fn().mockImplementation(async function* () {
+			const handlerWithO3 = handler as unknown as { handleO3FamilyMessage: jest.Mock }
+			handlerWithO3.handleO3FamilyMessage = jest.fn().mockImplementation(async function* () {
 				yield { type: "text", text: "O3 response" }
 			})
 
@@ -589,13 +591,13 @@ describe("OpenAiHandler - Edge Cases", () => {
 			}
 
 			// Should delegate to O3 handler
-			expect(handler.handleO3FamilyMessage).toHaveBeenCalled()
+			expect(handlerWithO3.handleO3FamilyMessage).toHaveBeenCalled()
 			expect(results).toContainEqual({ type: "text", text: "O3 response" })
 		})
 
 		it("should detect reasoning models by capability", async () => {
 			// Mock a reasoning model
-			handler.getModel = jest.fn().mockReturnValue({
+			;(handler.getModel as unknown as jest.Mock) = jest.fn().mockReturnValue({
 				id: "reasoning-model",
 				info: {
 					reasoningEffort: "high",
@@ -604,7 +606,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 			})
 
 			const mockStream = {
-				async *[Symbol.asyncIterator]() {
+				*[Symbol.asyncIterator]() {
 					yield {
 						choices: [{
 							delta: { reasoning_content: "Reasoning output" }
@@ -613,7 +615,7 @@ describe("OpenAiHandler - Edge Cases", () => {
 				}
 			}
 
-			mockClient.chat.completions.create.mockReturnValue(mockStream as any)
+			mockClient.chat.completions.create.mockReturnValue(mockStream as unknown as ReturnType<typeof mockClient.chat.completions.create>)
 
 			const messages: NeutralConversationHistory = []
 			const stream = handler.createMessage("", messages)
@@ -661,12 +663,12 @@ describe("OpenAiHandler - Edge Cases", () => {
 			handler = new OpenAiHandler(mockOptions)
 			
 			const mockStream = {
-				async *[Symbol.asyncIterator]() {
+				*[Symbol.asyncIterator]() {
 					yield { choices: [{ delta: { content: "Test" } }] }
 				}
 			}
 
-			mockClient.chat.completions.create.mockReturnValue(mockStream as any)
+			mockClient.chat.completions.create.mockReturnValue(mockStream as unknown as ReturnType<typeof mockClient.chat.completions.create>)
 
 			const messages: NeutralConversationHistory = []
 			const stream = handler.createMessage("", messages)

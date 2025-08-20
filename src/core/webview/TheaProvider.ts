@@ -118,11 +118,11 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		// Defer WorkspaceTracker to when the webview is actually resolved (avoids heavy FS watching during activation)
 		this.workspaceTracker = undefined
 
-		this.providerSettingsManager = new ProviderSettingsManager(this.context)
+		this.providerSettingsManager = new ProviderSettingsManager(this.context, { enableInitialize: !isTest })
 
 		this.customModesManager = new CustomModesManager(this.context, async () => {
 			await this.postStateToWebview()
-		})
+		}, /* enableWatch */ !isTest)
 		this.theaTaskStackManager = new TheaTaskStack() // Renamed property and constructor
 		this.theaStateManager = new TheaStateManager(
 			this.context,

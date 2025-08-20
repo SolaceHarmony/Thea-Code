@@ -10,15 +10,16 @@
     "strict": true,
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
-    "outDir": "out",
+    "outDir": "../out/e2e",
     "rootDir": "src",
     "noEmit": false,
     "allowImportingTsExtensions": false,
     "types": ["node"]
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx"
+    "src/**/*"
   ],
-  "exclude": [".vscode-test", "**/node_modules/**", "out"]
+  "exclude": [
+    "node_modules"
+  ]
 }

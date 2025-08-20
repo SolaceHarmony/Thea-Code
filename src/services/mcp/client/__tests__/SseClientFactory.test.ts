@@ -35,7 +35,8 @@ describe("SseClientFactory", () => {
 		it("should fall back to mock client when SDK is not available", async () => {
 			// Mock require to throw an error
 			const originalRequire = require
-			;(global as any).require = jest.fn().mockImplementation((module) => {
+			const globalWithRequire = global as unknown as { require: jest.Mock }
+			globalWithRequire.require = jest.fn().mockImplementation((module: string) => {
 				if (module.includes("@modelcontextprotocol/sdk")) {
 					throw new Error("Module not found")
 				}
@@ -47,7 +48,7 @@ describe("SseClientFactory", () => {
 			expect(client).toBeInstanceOf(McpClient)
 
 			// Restore original require
-			;(global as any).require = originalRequire
+			globalWithRequire.require = originalRequire as jest.Mock
 		})
 
 		it("should create SDK client with correct client info", async () => {
@@ -115,7 +116,8 @@ describe("SseClientFactory", () => {
 		beforeEach(async () => {
 			// Mock require to throw an error to trigger fallback
 			const originalRequire = require
-			;(global as any).require = jest.fn().mockImplementation((module) => {
+			const globalWithRequire = global as unknown as { require: jest.Mock }
+			globalWithRequire.require = jest.fn().mockImplementation((module: string) => {
 				if (module.includes("@modelcontextprotocol/sdk")) {
 					throw new Error("Module not found")
 				}
@@ -125,7 +127,7 @@ describe("SseClientFactory", () => {
 			client = await SseClientFactory.createClient(testUrl)
 
 			// Restore original require
-			;(global as any).require = originalRequire
+			globalWithRequire.require = originalRequire as jest.Mock
 		})
 
 		it("should connect without error", async () => {

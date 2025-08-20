@@ -17,10 +17,16 @@ export class CustomModesManager {
 	constructor(
 		private readonly context: vscode.ExtensionContext,
 		private readonly onUpdate: () => Promise<void>,
+		/**
+		 * When false, skip setting up file watchers. Useful for E2E/tests to reduce activation work.
+		 */
+		private readonly enableWatch: boolean = true,
 	) {
 		// TODO: We really shouldn't have async methods in the constructor.
-		// Use void to explicitly ignore the promise
-		void this.watchCustomModesFiles()
+		// Only watch files when enabled (disabled in tests to avoid heavy FS watchers at activation)
+		if (this.enableWatch) {
+			void this.watchCustomModesFiles()
+		}
 	}
 
 	private async queueWrite(operation: () => Promise<void>): Promise<void> {
