@@ -110,7 +110,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 } catch (error) {
 					console.error(`❌ ${providerName} failed:`, error)
 					throw error
-				} catch (error) {
+			e2e/src/suite/api/ollama-integration.test.ts
 			assert.fail("Unexpected error: " + error.message)
 		}
 			}, 10000) // 10 second timeout for each provider
@@ -146,7 +146,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 } catch (error) {
 					console.error(`❌ ${providerName} failed:`, error)
 					// Don't throw for static providers as they may not have mock endpoints
-				} catch (error) {
+			e2e/src/suite/api/ollama-integration.test.ts
 			assert.fail("Unexpected error: " + error.message)
 		}
 			})
@@ -194,7 +194,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 } catch (error) {
 				assert.ok(error instanceof Error)
 				console.log("✅ Invalid provider handled correctly")
-			} catch (error) {
+		e2e/src/suite/api/ollama-integration.test.ts
 			assert.fail("Unexpected error: " + error.message)
 		}
 		})
@@ -207,7 +207,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 } catch (error) {
 				assert.ok(error instanceof Error)
 				console.log("✅ Missing configuration handled correctly")
-			} catch (error) {
+		e2e/src/suite/api/ollama-integration.test.ts
 			assert.fail("Unexpected error: " + error.message)
 		}
 		})

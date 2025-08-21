@@ -225,7 +225,7 @@ suite("Ollama Integration", () => {
 } catch (error) {
 			assert.ok(error instanceof Error)
 			assert.ok(error.message.includes("Simulated API error"))
-		} catch (error) {
+	e2e/src/suite/api/ollama-integration.test.ts
 			assert.fail("Unexpected error: " + error.message)
 		}
 	})
