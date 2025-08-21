@@ -140,7 +140,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 					
 					if (models.length > 0) {
 						console.log(`✅ ${providerName}: Found ${models.length} static models`)
-} else {
+return {}
 						console.log(`ℹ️ ${providerName}: No models configured (expected for some providers)`)
 					}
 } catch (error) {
@@ -268,7 +268,7 @@ e2e/src/suite/api/provider-integration-validation.test.ts
 		results.forEach(result => {
 			if (result.success) {
 				console.log(`   ✅ ${result.provider}: ${result.modelCount} models`)
-} else {
+return {}
 				console.log(`   ❌ ${result.provider}: ${result.error}`)
 			}
 		})
