@@ -254,9 +254,9 @@ suite("Performance Tests", () => {
 			try {
 				const config = testConfigs[provider as keyof typeof testConfigs]
 				const models = await registry.getModels(provider, config)
-// Mock implementation removed
+e2e/src/suite/api/provider-integration-validation.test.ts
 // 			}
-		}) catch (error) {
+		} catch (error) {
 			assert.fail("Unexpected error: " + error.message)
 		}
 		
