@@ -202,8 +202,60 @@ console.log(`   📈 Files improved: ${totalFilesImproved}/${targetFiles.length}
 console.log(`   📉 Errors reduced: ${totalErrorsReduced}`);
 console.log(`   📊 Total: ${initialErrorCount} → ${finalErrorCount} errors`);
 
+// Auto-commit if we have improvements
 if (finalErrorCount < initialErrorCount) {
-  console.log(`\n✅ Ready to commit ${initialErrorCount - finalErrorCount} error reduction!`);
+  console.log(`\n🚀 AUTO-COMMITTING ${initialErrorCount - finalErrorCount} error reduction...`);
+  
+  try {
+    execSync('git add .', { stdio: 'pipe' });
+    
+    const commitMsg = `fix: Reduce ${totalErrorsReduced} TypeScript errors via sed-like fixes
+
+Applied targeted fixes reducing errors from ${initialErrorCount} to ${finalErrorCount}.
+Fixed ${totalFilesImproved} file(s) successfully.
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>`;
+    
+    execSync(`git commit -m "${commitMsg}"`, { stdio: 'pipe' });
+    console.log(`   ✅ Committed successfully!`);
+  } catch (error) {
+    console.log(`   ⚠️  Failed to auto-commit: ${error.message}`);
+  }
 } else {
   console.log(`\n📋 No overall improvement, but files were safely tested`);
+}
+
+// Update file list - remove completed files (0 errors)
+console.log(`\n🧹 Updating file list...`);
+const allFiles = getFileList();
+const remainingFiles = [];
+const completedFiles = [];
+
+allFiles.forEach(filePath => {
+  if (fs.existsSync(filePath)) {
+    const fileErrors = getFileErrors(filePath);
+    if (fileErrors === 0) {
+      completedFiles.push(filePath);
+      console.log(`   ✅ COMPLETED: ${filePath}`);
+    } else {
+      remainingFiles.push(filePath);
+    }
+  }
+});
+
+if (completedFiles.length > 0) {
+  // Update files-to-fix.txt
+  const updatedContent = remainingFiles.join('\n') + (remainingFiles.length > 0 ? '\n' : '');
+  fs.writeFileSync('./files-to-fix.txt', updatedContent, 'utf8');
+  
+  // Track completed files
+  const completedContent = completedFiles.join('\n') + '\n';
+  const existingCompleted = fs.existsSync('./files-completed.txt') ? 
+    fs.readFileSync('./files-completed.txt', 'utf8') : '';
+  fs.writeFileSync('./files-completed.txt', existingCompleted + completedContent, 'utf8');
+  
+  console.log(`   📝 Removed ${completedFiles.length} completed files from fix list`);
+  console.log(`   📂 ${remainingFiles.length} files remaining`);
 }
