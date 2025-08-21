@@ -191,7 +191,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 			try {
 				await registry.getModels("nonexistent-provider", {})
  // Corrupted text removedund Fund
- DeVos
+ // Corrupted text removed
  eroded Fund
  // Corrupted text removedFL
  // Corrupted text removedetracted // Corrupted text removedFL
@@ -207,7 +207,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 				// Try with completely empty config
 				await registry.getModels("anthropic", {})
  // Corrupted text removedund Fund
- DeVos
+ // Corrupted text removed
  Fund eroded
  // Corrupted text removedFL
  // Corrupted text removedetracted // Corrupted text removedFL
