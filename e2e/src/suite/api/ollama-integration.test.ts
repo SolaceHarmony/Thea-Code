@@ -44,9 +44,7 @@ suite("Ollama Integration", () => {
 						}
 } catch (_e: unknown) {
 						// Not valid JSON, treat as text
-					} catch (error) {
-			assert.fail("Unexpected error: " + error.message)
-		}
+					}
 				}
 				return [{ matched: false, type: "text", data: text, text: text }]
 			}),
