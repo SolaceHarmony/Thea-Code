@@ -76,36 +76,36 @@ suite("Ollama Integration", () => {
 		const mockCreate = sandbox.stub().callsFake(({ messages, stream }: any) => {
 			if (stream) {
 // Return streaming async generator
-e2e/src/suite/api/ollama-integration.test.ts
-e2e/src/suite/api/ollama-integration.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
 // 						} else if (userText.includes("json reasoning")) {
-e2e/src/suite/api/ollama-integration.test.ts
-e2e/src/suite/api/ollama-integration.test.ts
-e2e/src/suite/api/ollama-integration.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
 // 						} else if (userText.includes("error test")) {
 // 							throw new Error("Simulated API error")
 // 						} else if (userText.includes("system role test")) {
 // 							if (hasSystemMessage) {
-e2e/src/suite/api/ollama-integration.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
 // 							} else {
-e2e/src/suite/api/ollama-integration.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
 // 							}
-e2e/src/suite/api/ollama-integration.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
 						} else if (userText.includes("tool use test")) {
-e2e/src/suite/api/ollama-integration.test.ts
-e2e/src/suite/api/ollama-integration.test.ts
-e2e/src/suite/api/ollama-integration.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
 						} else if (userText.includes("multimodal test")) {
-e2e/src/suite/api/ollama-integration.test.ts
-e2e/src/suite/api/ollama-integration.test.ts
-} else {
+e2e/src/suite/api/provider-integration-validation.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
+return {}
 						// Default response
-e2e/src/suite/api/ollama-integration.test.ts
-e2e/src/suite/api/ollama-integration.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
+e2e/src/suite/api/provider-integration-validation.test.ts
 						}
 					}
 				}
-} else {
+return {}
 				// Non-streaming response
 // Mock removed - needs manual implementation,
 // 						finish_reason: "stop"
