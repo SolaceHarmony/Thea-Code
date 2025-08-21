@@ -26,8 +26,8 @@ class TestProvider extends BaseProvider {
 		}
 	}
 
-	// Expose protected method for testing
-	public testRegisterTools(): void {
+e2e/src/suite/api/providers/base-provider.schema-only.test.ts
+e2e/src/suite/api/providers/base-provider.schema-only.test.ts
 		this.registerTools()
 	}
 }
