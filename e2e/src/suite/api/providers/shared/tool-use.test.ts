@@ -18,7 +18,7 @@ suite("ToolCallAggregator", () => {
 
   test("arguments split across multiple chunks", () => {
     const agg = new ToolCallAggregator()
-    expect(agg.addFromDelta(deltaToolCall("a", "sum", `{"x":1,`))).toHaveLength(0)
+    expect(agg.addFromDelta(deltaToolCall("a", "sum", `{"x":1,`))).length, 0)
     const out = agg.addFromDelta(deltaToolCall("a", "sum", `"y":2}`))
     assert.strictEqual(out.length, 1)
     assert.strictEqual(out[0].complete, true)

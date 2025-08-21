@@ -173,7 +173,9 @@ suite("All Providers Runtime Test", () => {
 			const promises = providers.map(async provider => {
 				try {
 					const port = providerPorts[provider]
-					const response = await fetch(`http://127.0.0.1:${port}/v1/models`)
+					const response = await fetch(`http://127.0.0.1:${port} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}/v1/models`)
 					return {
 						provider,
 						success: response.ok,

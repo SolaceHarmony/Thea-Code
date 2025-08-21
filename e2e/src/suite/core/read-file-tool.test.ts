@@ -48,7 +48,7 @@ suite("read_file tool with maxReadFileLine setting", () => {
 
 		// Check line count
 		const lineCount = await countFileLines(filePath)
-		expect(lineCount).toBeLessThan(maxReadFileLine)
+		assert.ok(lineCount < maxReadFileLine)
 
 		// Should use extractTextFromFile for small files
 		if (lineCount < maxReadFileLine) {
@@ -144,5 +144,4 @@ suite("read_file tool with maxReadFileLine setting", () => {
 		assert.ok(readLines.calledWith(filePath, maxReadFileLine - 1, 0))
 		assert.ok(addLineNumbers.called)
 	})
-// Mock cleanup
 // Mock cleanup

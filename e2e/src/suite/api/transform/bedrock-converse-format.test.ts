@@ -49,7 +49,7 @@ suite("convertToBedrockConverseMessages", () => {
 		const result = convertToBedrockConverseMessages(messages)
 
 		if (!result[0] || !result[0].content) {
-			fail("Expected result to have content")
+			assert.fail("Expected result to have content")
 			return
 		}
 
@@ -63,7 +63,7 @@ suite("convertToBedrockConverseMessages", () => {
 			assert.notStrictEqual(imageBlock.image.source, undefined)
 			assert.notStrictEqual(imageBlock.image.source.bytes, undefined)
 } else {
-			fail("Expected image block not found")
+			assert.fail("Expected image block not found")
 		}
 	})
 
@@ -87,7 +87,7 @@ suite("convertToBedrockConverseMessages", () => {
 		const result = convertToBedrockConverseMessages(messages)
 
 		if (!result[0] || !result[0].content) {
-			fail("Expected result to have content")
+			assert.fail("Expected result to have content")
 			return
 		}
 
@@ -100,7 +100,7 @@ suite("convertToBedrockConverseMessages", () => {
 				input: "<read_file>\n<path>\ntest.txt\n</path>\n</read_file>",
 			})
 } else {
-			fail("Expected tool use block not found")
+			assert.fail("Expected tool use block not found")
 		}
 	})
 
@@ -121,7 +121,7 @@ suite("convertToBedrockConverseMessages", () => {
 		const result = convertToBedrockConverseMessages(messages)
 
 		if (!result[0] || !result[0].content) {
-			fail("Expected result to have content")
+			assert.fail("Expected result to have content")
 			return
 		}
 
@@ -135,7 +135,7 @@ suite("convertToBedrockConverseMessages", () => {
 				status: "success",
 			})
 } else {
-			fail("Expected tool result block not found")
+			assert.fail("Expected tool result block not found")
 		}
 	})
 
@@ -155,7 +155,7 @@ suite("convertToBedrockConverseMessages", () => {
 		const result = convertToBedrockConverseMessages(messages)
 
 		if (!result[0] || !result[0].content) {
-			fail("Expected result to have content")
+			assert.fail("Expected result to have content")
 			return
 		}
 

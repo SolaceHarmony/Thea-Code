@@ -41,9 +41,13 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 		if (transport) {
 			try {
 				await transport.close()
-			} catch {
+			} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch {
 				// Transport might already be closed
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		}
 		
 		// Restore console.warn

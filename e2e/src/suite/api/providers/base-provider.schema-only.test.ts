@@ -268,10 +268,14 @@ suite("BaseProvider - Schema-Only Tool Registration", () => {
 				try {
 					tool.handler()
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 					if (error.message.includes("handled by MCP provider")) {
 						executionErrors++
 					}
-				}
+				} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 			}
 			
 			// All tools should throw delegation errors

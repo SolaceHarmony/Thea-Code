@@ -506,4 +506,3 @@ suite("CustomModesManager", () => {
 		})
 	})
 // Mock cleanup
-// Mock cleanup

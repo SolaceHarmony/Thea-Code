@@ -24,7 +24,9 @@ suite("MCP (Model Context Protocol) Tests", () => {
 		test("MCP button command should execute", async function() {
 			this.timeout(5000)
 			try {
-				await vscode.commands.executeCommand(`${EXTENSION_NAME}.mcpButtonClicked`)
+				await vscode.commands.executeCommand(`${EXTENSION_NAME} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}.mcpButtonClicked`)
 				assert.ok(true, "MCP button command executed")
 } catch (error) {
 				// Expected in test environment without full MCP setup

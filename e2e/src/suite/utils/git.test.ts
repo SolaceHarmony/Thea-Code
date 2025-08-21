@@ -89,9 +89,13 @@ Jane Smith
 				await gitModule.searchCommits("query", "/test/repo")
 				assert.fail("Should have thrown an error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "Git is not installed.")
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("throws error when not in a git repository", async () => {
@@ -102,9 +106,13 @@ Jane Smith
 				await gitModule.searchCommits("query", "/test/repo")
 				assert.fail("Should have thrown an error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "Not a git repository.")
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("searches by hash when query looks like a hash and grep returns nothing", async () => {
@@ -190,9 +198,13 @@ index 123..456 100644
 				await gitModule.getCommitInfo("abc123", "/test/repo")
 				assert.fail("Should have thrown an error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "Git is not installed.")
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("throws error when commit not found", async () => {
@@ -207,9 +219,13 @@ index 123..456 100644
 				await gitModule.getCommitInfo("nonexistent", "/test/repo")
 				assert.fail("Should have thrown an error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("bad object"))
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("truncates large output", async () => {

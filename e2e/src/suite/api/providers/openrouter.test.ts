@@ -284,8 +284,12 @@ suite("OpenRouterHandler", () => {
 			await generator.next()
 			assert.fail("Should have thrown an error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 			assert.ok(error instanceof Error)
 			assert.strictEqual(error.message, "OpenRouter API Error 500: API Error")
+		} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
 		}
 	})
 
@@ -332,8 +336,12 @@ suite("OpenRouterHandler", () => {
 			await handler.completePrompt("test prompt")
 			assert.fail("Should have thrown an error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 			assert.ok(error instanceof Error)
 			assert.strictEqual(error.message, "OpenRouter API Error 500: API Error")
+		} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
 		}
 	})
 
@@ -347,8 +355,12 @@ suite("OpenRouterHandler", () => {
 			await handler.completePrompt("test prompt")
 			assert.fail("Should have thrown an error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 			assert.ok(error instanceof Error)
 			assert.strictEqual(error.message, "Unexpected error")
+		} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
 		}
 	})
 

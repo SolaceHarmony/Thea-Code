@@ -61,7 +61,9 @@ suite("SSE Transport", () => {
 		try {
 			// List available tools
 			const toolsResult = (await client.listTools()) as {
-				tools: Array<{ name: string; description: string; inputSchema: unknown }>
+				tools: Array<{ name: string; description: string; inputSchema: unknown } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}>
 			}
 			assert.strictEqual(toolsResult.tools.length, 1)
 			assert.strictEqual(toolsResult.tools[0].name, "test_tool")
@@ -81,6 +83,8 @@ suite("SSE Transport", () => {
 		} finally {
 			// Close the client
 			await client.close()
+		} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
 		}
 	})
 
@@ -115,7 +119,9 @@ suite("SSE Transport", () => {
 			const promiseAll = Promise.all([
 				client1.callTool({
 					name: "test_tool",
-					arguments: { message: "Client 1" },
+					arguments: { message: "Client 1" } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		},
 				}) as Promise<{ content: Array<{ type: string; text: string }> }>,
 				client2.callTool({
 					name: "test_tool",
@@ -141,6 +147,8 @@ suite("SSE Transport", () => {
 		} finally {
 			// Close all clients
 			await Promise.all([client1.close(), client2.close(), client3.close()])
+		} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
 		}
 	})
 
@@ -170,9 +178,13 @@ suite("SSE Transport", () => {
 			// Note: We can't verify the port is exactly 8080 because it might be changed
 			// if the port is already in use, but we can verify it's a valid port
 			assert.ok(url?.port)
+		} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
 		} finally {
 			// Clean up
 			await customServer.stop()
+		} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
 		}
 	})
 

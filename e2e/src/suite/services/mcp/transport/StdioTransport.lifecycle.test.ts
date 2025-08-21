@@ -16,9 +16,13 @@ suite("StdioTransport Lifecycle Tests", () => {
 		if (transport) {
 			try {
 				await transport.close()
-			} catch {
+			} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch {
 				// Transport might already be closed
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		}
 	})
 
@@ -174,9 +178,13 @@ suite("StdioTransport Lifecycle Tests", () => {
 			// This might throw or trigger error handler depending on implementation
 			try {
 				await transport.start()
-			} catch {
+			} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch {
 				// Error during start is acceptable
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 			
 			// Give some time for async error
 			await new Promise(resolve => setTimeout(resolve, 100))

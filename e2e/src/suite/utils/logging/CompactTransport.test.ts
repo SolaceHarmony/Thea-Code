@@ -28,7 +28,9 @@ suite("CompactTransport", () => {
 
 		try {
 			rmDirRecursive(testDir)
-} catch (err) {
+} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (err) {
 			console.error("Cleanup error:", err)
 
 	setup(() => {
@@ -116,7 +118,9 @@ suite("CompactTransport", () => {
 					m: "test",
 
 				expect(fs.existsSync(deepPath)).toBeTruthy()
-			} finally {
+			} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} finally {
 				deepTransport.close()
 				// Clean up the deep directory structure
 				const rmDirRecursive = (dirPath: string) => {

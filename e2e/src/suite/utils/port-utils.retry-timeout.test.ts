@@ -116,9 +116,13 @@ suite("port-utils - Retry and Timeout Tests", () => {
 				await findAvailablePort(3000, 'localhost', undefined, 5)
 				assert.fail('Should have thrown an error')
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "No available ports found after 5 attempts")
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 			
 			// Should have checked 5 sequential ports plus last resort ports
 			// The function tries maxAttempts sequential ports then tries last resort ports
@@ -242,9 +246,13 @@ suite("port-utils - Retry and Timeout Tests", () => {
 				await waitForPortAvailable(3000, 'localhost', 50, 1000, 'test-service', 3)
 				assert.fail('Should have thrown an error')
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "Timeout waiting for test-service on port 3000 to become available after 3 attempts")
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 			
 			assert.ok(mockLogger.error.calledWith(
 				// TODO: String contains check - "Timeout waiting")),
@@ -362,9 +370,13 @@ suite("port-utils - Retry and Timeout Tests", () => {
 				await waitForPortInUse(3000, 'localhost', 50, 1000, 'test-server', 2)
 				assert.fail('Should have thrown an error')
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "Timeout waiting for test-server on port 3000 to be ready after 2 attempts")
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 			
 			assert.ok(mockLogger.error.calledWith(
 				// TODO: String contains check - "Timeout waiting")),
@@ -480,9 +492,13 @@ suite("port-utils - Retry and Timeout Tests", () => {
 			
 			try {
 				await waitForPortInUse(3000, 'localhost', 1500, 30000, 'test-server', 3)
-			} catch {
+			} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch {
 				// Expected to fail
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 			
 			// Retry time should be capped at 2000ms even with exponential backoff
 			assert.ok(lastRetryTime <= 2000)
@@ -567,9 +583,13 @@ suite("port-utils - Retry and Timeout Tests", () => {
 // 			
 // 			try {
 // 				await waitForPortInUse(3000, 'localhost', 100, 1000, 'test', 3)
-// 			} catch {
+// 			} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch {
 // 				// Expected to fail
-// 			}
+// 			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 // 			
 			// Delays should include jitter (not exactly the same)
 			assert.ok(delays.length > 0)

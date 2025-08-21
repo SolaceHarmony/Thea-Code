@@ -548,24 +548,32 @@ suite("TheaProvider", () => {
 			}
 			
 			try {
-				await theaProvider.initClineWithTask({ instructions: "test" })
+				await theaProvider.initClineWithTask({ instructions: "test" } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		})
 				// Should handle error gracefully
 				assert.ok(true, "Error was handled")
 } catch (error) {
 				// If it throws, that's also acceptable
 				assert.ok(error instanceof Error)
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 		
 		test("handles webview communication errors", async () => {
 			mockWebview.postMessage.rejects(new Error("Communication failed"))
 			
 			try {
-				await theaProvider.postMessageToWebview({ type: "test" })
+				await theaProvider.postMessageToWebview({ type: "test" } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		})
 				assert.ok(true, "Error was handled")
 } catch (error) {
 				assert.ok(error instanceof Error)
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 		
 		test("handles missing webview gracefully", async () => {

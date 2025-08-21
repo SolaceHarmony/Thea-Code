@@ -564,9 +564,13 @@ suite("TheaTask", () => {
 				// Should handle error internally, not throw
 				assert.ok(true, "Error was handled")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				// If it throws, that's also acceptable
 				assert.ok(error instanceof Error)
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 	})
 	
@@ -782,9 +786,13 @@ suite("TheaTask", () => {
 				await theaTask.streamApiResponse()
 				assert.ok(true, "Handled network error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Network") || error.message.includes("error"))
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 	})
 // Mock cleanup

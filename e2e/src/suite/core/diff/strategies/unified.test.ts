@@ -157,8 +157,12 @@ export { processFile };`
      const processed = data.toUpperCase();
 -    writeFile(path, processed, (err) => {
 -      if (err) throw err;
--    });
--  });
+-    } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		});
+-  }); catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 +    await fs.writeFile(join(__dirname, path), processed);
 +  } catch (error) {
 +    console.error('Failed to process file:', error);
@@ -176,6 +180,8 @@ async function processFile(path: string) {
     const processed = data.toUpperCase();
     await fs.writeFile(join(__dirname, path), processed);
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
     console.error('Failed to process file:', error);
     throw error;
 

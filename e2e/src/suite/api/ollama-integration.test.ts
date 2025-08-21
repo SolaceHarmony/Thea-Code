@@ -40,11 +40,15 @@ suite("Ollama Integration", () => {
 					try {
 						const jsonObj = JSON.parse(text)
 						if (jsonObj.type === "thinking") {
-							return [{ matched: true, type: "reasoning", data: String(jsonObj.content) }]
+							return [{ matched: true, type: "reasoning", data: String(jsonObj.content) } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}]
 						}
 } catch (_e: unknown) {
 						// Not valid JSON, treat as text
-					}
+					} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 				}
 				return [{ matched: false, type: "text", data: text, text: text }]
 			}),
@@ -75,8 +79,7 @@ suite("Ollama Integration", () => {
 		// Mock OpenAI client
 		const mockCreate = sandbox.stub().callsFake(({ messages, stream }: any) => {
 			if (stream) {
-// Mock removed - needs manual implementation else if (userText.includes("reasoning test")) {
-// 							yield { choices: [{ delta: { content: "<think>Internal thought</think>" } }] }
+// Mock implementation removed }] }
 // 							yield { choices: [{ delta: { content: "Visible response" } }] }
 // 							yield { choices: [{ finish_reason: "stop" }] }
 // 						} else if (userText.includes("json reasoning")) {
@@ -221,11 +224,14 @@ suite("Ollama Integration", () => {
 			const stream = handler.createMessage("You are helpful.", neutralHistory)
 			for await (const _chunk of stream) {
 				// Should throw before getting here
-			}
-			assert.fail("Should have thrown an error")
+			} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}assert.fail("Should have thrown an error")
 } catch (error) {
 			assert.ok(error instanceof Error)
 			assert.ok(error.message.includes("Simulated API error"))
+		} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
 		}
 	})
 
@@ -295,5 +301,4 @@ suite("Ollama Integration", () => {
 		// The handler should be configured with the test model
 		assert.ok(handler.options.ollamaModelId === "llama2")
 	})
-// Mock cleanup
 // Mock cleanup

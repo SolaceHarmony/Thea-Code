@@ -38,7 +38,7 @@ import * as sinon from 'sinon'
 // Mock removed - needs manual implementation
 // Mock removed - needs manual implementation,
 // 								}
-							},
+
 						}
 						return stream
 					}),
@@ -177,7 +177,9 @@ suite("Ollama MCP Integration with SSE Transport", () => {
 			const promiseAll = Promise.all([
 				client.callTool({
 					name: "test_tool",
-					arguments: { param: "client 1" },
+					arguments: { param: "client 1" } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		},
 				}) as Promise<{ content: Array<{ type: string; text: string }> }>,
 				client2.callTool({
 					name: "test_tool",
@@ -203,6 +205,8 @@ suite("Ollama MCP Integration with SSE Transport", () => {
 		} finally {
 			// Close the additional clients
 			await Promise.all([client2.close(), client3.close()])
+		} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
 		}
 	})
 

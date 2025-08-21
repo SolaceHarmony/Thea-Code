@@ -103,14 +103,18 @@ suite("All Dynamic Providers Runtime Test", () => {
 						assert.strictEqual(typeof model.id, "string")
 						assert.strictEqual(typeof model.name, "string")
 						expect(Array.isArray(model.capabilities)).toBe(true)
-					})
+					} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		})
 
 					console.log(`✅ ${providerName}: Found ${models.length} models`)
 					console.log(`   Sample models: ${models.slice(0, 3).map(m => m.id).join(", ")}`)
 } catch (error) {
 					console.error(`❌ ${providerName} failed:`, error)
 					throw error
-				}
+				} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 			}, 10000) // 10 second timeout for each provider
 		})
 	})
@@ -137,14 +141,18 @@ suite("All Dynamic Providers Runtime Test", () => {
 					expect(Array.isArray(models)).toBe(true)
 					
 					if (models.length > 0) {
-						console.log(`✅ ${providerName}: Found ${models.length} static models`)
+						console.log(`✅ ${providerName} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}: Found ${models.length} static models`)
 } else {
 						console.log(`ℹ️ ${providerName}: No models configured (expected for some providers)`)
 					}
 } catch (error) {
 					console.error(`❌ ${providerName} failed:`, error)
 					// Don't throw for static providers as they may not have mock endpoints
-				}
+				} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 			})
 		})
 	})
@@ -185,23 +193,31 @@ suite("All Dynamic Providers Runtime Test", () => {
 	suite("Error Handling", () => {
 		test("should handle invalid provider gracefully", async () => {
 			try {
-				await registry.getModels("nonexistent-provider", {})
-				fail("Should have thrown an error for invalid provider")
+				await registry.getModels("nonexistent-provider", {} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		})
+				assert.fail("Should have thrown an error for invalid provider")
 } catch (error) {
 				assert.ok(error instanceof Error)
 				console.log("✅ Invalid provider handled correctly")
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("should handle invalid configuration gracefully", async () => {
 			try {
 				// Try with completely empty config
-				await registry.getModels("anthropic", {})
-				fail("Should have thrown an error for missing API key")
+				await registry.getModels("anthropic", {} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		})
+				assert.fail("Should have thrown an error for missing API key")
 } catch (error) {
 				assert.ok(error instanceof Error)
 				console.log("✅ Missing configuration handled correctly")
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 	})
 
@@ -245,10 +261,11 @@ suite("Performance Tests", () => {
 			try {
 				const config = testConfigs[provider as keyof typeof testConfigs]
 				const models = await registry.getModels(provider, config)
-// Mock removed - needs manual implementation catch (error) {
-// 				return { provider, error: error.message, success: false }
+// Mock implementation removed
 // 			}
-		})
+		}) catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		
 		const results = await Promise.all(promises)
 		const endTime = Date.now()
@@ -264,10 +281,10 @@ suite("Performance Tests", () => {
 		})
 		
 		// Should complete within 15 seconds
-		expect(totalTime).toBeLessThan(15000)
+		assert.ok(totalTime < 15000)
 		
 		// At least 3 providers should succeed
 		const successCount = results.filter(r => r.success).length
-		expect(successCount).toBeGreaterThanOrEqual(3)
+		assert.ok(successCount >= 3)
 	}, 20000)
 // Mock cleanup

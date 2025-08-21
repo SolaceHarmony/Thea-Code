@@ -79,7 +79,9 @@ suite("Command Tests", () => {
 		test("Plus button command should execute without error", async function() {
 			this.timeout(5000)
 			try {
-				await vscode.commands.executeCommand(`${EXTENSION_NAME}.plusButtonClicked`)
+				await vscode.commands.executeCommand(`${EXTENSION_NAME} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}.plusButtonClicked`)
 				assert.ok(true, "Plus button command executed successfully")
 } catch (error) {
 				// It's ok if webview commands fail in test environment
@@ -89,7 +91,9 @@ suite("Command Tests", () => {
 		test("Settings button command should execute without error", async function() {
 			this.timeout(5000)
 			try {
-				await vscode.commands.executeCommand(`${EXTENSION_NAME}.settingsButtonClicked`)
+				await vscode.commands.executeCommand(`${EXTENSION_NAME} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}.settingsButtonClicked`)
 				assert.ok(true, "Settings button command executed successfully")
 } catch (error) {
 				assert.ok(true, "Command is registered even if execution fails in test")

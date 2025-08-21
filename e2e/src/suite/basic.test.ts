@@ -17,6 +17,8 @@ suite(`${EXTENSION_DISPLAY_NAME} Basic Tests`, () => {
 			await extension.activate()
 			assert.ok(extension.isActive, "Extension should be active")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 			console.error("Extension activation failed:", error)
 			assert.fail(`Extension failed to activate: ${error}`)
 

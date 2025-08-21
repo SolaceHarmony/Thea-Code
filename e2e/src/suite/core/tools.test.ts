@@ -36,6 +36,8 @@ suite("Core Tools Tests", () => {
 				await vscode.commands.executeCommand("nonexistent.command")
 				assert.fail("Should have thrown error for nonexistent command")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error, "Should throw error for invalid command")
 
 	suite("Apply Diff Tool", () => {

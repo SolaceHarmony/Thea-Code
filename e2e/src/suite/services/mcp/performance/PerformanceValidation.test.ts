@@ -45,7 +45,9 @@ import { ToolDefinition } from "../../types/McpProviderTypes"
 					isError: true,
 
 			try {
-				return await tool.handler(args || {})
+				return await tool.handler(args || {} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		})
 } catch (error) {
 				return {
 					content: [{ type: "text", text: `Error: ${error.message}` }],
@@ -120,7 +122,9 @@ suite("MCP Performance and Streaming Validation", () => {
 
 			try {
 				// Create concurrent requests
-				const promises = Array.from({ length: concurrentExecutions }, (_, i) =>
+				const promises = Array.from({ length: concurrentExecutions } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}, (_, i) =>
 					mcpToolExecutor.executeToolFromNeutralFormat({
 						type: "tool_use",
 						id: `test-${i}`,
@@ -187,7 +191,9 @@ suite("MCP Performance and Streaming Validation", () => {
 
 				// Execute batches sequentially to monitor memory usage
 				for (let batch = 0; batch < numberOfBatches; batch++) {
-					console.log(`Processing batch ${batch + 1}/${numberOfBatches}...`)
+					console.log(`Processing batch ${batch + 1} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}/${numberOfBatches}...`)
 					
 					// Create batch promises with error handling for each promise
 					const batchPromises = Array.from({ length: batchSize }, (_, i) =>
@@ -433,7 +439,9 @@ suite("MCP Performance and Streaming Validation", () => {
 
 					if (result.isError) {
 						errorCount++
-} else {
+} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}else {
 						successCount++
 } catch (error) {
 					errorCount++
@@ -478,7 +486,9 @@ suite("MCP Performance and Streaming Validation", () => {
 
 				// Phase 1: Error burst - properly handle errors
 				console.log("Starting error burst phase...")
-				const errorPromises = Array.from({ length: 20 }, (_, i) =>
+				const errorPromises = Array.from({ length: 20 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}, (_, i) =>
 					provider.executeTool("recover_tool", { phase: "error_burst", id: i })
 						.then(result => {
 							// If we get here, the tool didn't throw as expected
