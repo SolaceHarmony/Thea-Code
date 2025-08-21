@@ -103,9 +103,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 						assert.strictEqual(typeof model.id, "string")
 						assert.strictEqual(typeof model.name, "string")
 						expect(Array.isArray(model.capabilities)).toBe(true)
-					} catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		})
+					})
 
 					console.log(`✅ ${providerName}: Found ${models.length} models`)
 					console.log(`   Sample models: ${models.slice(0, 3).map(m => m.id).join(", ")}`)
@@ -141,9 +139,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 					expect(Array.isArray(models)).toBe(true)
 					
 					if (models.length > 0) {
-						console.log(`✅ ${providerName} catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		}: Found ${models.length} static models`)
+						console.log(`✅ ${providerName}: Found ${models.length} static models`)
 } else {
 						console.log(`ℹ️ ${providerName}: No models configured (expected for some providers)`)
 					}
@@ -193,9 +189,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 	suite("Error Handling", () => {
 		test("should handle invalid provider gracefully", async () => {
 			try {
-				await registry.getModels("nonexistent-provider", {} catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		})
+				await registry.getModels("nonexistent-provider", {})
 				assert.fail("Should have thrown an error for invalid provider")
 } catch (error) {
 				assert.ok(error instanceof Error)
@@ -208,9 +202,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 		test("should handle invalid configuration gracefully", async () => {
 			try {
 				// Try with completely empty config
-				await registry.getModels("anthropic", {} catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		})
+				await registry.getModels("anthropic", {})
 				assert.fail("Should have thrown an error for missing API key")
 } catch (error) {
 				assert.ok(error instanceof Error)

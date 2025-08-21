@@ -40,9 +40,7 @@ suite("Ollama Integration", () => {
 					try {
 						const jsonObj = JSON.parse(text)
 						if (jsonObj.type === "thinking") {
-							return [{ matched: true, type: "reasoning", data: String(jsonObj.content) } catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		}]
+							return [{ matched: true, type: "reasoning", data: String(jsonObj.content) }]
 						}
 } catch (_e: unknown) {
 						// Not valid JSON, treat as text
@@ -224,9 +222,8 @@ suite("Ollama Integration", () => {
 			const stream = handler.createMessage("You are helpful.", neutralHistory)
 			for await (const _chunk of stream) {
 				// Should throw before getting here
-			} catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		}assert.fail("Should have thrown an error")
+			}
+			assert.fail("Should have thrown an error")
 } catch (error) {
 			assert.ok(error instanceof Error)
 			assert.ok(error.message.includes("Simulated API error"))
