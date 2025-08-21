@@ -11,24 +11,24 @@ import { ToolDefinition } from "../../types/McpProviderTypes"
 import { ToolUseFormat, NeutralToolUseRequest } from "../../types/McpToolTypes"
 
 // Mock the EmbeddedMcpProvider for E2E tests
-jest.mock("../../providers/EmbeddedMcpProvider", () => {
+// TODO: Use proxyquire for module mocking - "../../providers/EmbeddedMcpProvider", () => {
 	const { EventEmitter } = require("events")
 
-	const MockEmbeddedMcpProvider = jest.fn().mockImplementation(() => {
+	const MockEmbeddedMcpProvider = sinon.stub().callsFake(() => {
 		const instance = new EventEmitter()
 		const tools = new Map()
 
-		instance.start = jest.fn().mockImplementation(() => Promise.resolve())
-		instance.stop = jest.fn().mockImplementation(() => Promise.resolve())
-		instance.getServerUrl = jest.fn().mockReturnValue(new URL("http://localhost:3000"))
-		instance.isRunning = jest.fn().mockReturnValue(true)
+		instance.start = sinon.stub().callsFake(() => Promise.resolve())
+		instance.stop = sinon.stub().callsFake(() => Promise.resolve())
+		instance.getServerUrl = sinon.stub().returns(new URL("http://localhost:3000"))
+		instance.isRunning = sinon.stub().returns(true)
 
-		instance.registerToolDefinition = jest.fn().mockImplementation((tool) => {
+		instance.registerToolDefinition = sinon.stub().callsFake((tool) => {
 			tools.set(tool.name, tool)
 			instance.emit("tool-registered", tool.name)
 		})
 
-		instance.unregisterTool = jest.fn().mockImplementation((name) => {
+		instance.unregisterTool = sinon.stub().callsFake((name) => {
 			const result = tools.delete(name)
 			if (result) {
 				instance.emit("tool-unregistered", name)
@@ -36,7 +36,7 @@ jest.mock("../../providers/EmbeddedMcpProvider", () => {
 			return result
 		})
 
-		instance.executeTool = jest.fn().mockImplementation(async (name, args) => {
+		instance.executeTool = sinon.stub().callsFake(async (name, args) => {
 			const tool = tools.get(name)
 			if (!tool) {
 				return {
@@ -58,7 +58,7 @@ jest.mock("../../providers/EmbeddedMcpProvider", () => {
 	})
 
 	const MockedProviderClass = MockEmbeddedMcpProvider as any
-	MockedProviderClass.create = jest.fn().mockImplementation(async () => {
+	MockedProviderClass.create = sinon.stub().callsFake(async () => {
 		return new MockEmbeddedMcpProvider()
 	})
 
@@ -68,29 +68,29 @@ jest.mock("../../providers/EmbeddedMcpProvider", () => {
 })
 
 // Mock McpToolRegistry
-jest.mock("../../core/McpToolRegistry", () => {
+// TODO: Use proxyquire for module mocking - "../../core/McpToolRegistry", () => {
 	const mockRegistry = {
-		registerTool: jest.fn(),
-		unregisterTool: jest.fn().mockReturnValue(true),
-		getTool: jest.fn(),
-		getAllTools: jest.fn(),
-		hasTool: jest.fn(),
-		executeTool: jest.fn(),
+		registerTool: sinon.stub(),
+		unregisterTool: sinon.stub().returns(true),
+		getTool: sinon.stub(),
+		getAllTools: sinon.stub(),
+		hasTool: sinon.stub(),
+		executeTool: sinon.stub(),
 	}
 
 	return {
 		McpToolRegistry: {
-			getInstance: jest.fn().mockReturnValue(mockRegistry),
+			getInstance: sinon.stub().returns(mockRegistry),
 		},
 	}
 })
 
-describe("MCP End-to-End Tool Use Flows", () => {
+suite("MCP End-to-End Tool Use Flows", () => {
 	let mcpIntegration: McpIntegration
 	let mcpToolExecutor: McpToolExecutor
 	let mcpToolRouter: McpToolRouter
 
-	beforeEach(async () => {
+	setup(async () => {
 		// Reset singletons
 		;(McpIntegration as any).instance = undefined
 		;(McpToolExecutor as any).instance = undefined
@@ -103,13 +103,13 @@ describe("MCP End-to-End Tool Use Flows", () => {
 		await mcpIntegration.initialize()
 	})
 
-	afterEach(async () => {
+	teardown(async () => {
 		if (mcpToolExecutor) {
 			await mcpToolExecutor.shutdown()
 		}
 	})
 
-	describe("XML Tool Use Flow", () => {
+	suite("XML Tool Use Flow", () => {
 		const testTool: ToolDefinition = {
 			name: "read_file",
 			description: "Read file contents",
@@ -133,11 +133,11 @@ describe("MCP End-to-End Tool Use Flows", () => {
 			}),
 		}
 
-		beforeEach(() => {
+		setup(() => {
 			mcpIntegration.registerTool(testTool)
 		})
 
-		it("should complete full XML tool use flow", async () => {
+		test("should complete full XML tool use flow", async () => {
 			const xmlRequest = `
         <read_file>
           <path>src/main.ts</path>
@@ -148,30 +148,30 @@ describe("MCP End-to-End Tool Use Flows", () => {
 
 			// Step 1: Detect format
 			const format = mcpToolRouter.detectFormat(xmlRequest)
-			expect(format).toBe(ToolUseFormat.XML)
+			assert.strictEqual(format, ToolUseFormat.XML)
 
 			// Step 2: Convert to neutral format
 			const neutralRequest = McpConverters.xmlToMcp(xmlRequest)
-			expect(neutralRequest.type).toBe("tool_use")
-			expect(neutralRequest.name).toBe("read_file")
-			expect(neutralRequest.input.path).toBe("src/main.ts")
-			expect(neutralRequest.input.start_line).toBe(10)
-			expect(neutralRequest.input.end_line).toBe(20)
+			assert.strictEqual(neutralRequest.type, "tool_use")
+			assert.strictEqual(neutralRequest.name, "read_file")
+			assert.strictEqual(neutralRequest.input.path, "src/main.ts")
+			assert.strictEqual(neutralRequest.input.start_line, 10)
+			assert.strictEqual(neutralRequest.input.end_line, 20)
 
 			// Step 3: Execute tool
 			const result = await mcpToolExecutor.executeToolFromNeutralFormat(neutralRequest)
-			expect(result.type).toBe("tool_result")
-			expect(result.status).toBe("success")
-			expect(result.content[0].text).toContain("File content from src/main.ts, lines 10-20")
+			assert.strictEqual(result.type, "tool_result")
+			assert.strictEqual(result.status, "success")
+			assert.ok(result.content[0].text.includes("File content from src/main.ts, lines 10-20"))
 
 			// Step 4: Convert result back to XML
 			const xmlResult = McpConverters.mcpToXml(result)
-			expect(xmlResult).toContain("<tool_result")
-			expect(xmlResult).toContain('status="success"')
-			expect(xmlResult).toContain("File content from src/main.ts, lines 10-20")
+			assert.ok(xmlResult.includes("<tool_result"))
+			assert.ok(xmlResult.includes('status="success"'))
+			assert.ok(xmlResult.includes("File content from src/main.ts, lines 10-20"))
 		})
 
-		it("should handle XML tool use errors gracefully", async () => {
+		test("should handle XML tool use errors gracefully", async () => {
 			const xmlRequest = `
         <non_existent_tool>
           <param>value</param>
@@ -181,13 +181,13 @@ describe("MCP End-to-End Tool Use Flows", () => {
 			const neutralRequest = McpConverters.xmlToMcp(xmlRequest)
 			const result = await mcpToolExecutor.executeToolFromNeutralFormat(neutralRequest)
 
-			expect(result.type).toBe("tool_result")
-			expect(result.status).toBe("error")
-			expect(result.content[0].text).toContain("not found")
+			assert.strictEqual(result.type, "tool_result")
+			assert.strictEqual(result.status, "error")
+			assert.ok(result.content[0].text.includes("not found"))
 		})
 	})
 
-	describe("JSON Tool Use Flow", () => {
+	suite("JSON Tool Use Flow", () => {
 		const calculatorTool: ToolDefinition = {
 			name: "calculator",
 			description: "Perform calculations",
@@ -221,11 +221,11 @@ describe("MCP End-to-End Tool Use Flows", () => {
 			},
 		}
 
-		beforeEach(() => {
+		setup(() => {
 			mcpIntegration.registerTool(calculatorTool)
 		})
 
-		it("should complete full JSON tool use flow", async () => {
+		test("should complete full JSON tool use flow", async () => {
 			const jsonRequest = {
 				type: "tool_use",
 				id: "calc-001",
@@ -238,28 +238,28 @@ describe("MCP End-to-End Tool Use Flows", () => {
 
 			// Step 1: Detect format
 			const format = mcpToolRouter.detectFormat(JSON.stringify(jsonRequest))
-			expect(format).toBe(ToolUseFormat.NEUTRAL)
+			assert.strictEqual(format, ToolUseFormat.NEUTRAL)
 
 			// Step 2: Convert to neutral format (already neutral)
 			const neutralRequest = McpConverters.jsonToMcp(jsonRequest)
-			expect(neutralRequest.type).toBe("tool_use")
-			expect(neutralRequest.name).toBe("calculator")
+			assert.strictEqual(neutralRequest.type, "tool_use")
+			assert.strictEqual(neutralRequest.name, "calculator")
 
 			// Step 3: Execute tool
 			const result = await mcpToolExecutor.executeToolFromNeutralFormat(neutralRequest)
-			expect(result.type).toBe("tool_result")
-			expect(result.status).toBe("success")
-			expect(result.content[0].text).toBe("Result: 60")
+			assert.strictEqual(result.type, "tool_result")
+			assert.strictEqual(result.status, "success")
+			assert.strictEqual(result.content[0].text, "Result: 60")
 
 			// Step 4: Convert result to JSON
 			const jsonResult = McpConverters.mcpToJson(result)
 			const parsedResult = JSON.parse(jsonResult)
-			expect(parsedResult.type).toBe("tool_result")
-			expect(parsedResult.status).toBe("success")
+			assert.strictEqual(parsedResult.type, "tool_result")
+			assert.strictEqual(parsedResult.status, "success")
 		})
 	})
 
-	describe("OpenAI Function Call Flow", () => {
+	suite("OpenAI Function Call Flow", () => {
 		const weatherTool: ToolDefinition = {
 			name: "get_weather",
 			description: "Get weather information",
@@ -282,11 +282,11 @@ describe("MCP End-to-End Tool Use Flows", () => {
 			}),
 		}
 
-		beforeEach(() => {
+		setup(() => {
 			mcpIntegration.registerTool(weatherTool)
 		})
 
-		it("should complete OpenAI function call flow", async () => {
+		test("should complete OpenAI function call flow", async () => {
 			const openAiRequest = {
 				function_call: {
 					name: "get_weather",
@@ -299,27 +299,27 @@ describe("MCP End-to-End Tool Use Flows", () => {
 
 			// Step 1: Detect format
 			const format = mcpToolRouter.detectFormat(JSON.stringify(openAiRequest))
-			expect(format).toBe(ToolUseFormat.OPENAI)
+			assert.strictEqual(format, ToolUseFormat.OPENAI)
 
 			// Step 2: Convert to neutral format
 			const neutralRequest = McpConverters.openAiToMcp(openAiRequest)
-			expect(neutralRequest.type).toBe("tool_use")
-			expect(neutralRequest.name).toBe("get_weather")
+			assert.strictEqual(neutralRequest.type, "tool_use")
+			assert.strictEqual(neutralRequest.name, "get_weather")
 
 			// Step 3: Execute tool
 			const result = await mcpToolExecutor.executeToolFromNeutralFormat(neutralRequest)
-			expect(result.type).toBe("tool_result")
-			expect(result.status).toBe("success")
-			expect(result.content[0].text).toContain("Weather in New York: 22°C, sunny")
+			assert.strictEqual(result.type, "tool_result")
+			assert.strictEqual(result.status, "success")
+			assert.ok(result.content[0].text.includes("Weather in New York: 22°C, sunny"))
 
 			// Step 4: Convert result to OpenAI format
 			const openAiResult = McpConverters.mcpToOpenAi(result)
-			expect(openAiResult.role).toBe("tool")
-			expect(openAiResult.content).toContain("Weather in New York")
+			assert.strictEqual(openAiResult.role, "tool")
+			assert.ok(openAiResult.content.includes("Weather in New York"))
 		})
 	})
 
-	describe("Multiple Tool Execution Flow", () => {
+	suite("Multiple Tool Execution Flow", () => {
 		const tools: ToolDefinition[] = [
 			{
 				name: "list_files",
@@ -337,11 +337,11 @@ describe("MCP End-to-End Tool Use Flows", () => {
 			},
 		]
 
-		beforeEach(() => {
+		setup(() => {
 			tools.forEach((tool) => mcpIntegration.registerTool(tool))
 		})
 
-		it("should handle multiple tool executions in sequence", async () => {
+		test("should handle multiple tool executions in sequence", async () => {
 			// Execute first tool
 			const listRequest: NeutralToolUseRequest = {
 				type: "tool_use",
@@ -351,8 +351,8 @@ describe("MCP End-to-End Tool Use Flows", () => {
 			}
 
 			const listResult = await mcpToolExecutor.executeToolFromNeutralFormat(listRequest)
-			expect(listResult.status).toBe("success")
-			expect(listResult.content[0].text).toContain("Files in src")
+			assert.strictEqual(listResult.status, "success")
+			assert.ok(listResult.content[0].text.includes("Files in src"))
 
 			// Execute second tool
 			const countRequest: NeutralToolUseRequest = {
@@ -363,11 +363,11 @@ describe("MCP End-to-End Tool Use Flows", () => {
 			}
 
 			const countResult = await mcpToolExecutor.executeToolFromNeutralFormat(countRequest)
-			expect(countResult.status).toBe("success")
-			expect(countResult.content[0].text).toContain("42 lines")
+			assert.strictEqual(countResult.status, "success")
+			assert.ok(countResult.content[0].text.includes("42 lines"))
 		})
 
-		it("should handle tool registration and unregistration during execution", async () => {
+		test("should handle tool registration and unregistration during execution", async () => {
 			// Verify tool is available
 			const request: NeutralToolUseRequest = {
 				type: "tool_use",
@@ -377,20 +377,20 @@ describe("MCP End-to-End Tool Use Flows", () => {
 			}
 
 			const result1 = await mcpToolExecutor.executeToolFromNeutralFormat(request)
-			expect(result1.status).toBe("success")
+			assert.strictEqual(result1.status, "success")
 
 			// Unregister tool
 			mcpIntegration.unregisterTool("list_files")
 
 			// Tool should no longer be available
 			const result2 = await mcpToolExecutor.executeToolFromNeutralFormat(request)
-			expect(result2.status).toBe("error")
-			expect(result2.content[0].text).toContain("not found")
+			assert.strictEqual(result2.status, "error")
+			assert.ok(result2.content[0].text.includes("not found"))
 		})
 	})
 
-	describe("Error Handling and Edge Cases", () => {
-		it("should handle malformed XML gracefully", async () => {
+	suite("Error Handling and Edge Cases", () => {
+		test("should handle malformed XML gracefully", async () => {
 			const malformedXml = "not xml at all"
 
 			// The XML converter should try to convert and then fail during validation
@@ -399,7 +399,7 @@ describe("MCP End-to-End Tool Use Flows", () => {
 			}).toThrow("Failed to convert XML to MCP format")
 		})
 
-		it("should handle malformed JSON gracefully", async () => {
+		test("should handle malformed JSON gracefully", async () => {
 			const malformedJson = '{"type": "tool_use", "invalid": }'
 
 			expect(() => {
@@ -407,7 +407,7 @@ describe("MCP End-to-End Tool Use Flows", () => {
 			}).toThrow()
 		})
 
-		it("should handle tool execution timeouts", async () => {
+		test("should handle tool execution timeouts", async () => {
 			const timeoutTool: ToolDefinition = {
 				name: "timeout_tool",
 				description: "Tool that simulates timeout",
@@ -434,7 +434,7 @@ describe("MCP End-to-End Tool Use Flows", () => {
 			}
 
 			const result = await mcpToolExecutor.executeToolFromNeutralFormat(request)
-			expect(result.content[0].text).toBe("Finally completed")
+			assert.strictEqual(result.content[0].text, "Finally completed")
 		})
 	})
 })
