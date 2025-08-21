@@ -27,8 +27,6 @@ class TestProvider extends BaseProvider {
 	}
 
 e2e/src/suite/api/providers/base-provider.schema-only.test.ts
-e2e/src/suite/api/providers/base-provider.schema-only.test.ts
-}
 
 suite("BaseProvider - Schema-Only Tool Registration", () => {
 	let provider: TestProvider
