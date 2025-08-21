@@ -39,3 +39,4 @@ suite("API Provider Tests", () => {
 		})
 	})
 // Mock cleanup
+})
