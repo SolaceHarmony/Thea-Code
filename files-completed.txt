@@ -4,3 +4,4 @@ e2e/src/suite/api/providers.test.ts
 e2e/src/suite/api/providers-comprehensive.test.ts
 e2e/src/suite/api/index.test.ts
 e2e/src/suite/api/providers/bedrock-custom-arn.test.ts
+e2e/src/suite/api/provider-enablement-validation.test.ts
