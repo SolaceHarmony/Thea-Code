@@ -236,6 +236,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 			console.log(`✅ Gemini capabilities - Chat: ${chatModels.length}, Vision: ${visionModels.length}, Tools: ${toolModels.length}`)
 		})
 	})
+})
 // Mock cleanup
 // Performance test
 suite("Performance Tests", () => {
@@ -279,4 +280,5 @@ suite("Performance Tests", () => {
 		const successCount = results.filter(r => r.success).length
 		assert.ok(successCount >= 3)
 	}, 20000)
+})
 // Mock cleanup
