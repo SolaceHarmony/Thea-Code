@@ -272,3 +272,4 @@ suite("Comprehensive Provider Tests", () => {
 		})
 	})
 // Mock cleanup
+})
