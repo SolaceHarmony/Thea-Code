@@ -267,12 +267,10 @@ suite("BaseProvider - Schema-Only Tool Registration", () => {
 			for (const tool of registeredTools) {
 				try {
 					tool.handler()
-} catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		} catch (error) {
-					if (error.message.includes("handled by MCP provider")) {
-						executionErrors++
-					}
+			} catch (error) {
+				if (error.message.includes("handled by MCP provider")) {
+					executionErrors++
+				}
 				} catch (error) {
 			assert.fail("Unexpected error: " + error.message)
 		}

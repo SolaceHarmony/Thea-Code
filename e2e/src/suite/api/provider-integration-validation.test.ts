@@ -116,9 +116,7 @@ suite("Provider Integration Validation", () => {
 		test("should properly handle invalid configurations", () => {
 			// Test that providers properly validate their required configuration
 			try {
-				buildApiHandler({ apiProvider: "mistral", apiKey: "test" } catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		}as any)
+				buildApiHandler({ apiProvider: "mistral", apiKey: "test" } as any)
 				assert.fail("Should have thrown for missing Mistral API key")
 } catch (error) {
 				assert.ok(error instanceof Error)
@@ -128,9 +126,7 @@ suite("Provider Integration Validation", () => {
 		}
 
 			try {
-				buildApiHandler({ apiProvider: "requesty", apiKey: "test" } catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		}as any)
+				buildApiHandler({ apiProvider: "requesty", apiKey: "test" } as any)
 				assert.fail("Should have thrown for missing Requesty API key")
 } catch (error) {
 				assert.ok(error instanceof Error)
@@ -140,9 +136,7 @@ suite("Provider Integration Validation", () => {
 		}
 
 			try {
-				buildApiHandler({ apiProvider: "fake-ai", apiKey: "test" } catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		}as any)
+				buildApiHandler({ apiProvider: "fake-ai", apiKey: "test" } as any)
 				assert.fail("Should have thrown for missing Fake AI")
 } catch (error) {
 				assert.ok(error instanceof Error)
@@ -154,9 +148,7 @@ suite("Provider Integration Validation", () => {
 
 		test("should handle unsupported human-relay provider", () => {
 			try {
-				buildApiHandler({ apiProvider: "human-relay" } catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		}as any)
+				buildApiHandler({ apiProvider: "human-relay" } as any)
 				assert.fail("Should have thrown for unsupported provider")
 } catch (error) {
 				assert.ok(error instanceof Error)
@@ -265,11 +257,7 @@ suite("Provider Integration Validation", () => {
 					const handler = buildApiHandler(config)
 					
 					methodsToCheck.forEach((method) => {
-						assert.ok(typeof handler[method] === "function",
-							`${provider} catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		}should have ${method} method`
-						)
+						assert.ok(typeof handler[method] === "function", `${provider} should have ${method} method`)
 					})
 } catch (error) {
 					// Some providers might fail due to missing config, that's OK for this test

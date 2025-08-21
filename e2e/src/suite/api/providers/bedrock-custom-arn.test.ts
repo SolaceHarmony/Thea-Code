@@ -180,12 +180,10 @@ suite("AwsBedrockHandler Custom ARN Functionality", () => {
 
 			try {
 				await handler.completePrompt("test")
-				assert.fail("Should have thrown an error for invalid ARN")
-} catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
+			assert.fail("Should have thrown an error for invalid ARN")
 		} catch (error) {
-				assert.ok(error instanceof Error)
-				assert.ok(error.message.includes("Invalid ARN format"))
+			assert.ok(error instanceof Error)
+			assert.ok(error.message.includes("Invalid ARN format"))
 			} catch (error) {
 			assert.fail("Unexpected error: " + error.message)
 		}
@@ -387,12 +385,10 @@ suite("AwsBedrockHandler Custom ARN Functionality", () => {
 			
 			try {
 				await handler.completePrompt("test")
-				assert.fail("Should have thrown an error for non-existent model")
-} catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
+			assert.fail("Should have thrown an error for non-existent model")
 		} catch (error) {
-				assert.ok(error instanceof Error)
-				assert.ok(error.message.includes("Model not found"))
+			assert.ok(error instanceof Error)
+			assert.ok(error.message.includes("Model not found"))
 			} catch (error) {
 			assert.fail("Unexpected error: " + error.message)
 		}
