@@ -271,7 +271,6 @@ suite("BaseProvider - Schema-Only Tool Registration", () => {
 				if (error.message.includes("handled by MCP provider")) {
 					executionErrors++
 				}
-				} catch (error) {
 			assert.fail("Unexpected error: " + error.message)
 		}
 			}
@@ -374,3 +373,4 @@ suite("BaseProvider - Schema-Only Tool Registration", () => {
 		})
 	})
 // Mock cleanup
+})
