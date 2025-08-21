@@ -75,7 +75,7 @@ suite("Ollama Integration", () => {
 		// Mock OpenAI client
 		const mockCreate = sandbox.stub().callsFake(({ messages, stream }: any) => {
 			if (stream) {
-// Mock implementation removed }] }
+// Return streaming async generator
 // 							yield { choices: [{ delta: { content: "Visible response" } }] }
 // 							yield { choices: [{ finish_reason: "stop" }] }
 // 						} else if (userText.includes("json reasoning")) {
@@ -99,7 +99,7 @@ suite("Ollama Integration", () => {
 							yield { choices: [{ delta: { content: "Image processed" } }] }
 							yield { choices: [{ finish_reason: "stop" }] }
 } else {
-							// Default response
+						// Default response
 							yield { choices: [{ delta: { content: "Test response" } }] }
 							yield { choices: [{ finish_reason: "stop" }] }
 						}
