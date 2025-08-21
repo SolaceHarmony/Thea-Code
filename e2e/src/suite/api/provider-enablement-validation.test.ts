@@ -48,6 +48,7 @@ class MockMcpIntegration {
 const { buildApiHandler } = proxyquire('../../../../src/api/index', {
 	'../services/mcp/integration/McpIntegration': {
 		McpIntegration: MockMcpIntegration
+	}
 	})
 
 suite("Provider Enablement Validation", () => {
