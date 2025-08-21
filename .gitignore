@@ -75,3 +75,7 @@ dist/
 mcp-claude/requirements.txt
 mcp-claude/server.py
 *.log
+
+# Claude screenshot debugging tools
+**/claude_screenshot.py
+**/screenshot_*.py
