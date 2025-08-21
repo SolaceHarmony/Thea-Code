@@ -121,7 +121,7 @@ suite("Provider Integration Validation", () => {
 } catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Mistral API key is required"))
-			} catch (error) {
+		e2e/src/suite/api/ollama-integration.test.ts
 			assert.fail("Unexpected error: " + error.message)
 		}
 
@@ -131,7 +131,7 @@ suite("Provider Integration Validation", () => {
 } catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Requesty API key is required"))
-			} catch (error) {
+		e2e/src/suite/api/ollama-integration.test.ts
 			assert.fail("Unexpected error: " + error.message)
 		}
 
@@ -141,7 +141,7 @@ suite("Provider Integration Validation", () => {
 } catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Fake AI is not set"))
-			} catch (error) {
+		e2e/src/suite/api/ollama-integration.test.ts
 			assert.fail("Unexpected error: " + error.message)
 		}
 		})
@@ -154,7 +154,7 @@ suite("Provider Integration Validation", () => {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("is not a valid API provider") || 
 				         error.message.includes("Unsupported provider"))
-			} catch (error) {
+		e2e/src/suite/api/ollama-integration.test.ts
 			assert.fail("Unexpected error: " + error.message)
 		}
 		})
@@ -262,7 +262,7 @@ suite("Provider Integration Validation", () => {
 } catch (error) {
 					// Some providers might fail due to missing config, that's OK for this test
 					// We're just checking the API shape when they can be created
-				} catch (error) {
+			e2e/src/suite/api/ollama-integration.test.ts
 			assert.fail("Unexpected error: " + error.message)
 		}
 			})
