@@ -6,10 +6,10 @@ import * as sinon from 'sinon'
  */
 import { MockMcpProvider } from "../../providers/MockMcpProvider"
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-require-imports, @typescript-eslint/require-await, @typescript-eslint/no-explicit-any, @typescript-eslint/restrict-template-expressions */
-import { McpToolExecutor } from "../../core/McpToolExecutor"
 import { McpIntegration } from "../../integration/McpIntegration"
-import { ToolDefinition } from "../../types/McpProviderTypes"
+import { McpToolExecutor } from "../../core/McpToolExecutor"
 import { NeutralToolUseRequest } from "../../types/McpToolTypes"
+import { ToolDefinition } from "../../types/McpProviderTypes"
 
 // Mock dependencies for performance testing
 // TODO: Mock setup needs manual migration

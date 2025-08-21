@@ -258,4 +258,4 @@ suite("getModelParams", () => {
 			temperature: 1.0,
 		})
 	})
-})
+// Mock cleanup

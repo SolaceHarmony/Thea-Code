@@ -1,7 +1,7 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
-import { McpConverters } from "../McpConverters"
 import { NeutralToolResult } from "../../types/McpToolTypes"
+import { McpConverters } from "../McpConverters"
 import { ToolDefinition } from "../../types/McpProviderTypes"
 
 suite("McpConverters", () => {
@@ -454,4 +454,6 @@ suite("McpConverters", () => {
 			])
 		})
 	})
-})
+// Mock cleanup
+
+// Mock cleanup

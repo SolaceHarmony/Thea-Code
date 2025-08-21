@@ -113,4 +113,4 @@ suite("API Stream Types", () => {
 			expect(multilineChunk.text.split("\n")).toHaveLength(3)
 		})
 	})
-})
+// Mock cleanup

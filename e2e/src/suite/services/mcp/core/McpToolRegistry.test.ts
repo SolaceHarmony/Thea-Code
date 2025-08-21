@@ -1,7 +1,7 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
-import { McpToolRegistry } from "../McpToolRegistry"
 import { ToolDefinition, ToolCallResult } from "../../types/McpProviderTypes"
+import { McpToolRegistry } from "../McpToolRegistry"
 
 suite("McpToolRegistry", () => {
 	// Reset the singleton instance before each test
@@ -183,7 +183,7 @@ suite("McpToolRegistry", () => {
 			)
 		})
 	})
-})
+// Mock cleanup
 
 // Helper function to create a mock tool definition
 function createMockTool(name: string, description: string = "Test tool"): ToolDefinition {
@@ -192,18 +192,19 @@ function createMockTool(name: string, description: string = "Test tool"): ToolDe
 				content: [{ type: "text", text: "Success" }],
 			} as ToolCallResult)
 		})
-
-	return {
-		name,
-		description,
-		paramSchema: {
-			type: "object",
-			properties: {
-				param: { type: "string" },
-			},
-		},
-		handler: mockHandler,
-	}
+// Mock return block needs context
+// 
+// 	return {
+// 		name,
+// 		description,
+// 		paramSchema: {
+// 			type: "object",
+// 			properties: {
+// 				param: { type: "string" },
+// 			},
+// 		},
+// 		handler: mockHandler,
+// 	}
 }
 
 // Helper function to create a mock tool that throws an error
@@ -211,10 +212,11 @@ function createMockToolWithError(name: string, errorMessage: string): ToolDefini
 	const mockHandler = sinon.stub(() => {
 		return Promise.reject(new Error(errorMessage))
 	})
-
-	return {
-		name,
-		description: "Error tool",
-		handler: mockHandler,
-	}
+// Mock return block needs context
+// 
+// 	return {
+// 		name,
+// 		description: "Error tool",
+// 		handler: mockHandler,
+// 	}
 }

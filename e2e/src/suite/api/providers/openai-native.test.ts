@@ -1,17 +1,17 @@
-import { OpenAiNativeHandler } from "../openai-native"
 import { ApiHandlerOptions } from "../../../shared/api"
-import { NeutralMessage } from "../../../shared/neutral-history"
-import {
+import { OpenAiNativeHandler } from "../openai-native"
 import * as assert from 'assert'
+import { NeutralMessage } from "../../../shared/neutral-history"
 import * as sinon from 'sinon'
+import {
 	ApiStreamTextChunk,
 	ApiStreamUsageChunk,
 	ApiStreamReasoningChunk,
 	ApiStreamToolUseChunk,
 	ApiStreamToolResultChunk,
 } from "../../transform/stream"
-import { Readable } from "stream"
 import openaiSetup, { openAIMock } from "../../../../test/openai-mock/setup.ts"
+import { Readable } from "stream"
 import { openaiTeardown } from "../../../../test/openai-mock/teardown.ts"
 
 // Define types for openAI mock
@@ -88,11 +88,11 @@ setup(async () => {
 			return [200, stream]
 		},
 	)
-})
+// Mock cleanup
 
 teardown(async () => {
 	await openaiTeardown()
-})
+// Mock cleanup
 
 suite("OpenAiNativeHandler", () => {
 	let handler: OpenAiNativeHandler
@@ -115,7 +115,7 @@ suite("OpenAiNativeHandler", () => {
 
 	suite("constructor", () => {
 		test("should initialize with provided options", () => {
-			expect(handler).toBeInstanceOf(OpenAiNativeHandler)
+			assert.ok(handler instanceof OpenAiNativeHandler)
 			expect(handler.getModel().id).toBe(mockOptions.apiModelId)
 		})
 
@@ -124,7 +124,7 @@ suite("OpenAiNativeHandler", () => {
 				apiModelId: "gpt-4o",
 				openAiNativeApiKey: "",
 			})
-			expect(handlerWithoutKey).toBeInstanceOf(OpenAiNativeHandler)
+			assert.ok(handlerWithoutKey instanceof OpenAiNativeHandler)
 		})
 	})
 
@@ -136,7 +136,7 @@ suite("OpenAiNativeHandler", () => {
 				chunks.push(chunk)
 			}
 
-			expect(chunks.length).toBeGreaterThan(0)
+			assert.ok(chunks.length > 0)
 			const textChunks = chunks.filter((chunk): chunk is ApiStreamTextChunk => chunk.type === "text")
 			assert.strictEqual(textChunks.length, 1)
 			assert.strictEqual(textChunks[0].text, "Test response")
@@ -193,8 +193,7 @@ suite("OpenAiNativeHandler", () => {
 
 			assert.deepStrictEqual(results, [{ type: "usage", inputTokens: 0, outputTokens: 0 }])
 
-			assert.deepStrictEqual(requestBody, 
-				// TODO: Object partial match - {
+			assert.deepStrictEqual(requestBody, {
 					model: "o1",
 					messages: [
 						{ role: "developer", content: "Formatting re-enabled\n" + systemPrompt },
@@ -202,8 +201,7 @@ suite("OpenAiNativeHandler", () => {
 					],
 					stream: true,
 					stream_options: { include_usage: true },
-				}),
-			)
+				})
 		})
 
 		test("should handle o3-mini model family correctly", async () => {
@@ -218,8 +216,7 @@ suite("OpenAiNativeHandler", () => {
 				chunks.push(chunk)
 			}
 
-			assert.deepStrictEqual(requestBody, 
-				// TODO: Object partial match - {
+			assert.deepStrictEqual(requestBody, {
 					model: "o3-mini",
 					messages: [
 						{ role: "developer", content: "Formatting re-enabled\n" + systemPrompt },
@@ -228,8 +225,7 @@ suite("OpenAiNativeHandler", () => {
 					stream: true,
 					stream_options: { include_usage: true },
 					reasoning_effort: "medium",
-				}),
-			)
+				})
 		})
 	})
 
@@ -281,8 +277,7 @@ suite("OpenAiNativeHandler", () => {
 				{ type: "usage", inputTokens: 10, outputTokens: 5 },
 			])
 
-			assert.deepStrictEqual(requestBody, 
-				// TODO: Object partial match - {
+			assert.deepStrictEqual(requestBody, {
 					model: "gpt-4o",
 					temperature: 0,
 					messages: [
@@ -291,8 +286,7 @@ suite("OpenAiNativeHandler", () => {
 					],
 					stream: true,
 					stream_options: { include_usage: true },
-				}),
-			)
+				})
 		})
 
 		test("should handle empty delta content", async () => {
@@ -333,13 +327,11 @@ suite("OpenAiNativeHandler", () => {
 		test("should complete prompt successfully with gpt-4o model", async () => {
 			const result = await handler.completePrompt("Test prompt")
 			assert.strictEqual(result, "Test response")
-			assert.deepStrictEqual(requestBody, 
-				// TODO: Object partial match - {
+			assert.deepStrictEqual(requestBody, {
 					model: "gpt-4o",
 					messages: [{ role: "user", content: "Test prompt" }],
 					temperature: 0,
-				}),
-			)
+				})
 		})
 
 		test("should complete prompt successfully with o1 model", async () => {
@@ -350,12 +342,10 @@ suite("OpenAiNativeHandler", () => {
 
 			const result = await handler.completePrompt("Test prompt")
 			assert.strictEqual(result, "Test response")
-			assert.deepStrictEqual(requestBody, 
-				// TODO: Object partial match - {
+			assert.deepStrictEqual(requestBody, {
 					model: "o1",
 					messages: [{ role: "user", content: "Test prompt" }],
-				}),
-			)
+				})
 		})
 
 		test("should complete prompt successfully with o1-preview model", async () => {
@@ -366,12 +356,10 @@ suite("OpenAiNativeHandler", () => {
 
 			const result = await handler.completePrompt("Test prompt")
 			assert.strictEqual(result, "Test response")
-			assert.deepStrictEqual(requestBody, 
-				// TODO: Object partial match - {
+			assert.deepStrictEqual(requestBody, {
 					model: "o1-preview",
 					messages: [{ role: "user", content: "Test prompt" }],
-				}),
-			)
+				})
 		})
 
 		test("should complete prompt successfully with o1-mini model", async () => {
@@ -382,12 +370,10 @@ suite("OpenAiNativeHandler", () => {
 
 			const result = await handler.completePrompt("Test prompt")
 			assert.strictEqual(result, "Test response")
-			assert.deepStrictEqual(requestBody, 
-				// TODO: Object partial match - {
+			assert.deepStrictEqual(requestBody, {
 					model: "o1-mini",
 					messages: [{ role: "user", content: "Test prompt" }],
-				}),
-			)
+				})
 		})
 
 		test("should complete prompt successfully with o3-mini model", async () => {
@@ -398,13 +384,11 @@ suite("OpenAiNativeHandler", () => {
 
 			const result = await handler.completePrompt("Test prompt")
 			assert.strictEqual(result, "Test response")
-			assert.deepStrictEqual(requestBody, 
-				// TODO: Object partial match - {
+			assert.deepStrictEqual(requestBody, {
 					model: "o3-mini",
 					messages: [{ role: "user", content: "Test prompt" }],
 					reasoning_effort: "medium",
-				}),
-			)
+				})
 		})
 
 		test("should handle API errors", async () => {
@@ -451,4 +435,4 @@ suite("OpenAiNativeHandler", () => {
 			assert.notStrictEqual(modelInfo.info, undefined)
 		})
 	})
-})
+// Mock cleanup

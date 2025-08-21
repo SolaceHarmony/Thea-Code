@@ -1,6 +1,6 @@
-import {
 import * as assert from 'assert'
 import * as sinon from 'sinon'
+import {
   supportsComputerUse,
   supportsPromptCaching,
   supportsImages,
@@ -205,4 +205,4 @@ suite("Model Capability Detection", () => {
       expect(getContextWindowSize(modelWithoutContextWindow, 4096)).toBe(4096)
     })
   })
-})
+// Mock cleanup

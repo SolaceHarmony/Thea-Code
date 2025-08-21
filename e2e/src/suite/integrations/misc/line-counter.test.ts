@@ -5,25 +5,26 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 
 // Mock the fs module
-// TODO: Use proxyquire for module mocking - "fs", () => {
-	const originalModule: typeof import("fs") = require("fs")
-	return {
-		...originalModule,
-		createReadStream: sinon.stub(),
-		promises: {
-			access: sinon.stub(),
-		},
-	} as typeof import("fs")
-})
-
-// Mock readline
-// TODO: Use proxyquire for module mocking - "readline", () => ({
-	createInterface: sinon.stub().returns({
-		on: sinon.stub().callsFake(function (this: { mockLines?: number }, event: string, callback: () => void) {
-			if (event === "line" && this.mockLines) {
-				for (let i = 0; i < this.mockLines; i++) {
-					callback()
-				}
+// TODO: Mock setup needs manual migration for "fs"
+// 	const originalModule: typeof import("fs") = require("fs")
+// Mock return block needs context
+// 	return {
+// 		...originalModule,
+// 		createReadStream: sinon.stub(),
+// 		promises: {
+// 			access: sinon.stub(),
+// 		},
+// 	} as typeof import("fs")
+// // Mock cleanup
+// 
+// // Mock readline
+// // TODO: Use proxyquire for module mocking - "readline", () => ({
+// 	createInterface: sinon.stub().returns({
+// 		on: sinon.stub().callsFake(function (this: { mockLines?: number }, event: string, callback: () => void) {
+// 			if (event === "line" && this.mockLines) {
+// 				for (let i = 0; i < this.mockLines; i++) {
+// 					callback()
+// 				}
 			}
 			if (event === "close") {
 				callback()
@@ -32,7 +33,7 @@ import * as sinon from 'sinon'
 		}),
 		mockLines: 0,
 	}),
-}))
+// Mock cleanup needed
 
 suite("countFileLines", () => {
 	setup(() => {
@@ -152,4 +153,4 @@ suite("countFileLines", () => {
 		// Test & Assert
 		await expect(countFileLines("error-file.txt")).rejects.toThrow("Read error")
 	})
-})
+// Mock cleanup

@@ -1,11 +1,12 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * Edge case tests for McpConverters as recommended by architect
  * Tests XML/JSON/OpenAI → neutral conversions with edge cases
  */
 
-import { McpConverters } from "../McpConverters"
 import { NeutralToolUseRequest, NeutralToolResult } from "../../types/McpToolTypes"
+import { McpConverters } from "../McpConverters"
 
 suite("McpConverters Edge Cases", () => {
 	suite("xmlToMcp", () => {
@@ -506,4 +507,5 @@ suite("McpConverters Edge Cases", () => {
 			})
 		})
 	})
-})
+// Mock cleanup
+// Mock cleanup

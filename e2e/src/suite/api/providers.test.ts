@@ -38,4 +38,4 @@ suite("API Provider Tests", () => {
 			// To be implemented when we migrate model registry tests
 		})
 	})
-})
+// Mock cleanup

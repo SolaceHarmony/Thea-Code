@@ -1,9 +1,9 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
-import { McpToolExecutor } from "../McpToolExecutor"
 import { McpToolRegistry } from "../McpToolRegistry"
-import { NeutralToolUseRequest } from "../../types/McpToolTypes"
+import { McpToolExecutor } from "../McpToolExecutor"
 import { ToolDefinition } from "../../types/McpProviderTypes"
+import { NeutralToolUseRequest } from "../../types/McpToolTypes"
 
 // Define interface for the mock EmbeddedMcpProvider
 interface MockEmbeddedMcpProviderInstance {
@@ -55,22 +55,23 @@ const mockEmbeddedMcpProviderInstance = {
 	removeAllListeners: sinon.stub(),
 } as MockEmbeddedMcpProviderInstance
 
-// TODO: Use proxyquire for module mocking - "../../providers/EmbeddedMcpProvider", () => {
-	const MockEmbeddedMcpProvider = sinon.stub().callsFake(() => mockEmbeddedMcpProviderInstance)
+// TODO: Mock setup needs manual migration for "../../providers/EmbeddedMcpProvider"
+// 	const MockEmbeddedMcpProvider = sinon.stub().callsFake(() => mockEmbeddedMcpProviderInstance)
 
 	const mockConstructor = MockEmbeddedMcpProvider as unknown as MockEmbeddedMcpProviderConstructor
 	mockConstructor.create = sinon.stub().callsFake(() => {
 		return Promise.resolve(mockEmbeddedMcpProviderInstance)
 	})
-
-	return {
-		EmbeddedMcpProvider: mockConstructor,
-	}
-})
+// Mock return block needs context
+// 
+// 	return {
+// 		EmbeddedMcpProvider: mockConstructor,
+// 	}
+// Mock cleanup
 
 // Mock the McpToolRegistry
-// TODO: Use proxyquire for module mocking - "../McpToolRegistry", () => {
-	const mockRegistry = {
+// TODO: Mock setup needs manual migration for "../McpToolRegistry"
+// 	const mockRegistry = {
 		getInstance: sinon.stub(),
 		registerTool: sinon.stub(),
 		unregisterTool: sinon.stub().returns(true),
@@ -79,13 +80,14 @@ const mockEmbeddedMcpProviderInstance = {
 		hasTool: sinon.stub(),
 		executeTool: sinon.stub(),
 	}
-
-	return {
-		McpToolRegistry: {
-			getInstance: sinon.stub().returns(mockRegistry),
-		},
-	}
-})
+// Mock return block needs context
+// 
+// 	return {
+// 		McpToolRegistry: {
+// 			getInstance: sinon.stub().returns(mockRegistry),
+// 		},
+// 	}
+// Mock cleanup
 
 suite("McpToolExecutor", () => {
 	// Reset the singleton instance before each test
@@ -346,4 +348,4 @@ suite("McpToolExecutor", () => {
 			assert.deepStrictEqual(url, mockEmbeddedMcpProviderInstance.getServerUrl())
 		})
 	})
-})
+// Mock cleanup

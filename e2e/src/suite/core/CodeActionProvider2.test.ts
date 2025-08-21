@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
-import { CodeActionProvider, ACTION_NAMES } from "../CodeActionProvider"
 import { EditorUtils } from "../EditorUtils"
+import { CodeActionProvider, ACTION_NAMES } from "../CodeActionProvider"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 
@@ -22,8 +22,8 @@ interface MockCodeActionContext extends vscode.CodeActionContext {
 }
 
 // Mock VSCode API
-// TODO: Use proxyquire for module mocking - "vscode", () => {
-	const actualVscode: typeof vscode = require("vscode")
+// TODO: Mock setup needs manual migration for "vscode"
+// 	const actualVscode: typeof vscode = require("vscode")
 
 	// Mock static methods of Uri directly on the actual Uri class
 	actualVscode.Uri.file = sinon.stub((path: string) => actualVscode.Uri.file(path))
@@ -39,8 +39,7 @@ interface MockCodeActionContext extends vscode.CodeActionContext {
 				path: components.path,
 				query: components.query,
 				fragment: components.fragment,
-			}),
-	)
+			})
 
 	return {
 		...actualVscode,
@@ -67,17 +66,18 @@ interface MockCodeActionContext extends vscode.CodeActionContext {
 		},
 		Uri: actualVscode.Uri, // Return the actual Uri class with mocked static methods
 	} satisfies Partial<typeof vscode> as typeof vscode
-})
+// Mock cleanup
 
 // Mock EditorUtils
-// TODO: Use proxyquire for module mocking - "../EditorUtils", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../EditorUtils" needed here
 	EditorUtils: {
 		getEffectiveRange: sinon.stub(),
 		getFilePath: sinon.stub(),
 		hasIntersectingRange: sinon.stub(),
 		createDiagnosticData: sinon.stub(),
 	},
-}))
+// Mock cleanup
 
 suite("CodeActionProvider", () => {
 	let provider: CodeActionProvider
@@ -192,9 +192,9 @@ suite("CodeActionProvider", () => {
 			const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
 
 			assert.deepStrictEqual(actions, [])
-			assert.ok(consoleErrorSpy.calledWith("Error providing code actions:", expect.any(Error)))
+			assert.ok(consoleErrorSpy.calledWith("Error providing code actions:", sinon.match.instanceOf(Error)))
 
 			consoleErrorSpy.restore()
 		})
 	})
-})
+// Mock cleanup

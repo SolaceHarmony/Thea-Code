@@ -2,13 +2,13 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 import axios from "axios"
 import OpenAI from "openai"
-import { NeutralMessage } from "../../../shared/neutral-history"
 import type { ApiStreamChunk } from "../../transform/stream" // Added for chunk typing
-import { OpenRouterHandler } from "../openrouter"
+import { NeutralMessage } from "../../../shared/neutral-history"
 import { ApiHandlerOptions, ModelInfo } from "../../../shared/api"
+import { OpenRouterHandler } from "../openrouter"
 import { API_REFERENCES } from "../../../shared/config/thea-config"
 // Mock dependencies
-// TODO: Use proxyquire for module mocking - "axios")
+// TODO: Mock setup needs manual migration for "axios"
 // TODO: Use proxyquire for module mocking - "delay", () => sinon.stub(() => Promise.resolve()))
 
 const mockOpenRouterModelInfo: ModelInfo = {
@@ -40,7 +40,7 @@ suite("OpenRouterHandler", () => {
 				"HTTP-Referer": API_REFERENCES.HOMEPAGE,
 				"X-Title": API_REFERENCES.APP_TITLE,
 			},
-		}))
+		})
 	})
 
 	test("getModel returns correct model info when options are provided", () => {
@@ -164,8 +164,7 @@ suite("OpenRouterHandler", () => {
 		})
 
 		// Verify OpenAI client was called with correct parameters
-		assert.ok(mockCreate.calledWith(
-			// TODO: Object partial match - {
+		assert.ok(mockCreate.calledWith({
 				model: mockOptions.openRouterModelId,
 				temperature: 0,
 				messages: // TODO: Array partial match - [
@@ -173,8 +172,7 @@ suite("OpenRouterHandler", () => {
 					{ role: "user", content: "test message" },
 				])) as unknown,
 				stream: true,
-			}),
-		)
+			})
 	})
 
 	test("createMessage with middle-out transform enabled", async () => {
@@ -210,8 +208,7 @@ suite("OpenRouterHandler", () => {
 
 		await handler.createMessage("test", []).next()
 
-		assert.ok(mockCreate.calledWith(
-			// TODO: Object partial match - {
+		assert.ok(mockCreate.calledWith({
 				transforms: ["middle-out"],
 			})),
 		)
@@ -256,8 +253,7 @@ suite("OpenRouterHandler", () => {
 
 		await handler.createMessage("test system", messages).next()
 
-		assert.ok(mockCreate.calledWith(
-			// TODO: Object partial match - {
+		assert.ok(mockCreate.calledWith({
 				messages: // TODO: Array partial match - [
 					// TODO: Object partial match - {
 						role: "system",
@@ -268,8 +264,7 @@ suite("OpenRouterHandler", () => {
 						]) as unknown,
 					}),
 				]) as unknown,
-			}),
-		)
+			})
 	})
 
 	test("createMessage handles API errors", async () => {
@@ -406,4 +401,4 @@ suite("OpenRouterHandler", () => {
 		assert.notStrictEqual(toolResultChunk, undefined)
 		assert.deepStrictEqual(toolResultChunk, { type: "tool_result", id: "call1", content: { result: "ok" } })
 	})
-})
+// Mock cleanup

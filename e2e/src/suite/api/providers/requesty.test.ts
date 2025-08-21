@@ -3,15 +3,15 @@ import * as sinon from 'sinon'// import type { Anthropic } from "@anthropic-ai/s
 import type { NeutralConversationHistory } from "../../../shared/neutral-history" // NeutralMessageContent was unused
 import type { ApiStreamChunk } from "../../transform/stream"
 import OpenAI from "openai"
-import { ApiHandlerOptions } from "../../../shared/api" // ModelInfo, requestyDefaultModelInfo were unused
 import { RequestyHandler } from "../requesty"
-import { convertToOpenAiHistory } from "../../transform/neutral-openai-format"
+import { ApiHandlerOptions } from "../../../shared/api" // ModelInfo, requestyDefaultModelInfo were unused
 import { convertToR1Format } from "../../transform/r1-format"
+import { convertToOpenAiHistory } from "../../transform/neutral-openai-format"
 import { API_REFERENCES } from "../../../shared/config/thea-config"
 // Mock OpenAI and transform functions
-// TODO: Use proxyquire for module mocking - "openai")
-// TODO: Use proxyquire for module mocking - "../../transform/neutral-openai-format")
-// TODO: Use proxyquire for module mocking - "../../transform/r1-format")
+// TODO: Mock setup needs manual migration for "openai"
+// TODO: Mock setup needs manual migration for "../../transform/neutral-openai-format"
+// TODO: Mock setup needs manual migration for "../../transform/r1-format"
 
 suite("RequestyHandler", () => {
 	let handler: RequestyHandler
@@ -73,7 +73,7 @@ suite("RequestyHandler", () => {
 					"HTTP-Referer": API_REFERENCES.HOMEPAGE,
 					"X-Title": API_REFERENCES.APP_TITLE,
 				},
-			}))
+			})
 		})
 	})
 
@@ -149,8 +149,7 @@ suite("RequestyHandler", () => {
 				assert.ok(mockCreate.calledWith(
 					expect.not.objectContaining({
 						max_tokens: expect.any(Number)), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-					}),
-				)
+					})
 			})
 		})
 
@@ -253,4 +252,4 @@ suite("RequestyHandler", () => {
 			)
 		})
 	})
-})
+// Mock cleanup

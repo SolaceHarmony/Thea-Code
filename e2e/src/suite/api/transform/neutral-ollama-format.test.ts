@@ -402,4 +402,4 @@ suite("neutral-ollama-format", () => {
 			assert.strictEqual(content[0].text, JSON.stringify({ foo: "bar" }))
 		})
 	})
-})
+// Mock cleanup

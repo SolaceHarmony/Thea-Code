@@ -1,11 +1,12 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * SSE Transport lifecycle tests as recommended by architect
  * Tests dynamic import, teardown guard, port management, and transport exposure
  */
 
-import { SseTransport } from "../SseTransport"
 import { SseTransportConfig } from "../../types/McpProviderTypes"
+import { SseTransport } from "../SseTransport"
 
 suite("SseTransport Lifecycle Tests", () => {
 	let transport: SseTransport
@@ -38,7 +39,7 @@ suite("SseTransport Lifecycle Tests", () => {
 			// Should have a port assigned
 			const port = transport.getPort()
 			assert.notStrictEqual(port, undefined)
-			expect(port).toBeGreaterThan(0)
+			assert.ok(port > 0)
 		})
 
 		test("should handle teardown guard during Jest teardown", async () => {
@@ -65,8 +66,8 @@ suite("SseTransport Lifecycle Tests", () => {
 		test("should handle missing SDK gracefully", async () => {
 			// Mock the dynamic import to fail
 			const originalRequire = require
-			// TODO: Use proxyquire dynamic mock - "@modelcontextprotocol/sdk/server/streamableHttp.js", () => {
-				throw new Error("Module not found")
+			// TODO: Mock setup needs manual migration for "@modelcontextprotocol/sdk/server/streamableHttp.js"
+// 				throw new Error("Module not found")
 			})
 			
 			const config: SseTransportConfig = {
@@ -109,7 +110,7 @@ suite("SseTransport Lifecycle Tests", () => {
 			
 			const port = transport.getPort()
 			assert.notStrictEqual(port, undefined)
-			expect(port).toBeGreaterThan(0)
+			assert.ok(port > 0)
 			assert.notStrictEqual(port, 0)
 		})
 
@@ -285,7 +286,7 @@ suite("SseTransport Lifecycle Tests", () => {
 			
 			// Ports might be different (especially with dynamic allocation)
 			assert.notStrictEqual(secondPort, undefined)
-			expect(secondPort).toBeGreaterThan(0)
+			assert.ok(secondPort > 0)
 		})
 	})
 
@@ -339,4 +340,4 @@ suite("SseTransport Lifecycle Tests", () => {
 			}
 		})
 	})
-})
+// Mock cleanup

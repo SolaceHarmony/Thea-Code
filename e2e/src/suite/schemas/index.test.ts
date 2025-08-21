@@ -10,4 +10,4 @@ suite("GLOBAL_STATE_KEYS", () => {
 		assert.ok(GLOBAL_STATE_KEYS.includes("anthropicBaseUrl"))
 
 	test("should not contain secret state keys", () => {
-		expect(GLOBAL_STATE_KEYS).not.toContain("openRouterApiKey")
+		assert.ok(!GLOBAL_STATE_KEYS.includes("openRouterApiKey"))

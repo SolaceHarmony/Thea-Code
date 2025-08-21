@@ -206,4 +206,4 @@ suite("DeepSeekHandler", () => {
 			assert.strictEqual(result, 0)
 		})
 	})
-})
+// Mock cleanup

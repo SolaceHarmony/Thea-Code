@@ -1,5 +1,5 @@
-import { applyContextMatching, applyDMP, applyGitFallback } from "../edit-strategies"
 import { Hunk } from "../types"
+import { applyContextMatching, applyDMP, applyGitFallback } from "../edit-strategies"
 
 import * as assert from 'assert'
 const testCases = [

@@ -1,11 +1,12 @@
-import { McpConverters } from "../core/McpConverters"
 import { ToolDefinition } from "../types/McpProviderTypes"
-import { NeutralToolResult } from "../types/McpToolTypes"
+import { McpConverters } from "../core/McpConverters"
 import * as assert from 'assert'
+import { NeutralToolResult } from "../types/McpToolTypes"
 import * as sinon from 'sinon'
 
 // Mock the json-xml-bridge utilities
-// TODO: Use proxyquire for module mocking - "../../../utils/json-xml-bridge", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../../../utils/json-xml-bridge" needed here
 	jsonToolUseToXml: sinon.stub((json) => `<mock_xml>${json}</mock_xml>`),
 	xmlToolUseToJson: sinon.stub(() => '{"type":"tool_use","id":"test","name":"test_tool","input":{"param":"test"}}'),
 	openAiFunctionCallToNeutralToolUse: sinon.stub(() => ({
@@ -15,7 +16,7 @@ import * as sinon from 'sinon'
 		input: { param: "test" },
 	})),
 	neutralToolUseToOpenAiFunctionCall: sinon.stub(),
-}))
+// Mock cleanup needed
 
 suite("McpConverters", () => {
 	suite("toolDefinitionsToOpenAiFunctions", () => {
@@ -405,4 +406,4 @@ suite("McpConverters", () => {
 			})
 		})
 	})
-})
+// Mock cleanup

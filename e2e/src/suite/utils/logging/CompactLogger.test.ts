@@ -308,4 +308,4 @@ suite("CompactLogger", () => {
 			assert.strictEqual(transport.entries[0].d.error.stack, undefined)
 		})
 	})
-})
+// Mock cleanup

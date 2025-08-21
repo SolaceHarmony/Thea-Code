@@ -204,4 +204,4 @@ suite("LmStudioHandler", () => {
 			assert.strictEqual(result, 0)
 		})
 	})
-})
+// Mock cleanup

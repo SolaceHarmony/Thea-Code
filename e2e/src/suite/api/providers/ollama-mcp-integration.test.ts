@@ -294,4 +294,4 @@ suite("Ollama MCP Integration", () => {
 			assert.ok(result > 0)
 		})
 	})
-})
+// Mock cleanup

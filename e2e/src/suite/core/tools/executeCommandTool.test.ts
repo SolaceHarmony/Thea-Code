@@ -1,23 +1,23 @@
 
 import * as assert from 'assert'
 import * as sinon from 'sinon'
-import { executeCommandTool } from "../executeCommandTool"
 import { TheaTask } from "../../TheaTask" // Renamed import
+import { executeCommandTool } from "../executeCommandTool"
 import type { TheaIgnoreController } from "../../ignore/TheaIgnoreController"
 import type { TaskWebviewCommunicator } from "../../TaskWebviewCommunicator"
 import type { TaskStateManager } from "../../TaskStateManager"
-// TODO: Use proxyquire for module mocking - "../../ignore/TheaIgnoreController")
-import { TheaProvider } from "../../webview/TheaProvider"
+// TODO: Mock setup needs manual migration for "../../ignore/TheaIgnoreController"
 import type { TheaMessage } from "../../../shared/ExtensionMessage"
-import { ToolUse } from "../../assistant-message"
+import { TheaProvider } from "../../webview/TheaProvider"
 import { formatResponse } from "../../prompts/responses"
-import { AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../types"
+import { ToolUse } from "../../assistant-message"
 import { TheaAskResponse } from "../../../shared/WebviewMessage" // Import response type
+import { AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../types"
 
 // Mock dependencies
-// TODO: Use proxyquire for module mocking - "../../TheaTask") // Renamed mock
-// TODO: Use proxyquire for module mocking - "../../prompts/responses")
-// TODO: Use proxyquire for module mocking - "../../ignore/TheaIgnoreController")
+// TODO: Mock setup needs manual migration for "../../TheaTask" // Renamed mock
+// TODO: Mock setup needs manual migration for "../../prompts/responses"
+// TODO: Mock setup needs manual migration for "../../ignore/TheaIgnoreController"
 
 suite("executeCommandTool", () => {
 	// Setup common test variables
@@ -331,4 +331,4 @@ suite("executeCommandTool", () => {
 			assert.ok(!mockTheaTask.executeCommandTool.called)
 		})
 	})
-})
+// Mock cleanup

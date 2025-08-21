@@ -1,5 +1,6 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * Model Registry Tests
  * Tests for the dynamic model information extraction system
  */
@@ -324,4 +325,4 @@ suite("ModelRegistry", () => {
 			})
 		})
 	})
-})
+// Mock cleanup

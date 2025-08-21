@@ -4,8 +4,8 @@ import type { ExtensionContext, Uri, Extension, Memento, SecretStorage, Environm
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import type { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import type { McpConnection } from "../management/McpHub"
-import { ServerConfigSchema, McpHub } from "../management/McpHub"
 import fs from "fs/promises"
+import { ServerConfigSchema, McpHub } from "../management/McpHub"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 
@@ -23,7 +23,8 @@ interface TestSettings {
 	>
 }
 
-// TODO: Use proxyquire for module mocking - "vscode", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "vscode" needed here
 	workspace: {
 		createFileSystemWatcher: sinon.stub().returns({
 			onDidChange: sinon.stub(),
@@ -43,9 +44,9 @@ interface TestSettings {
 	Disposable: {
 		from: sinon.stub(),
 	},
-}))
-// TODO: Use proxyquire for module mocking - "fs/promises")
-// TODO: Use proxyquire for module mocking - "../../../core/webview/TheaProvider") // Updated mock path
+// Mock cleanup
+// TODO: Mock setup needs manual migration for "fs/promises"
+// TODO: Mock setup needs manual migration for "../../../core/webview/TheaProvider" // Updated mock path
 
 suite("McpHub", () => {
 	let mcpHub: McpHubType
@@ -112,8 +113,7 @@ suite("McpHub", () => {
 						alwaysAllow: ["allowed-tool"],
 					},
 				},
-			}),
-		)
+			})
 
 		mcpHub = new McpHub(mockProvider as TheaProvider) // Renamed type assertion
 	})
@@ -162,7 +162,7 @@ suite("McpHub", () => {
 			// Verify the config was updated correctly
 			const writeCall = (fs.writeFile as sinon.SinonStub).mock.calls[0] as [string, string]
 			const writtenConfig = JSON.parse(writeCall[1]) as TestSettings
-			expect(writtenConfig.mcpServers["test-server"].alwaysAllow).not.toContain("existing-tool")
+			assert.ok(!writtenConfig.mcpServers["test-server"].alwaysAllow.includes("existing-tool"))
 		})
 
 		test("should initialize alwaysAllow if it does not exist", async () => {
@@ -519,12 +519,11 @@ suite("McpHub", () => {
 
 				await mcpHub.updateServerTimeout("test-server", 120)
 
-				assert.ok(mockProvider.postMessageToWebview.calledWith(
-					// TODO: Object partial match - {
+				assert.ok(mockProvider.postMessageToWebview.calledWith({
 						type: "mcpServers",
 					})),
 				)
 			})
 		})
 	})
-})
+// Mock cleanup

@@ -1,13 +1,14 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * attemptCompletionTool partial/final flow tests
  * Tests partial completion, final completion, approval flows, and telemetry
  */
 
-import { attemptCompletionTool } from "../attemptCompletionTool"
 import { TheaTask } from "../../TheaTask"
-import { telemetryService } from "../../../services/telemetry/TelemetryService"
+import { attemptCompletionTool } from "../attemptCompletionTool"
 import type { ToolUse } from "../../assistant-message"
+import { telemetryService } from "../../../services/telemetry/TelemetryService"
 import type { 
 	AskApproval, 
 	HandleError, 
@@ -18,8 +19,8 @@ import type {
 } from "../types"
 
 // Mock dependencies
-// TODO: Use proxyquire for module mocking - "../../../services/telemetry/TelemetryService")
-// TODO: Use proxyquire for module mocking - "../../TheaTask")
+// TODO: Mock setup needs manual migration for "../../../services/telemetry/TelemetryService"
+// TODO: Mock setup needs manual migration for "../../TheaTask"
 
 suite("attemptCompletionTool - Partial/Final Flow Tests", () => {
 	let mockTheaTask: sinon.SinonStubbedInstance<TheaTask>
@@ -376,7 +377,7 @@ suite("attemptCompletionTool - Partial/Final Flow Tests", () => {
 			assert.ok(!mockTheaTask.executeCommandTool.called)
 
 			// Should not ask for completion feedback
-			assert.ok(!mockTheaTask.webviewCommunicator.ask.called)With(
+			assert.ok(!mockTheaTask.webviewCommunicator.ask.calledWith(
 				"completion_result",
 				"",
 				false
@@ -414,7 +415,7 @@ suite("attemptCompletionTool - Partial/Final Flow Tests", () => {
 			assert.ok(mockPushToolResult.calledWith("User rejected command"))
 
 			// Should not continue to ask for feedback
-			assert.ok(!mockTheaTask.webviewCommunicator.ask.called)With(
+			assert.ok(!mockTheaTask.webviewCommunicator.ask.calledWith(
 				"completion_result",
 				"",
 				false
@@ -461,7 +462,7 @@ suite("attemptCompletionTool - Partial/Final Flow Tests", () => {
 			))
 
 			// Should not ask for regular completion feedback
-			assert.ok(!mockTheaTask.webviewCommunicator.ask.called)With(
+			assert.ok(!mockTheaTask.webviewCommunicator.ask.calledWith(
 				"completion_result",
 				"",
 				false
@@ -571,7 +572,7 @@ suite("attemptCompletionTool - Partial/Final Flow Tests", () => {
 			assert.ok(mockPushToolResult.calledWith(""))
 
 			// Should not say user feedback
-			assert.ok(!mockTheaTask.webviewCommunicator.say.called)With(
+			assert.ok(!mockTheaTask.webviewCommunicator.say.calledWith(
 				"user_feedback",
 				expect.anything(),
 				expect.anything()
@@ -679,7 +680,6 @@ suite("attemptCompletionTool - Partial/Final Flow Tests", () => {
 				// TODO: Object partial match - {
 					message: "String error"
 				}))
-			)
 		})
 	})
 
@@ -757,4 +757,4 @@ suite("attemptCompletionTool - Partial/Final Flow Tests", () => {
 			assert.ok(!mockTelemetryService.captureTaskCompleted.called)
 		})
 	})
-})
+// Mock cleanup

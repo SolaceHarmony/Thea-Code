@@ -23,18 +23,19 @@ const mockFakeAI = {
 		yield { type: "text" as const, text: "Mock response" }
 	},
 	getModel(): { id: string; info: ModelInfo } {
-		return {
-			id: "fake-ai-test",
-			info: {
-				maxTokens: 1000,
-				contextWindow: 4000,
-				supportsImages: false,
-				supportsPromptCache: false,
-				inputPrice: 0,
-				outputPrice: 0,
-				description: "Mock fake AI for testing",
-			},
-		}
+// Mock return block needs context
+// 		return {
+// 			id: "fake-ai-test",
+// 			info: {
+// 				maxTokens: 1000,
+// 				contextWindow: 4000,
+// 				supportsImages: false,
+// 				supportsPromptCache: false,
+// 				inputPrice: 0,
+// 				outputPrice: 0,
+// 				description: "Mock fake AI for testing",
+// 			},
+// 		}
 	},
 	async countTokens(content: NeutralMessageContent): Promise<number> {
 		// Simple token count estimation
@@ -59,7 +60,7 @@ const { buildApiHandler } = proxyquire('../../../../src/api/index', {
 	'../services/mcp/integration/McpIntegration': {
 		McpIntegration: MockMcpIntegration
 	}
-})
+// Mock cleanup
 
 suite("Provider Enablement Validation", () => {
 	const baseConfig: Omit<ApiConfiguration, "apiProvider"> = {
@@ -197,4 +198,4 @@ suite("Provider Enablement Validation", () => {
 			})
 		})
 	})
-})
+// Mock cleanup

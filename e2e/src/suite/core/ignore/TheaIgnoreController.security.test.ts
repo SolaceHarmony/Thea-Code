@@ -1,31 +1,32 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
-import { TheaIgnoreController } from "../TheaIgnoreController"
 import * as path from "path"
+import { TheaIgnoreController } from "../TheaIgnoreController"
 import * as fs from "fs/promises"
 import { fileExistsAtPath } from "../../../utils/fs"
 
 // Mock dependencies
-// TODO: Use proxyquire for module mocking - "fs/promises")
-// TODO: Use proxyquire for module mocking - "../../../utils/fs")
-// TODO: Use proxyquire for module mocking - "vscode", () => {
-	const mockDisposable = { dispose: sinon.stub() }
-
-	return {
-		workspace: {
-			createFileSystemWatcher: sinon.stub(() => ({
-				onDidCreate: sinon.stub(() => mockDisposable),
-				onDidChange: sinon.stub(() => mockDisposable),
-				onDidDelete: sinon.stub(() => mockDisposable),
-				dispose: sinon.stub(),
-			})),
-		},
-		RelativePattern: sinon.stub().callsFake((base: string, pattern: string) => ({
-			base,
-			pattern,
-		})),
-	}
-})
+// TODO: Mock setup needs manual migration for "fs/promises"
+// TODO: Mock setup needs manual migration for "../../../utils/fs"
+// TODO: Mock setup needs manual migration for "vscode"
+// 	const mockDisposable = { dispose: sinon.stub() }
+// Mock return block needs context
+// 
+// 	return {
+// 		workspace: {
+// 			createFileSystemWatcher: sinon.stub(() => ({
+// 				onDidCreate: sinon.stub(() => mockDisposable),
+// 				onDidChange: sinon.stub(() => mockDisposable),
+// 				onDidDelete: sinon.stub(() => mockDisposable),
+// 				dispose: sinon.stub(),
+// 			})),
+// 		},
+// 		RelativePattern: sinon.stub().callsFake((base: string, pattern: string) => ({
+// 			base,
+// 			pattern,
+// 		})),
+// 	}
+// Mock cleanup
 
 suite("TheaIgnoreController Security Tests", () => {
 	const TEST_CWD = "/test/path"
@@ -313,10 +314,10 @@ build/
 			assert.deepStrictEqual(filtered, [])
 
 			// Should log error
-			assert.ok(consoleSpy.calledWith("Error filtering paths:", expect.any(Error)))
+			assert.ok(consoleSpy.calledWith("Error filtering paths:", sinon.match.instanceOf(Error)))
 
 			// Clean up
 			consoleSpy.restore()
 		})
 	})
-})
+// Mock cleanup

@@ -51,17 +51,18 @@ suite("Provider Integration Validation", () => {
 			yield { type: "text" as const, text: " How can I assist you today?" }
 		},
 		getModel() {
-			return {
-				id: "fake-ai-integration",
-				info: {
-					maxTokens: 1000,
-					contextWindow: 4000,
-					supportsImages: false,
-					supportsPromptCache: false,
-					inputPrice: 0,
-					outputPrice: 0,
-					description: "Integration test fake AI"
-				}
+// Mock return block needs context
+// 			return {
+// 				id: "fake-ai-integration",
+// 				info: {
+// 					maxTokens: 1000,
+// 					contextWindow: 4000,
+// 					supportsImages: false,
+// 					supportsPromptCache: false,
+// 					inputPrice: 0,
+// 					outputPrice: 0,
+// 					description: "Integration test fake AI"
+// 				}
 			}
 		},
 		async countTokens() {
@@ -271,4 +272,4 @@ suite("Provider Integration Validation", () => {
 			})
 		})
 	})
-})
+// Mock cleanup

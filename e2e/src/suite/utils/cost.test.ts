@@ -1,5 +1,5 @@
-import { calculateApiCostAnthropic, calculateApiCostOpenAI } from "../cost"
 import { ModelInfo } from "../../schemas"
+import { calculateApiCostAnthropic, calculateApiCostOpenAI } from "../cost"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 
@@ -200,4 +200,4 @@ suite("Cost Utility", () => {
 			assert.strictEqual(cost, 0.0105)
 		})
 	})
-})
+// Mock cleanup

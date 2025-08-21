@@ -2,8 +2,8 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 import * as proxyquire from 'proxyquire'
 import * as path from 'path'
-import { HistoryItem } from "../../../../../src/shared/HistoryItem"
 import { GlobalFileNames } from "../../../../../src/shared/globalFileNames"
+import { HistoryItem } from "../../../../../src/shared/HistoryItem"
 
 suite("TheaTaskHistory", () => {
 	let sandbox: sinon.SinonSandbox
@@ -378,4 +378,4 @@ suite("TheaTaskHistory", () => {
 			assert.ok(postWebviewAction.calledWith("chatButtonClicked"))
 		})
 	})
-})
+// Mock cleanup

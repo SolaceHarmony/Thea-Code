@@ -1,10 +1,10 @@
-import { McpIntegration, handleToolUse } from "../integration/McpIntegration"
 import * as assert from 'assert'
+import { McpIntegration, handleToolUse } from "../integration/McpIntegration"
 import * as sinon from 'sinon'
 
 // Mock the McpToolRouter
-// TODO: Use proxyquire for module mocking - "../core/McpToolRouter", () => {
-	const mockInstance = {
+// TODO: Mock setup needs manual migration for "../core/McpToolRouter"
+// 	const mockInstance = {
 		on: sinon.stub(),
 		initialize: sinon.stub().resolves(undefined),
 		shutdown: sinon.stub().resolves(undefined),
@@ -14,23 +14,24 @@ import * as sinon from 'sinon'
 			content: `Routed ${request.format} request`,
 		})),
 	}
-
-	return {
-		ToolUseFormat: {
-			XML: "xml",
-			JSON: "json",
-			OPENAI: "openai",
-			NEUTRAL: "neutral",
-		},
-		McpToolRouter: {
-			getInstance: sinon.stub().returns(mockInstance),
-		},
-	}
-})
+// Mock return block needs context
+// 
+// 	return {
+// 		ToolUseFormat: {
+// 			XML: "xml",
+// 			JSON: "json",
+// 			OPENAI: "openai",
+// 			NEUTRAL: "neutral",
+// 		},
+// 		McpToolRouter: {
+// 			getInstance: sinon.stub().returns(mockInstance),
+// 		},
+// 	}
+// Mock cleanup
 
 // Mock the McpToolExecutor
-// TODO: Use proxyquire for module mocking - "../core/McpToolExecutor", () => {
-	const mockInstance = {
+// TODO: Mock setup needs manual migration for "../core/McpToolExecutor"
+// 	const mockInstance = {
 		registerTool: sinon.stub(),
 		unregisterTool: sinon.stub().returns(true),
 		processXmlToolUse: sinon.stub().callsFake((content) => `Processed XML: ${content}`),
@@ -44,13 +45,14 @@ import * as sinon from 'sinon'
 			content: `Processed OpenAI: ${JSON.stringify(content)}`,
 		})),
 	}
-
-	return {
-		McpToolExecutor: {
-			getInstance: sinon.stub().returns(mockInstance),
-		},
-	}
-})
+// Mock return block needs context
+// 
+// 	return {
+// 		McpToolExecutor: {
+// 			getInstance: sinon.stub().returns(mockInstance),
+// 		},
+// 	}
+// Mock cleanup
 
 suite("McpIntegration", () => {
 	let mcpIntegration: McpIntegration
@@ -197,7 +199,7 @@ suite("McpIntegration", () => {
 			assert.strictEqual(result, "Routed xml request")
 		})
 	})
-})
+// Mock cleanup
 
 suite("handleToolUse", () => {
 	setup(() => {
@@ -244,4 +246,4 @@ suite("handleToolUse", () => {
 		}))
 		assert.strictEqual(result, "Routed xml request")
 	})
-})
+// Mock cleanup

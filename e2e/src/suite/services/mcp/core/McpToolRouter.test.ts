@@ -1,10 +1,10 @@
-import { EventEmitter } from "events"
 import { McpToolRouter } from "../McpToolRouter"
-import { McpToolExecutor } from "../McpToolExecutor"
+import { EventEmitter } from "events"
 import { McpConverters } from "../McpConverters"
-import {
+import { McpToolExecutor } from "../McpToolExecutor"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
+import {
 	NeutralToolUseRequest,
 	NeutralToolResult,
 	ToolUseFormat,
@@ -13,17 +13,17 @@ import * as sinon from 'sinon'
 import { SseTransportConfig } from "../../types/McpTransportTypes"
 
 // Mock McpToolExecutor
-// TODO: Use proxyquire for module mocking - "../McpToolExecutor", () => {
-	return {
+// TODO: Mock setup needs manual migration for "../McpToolExecutor"
+// 	return {
 		McpToolExecutor: {
 			getInstance: sinon.stub(),
 		},
 	}
-})
+// Mock cleanup
 
 // Mock the McpConverters
-// TODO: Use proxyquire for module mocking - "../McpConverters", () => {
-	return {
+// TODO: Mock setup needs manual migration for "../McpConverters"
+// 	return {
 		McpConverters: {
 			xmlToMcp: sinon.stub(),
 			jsonToMcp: sinon.stub(),
@@ -33,7 +33,7 @@ import { SseTransportConfig } from "../../types/McpTransportTypes"
 			mcpToOpenAi: sinon.stub(),
 		},
 	}
-})
+// Mock cleanup
 
 // Create a mock class with proper typing
 interface MockExecutor extends EventEmitter {
@@ -103,21 +103,21 @@ suite("McpToolRouter", () => {
 			id: "xml-123",
 			name: "read_file",
 			input: { path: "test.txt" },
-		}))
+		})
 
 		;(McpConverters.jsonToMcp as sinon.SinonStub).callsFake(() => ({
 			type: "tool_use",
 			id: "json-123",
 			name: "execute_command",
 			input: { command: "ls -la" },
-		}))
+		})
 
 		;(McpConverters.openAiToMcp as sinon.SinonStub).callsFake(() => ({
 			type: "tool_use",
 			id: "openai-123",
 			name: "search_files",
 			input: { path: ".", regex: "test" },
-		}))
+		})
 
 		;(McpConverters.mcpToXml as sinon.SinonStub).callsFake((result: unknown) => {
 			const typedResult = result as NeutralToolResult
@@ -131,11 +131,12 @@ suite("McpToolRouter", () => {
 
 		;(McpConverters.mcpToOpenAi as sinon.SinonStub).callsFake((result: unknown) => {
 			const typedResult = result as NeutralToolResult
-			return {
-				role: "tool",
-				tool_call_id: typedResult.tool_use_id,
-				content: "Success",
-			}
+// Mock return block needs context
+// 			return {
+// 				role: "tool",
+// 				tool_call_id: typedResult.tool_use_id,
+// 				content: "Success",
+// 			}
 		})
 
 		// Explicitly create the McpToolRouter instance AFTER mock setup
@@ -458,4 +459,4 @@ suite("McpToolRouter", () => {
 	teardown(() => {
 		sinon.restore()
 	})
-})
+// Mock cleanup

@@ -1,10 +1,10 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
-import { OpenAiHandler } from "../openai"
 import { ApiHandlerOptions } from "../../../shared/api"
+import { OpenAiHandler } from "../openai"
 import type { NeutralConversationHistory } from "../../../shared/neutral-history"
-import { API_REFERENCES } from "../../../shared/config/thea-config"
 import { Readable } from "stream"
+import { API_REFERENCES } from "../../../shared/config/thea-config"
 import openaiSetup, { openAIMock } from "../../../../test/openai-mock/setup.ts"
 import { openaiTeardown } from "../../../../test/openai-mock/teardown.ts"
 
@@ -63,11 +63,11 @@ setup(async () => {
 		stream.push(null)
 		return [200, stream]
 	})
-})
+// Mock cleanup
 
 teardown(async () => {
 	await openaiTeardown()
-})
+// Mock cleanup
 
 suite("OpenAiHandler", () => {
 	let handler: OpenAiHandler
@@ -84,7 +84,7 @@ suite("OpenAiHandler", () => {
 
 	suite("constructor", () => {
 		test("should initialize with provided options", () => {
-			expect(handler).toBeInstanceOf(OpenAiHandler)
+			assert.ok(handler instanceof OpenAiHandler)
 			expect(handler.getModel().id).toBe(mockOptions.openAiModelId)
 		})
 
@@ -94,7 +94,7 @@ suite("OpenAiHandler", () => {
 				...mockOptions,
 				openAiBaseUrl: customBaseUrl,
 			})
-			expect(handlerWithCustomUrl).toBeInstanceOf(OpenAiHandler)
+			assert.ok(handlerWithCustomUrl instanceof OpenAiHandler)
 		})
 
 		test("should set default headers correctly", async () => {
@@ -130,7 +130,7 @@ suite("OpenAiHandler", () => {
 				chunks.push(chunk)
 			}
 
-			expect(chunks.length).toBeGreaterThan(0)
+			assert.ok(chunks.length > 0)
 			const textChunk = chunks.find((chunk) => chunk.type === "text")
 			const usageChunk = chunks.find((chunk) => chunk.type === "usage")
 
@@ -148,7 +148,7 @@ suite("OpenAiHandler", () => {
 				chunks.push(chunk)
 			}
 
-			expect(chunks.length).toBeGreaterThan(0)
+			assert.ok(chunks.length > 0)
 			const textChunks = chunks.filter((chunk) => chunk.type === "text")
 			assert.strictEqual(textChunks.length, 1)
 			assert.strictEqual(textChunks[0].text, "Test response")
@@ -207,15 +207,13 @@ suite("OpenAiHandler", () => {
 		test("should complete prompt successfully", async () => {
 			const result = await handler.completePrompt("Test prompt")
 			assert.strictEqual(result, "Test response")
-			assert.deepStrictEqual(requestBody, 
-				// TODO: Object partial match - {
+			assert.deepStrictEqual(requestBody, {
 					model: mockOptions.openAiModelId,
 					messages: [{ role: "user", content: "Test prompt" }],
 					max_tokens: expect.any(Number),
 					temperature: expect.any(Number),
 					stream: false,
-				}),
-			)
+				})
 		})
 
 	test("should handle API errors", async () => {
@@ -320,4 +318,4 @@ suite("OpenAiHandler", () => {
 			assert.strictEqual(hasToolCalls, false)
 		})
 	})
-})
+// Mock cleanup

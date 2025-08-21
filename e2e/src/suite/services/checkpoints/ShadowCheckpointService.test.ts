@@ -17,7 +17,7 @@ import { globby } from "globby"
 
 // TODO: Use proxyquire for module mocking - "globby", () => ({
 	globby: sinon.stub().resolves([]),
-}))
+// Mock cleanup needed
 
 const tmpDir = path.join(os.tmpdir(), "CheckpointService")
 
@@ -50,10 +50,11 @@ const initWorkspaceRepo = async ({
 	// Create initial commit.
 	await git.add(".")
 	await git.commit("Initial commit")
-
-	return { git, testFile }
-}
-
+// Mock return block needs context
+// 
+// 	return { git, testFile }
+// }
+// 
 describe.each([
 	[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"],
 	[RepoPerWorkspaceCheckpointService, "RepoPerWorkspaceCheckpointService"],
@@ -214,7 +215,7 @@ describe.each([
 			assert.ok(status.modified.includes("mixed.txt"))
 
 			// Only staged and mixed files should be staged.
-			expect(status.staged).not.toContain("unstaged.txt")
+			assert.ok(!status.staged.includes("unstaged.txt"))
 			assert.ok(status.staged.includes("staged.txt"))
 			assert.ok(status.staged.includes("mixed.txt"))
 
@@ -594,7 +595,7 @@ describe.each([
 			assert.strictEqual(errorHandler.callCount, 1)
 			const eventData = errorHandler.mock.calls[0][0]
 			assert.strictEqual(eventData.type, "error")
-			expect(eventData.error).toBeInstanceOf(Error)
+			assert.ok(eventData.error instanceof Error)
 		})
 
 		test("supports multiple event listeners for the same event", async () => {
@@ -644,7 +645,7 @@ describe.each([
 			assert.ok(!checkpointHandler.called)
 		})
 	})
-})
+// Mock cleanup
 
 suite("ShadowCheckpointService", () => {
 	const taskId = "test-task-storage"
@@ -723,4 +724,6 @@ suite("ShadowCheckpointService", () => {
 			assert.strictEqual(storage, undefined)
 		})
 	})
-})
+// Mock cleanup
+
+// Mock cleanup

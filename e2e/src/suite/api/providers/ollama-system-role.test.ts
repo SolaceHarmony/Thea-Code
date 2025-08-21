@@ -71,15 +71,16 @@ suite("Ollama System Role Handling", () => {
 		mockCreate.callsFake(({ messages }: { messages: OpenAI.Chat.ChatCompletionMessageParam[] }) => {
 			// Store messages for inspection
 			(mockCreate as any).lastMessages = messages
-			
-			return {
-				[Symbol.asyncIterator]: async function* () {
-					yield {
-						choices: [{
-							delta: { content: "Test response" },
-							index: 0,
-						}],
-					}
+// Mock return block needs context
+// 			
+// 			return {
+// 				[Symbol.asyncIterator]: async function* () {
+// 					yield {
+// 						choices: [{
+// 							delta: { content: "Test response" },
+// 							index: 0,
+// 						}],
+// 					}
 					yield {
 						choices: [{
 							delta: {},
@@ -430,4 +431,4 @@ suite("Ollama System Role Handling", () => {
 			assert.strictEqual(sentMessages[0].role, "system", "First message should be system role")
 		})
 	})
-})
+// Mock cleanup

@@ -217,4 +217,4 @@ suite("GlamaHandler", () => {
 			assert.strictEqual(result, 0)
 		})
 	})
-})
+// Mock cleanup

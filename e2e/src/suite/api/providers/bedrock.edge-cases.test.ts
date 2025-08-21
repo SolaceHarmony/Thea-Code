@@ -1,11 +1,12 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * Bedrock provider edge case tests as recommended by architect
  * Tests ARN validation, cross-region inference, credentials modes, error/usage handling
  */
 
-import { BedrockHandler } from "../bedrock"
 import { ApiConfiguration } from "../../../types/api"
+import { BedrockHandler } from "../bedrock"
 import { Message } from "../../../shared/message"
 
 suite("Bedrock Provider Edge Cases", () => {
@@ -22,7 +23,8 @@ suite("Bedrock Provider Edge Cases", () => {
 		}
 		
 		// Mock the BedrockRuntimeClient constructor
-		// TODO: Use proxyquire for module mocking - "@aws-sdk/client-bedrock-runtime", () => ({
+		// TODO: Use proxyquire for module mocking
+		// Mock for "@aws-sdk/client-bedrock-runtime" needed here
 			BedrockRuntimeClient: sinon.stub(() => mockClient),
 			ConverseStreamCommand: sinon.stub()
 		}))
@@ -444,7 +446,7 @@ suite("Bedrock Provider Edge Cases", () => {
 			}
 			
 			// Should handle all event types
-			expect(chunks.length).toBeGreaterThan(0)
+			assert.ok(chunks.length > 0)
 			
 			// Should concatenate text properly
 			const textChunks = chunks.filter(c => c.type === "text")
@@ -509,4 +511,4 @@ suite("Bedrock Provider Edge Cases", () => {
 			}
 		})
 	})
-})
+// Mock cleanup

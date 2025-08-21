@@ -6,10 +6,10 @@ import * as sinon from 'sinon'
  */
 import { McpIntegration } from "../../integration/McpIntegration"
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-require-imports, @typescript-eslint/require-await, @typescript-eslint/no-explicit-any, @typescript-eslint/restrict-template-expressions */
-import { McpToolExecutor } from "../../core/McpToolExecutor"
 import { McpToolRouter } from "../../core/McpToolRouter"
-import { McpConverters } from "../../core/McpConverters"
+import { McpToolExecutor } from "../../core/McpToolExecutor"
 import { ToolDefinition } from "../../types/McpProviderTypes"
+import { McpConverters } from "../../core/McpConverters"
 import { ToolUseFormat, NeutralToolUseRequest } from "../../types/McpToolTypes"
 
 // Mock the EmbeddedMcpProvider for E2E tests

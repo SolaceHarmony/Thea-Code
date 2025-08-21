@@ -5,8 +5,8 @@ import * as sinon from 'sinon'
  * Tests MockMcpProvider scenarios and provider interface compliance
  */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/require-await, @typescript-eslint/restrict-template-expressions, @typescript-eslint/unbound-method */
-import { MockMcpProvider } from "../../providers/MockMcpProvider"
 import { ToolDefinition } from "../../types/McpProviderTypes"
+import { MockMcpProvider } from "../../providers/MockMcpProvider"
 
 suite("Provider-Transport Integration", () => {
 	suite("MockMcpProvider Integration Scenarios", () => {
@@ -232,6 +232,6 @@ suite("Provider-Transport Integration", () => {
 			expect(typeof provider.unregisterTool("type_test_tool")).toBe("boolean")
 
 			const result = await provider.executeTool("type_test_tool", {})
-			expect(result).toHaveProperty("content")
+			assert.ok(result.hasOwnProperty('content'))
 			expect(Array.isArray(result.content)).toBe(true)
 			assert.strictEqual(typeof result.isError, "boolean")

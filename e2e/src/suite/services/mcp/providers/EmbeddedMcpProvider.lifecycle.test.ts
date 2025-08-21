@@ -1,11 +1,12 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * EmbeddedMcpProvider lifecycle tests as recommended by architect
  * Tests port management, restart behavior, events, and serverUrl
  */
 
-import { EmbeddedMcpProvider } from "../EmbeddedMcpProvider"
 import { SseTransportConfig, StdioTransportConfig } from "../../types/McpProviderTypes"
+import { EmbeddedMcpProvider } from "../EmbeddedMcpProvider"
 import { EventEmitter } from "events"
 
 suite("EmbeddedMcpProvider Lifecycle Tests", () => {
@@ -37,7 +38,7 @@ suite("EmbeddedMcpProvider Lifecycle Tests", () => {
 			assert.notStrictEqual(serverUrl?.port, undefined)
 			
 			const port = parseInt(serverUrl!.port)
-			expect(port).toBeGreaterThan(0)
+			assert.ok(port > 0)
 			assert.notStrictEqual(port, 0)
 		})
 
@@ -63,8 +64,8 @@ suite("EmbeddedMcpProvider Lifecycle Tests", () => {
 			const secondPort = secondUrl ? parseInt(secondUrl.port) : 0
 			
 			// Should have valid ports
-			expect(firstPort).toBeGreaterThan(0)
-			expect(secondPort).toBeGreaterThan(0)
+			assert.ok(firstPort > 0)
+			assert.ok(secondPort > 0)
 			
 			// Ports might be different (especially in test environment)
 			// The important thing is that both are valid
@@ -305,12 +306,13 @@ suite("EmbeddedMcpProvider Lifecycle Tests", () => {
 			
 			// Register a tool with handler
 			provider.registerTool("test_tool", "Test tool", async (args) => {
-				return {
-					content: [
-						{
-							type: "text",
-							text: `Executed with: ${JSON.stringify(args)}`
-						}
+// Mock return block needs context
+// 				return {
+// 					content: [
+// 						{
+// 							type: "text",
+// 							text: `Executed with: ${JSON.stringify(args)}`
+// 						}
 					],
 					isError: false
 				}
@@ -438,4 +440,4 @@ suite("EmbeddedMcpProvider Lifecycle Tests", () => {
 			delete process.env.JEST_WORKER_ID
 		})
 	})
-})
+// Mock cleanup

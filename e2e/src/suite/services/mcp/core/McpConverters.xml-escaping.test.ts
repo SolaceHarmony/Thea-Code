@@ -1,12 +1,13 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * Comprehensive XML escaping and mixed content tests for McpConverters
  * Tests proper XML entity escaping, mixed content types, embedded quotes/newlines
  */
 
 import * as sinon from 'sinon'
-import { McpConverters } from "../McpConverters"
 import { NeutralToolResult } from "../../types/McpToolTypes"
+import { McpConverters } from "../McpConverters"
 
 suite("McpConverters - XML Escaping and Mixed Content", () => {
 	let consoleWarnSpy: sinon.SinonStub
@@ -93,8 +94,8 @@ suite("McpConverters - XML Escaping and Mixed Content", () => {
 			const xml = McpConverters.mcpToXml(result)
 
 			assert.ok(xml.includes('tool_use_id=""'))
-			expect(xml).not.toContain("undefined")
-			expect(xml).not.toContain("null")
+			assert.ok(!xml.includes("undefined"))
+			assert.ok(!xml.includes("null"))
 		})
 	})
 
@@ -433,7 +434,7 @@ suite("McpConverters - XML Escaping and Mixed Content", () => {
 			const xml = McpConverters.mcpToXml(result)
 
 			assert.ok(xml.includes(longText))
-			expect(xml.length).toBeGreaterThan(100000)
+			assert.ok(xml.length > 100000)
 		})
 	})
 
@@ -474,4 +475,4 @@ suite("McpConverters - XML Escaping and Mixed Content", () => {
 			assert.ok(xml.includes('name="complex_tool"'))
 		})
 	})
-})
+// Mock cleanup

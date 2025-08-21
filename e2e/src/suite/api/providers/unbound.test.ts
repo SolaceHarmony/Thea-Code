@@ -1,9 +1,9 @@
-import { UnboundHandler } from "../unbound"
 import { ApiHandlerOptions } from "../../../shared/api"
+import { UnboundHandler } from "../unbound"
 import type { NeutralConversationHistory } from "../../../shared/neutral-history"
 import type OpenAI from "openai" // Added for types
-import { EXTENSION_NAME } from "../../../shared/config/thea-config"
 import type { ApiStreamChunk } from "../../transform/stream" // Added for chunk typing
+import { EXTENSION_NAME } from "../../../shared/config/thea-config"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 
@@ -14,8 +14,8 @@ const mockCreate = sinon.stub<
 >()
 const mockWithResponse = sinon.stub()
 
-// TODO: Use proxyquire for module mocking - "openai", () => {
-	return {
+// TODO: Mock setup needs manual migration for "openai"
+// 	return {
 		__esModule: true,
 		default: sinon.stub().callsFake(() => ({
 			chat: {
@@ -64,8 +64,7 @@ const mockWithResponse = sinon.stub()
 								Promise.resolve({
 									data: stream,
 									response: { headers: new Map() },
-								}),
-							)
+								})
 							result.withResponse = mockWithResponse
 						}
 						return result
@@ -74,7 +73,7 @@ const mockWithResponse = sinon.stub()
 			},
 		})),
 	}
-})
+// Mock cleanup
 
 suite("UnboundHandler", () => {
 	let handler: UnboundHandler
@@ -116,7 +115,7 @@ suite("UnboundHandler", () => {
 
 	suite("constructor", () => {
 		test("should initialize with provided options", () => {
-			expect(handler).toBeInstanceOf(UnboundHandler)
+			assert.ok(handler instanceof UnboundHandler)
 			expect(handler.getModel().id).toBe(mockOptions.apiModelId)
 		})
 	})
@@ -161,8 +160,7 @@ suite("UnboundHandler", () => {
 				cacheReadTokens: 2,
 			})
 
-			assert.ok(mockCreate.calledWith(
-				// TODO: Object partial match - {
+			assert.ok(mockCreate.calledWith({
 					model: "claude-3-5-sonnet-20241022",
 					messages: expect.any(Array)), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
 					stream: true,
@@ -171,8 +169,7 @@ suite("UnboundHandler", () => {
 					headers: {
 						"X-Unbound-Metadata": // TODO: String contains check - EXTENSION_NAME), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
 					},
-				}),
-			)
+				})
 		})
 
 		test("should handle API errors", async () => {
@@ -190,7 +187,7 @@ suite("UnboundHandler", () => {
 				fail("Expected error to be thrown")
 			} catch (e) {
 				const error = e as Error
-				expect(error).toBeInstanceOf(Error)
+				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "API Error")
 			}
 		})
@@ -269,7 +266,7 @@ suite("UnboundHandler", () => {
 			assert.notStrictEqual(options?.headers, undefined)
 			const headers = options?.headers as Record<string, string>
 			assert.ok(headers["X-Unbound-Metadata"].includes(EXTENSION_NAME))
-			expect(mockCreate.mock.calls[0][0]).not.toHaveProperty("max_tokens")
+			assert.ok(!mockCreate.mock.calls[0][0].hasOwnProperty('max_tokens'))
 		})
 
 		test("should not set temperature for openai/o3-mini", async () => {
@@ -304,7 +301,7 @@ suite("UnboundHandler", () => {
 			assert.notStrictEqual(options?.headers, undefined)
 			const headers = options?.headers as Record<string, string>
 			assert.ok(headers["X-Unbound-Metadata"].includes(EXTENSION_NAME))
-			expect(mockCreate.mock.calls[0][0]).not.toHaveProperty("temperature")
+			assert.ok(!mockCreate.mock.calls[0][0].hasOwnProperty('temperature'))
 		})
 	})
 
@@ -326,4 +323,4 @@ suite("UnboundHandler", () => {
 			assert.notStrictEqual(modelInfo.info, undefined)
 		})
 	})
-})
+// Mock cleanup

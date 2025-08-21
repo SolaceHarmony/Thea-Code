@@ -1,7 +1,7 @@
-import { isToolAllowedForMode, modes, ModeConfig } from "../../shared/modes"
 import { TOOL_GROUPS } from "../../shared/tool-groups"
-import { validateToolUse } from "../mode-validator"
+import { isToolAllowedForMode, modes, ModeConfig } from "../../shared/modes"
 import * as assert from 'assert'
+import { validateToolUse } from "../mode-validator"
 import * as sinon from 'sinon'
 
 const [codeMode, architectMode, askMode] = modes.map((mode) => mode.slug)
@@ -153,4 +153,4 @@ suite("mode-validator", () => {
 			expect(() => validateToolUse("apply_diff", codeMode, [], undefined)).not.toThrow()
 		})
 	})
-})
+// Mock cleanup

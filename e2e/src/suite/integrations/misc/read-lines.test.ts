@@ -69,4 +69,4 @@ suite("nthline", () => {
 			await expect(readLines(testFile, 20, 15)).rejects.toThrow("does not exist")
 		})
 	})
-})
+// Mock cleanup

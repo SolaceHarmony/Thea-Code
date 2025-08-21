@@ -1,5 +1,5 @@
-import { XmlMatcher } from "../xml-matcher"
 import * as assert from 'assert'
+import { XmlMatcher } from "../xml-matcher"
 import * as sinon from 'sinon'
 
 suite("XmlMatcher", () => {
@@ -132,4 +132,4 @@ suite("XmlMatcher", () => {
 			},
 		])
 	})
-})
+// Mock cleanup

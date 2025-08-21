@@ -8,10 +8,10 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 
 // Mock dependencies
-// TODO: Use proxyquire for module mocking - "vscode")
-// TODO: Use proxyquire for module mocking - "fs/promises")
-// TODO: Use proxyquire for module mocking - "fs")
-// TODO: Use proxyquire for module mocking - "../utils/fs")
+// TODO: Mock setup needs manual migration for "vscode"
+// TODO: Mock setup needs manual migration for "fs/promises"
+// TODO: Mock setup needs manual migration for "fs"
+// TODO: Mock setup needs manual migration for "../utils/fs"
 // We're testing the real migrateSettings function
 
 declare global {
@@ -118,4 +118,4 @@ suite("Settings Migration", () => {
 			// TODO: String contains check - "Error migrating settings files"),
 		)
 	})
-})
+// Mock cleanup

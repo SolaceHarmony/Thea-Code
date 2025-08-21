@@ -47,7 +47,7 @@ suite("All Providers Runtime Test", () => {
 				assert.strictEqual(response.ok, true)
 				
 				const data = await response.json()
-				expect(data).toHaveProperty("data")
+				assert.ok(data.hasOwnProperty('data'))
 				expect(Array.isArray(data.data)).toBe(true)
 				assert.ok(data.data.length > 0)
 				
@@ -65,8 +65,8 @@ suite("All Providers Runtime Test", () => {
 				
 				assert.strictEqual(response.ok, true)
 				const data = await response.json()
-				expect(data).toHaveProperty("choices")
-				expect(data.choices[0]).toHaveProperty("message")
+				assert.ok(data.hasOwnProperty('choices'))
+				assert.ok(data.choices[0].hasOwnProperty('message'))
 				
 				console.log(`✅ ${provider}: Chat completion response received`)
 
@@ -90,7 +90,7 @@ suite("All Providers Runtime Test", () => {
 				
 				assert.strictEqual(response.ok, true)
 				const data = await response.json()
-				expect(data).toHaveProperty("content")
+				assert.ok(data.hasOwnProperty('content'))
 				expect(data).toHaveProperty("role", "assistant")
 				
 				console.log(`✅ ${provider}: Anthropic messages response received`)
@@ -108,7 +108,7 @@ suite("All Providers Runtime Test", () => {
 			
 			assert.strictEqual(response.ok, true)
 			const data = await response.json()
-			expect(data).toHaveProperty("modelSummaries")
+			assert.ok(data.hasOwnProperty('modelSummaries'))
 			expect(Array.isArray(data.modelSummaries)).toBe(true)
 			
 			console.log(`✅ Bedrock: Found ${data.modelSummaries.length} foundation models`)
@@ -120,7 +120,7 @@ suite("All Providers Runtime Test", () => {
 			
 			assert.strictEqual(response.ok, true)
 			const data = await response.json()
-			expect(data).toHaveProperty("models")
+			assert.ok(data.hasOwnProperty('models'))
 			expect(Array.isArray(data.models)).toBe(true)
 			
 			console.log(`✅ Vertex: Found ${data.models.length} publisher models`)
@@ -131,7 +131,7 @@ suite("All Providers Runtime Test", () => {
 			
 			assert.strictEqual(response.ok, true)
 			const data = await response.json()
-			expect(data).toHaveProperty("models")
+			assert.ok(data.hasOwnProperty('models'))
 			expect(Array.isArray(data.models)).toBe(true)
 			
 			console.log(`✅ Vertex: Found ${data.models.length} foundation models`)
@@ -143,7 +143,7 @@ suite("All Providers Runtime Test", () => {
 			
 			assert.strictEqual(response.ok, true)
 			const data = await response.json()
-			expect(data).toHaveProperty("models")
+			assert.ok(data.hasOwnProperty('models'))
 			expect(Array.isArray(data.models)).toBe(true)
 			
 			console.log(`✅ Ollama: Found ${data.models.length} local models`)
@@ -160,7 +160,7 @@ suite("All Providers Runtime Test", () => {
 			
 			assert.strictEqual(response.ok, true)
 			const data = await response.json()
-			expect(data).toHaveProperty("message")
+			assert.ok(data.hasOwnProperty('message'))
 			expect(data.message).toHaveProperty("role", "assistant")
 			
 			console.log(`✅ Ollama: Chat response received`)

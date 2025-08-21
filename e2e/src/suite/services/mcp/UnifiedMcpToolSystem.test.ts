@@ -1,15 +1,15 @@
-import { McpToolExecutor } from "../core/McpToolExecutor"
 import { NeutralToolResult, ToolUseFormat, NeutralToolUseRequest } from "../types/McpToolTypes"
-import { McpConverters } from "../core/McpConverters"
+import { McpToolExecutor } from "../core/McpToolExecutor"
 import { McpToolRouter } from "../core/McpToolRouter"
-import { IMcpProvider, ToolCallResult, ToolDefinition } from "../types/McpProviderTypes"
+import { McpConverters } from "../core/McpConverters"
 import { EventEmitter } from "events"
+import { IMcpProvider, ToolCallResult, ToolDefinition } from "../types/McpProviderTypes"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 
 // Mock EmbeddedMcpProvider
-// TODO: Use proxyquire for module mocking - "../providers/EmbeddedMcpProvider", () => {
-	// Create a mock implementation that satisfies the IMcpProvider interface
+// TODO: Mock setup needs manual migration for "../providers/EmbeddedMcpProvider"
+// 	// Create a mock implementation that satisfies the IMcpProvider interface
 	const mockImplementation = sinon.stub().callsFake(() => {
 		const instance = new EventEmitter() as EventEmitter & Partial<IMcpProvider>
 		
@@ -35,15 +35,16 @@ import * as sinon from 'sinon'
 	mockImplementation.create = sinon.stub().callsFake(() => 
 		Promise.resolve(mockImplementation())
 	)
-
-	return {
-		EmbeddedMcpProvider: mockImplementation,
-	}
-})
+// Mock return block needs context
+// 
+// 	return {
+// 		EmbeddedMcpProvider: mockImplementation,
+// 	}
+// Mock cleanup
 
 // Mock McpToolRegistry
-// TODO: Use proxyquire for module mocking - "../core/McpToolRegistry", () => {
-	const mockRegistry = {
+// TODO: Mock setup needs manual migration for "../core/McpToolRegistry"
+// 	const mockRegistry = {
 		registerTool: sinon.stub(),
 		unregisterTool: sinon.stub().returns(true),
 		getTool: sinon.stub(),
@@ -51,13 +52,14 @@ import * as sinon from 'sinon'
 		hasTool: sinon.stub(),
 		executeTool: sinon.stub(),
 	}
-
-	return {
-		McpToolRegistry: {
-			getInstance: sinon.stub().returns(mockRegistry),
-		},
-	}
-})
+// Mock return block needs context
+// 
+// 	return {
+// 		McpToolRegistry: {
+// 			getInstance: sinon.stub().returns(mockRegistry),
+// 		},
+// 	}
+// Mock cleanup
 
 // Types for accessing private fields in tests
 type McpToolExecutorInternal = {
@@ -127,10 +129,11 @@ suite("McpToolExecutor", () => {
 				paramSchema: { type: "object" },
 				handler: async () => {
 					await Promise.resolve()
-					return { content: [], isError: false }
-				},
-			}
-
+// Mock return block needs context
+// 					return { content: [], isError: false }
+// 				},
+// 			}
+// 
 			mcpToolSystem.registerTool(toolDefinition)
 
 			const { mcpProvider, toolRegistry } = mcpToolSystem as unknown as McpToolExecutorInternal
@@ -153,7 +156,7 @@ suite("McpToolExecutor", () => {
 			assert.strictEqual(result, true)
 		})
 	})
-})
+// Mock cleanup
 
 suite("McpConverters", () => {
 	suite("XML conversion", () => {
@@ -277,7 +280,7 @@ suite("McpConverters", () => {
 			assert.strictEqual(result.content, "Test result")
 		})
 	})
-})
+// Mock cleanup
 
 suite("McpToolRouter", () => {
 	let mcpToolRouter: McpToolRouter
@@ -414,4 +417,4 @@ suite("McpToolRouter", () => {
 			assert.ok(mockExecute.called)
 		})
 	})
-})
+// Mock cleanup

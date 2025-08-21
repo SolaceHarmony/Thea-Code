@@ -1,14 +1,14 @@
 
 import * as assert from 'assert'
 import * as sinon from 'sinon'
-import { askFollowupQuestionTool } from "../askFollowupQuestionTool"
 import type { TheaTask } from "../../TheaTask"
+import { askFollowupQuestionTool } from "../askFollowupQuestionTool"
 import type { ToolUse } from "../../assistant-message"
-import { AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../types"
 import { formatResponse } from "../../prompts/responses"
+import { AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../types"
 import type { TheaAskResponse } from "../../../shared/WebviewMessage"
 
-// TODO: Use proxyquire for module mocking - "../../prompts/responses")
+// TODO: Mock setup needs manual migration for "../../prompts/responses"
 
 suite("askFollowupQuestionTool", () => {
 	let mockAsk: sinon.SinonStub
@@ -163,4 +163,4 @@ suite("askFollowupQuestionTool", () => {
 		assert.ok(mockPushToolResult.calledWith("tool error"))
 		assert.strictEqual(mockTheaTask.consecutiveMistakeCount, 1)
 	})
-})
+// Mock cleanup

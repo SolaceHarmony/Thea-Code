@@ -26,7 +26,7 @@ suite("Code Action Prompts", () => {
 			assert.ok(prompt.includes(testFilePath))
 			assert.ok(prompt.includes(testCode))
 			assert.ok(prompt.includes("Address all detected problems"))
-			expect(prompt).not.toContain("Current problems detected")
+			assert.ok(!prompt.includes("Current problems detected"))
 
 		test("should format fix prompt with diagnostics", () => {
 			const diagnostics: vscode.Diagnostic[] = [
@@ -74,8 +74,8 @@ suite("Code Action Prompts", () => {
 				"Generate an enhanced version of this prompt (reply with only the enhanced prompt - no conversation, explanations, lead-in, bullet points, placeholders, or surrounding quotes):\n\ntest",
 
 			// Verify it ignores parameters since ENHANCE template doesn't use any
-			expect(prompt).not.toContain(testFilePath)
-			expect(prompt).not.toContain(testCode)
+			assert.ok(!prompt.includes(testFilePath))
+			assert.ok(!prompt.includes(testCode))
 
 	suite("get template", () => {
 		test("should return default template when no custom prompts provided", () => {
@@ -112,7 +112,7 @@ suite("Code Action Prompts", () => {
 				customSupportPrompts,
 
 			assert.ok(prompt.includes(`Custom template for ${testFilePath}`))
-			expect(prompt).not.toContain("purpose and functionality")
+			assert.ok(!prompt.includes("purpose and functionality"))
 
 		test("should use default template when custom prompts does not include type", () => {
 			const customSupportPrompts = {

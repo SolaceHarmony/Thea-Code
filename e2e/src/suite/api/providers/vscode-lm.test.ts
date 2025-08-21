@@ -1,13 +1,13 @@
 import * as vscode from "vscode"
-import { VsCodeLmHandler } from "../vscode-lm"
 import { ApiHandlerOptions } from "../../../shared/api"
-import { NeutralConversationHistory } from "../../../shared/neutral-history"
+import { VsCodeLmHandler } from "../vscode-lm"
 import * as assert from 'assert'
+import { NeutralConversationHistory } from "../../../shared/neutral-history"
 import * as sinon from 'sinon'
 
 // Mock vscode namespace
-// TODO: Use proxyquire for module mocking - "vscode", () => {
-	class MockLanguageModelTextPart {
+// TODO: Mock setup needs manual migration for "vscode"
+// 	class MockLanguageModelTextPart {
 		type = "text"
 		constructor(public value: string) {}
 	}
@@ -22,26 +22,27 @@ import * as sinon from 'sinon'
 	}
 
 	type MockLanguageModelPart = MockLanguageModelTextPart | MockLanguageModelToolCallPart
-
-	return {
-		workspace: {
-			onDidChangeConfiguration: sinon.stub((() => ({
-				dispose: sinon.stub(),
-			})) as (callback: (e: vscode.ConfigurationChangeEvent) => void) => { dispose: sinon.SinonStub }),
-		},
-		CancellationTokenSource: sinon.stub(() => ({
-			token: {
-				isCancellationRequested: false,
-				onCancellationRequested: sinon.stub(),
-			},
-			cancel: sinon.stub(),
-			dispose: sinon.stub(),
-		})),
-		CancellationError: class CancellationError extends Error {
-			constructor() {
-				super("Operation cancelled")
-				this.name = "CancellationError"
-			}
+// Mock return block needs context
+// 
+// 	return {
+// 		workspace: {
+// 			onDidChangeConfiguration: sinon.stub((() => ({
+// 				dispose: sinon.stub(),
+// 			})) as (callback: (e: vscode.ConfigurationChangeEvent) => void) => { dispose: sinon.SinonStub }),
+// 		},
+// 		CancellationTokenSource: sinon.stub(() => ({
+// 			token: {
+// 				isCancellationRequested: false,
+// 				onCancellationRequested: sinon.stub(),
+// 			},
+// 			cancel: sinon.stub(),
+// 			dispose: sinon.stub(),
+// 		})),
+// 		CancellationError: class CancellationError extends Error {
+// 			constructor() {
+// 				super("Operation cancelled")
+// 				this.name = "CancellationError"
+// 			}
 		},
 		LanguageModelChatMessage: {
 			Assistant: sinon.stub((content: string | MockLanguageModelPart[]) => ({
@@ -59,7 +60,7 @@ import * as sinon from 'sinon'
 			selectChatModels: sinon.stub(),
 		},
 	}
-})
+// Mock cleanup
 
 const mockLanguageModelChat = {
 	id: "test-model",
@@ -303,4 +304,4 @@ suite("VsCodeLmHandler", () => {
 			)
 		})
 	})
-})
+// Mock cleanup

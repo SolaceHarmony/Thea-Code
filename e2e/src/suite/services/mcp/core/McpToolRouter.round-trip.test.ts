@@ -1,11 +1,12 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * Round-trip tests for McpToolRouter as recommended by architect
  * Tests that tool_use_id is preserved and formats are maintained
  */
 
-import { McpToolRouter } from "../McpToolRouter"
 import { McpToolExecutor } from "../McpToolExecutor"
+import { McpToolRouter } from "../McpToolRouter"
 import { NeutralToolUseRequest, NeutralToolResult, ToolUseFormat } from "../../types/McpToolTypes"
 
 suite("McpToolRouter Round-Trip Tests", () => {
@@ -28,12 +29,13 @@ suite("McpToolRouter Round-Trip Tests", () => {
 				properties: {},
 			},
 			handler: async (args: any) => {
-				return {
-					content: [
-						{
-							type: "text",
-							text: `Tool executed successfully with args: ${JSON.stringify(args)}`
-						}
+// Mock return block needs context
+// 				return {
+// 					content: [
+// 						{
+// 							type: "text",
+// 							text: `Tool executed successfully with args: ${JSON.stringify(args)}`
+// 						}
 					],
 					isError: false
 				}
@@ -360,4 +362,4 @@ suite("McpToolRouter Round-Trip Tests", () => {
 			assert.strictEqual(jsonResult.status, "success")
 		})
 	})
-})
+// Mock cleanup

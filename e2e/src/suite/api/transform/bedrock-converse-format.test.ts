@@ -164,4 +164,4 @@ suite("convertToBedrockConverseMessages", () => {
 		const textBlock = result[0].content[0]
 		assert.deepStrictEqual(textBlock, { text: "Hello world" })
 	})
-})
+// Mock cleanup

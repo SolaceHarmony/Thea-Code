@@ -282,4 +282,4 @@ suite("AwsBedrockHandler", () => {
 			}
 		})
 	})
-})
+// Mock cleanup

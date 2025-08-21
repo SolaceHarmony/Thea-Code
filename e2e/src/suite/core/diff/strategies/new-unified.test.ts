@@ -619,8 +619,8 @@ export {
  };`
 
 			const expected = `import { readFile, writeFile } from 'fs';
-import { Logger } from './utils/logger';
 import { Config } from './types';
+import { Logger } from './utils/logger';
 
 const logger = new Logger('FileProcessor');
 

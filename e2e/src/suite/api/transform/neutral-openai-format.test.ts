@@ -133,4 +133,4 @@ suite("convertToOpenAiHistory", () => {
 		assert.strictEqual(toolMessage.tool_call_id, "weather-123")
 		assert.strictEqual(toolMessage.content, "Current temperature in London: 20°C")
 	})
-})
+// Mock cleanup

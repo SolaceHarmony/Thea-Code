@@ -202,4 +202,4 @@ suite("MistralHandler", () => {
 			assert.strictEqual(result, 0)
 		})
 	})
-})
+// Mock cleanup

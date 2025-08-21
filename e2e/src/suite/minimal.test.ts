@@ -7,3 +7,5 @@ suite("Minimal E2E Test Suite", () => {
 	test("Should be able to run without extension", () => {
 		const result = "test"
 		assert.ok(result === "test", "String comparison should work")
+
+})})})

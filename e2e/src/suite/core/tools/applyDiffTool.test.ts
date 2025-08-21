@@ -549,4 +549,4 @@ suite("applyDiffTool", () => {
 			assert.ok(mockTheaTask.diffViewProvider.update.called)
 		})
 	})
-})
+// Mock cleanup

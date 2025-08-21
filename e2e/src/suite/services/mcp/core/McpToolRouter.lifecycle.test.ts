@@ -1,16 +1,17 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * McpToolRouter lifecycle tests
  * Tests initialization, shutdown, repeated start/stop, pending registrations, and event forwarding
  */
 
-import { McpToolRouter } from "../McpToolRouter"
 import { McpToolExecutor } from "../McpToolExecutor"
-import { McpToolRegistry } from "../McpToolRegistry"
+import { McpToolRouter } from "../McpToolRouter"
 import { EventEmitter } from "events"
+import { McpToolRegistry } from "../McpToolRegistry"
 
 // Mock the McpToolExecutor
-// TODO: Use proxyquire for module mocking - "../McpToolExecutor")
+// TODO: Mock setup needs manual migration for "../McpToolExecutor"
 
 suite("McpToolRouter - Lifecycle and Event Management", () => {
 	let router: McpToolRouter | undefined
@@ -409,4 +410,4 @@ suite("McpToolRouter - Lifecycle and Event Management", () => {
 			await expect(Promise.all(operations)).resolves.not.toThrow()
 		})
 	})
-})
+// Mock cleanup

@@ -255,4 +255,4 @@ suite("OpenRouter Transform Functions", () => {
 			expect(() => createOpenRouterRequest(systemPrompt, history, modelId, options)).not.toThrow()
 		})
 	})
-})
+// Mock cleanup

@@ -1,29 +1,30 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
-import { formatResponse } from "../responses"
 import { TheaIgnoreController, LOCK_TEXT_SYMBOL } from "../../ignore/TheaIgnoreController" // Keep original path, use renamed class
-import { fileExistsAtPath } from "../../../utils/fs"
+import { formatResponse } from "../responses"
 import { GLOBAL_FILENAMES } from "../../../shared/config/thea-config"
+import { fileExistsAtPath } from "../../../utils/fs"
 import * as fs from "fs/promises"
 import { toPosix } from "./utils"
 
 // Mock dependencies
-// TODO: Use proxyquire for module mocking - "../../../utils/fs")
-// TODO: Use proxyquire for module mocking - "fs/promises")
-// TODO: Use proxyquire for module mocking - "vscode", () => {
-	const mockDisposable = { dispose: sinon.stub() }
-	return {
-		workspace: {
-			createFileSystemWatcher: sinon.stub(() => ({
-				onDidCreate: sinon.stub(() => mockDisposable),
-				onDidChange: sinon.stub(() => mockDisposable),
-				onDidDelete: sinon.stub(() => mockDisposable),
-				dispose: sinon.stub(),
-			})),
-		},
-		RelativePattern: sinon.stub(),
-	}
-})
+// TODO: Mock setup needs manual migration for "../../../utils/fs"
+// TODO: Mock setup needs manual migration for "fs/promises"
+// TODO: Mock setup needs manual migration for "vscode"
+// 	const mockDisposable = { dispose: sinon.stub() }
+// Mock return block needs context
+// 	return {
+// 		workspace: {
+// 			createFileSystemWatcher: sinon.stub(() => ({
+// 				onDidCreate: sinon.stub(() => mockDisposable),
+// 				onDidChange: sinon.stub(() => mockDisposable),
+// 				onDidDelete: sinon.stub(() => mockDisposable),
+// 				dispose: sinon.stub(),
+// 			})),
+// 		},
+// 		RelativePattern: sinon.stub(),
+// 	}
+// Mock cleanup
 
 suite("TheaIgnore Response Formatting", () => {
 	const TEST_CWD = "/test/path"
@@ -120,8 +121,8 @@ suite("TheaIgnore Response Formatting", () => {
 			expect(result).toMatch(new RegExp(`${LOCK_TEXT_SYMBOL}.*secrets/keys.json`, "i"))
 
 			// No lock symbols for allowed files
-			expect(result).not.toContain(`${LOCK_TEXT_SYMBOL} src/app.ts`)
-			expect(result).not.toContain(`${LOCK_TEXT_SYMBOL} README.md`)
+			assert.ok(!result.includes(`${LOCK_TEXT_SYMBOL} src/app.ts`))
+			assert.ok(!result.includes(`${LOCK_TEXT_SYMBOL} README.md`))
 		})
 
 		/**
@@ -166,9 +167,9 @@ suite("TheaIgnore Response Formatting", () => {
 			assert.ok(result.includes("README.md"))
 
 			// Should NOT contain ignored files (even with lock symbols)
-			expect(result).not.toContain("node_modules/package.json")
-			expect(result).not.toContain(".git/HEAD")
-			expect(result).not.toContain("secrets/keys.json")
+			assert.ok(!result.includes("node_modules/package.json"))
+			assert.ok(!result.includes(".git/HEAD"))
+			assert.ok(!result.includes("secrets/keys.json"))
 
 			// Double-check with regex to ensure no form of these filenames appears
 			expect(result).not.toMatch(/node_modules\/package\.json/i)
@@ -262,4 +263,4 @@ suite("TheaIgnore Response Formatting", () => {
 			expect(controller.getInstructions()).toBeUndefined()
 		})
 	})
-})
+// Mock cleanup

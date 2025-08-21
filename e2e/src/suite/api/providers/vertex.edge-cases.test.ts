@@ -1,16 +1,17 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * Vertex provider edge case tests as recommended by architect
  * Tests Claude/Gemini paths, thinking variants, completePrompt helpers
  */
 
-import { VertexHandler } from "../vertex"
 import { ApiConfiguration } from "../../../types/api"
-import { Message } from "../../../shared/message"
+import { VertexHandler } from "../vertex"
 import { NeutralVertexClient } from "../../../lib/providers/neutral-vertex-client"
+import { Message } from "../../../shared/message"
 
 // Mock the NeutralVertexClient
-// TODO: Use proxyquire for module mocking - "../../../lib/providers/neutral-vertex-client")
+// TODO: Mock setup needs manual migration for "../../../lib/providers/neutral-vertex-client"
 
 suite("Vertex Provider Edge Cases", () => {
 	let handler: VertexHandler
@@ -614,4 +615,4 @@ suite("Vertex Provider Edge Cases", () => {
 			assert.strictEqual(usageChunk?.completionTokens, 40)
 		})
 	})
-})
+// Mock cleanup

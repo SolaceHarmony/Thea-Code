@@ -2,29 +2,31 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
 import * as vscode from "vscode"
 
-import { SYSTEM_PROMPT } from "../system"
 import { McpHub } from "../../../services/mcp/management/McpHub"
-import { defaultModeSlug, modes, ModeConfig } from "../../../shared/modes"
+import { SYSTEM_PROMPT } from "../system"
 import "../../../utils/path" // Import path utils to get access to toPosix string extension.
-import { addCustomInstructions } from "../sections/custom-instructions"
+import { defaultModeSlug, modes, ModeConfig } from "../../../shared/modes"
 import { EXPERIMENT_IDS } from "../../../shared/experiments"
+import { addCustomInstructions } from "../sections/custom-instructions"
 
 // Mock the sections
-// TODO: Use proxyquire for module mocking - "../sections/modes", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../sections/modes" needed here
 	getModesSection: sinon.stub().callsFake(() => `====\n\nMODES\n\n- Test modes section`),
-}))
+// Mock cleanup needed
 
 // Mock the custom instructions
-// TODO: Use proxyquire for module mocking - "../sections/custom-instructions", () => {
-	const addCustomInstructions = sinon.stub()
-	return {
-		addCustomInstructions,
-		__setMockImplementation: (impl: (...args: unknown[]) => unknown) => {
-			// Cast is safe in test context
-			addCustomInstructions.callsFake(impl as typeof addCustomInstructions)
-		},
-	}
-})
+// TODO: Mock setup needs manual migration for "../sections/custom-instructions"
+// 	const addCustomInstructions = sinon.stub()
+// Mock return block needs context
+// 	return {
+// 		addCustomInstructions,
+// 		__setMockImplementation: (impl: (...args: unknown[]) => unknown) => {
+// 			// Cast is safe in test context
+// 			addCustomInstructions.callsFake(impl as typeof addCustomInstructions)
+// 		},
+// 	}
+// Mock cleanup
 
 // Set up default mock implementation
 const { __setMockImplementation } = require("../sections/custom-instructions")
@@ -74,25 +76,28 @@ __setMockImplementation(
 )
 
 // Mock environment-specific values for consistent tests
-// TODO: Use proxyquire for module mocking - "os", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "os" needed here
 	...require("os"),
 	homedir: () => "/home/user",
-}))
+// Mock cleanup needed
 
 // TODO: Use proxyquire for module mocking - "default-shell", () => "/bin/zsh")
 
 // TODO: Use proxyquire for module mocking - "os-name", () => () => "Linux")
 
 // Mock vscode language
-// TODO: Use proxyquire for module mocking - "vscode", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "vscode" needed here
 	env: {
 		language: "en",
 	},
-}))
+// Mock cleanup
 
-// TODO: Use proxyquire for module mocking - "../../../utils/shell", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../../../utils/shell" needed here
 	getShell: () => "/bin/zsh",
-}))
+// Mock cleanup needed
 
 // Create a mock ExtensionContext
 const mockContext = {
@@ -334,7 +339,7 @@ suite("SYSTEM_PROMPT", () => {
 			true, // enableMcpServerCreation
 		)
 
-		expect(prompt).not.toContain("apply_diff")
+		assert.ok(!prompt.includes("apply_diff"))
 		expect(prompt).toMatchSnapshot()
 	})
 
@@ -362,7 +367,7 @@ suite("SYSTEM_PROMPT", () => {
 			true, // enableMcpServerCreation
 		)
 
-		expect(prompt).not.toContain("apply_diff")
+		assert.ok(!prompt.includes("apply_diff"))
 		expect(prompt).toMatchSnapshot()
 	})
 
@@ -429,9 +434,9 @@ suite("SYSTEM_PROMPT", () => {
 		// Custom instructions should be at the bottom
 		const customInstructionsIndex = prompt.indexOf("Custom mode instructions")
 		const userInstructionsHeader = prompt.indexOf("USER'S CUSTOM INSTRUCTIONS")
-		expect(customInstructionsIndex).toBeGreaterThan(-1)
-		expect(userInstructionsHeader).toBeGreaterThan(-1)
-		expect(customInstructionsIndex).toBeGreaterThan(userInstructionsHeader)
+		assert.ok(customInstructionsIndex > -1)
+		assert.ok(userInstructionsHeader > -1)
+		assert.ok(customInstructionsIndex > userInstructionsHeader)
 	})
 
 	test("should use promptComponent roleDefinition when available", async () => {
@@ -461,7 +466,7 @@ suite("SYSTEM_PROMPT", () => {
 		// Role definition from promptComponent should be at the top
 		expect(prompt.indexOf("Custom prompt role definition")).toBeLessThan(prompt.indexOf("TOOL USE"))
 		// Should not contain the default mode's role definition
-		expect(prompt).not.toContain(modes[0].roleDefinition)
+		assert.ok(!prompt.includes(modes[0].roleDefinition))
 	})
 
 	test("should fallback to modeConfig roleDefinition when promptComponent has no roleDefinition", async () => {
@@ -522,8 +527,8 @@ suite("SYSTEM_PROMPT", () => {
 			// Check that experimental tool sections are not included
 			const toolSections = prompt.split("\n## ").slice(1)
 			const toolNames = toolSections.map((section) => section.split("\n")[0].trim())
-			expect(toolNames).not.toContain("search_and_replace")
-			expect(toolNames).not.toContain("insert_content")
+			assert.ok(!toolNames.includes("search_and_replace"))
+			assert.ok(!toolNames.includes("insert_content"))
 			expect(prompt).toMatchSnapshot()
 		})
 
@@ -595,7 +600,7 @@ suite("SYSTEM_PROMPT", () => {
 
 			// Verify only enabled experimental tools are included
 			assert.ok(toolNames.includes("search_and_replace"))
-			expect(toolNames).not.toContain("insert_content")
+			assert.ok(!toolNames.includes("insert_content"))
 			expect(prompt).toMatchSnapshot()
 		})
 
@@ -675,7 +680,7 @@ suite("SYSTEM_PROMPT", () => {
 	suiteTeardown(() => {
 		sinon.restore()
 	})
-})
+// Mock cleanup
 
 suite("addCustomInstructions", () => {
 	suiteSetup(() => {
@@ -777,7 +782,7 @@ suite("addCustomInstructions", () => {
 			false, // enableMcpServerCreation
 		)
 
-		expect(prompt).not.toContain("Creating an MCP Server")
+		assert.ok(!prompt.includes("Creating an MCP Server"))
 		expect(prompt).toMatchSnapshot()
 	})
 
@@ -883,4 +888,4 @@ suite("addCustomInstructions", () => {
 	suiteTeardown(() => {
 		sinon.restore()
 	})
-})
+// Mock cleanup

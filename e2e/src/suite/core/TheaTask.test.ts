@@ -174,14 +174,15 @@ suite("TheaTask", () => {
 			// Simple mock implementation
 			const urlRegex = /(https?:\/\/[^\s]+)/g
 			const urls = text.match(urlRegex) || []
-			return { urls, files: [] }
-		})
-		
-		// Setup DiffStrategy mock
-		mockDiffStrategy = {
-			applyDiff: sandbox.stub().resolves({ success: true })
-		}
-		
+// Mock return block needs context
+// 			return { urls, files: [] }
+// 		})
+// 		
+// 		// Setup DiffStrategy mock
+// 		mockDiffStrategy = {
+// 			applyDiff: sandbox.stub().resolves({ success: true })
+// 		}
+// 		
 		// Setup Terminal mock
 		mockTerminal = {
 			execute: sandbox.stub().resolves({ code: 0, output: "Command executed successfully" }),
@@ -788,4 +789,4 @@ suite("TheaTask", () => {
 			}
 		})
 	})
-})
+// Mock cleanup

@@ -8,14 +8,15 @@ import * as path from "path"
 
 import * as vscode from "vscode"
 
-import { SPECIFIC_STRINGS } from "../../../shared/config/thea-config"
 import type { ProviderName } from "../../../schemas"
-import { importSettings, exportSettings } from "../importExport"
+import { SPECIFIC_STRINGS } from "../../../shared/config/thea-config"
 import { ProviderSettingsManager } from "../ProviderSettingsManager"
+import { importSettings, exportSettings } from "../importExport"
 import { ContextProxy } from "../ContextProxy"
 
 // Mock VSCode modules
-// TODO: Use proxyquire for module mocking - "vscode", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "vscode" needed here
 	window: {
 		showOpenDialog: sinon.stub(),
 		showSaveDialog: sinon.stub(),
@@ -23,19 +24,21 @@ import { ContextProxy } from "../ContextProxy"
 	Uri: {
 		file: sinon.stub((filePath: string) => ({ fsPath: filePath })),
 	},
-}))
+// Mock cleanup
 
 // Mock fs/promises
-// TODO: Use proxyquire for module mocking - "fs/promises", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "fs/promises" needed here
 	readFile: sinon.stub(),
 	mkdir: sinon.stub(),
 	writeFile: sinon.stub(),
-}))
+// Mock cleanup needed
 
 // Mock os module
-// TODO: Use proxyquire for module mocking - "os", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "os" needed here
 	homedir: sinon.stub(() => "/mock/home"),
-}))
+// Mock cleanup needed
 
 suite("importExport", () => {
 	let mockProviderSettingsManager: sinon.SinonStubbedInstance<ProviderSettingsManager>
@@ -156,7 +159,7 @@ suite("importExport", () => {
 						id: "test-id",
 					},
 				},
-			}))
+			})
 			assert.ok(mockContextProxy.setValues.calledWith({
 				mode: "code",
 				autoApprovalEnabled: true,
@@ -433,4 +436,4 @@ suite("importExport", () => {
 			)
 		})
 	})
-})
+// Mock cleanup

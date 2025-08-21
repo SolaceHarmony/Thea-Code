@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
-import { CodeActionProvider, ACTION_NAMES } from "../CodeActionProvider"
 import { EditorUtils } from "../EditorUtils"
+import { CodeActionProvider, ACTION_NAMES } from "../CodeActionProvider"
 
 import * as assert from 'assert'
 import * as sinon from 'sinon'
@@ -182,6 +182,6 @@ suite("CodeActionProvider", () => {
 			const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
 
 			assert.deepStrictEqual(actions, [])
-			assert.ok(consoleErrorSpy.calledWith("Error providing code actions:", expect.any(Error)))
+			assert.ok(consoleErrorSpy.calledWith("Error providing code actions:", sinon.match.instanceOf(Error)))
 
 			consoleErrorSpy.restore()

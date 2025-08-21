@@ -40,3 +40,5 @@ suite("Thea Code Modes", () => {
 		assert.ok(score >= 7 && score <= 10, `Grade must be between 7 and 10 - ${completion?.text}`)
 
 		await api.cancelCurrentTask()
+
+})})
