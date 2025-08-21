@@ -14,12 +14,9 @@ import { TERMINAL_SHELL_INTEGRATION_TIMEOUT } from "../../../integrations/termin
 import { formatLanguage } from "../../../shared/language"
 
 // Mock dependencies
-// TODO: Mock setup needs manual migration for "vscode"
-// TODO: Mock setup needs manual migration for "os"
-// TODO: Mock setup needs manual migration for "../../config/ContextProxy"
-// TODO: Mock setup needs manual migration for "../../config/ProviderSettingsManager"
-// TODO: Mock setup needs manual migration for "../../config/CustomModesManager"
-// TODO: Mock setup needs manual migration for "../../../shared/language"
+// Mock needs manual implementation
+// Mock needs manual implementation
+// Mock needs manual implementation
 
 suite("TheaStateManager", () => {
 	// Renamed describe block

@@ -64,11 +64,9 @@ setup(async () => {
 		return [200, stream]
 	})
 // Mock cleanup
-
 teardown(async () => {
 	await openaiTeardown()
 // Mock cleanup
-
 suite("OpenAiHandler", () => {
 	let handler: OpenAiHandler
 	let mockOptions: ApiHandlerOptions
@@ -210,8 +208,8 @@ suite("OpenAiHandler", () => {
 			assert.deepStrictEqual(requestBody, {
 					model: mockOptions.openAiModelId,
 					messages: [{ role: "user", content: "Test prompt" }],
-					max_tokens: expect.any(Number),
-					temperature: expect.any(Number),
+					max_tokens: sinon.match.instanceOf(Number),
+					temperature: sinon.match.instanceOf(Number),
 					stream: false,
 				})
 		})

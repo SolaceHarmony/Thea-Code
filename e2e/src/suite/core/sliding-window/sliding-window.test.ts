@@ -21,18 +21,7 @@ class MockApiHandler extends BaseProvider {
 	}
 
 	getModel(): { id: string; info: ModelInfo } {
-// Mock return block needs context
-// 		return {
-// 			id: "test-model",
-// 			info: {
-// 				contextWindow: 100000,
-// 				maxTokens: 50000,
-// 				supportsPromptCache: true,
-// 				supportsImages: false,
-// 				inputPrice: 0,
-// 				outputPrice: 0,
-// 				description: "Test model",
-// 			},
+// Mock removed - needs manual implementation,
 // 		}
 	}
 }
@@ -128,7 +117,6 @@ suite("truncateConversation", () => {
 		assert.deepStrictEqual(result[1], messages[3])
 	})
 // Mock cleanup
-
 /**
  * Tests for the estimateTokenCount function
  */
@@ -215,7 +203,6 @@ suite("estimateTokenCount", () => {
 		expect(await estimateTokenCount([{ type: "text", text: content }], mockApiHandler)).toBeGreaterThan(0)
 	})
 // Mock cleanup
-
 /**
  * Tests for the truncateConversationIfNeeded function
  */
@@ -415,7 +402,6 @@ suite("truncateConversationIfNeeded", () => {
 		assert.deepStrictEqual(result, expectedResult)
 	})
 // Mock cleanup
-
 /**
  * Tests for the getMaxTokens function (private but tested through truncateConversationIfNeeded)
  */

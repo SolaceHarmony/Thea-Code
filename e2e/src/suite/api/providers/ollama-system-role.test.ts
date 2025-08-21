@@ -71,15 +71,7 @@ suite("Ollama System Role Handling", () => {
 		mockCreate.callsFake(({ messages }: { messages: OpenAI.Chat.ChatCompletionMessageParam[] }) => {
 			// Store messages for inspection
 			(mockCreate as any).lastMessages = messages
-// Mock return block needs context
-// 			
-// 			return {
-// 				[Symbol.asyncIterator]: async function* () {
-// 					yield {
-// 						choices: [{
-// 							delta: { content: "Test response" },
-// 							index: 0,
-// 						}],
+// Mock removed - needs manual implementation],
 // 					}
 					yield {
 						choices: [{

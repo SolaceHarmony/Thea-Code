@@ -18,7 +18,7 @@ suite("McpConverters", () => {
 
 				assert.deepStrictEqual(result, {
 					type: "tool_use",
-					id: expect.any(String),
+					id: sinon.match.instanceOf(String),
 					name: "read_file",
 					input: {
 						path: "src/main.js",
@@ -39,7 +39,7 @@ suite("McpConverters", () => {
 
 				assert.deepStrictEqual(result, {
 					type: "tool_use",
-					id: expect.any(String),
+					id: sinon.match.instanceOf(String),
 					name: "read_file",
 					input: {
 						path: "src/main.js",
@@ -455,5 +455,4 @@ suite("McpConverters", () => {
 		})
 	})
 // Mock cleanup
-
 // Mock cleanup

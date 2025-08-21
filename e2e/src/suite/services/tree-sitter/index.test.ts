@@ -5,10 +5,8 @@ import { fileExistsAtPath } from "../../../utils/fs"
 import * as fs from "fs/promises"
 
 // Mock dependencies
-// TODO: Mock setup needs manual migration
-// TODO: Mock setup needs manual migration
-// TODO: Mock setup needs manual migration
-// TODO: Mock setup needs manual migration
+// Mock needs manual implementation
+// Mock needs manual implementation
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 suite("Tree-sitter Service", () => {

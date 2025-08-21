@@ -184,7 +184,6 @@ suite("McpToolRegistry", () => {
 		})
 	})
 // Mock cleanup
-
 // Helper function to create a mock tool definition
 function createMockTool(name: string, description: string = "Test tool"): ToolDefinition {
 	const mockHandler = sinon.stub(() => {
@@ -192,16 +191,7 @@ function createMockTool(name: string, description: string = "Test tool"): ToolDe
 				content: [{ type: "text", text: "Success" }],
 			} as ToolCallResult)
 		})
-// Mock return block needs context
-// 
-// 	return {
-// 		name,
-// 		description,
-// 		paramSchema: {
-// 			type: "object",
-// 			properties: {
-// 				param: { type: "string" },
-// 			},
+// Mock removed - needs manual implementation,
 // 		},
 // 		handler: mockHandler,
 // 	}
@@ -212,11 +202,5 @@ function createMockToolWithError(name: string, errorMessage: string): ToolDefini
 	const mockHandler = sinon.stub(() => {
 		return Promise.reject(new Error(errorMessage))
 	})
-// Mock return block needs context
-// 
-// 	return {
-// 		name,
-// 		description: "Error tool",
-// 		handler: mockHandler,
-// 	}
+// Mock removed - needs manual implementation
 }

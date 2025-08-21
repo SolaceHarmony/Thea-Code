@@ -8,24 +8,13 @@ import * as fs from "fs/promises"
 import { toPosix } from "./utils"
 
 // Mock dependencies
-// TODO: Mock setup needs manual migration for "../../../utils/fs"
-// TODO: Mock setup needs manual migration for "fs/promises"
-// TODO: Mock setup needs manual migration for "vscode"
-// 	const mockDisposable = { dispose: sinon.stub() }
-// Mock return block needs context
-// 	return {
-// 		workspace: {
-// 			createFileSystemWatcher: sinon.stub(() => ({
-// 				onDidCreate: sinon.stub(() => mockDisposable),
-// 				onDidChange: sinon.stub(() => mockDisposable),
-// 				onDidDelete: sinon.stub(() => mockDisposable),
-// 				dispose: sinon.stub(),
-// 			})),
+// Mock needs manual implementation
+// Mock needs manual implementation
+// Mock removed - needs manual implementation)),
 // 		},
 // 		RelativePattern: sinon.stub(),
 // 	}
 // Mock cleanup
-
 suite("TheaIgnore Response Formatting", () => {
 	const TEST_CWD = "/test/path"
 	let mockFileExists: sinon.SinonStubbedInstanceFunction<typeof fileExistsAtPath>

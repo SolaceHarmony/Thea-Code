@@ -8,10 +8,8 @@ import { ModelInfo } from "../../../shared/api"
 import * as sinon from 'sinon'
 
 // Mock dependencies
-// TODO: Mock setup needs manual migration for "vscode"
-// TODO: Mock setup needs manual migration for "fs/promises"
-// TODO: Mock setup needs manual migration for "../../../utils/fs"
-// TODO: Mock setup needs manual migration for "../../../shared/storagePathManager"
+// Mock needs manual implementation
+// Mock needs manual implementation
 // 	return {
 		getCacheDirectoryPath: sinon.stub().callsFake((storagePath: string) => {
 			return path.join(storagePath, "cache")
@@ -21,7 +19,6 @@ import * as sinon from 'sinon'
 		}),
 	}
 // Mock cleanup
-
 suite("TheaCacheManager", () => {
 	// Updated describe block
 	let cacheManager: TheaCacheManager // Updated type

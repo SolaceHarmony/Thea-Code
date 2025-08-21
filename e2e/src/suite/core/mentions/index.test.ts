@@ -17,7 +17,6 @@ const createMockUri = (scheme: string, path: string) => ({
 		fragment: "",
 	}),
 // Mock cleanup
-
 const mockExecuteCommand = sinon.stub()
 const mockOpenExternal = sinon.stub()
 const mockShowErrorMessage = sinon.stub()
@@ -76,8 +75,7 @@ const mockVscode = {
 
 // Mock modules
 // TODO: Use proxyquire for module mocking - "vscode", () => mockVscode)
-// TODO: Mock setup needs manual migration for "../../../services/browser/UrlContentFetcher"
-// TODO: Mock setup needs manual migration for "../../../utils/git"
+// Mock needs manual implementation
 // TODO: Mock setup needs manual migration for "../../../utils/path"
 
 // Now import the modules that use the mocks

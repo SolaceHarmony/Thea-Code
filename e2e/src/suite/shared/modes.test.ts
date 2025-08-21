@@ -3,8 +3,7 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 const mockAddCustomInstructions = sinon.stub().resolves("Combined instructions")
-// TODO: Mock setup needs manual migration
-// TODO: Mock needs manual migration
+// Mock needs manual implementation
 // TODO: Implement proper mock with proxyquire
 
 import { isToolAllowedForMode, FileRestrictionError, ModeConfig, getFullModeDetails, modes } from "../modes"

@@ -103,7 +103,6 @@ suite("loadRuleFiles", () => {
 		assert.strictEqual(result, "\n# Rules from .cursorrules:\ncursor rules content\n")
 	})
 // Mock cleanup
-
 suite("addCustomInstructions", () => {
 	setup(() => {
 		sinon.restore()

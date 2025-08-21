@@ -8,8 +8,7 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 
 // Mock EmbeddedMcpProvider
-// TODO: Mock setup needs manual migration for "../providers/EmbeddedMcpProvider"
-// 	// Create a mock implementation that satisfies the IMcpProvider interface
+// Mock needs manual implementation
 	const mockImplementation = sinon.stub().callsFake(() => {
 		const instance = new EventEmitter() as EventEmitter & Partial<IMcpProvider>
 		
@@ -35,16 +34,10 @@ import * as sinon from 'sinon'
 	mockImplementation.create = sinon.stub().callsFake(() => 
 		Promise.resolve(mockImplementation())
 	)
-// Mock return block needs context
-// 
-// 	return {
-// 		EmbeddedMcpProvider: mockImplementation,
-// 	}
+// Mock removed - needs manual implementation
 // Mock cleanup
-
 // Mock McpToolRegistry
-// TODO: Mock setup needs manual migration for "../core/McpToolRegistry"
-// 	const mockRegistry = {
+// Mock needs manual implementation
 		registerTool: sinon.stub(),
 		unregisterTool: sinon.stub().returns(true),
 		getTool: sinon.stub(),
@@ -52,15 +45,9 @@ import * as sinon from 'sinon'
 		hasTool: sinon.stub(),
 		executeTool: sinon.stub(),
 	}
-// Mock return block needs context
-// 
-// 	return {
-// 		McpToolRegistry: {
-// 			getInstance: sinon.stub().returns(mockRegistry),
-// 		},
+// Mock removed - needs manual implementation,
 // 	}
 // Mock cleanup
-
 // Types for accessing private fields in tests
 type McpToolExecutorInternal = {
 	mcpProvider: EventEmitter & IMcpProvider
@@ -129,9 +116,7 @@ suite("McpToolExecutor", () => {
 				paramSchema: { type: "object" },
 				handler: async () => {
 					await Promise.resolve()
-// Mock return block needs context
-// 					return { content: [], isError: false }
-// 				},
+// Mock removed - needs manual implementation,
 // 			}
 // 
 			mcpToolSystem.registerTool(toolDefinition)
@@ -157,7 +142,6 @@ suite("McpToolExecutor", () => {
 		})
 	})
 // Mock cleanup
-
 suite("McpConverters", () => {
 	suite("XML conversion", () => {
 		test("should convert XML to MCP format", () => {
@@ -281,7 +265,6 @@ suite("McpConverters", () => {
 		})
 	})
 // Mock cleanup
-
 suite("McpToolRouter", () => {
 	let mcpToolRouter: McpToolRouter
 

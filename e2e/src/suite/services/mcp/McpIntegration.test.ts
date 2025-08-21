@@ -3,8 +3,7 @@ import { McpIntegration, handleToolUse } from "../integration/McpIntegration"
 import * as sinon from 'sinon'
 
 // Mock the McpToolRouter
-// TODO: Mock setup needs manual migration for "../core/McpToolRouter"
-// 	const mockInstance = {
+// Mock needs manual implementation
 		on: sinon.stub(),
 		initialize: sinon.stub().resolves(undefined),
 		shutdown: sinon.stub().resolves(undefined),
@@ -14,24 +13,14 @@ import * as sinon from 'sinon'
 			content: `Routed ${request.format} request`,
 		})),
 	}
-// Mock return block needs context
-// 
-// 	return {
-// 		ToolUseFormat: {
-// 			XML: "xml",
-// 			JSON: "json",
-// 			OPENAI: "openai",
-// 			NEUTRAL: "neutral",
-// 		},
+// Mock removed - needs manual implementation,
 // 		McpToolRouter: {
 // 			getInstance: sinon.stub().returns(mockInstance),
 // 		},
 // 	}
 // Mock cleanup
-
 // Mock the McpToolExecutor
-// TODO: Mock setup needs manual migration for "../core/McpToolExecutor"
-// 	const mockInstance = {
+// Mock needs manual implementation
 		registerTool: sinon.stub(),
 		unregisterTool: sinon.stub().returns(true),
 		processXmlToolUse: sinon.stub().callsFake((content) => `Processed XML: ${content}`),
@@ -45,15 +34,9 @@ import * as sinon from 'sinon'
 			content: `Processed OpenAI: ${JSON.stringify(content)}`,
 		})),
 	}
-// Mock return block needs context
-// 
-// 	return {
-// 		McpToolExecutor: {
-// 			getInstance: sinon.stub().returns(mockInstance),
-// 		},
+// Mock removed - needs manual implementation,
 // 	}
 // Mock cleanup
-
 suite("McpIntegration", () => {
 	let mcpIntegration: McpIntegration
 
@@ -200,7 +183,6 @@ suite("McpIntegration", () => {
 		})
 	})
 // Mock cleanup
-
 suite("handleToolUse", () => {
 	setup(() => {
 		// Clear all mocks

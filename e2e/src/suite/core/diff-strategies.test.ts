@@ -107,8 +107,7 @@ suite("Diff Strategies Tests", () => {
 			const strategies = ['unified', 'search-replace', 'whole-file']
 			
 			for (const strategy of strategies) {
-				assert.ok(
-					typeof strategy === 'string',
+				assert.ok(typeof strategy === 'string',
 					`${strategy} should be a valid strategy`
 
 		test.skip("Should choose optimal strategy", async () => {
@@ -181,7 +180,7 @@ function levenshteinDistance(str1: string, str2: string): number {
 		for (let j = 1; j <= n; j++) {
 			if (str1[i - 1] === str2[j - 1]) {
 				dp[i][j] = dp[i - 1][j - 1]
-			} else {
+} else {
 				dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
 
 	return dp[m][n]

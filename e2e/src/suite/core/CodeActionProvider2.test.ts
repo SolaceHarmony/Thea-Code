@@ -22,8 +22,7 @@ interface MockCodeActionContext extends vscode.CodeActionContext {
 }
 
 // Mock VSCode API
-// TODO: Mock setup needs manual migration for "vscode"
-// 	const actualVscode: typeof vscode = require("vscode")
+// Mock needs manual implementation
 
 	// Mock static methods of Uri directly on the actual Uri class
 	actualVscode.Uri.file = sinon.stub((path: string) => actualVscode.Uri.file(path))
@@ -67,7 +66,6 @@ interface MockCodeActionContext extends vscode.CodeActionContext {
 		Uri: actualVscode.Uri, // Return the actual Uri class with mocked static methods
 	} satisfies Partial<typeof vscode> as typeof vscode
 // Mock cleanup
-
 // Mock EditorUtils
 // TODO: Use proxyquire for module mocking
 		// Mock for "../EditorUtils" needed here
@@ -78,7 +76,6 @@ interface MockCodeActionContext extends vscode.CodeActionContext {
 		createDiagnosticData: sinon.stub(),
 	},
 // Mock cleanup
-
 suite("CodeActionProvider", () => {
 	let provider: CodeActionProvider
 	let mockDocument: vscode.TextDocument

@@ -181,7 +181,7 @@ suite("AwsBedrockHandler Custom ARN Functionality", () => {
 			try {
 				await handler.completePrompt("test")
 				assert.fail("Should have thrown an error for invalid ARN")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Invalid ARN format"))
 			}
@@ -384,7 +384,7 @@ suite("AwsBedrockHandler Custom ARN Functionality", () => {
 			try {
 				await handler.completePrompt("test")
 				assert.fail("Should have thrown an error for non-existent model")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Model not found"))
 			}

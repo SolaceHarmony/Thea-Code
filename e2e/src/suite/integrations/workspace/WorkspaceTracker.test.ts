@@ -42,9 +42,7 @@ const mockWatcher: {
 		tabGroups: {
 			onDidChangeTabs: sinon.stub((callback: () => Promise<void>) => {
 				registeredTabChangeCallback = callback
-// Mock return block needs context
-// 				return { dispose: mockDispose }
-// 			}),
+// Mock removed - needs manual implementation),
 // 			all: [],
 // 		},
 // 		onDidChangeActiveTextEditor: sinon.stub(() => ({ dispose: sinon.stub() })),
@@ -65,9 +63,7 @@ const mockWatcher: {
 // 	FileType: { File: 1, Directory: 2 },
 // // Mock cleanup needed
 // 
-// // TODO: Mock setup needs manual migration for "../../../services/glob/list-files"
-// 
-// suite("WorkspaceTracker", () => {
+// // Mock needs manual implementation
 // 	let workspaceTracker: WorkspaceTracker
 // 	let mockProvider: TheaProvider // Renamed type
 // 
@@ -355,5 +351,4 @@ const mockWatcher: {
 		assert.ok(!mockProvider.postMessageToWebview.called)
 	})
 // Mock cleanup
-
 })})

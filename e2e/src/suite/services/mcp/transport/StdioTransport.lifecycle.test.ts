@@ -40,8 +40,7 @@ suite("StdioTransport Lifecycle Tests", () => {
 
 		test("should handle missing SDK with fallback mock", async () => {
 			// Mock the SDK import to fail
-			// TODO: Mock setup needs manual migration for "@modelcontextprotocol/sdk/server/stdio.js"
-// 				throw new Error("Module not found")
+			// Mock needs manual implementation
 			})
 			
 			const config: StdioTransportConfig = {
@@ -254,8 +253,7 @@ suite("StdioTransport Lifecycle Tests", () => {
 	suite("MockStdioServerTransport fallback", () => {
 		setup(() => {
 			// Force mock usage by making SDK unavailable
-			// TODO: Mock setup needs manual migration for "@modelcontextprotocol/sdk/server/stdio.js"
-// 				throw new Error("Module not found")
+			// Mock needs manual implementation
 			})
 		})
 

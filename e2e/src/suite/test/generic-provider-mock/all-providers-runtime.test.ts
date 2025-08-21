@@ -179,8 +179,7 @@ suite("All Providers Runtime Test", () => {
 						success: response.ok,
 						status: response.status,
 						modelCount: response.ok ? (await response.json()).data?.length || 0 : 0
-
-				} catch (error) {
+} catch (error) {
 					return {
 						provider,
 						success: false,
@@ -194,7 +193,7 @@ suite("All Providers Runtime Test", () => {
 			results.forEach(result => {
 				if (result.success) {
 					console.log(`   ✅ ${result.provider}: ${result.modelCount} models`)
-				} else {
+} else {
 					console.log(`   ❌ ${result.provider}: ${result.error || "Failed"}`)
 
 			// At least 6 providers should respond successfully

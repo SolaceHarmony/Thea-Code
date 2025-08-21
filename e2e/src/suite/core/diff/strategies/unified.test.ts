@@ -175,7 +175,7 @@ async function processFile(path: string) {
     const data = await fs.readFile(join(__dirname, path), 'utf8');
     const processed = data.toUpperCase();
     await fs.writeFile(join(__dirname, path), processed);
-  } catch (error) {
+} catch (error) {
     console.error('Failed to process file:', error);
     throw error;
 

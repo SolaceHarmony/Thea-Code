@@ -6,21 +6,11 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 
 // Mock the Vertex AI SDK
-// TODO: Mock setup needs manual migration for "@google-cloud/vertexai"
-// 	return {
+// Mock needs manual implementation
 		VertexAI: sinon.stub().callsFake(() => ({
 			getGenerativeModel: sinon.stub().callsFake(() => ({
 				generateContentStream: sinon.stub().callsFake(() => {
-// Mock return block needs context
-// 					return {
-// 						stream: {
-// 							[Symbol.asyncIterator]: function* () {
-// 								yield {
-// 									candidates: [
-// 										{
-// 											content: {
-// 												parts: [{ text: "Test response" }],
-// 											},
+// Mock removed - needs manual implementation,
 // 										},
 // 									],
 // 								}
@@ -49,7 +39,6 @@ import * as sinon from 'sinon'
 		})),
 	}
 // Mock cleanup
-
 // Mock the neutral-vertex-format module
 // TODO: Use proxyquire for module mocking
 		// Mock for "../../transform/neutral-vertex-format" needed here

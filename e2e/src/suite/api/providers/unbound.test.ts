@@ -14,8 +14,7 @@ const mockCreate = sinon.stub<
 >()
 const mockWithResponse = sinon.stub()
 
-// TODO: Mock setup needs manual migration for "openai"
-// 	return {
+// Mock needs manual implementation
 		__esModule: true,
 		default: sinon.stub().callsFake(() => ({
 			chat: {
@@ -74,7 +73,6 @@ const mockWithResponse = sinon.stub()
 		})),
 	}
 // Mock cleanup
-
 suite("UnboundHandler", () => {
 	let handler: UnboundHandler
 	let mockOptions: ApiHandlerOptions
@@ -162,7 +160,7 @@ suite("UnboundHandler", () => {
 
 			assert.ok(mockCreate.calledWith({
 					model: "claude-3-5-sonnet-20241022",
-					messages: expect.any(Array)), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+					messages: sinon.match.instanceOf(Array)), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
 					stream: true,
 				}),
 				// TODO: Object partial match - {
@@ -185,7 +183,7 @@ suite("UnboundHandler", () => {
 					chunks.push(chunk)
 				}
 				fail("Expected error to be thrown")
-			} catch (e) {
+} catch (e) {
 				const error = e as Error
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "API Error")

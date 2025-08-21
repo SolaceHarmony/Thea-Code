@@ -4,8 +4,7 @@ import { EditorUtils } from "../EditorUtils"
 import * as sinon from 'sinon'
 
 // Use simple classes to simulate VSCode's Range and Position behavior.
-// TODO: Mock setup needs manual migration for "vscode"
-// 	class MockPosition {
+// Mock needs manual implementation
 		constructor(
 			public line: number,
 			public character: number,
@@ -19,15 +18,7 @@ import * as sinon from 'sinon'
 			this.end = end
 		}
 	}
-// Mock return block needs context
-// 
-// 	return {
-// 		Range: MockRange,
-// 		Position: MockPosition,
-// 		EndOfLine: {
-// 			LF: 1,
-// 			CRLF: 2,
-// 		},
+// Mock removed - needs manual implementation,
 // 		workspace: {
 // 			getWorkspaceFolder: sinon.stub(),
 // 		},
@@ -37,7 +28,6 @@ import * as sinon from 'sinon'
 // 		},
 // 	}
 // Mock cleanup
-
 suite("EditorUtils", () => {
 	let mockDocument: sinon.SinonStubbedInstance<vscode.TextDocument>
 
@@ -74,15 +64,7 @@ suite("EditorUtils", () => {
 			lineAt: sinon.stub((line: number | vscode.Position) => {
 				const lineNumber = typeof line === "number" ? line : line.line
 				const text = `Line ${lineNumber} text`
-// Mock return block needs context
-// 				return {
-// 					text: text,
-// 					lineNumber: lineNumber,
-// 					range: new vscode.Range(lineNumber, 0, lineNumber, text.length),
-// 					rangeIncludingLineBreak: new vscode.Range(lineNumber, 0, lineNumber, text.length + 1),
-// 					firstNonWhitespaceCharacterIndex: 0,
-// 					isEmptyOrWhitespace: false,
-// 				} as vscode.TextLine
+// Mock removed - needs manual implementation as vscode.TextLine
 // 			}),
 // 			offsetAt: sinon.stub(),
 // 			positionAt: sinon.stub(),

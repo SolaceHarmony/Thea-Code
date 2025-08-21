@@ -275,7 +275,7 @@ suite("AwsBedrockHandler", () => {
 				// Should have yielded error message
 				const errorChunk = chunks.find(chunk => chunk.type === "text" && chunk.text?.includes("Error:"))
 				assert.notStrictEqual(errorChunk, undefined)
-			} catch (error) {
+} catch (error) {
 				// ARN validation should catch this
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Invalid ARN format"))

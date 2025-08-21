@@ -89,11 +89,9 @@ setup(async () => {
 		},
 	)
 // Mock cleanup
-
 teardown(async () => {
 	await openaiTeardown()
 // Mock cleanup
-
 suite("OpenAiNativeHandler", () => {
 	let handler: OpenAiNativeHandler
 	let mockOptions: ApiHandlerOptions

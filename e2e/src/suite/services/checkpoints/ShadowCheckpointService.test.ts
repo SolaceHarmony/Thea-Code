@@ -50,10 +50,7 @@ const initWorkspaceRepo = async ({
 	// Create initial commit.
 	await git.add(".")
 	await git.commit("Initial commit")
-// Mock return block needs context
-// 
-// 	return { git, testFile }
-// }
+// Mock removed - needs manual implementation
 // 
 describe.each([
 	[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"],
@@ -454,7 +451,7 @@ describe.each([
 			service["renameNestedGitRepos"] = async (disable: boolean) => {
 				if (disable) {
 					disableCall = true
-				} else {
+} else {
 					enableCall = true
 				}
 
@@ -646,7 +643,6 @@ describe.each([
 		})
 	})
 // Mock cleanup
-
 suite("ShadowCheckpointService", () => {
 	const taskId = "test-task-storage"
 	const tmpDir = path.join(os.tmpdir(), "CheckpointService")
@@ -725,5 +721,4 @@ suite("ShadowCheckpointService", () => {
 		})
 	})
 // Mock cleanup
-
 // Mock cleanup

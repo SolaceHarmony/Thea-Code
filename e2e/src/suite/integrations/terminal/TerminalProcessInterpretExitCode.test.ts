@@ -79,7 +79,7 @@ suite("TerminalProcess.interpretExitCode with real commands", () => {
 			// If we get here, the command succeeded with exit code 0
 			const result = TerminalProcess.interpretExitCode(0)
 			assert.deepStrictEqual(result, { exitCode: 0 })
-		} catch (error: unknown) {
+} catch (error: unknown) {
 			// This should not happen for a successful command
 			const err = error as { message?: string }
 			fail("Command should have succeeded: " + (err.message ?? ""))
@@ -89,7 +89,7 @@ suite("TerminalProcess.interpretExitCode with real commands", () => {
 			// Run a command that should fail with exit code 1 or 2
 			execSync("ls /nonexistent_directory", { stdio: "ignore" })
 			fail("Command should have failed")
-		} catch (error: unknown) {
+} catch (error: unknown) {
 			// Verify the exit code is what we expect (can be 1 or 2 depending on the system)
 			const err = error as { status?: number }
 			assert.ok(err.status > 0)
@@ -102,7 +102,7 @@ suite("TerminalProcess.interpretExitCode with real commands", () => {
 			// Run a command that exits with a specific code
 			execSync("exit 42", { stdio: "ignore" })
 			fail("Command should have exited with code 42")
-		} catch (error: unknown) {
+} catch (error: unknown) {
 			const err = error as { status?: number }
 			assert.strictEqual(err.status, 42)
 			const result = TerminalProcess.interpretExitCode(err.status)

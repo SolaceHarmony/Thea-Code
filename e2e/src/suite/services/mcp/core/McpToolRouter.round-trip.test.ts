@@ -29,13 +29,7 @@ suite("McpToolRouter Round-Trip Tests", () => {
 				properties: {},
 			},
 			handler: async (args: any) => {
-// Mock return block needs context
-// 				return {
-// 					content: [
-// 						{
-// 							type: "text",
-// 							text: `Tool executed successfully with args: ${JSON.stringify(args)}`
-// 						}
+// Mock removed - needs manual implementation
 					],
 					isError: false
 				}

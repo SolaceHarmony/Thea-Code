@@ -31,7 +31,7 @@ suite("Git Utilities", () => {
 							execStub(command, options || {}, (error: any, stdout: string, stderr: string) => {
 								if (error) {
 									reject(error)
-								} else {
+} else {
 									resolve({ stdout, stderr })
 								}
 							})
@@ -88,7 +88,7 @@ Jane Smith
 			try {
 				await gitModule.searchCommits("query", "/test/repo")
 				assert.fail("Should have thrown an error")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "Git is not installed.")
 			}
@@ -101,7 +101,7 @@ Jane Smith
 			try {
 				await gitModule.searchCommits("query", "/test/repo")
 				assert.fail("Should have thrown an error")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "Not a git repository.")
 			}
@@ -189,7 +189,7 @@ index 123..456 100644
 			try {
 				await gitModule.getCommitInfo("abc123", "/test/repo")
 				assert.fail("Should have thrown an error")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "Git is not installed.")
 			}
@@ -206,7 +206,7 @@ index 123..456 100644
 			try {
 				await gitModule.getCommitInfo("nonexistent", "/test/repo")
 				assert.fail("Should have thrown an error")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("bad object"))
 			}

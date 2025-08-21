@@ -20,8 +20,7 @@ interface MockCodeActionContext extends vscode.CodeActionContext {
 	only: vscode.CodeActionKind | undefined // Made explicitly required
 
 // Mock VSCode API
-// TODO: Mock setup needs manual migration
-// TODO: Fix mock - needs proxyquire
+// Mock needs manual implementation
 /*
 => {
 	const actualVscode: typeof vscode = // TODO: requireActual("vscode")
@@ -70,8 +69,7 @@ interface MockCodeActionContext extends vscode.CodeActionContext {
 })*/
 
 // Mock EditorUtils
-// TODO: Mock setup needs manual migration
-// TODO: Mock needs manual migration
+// Mock needs manual implementation
 // TODO: Implement proper mock with proxyquire
 
 suite("CodeActionProvider", () => {

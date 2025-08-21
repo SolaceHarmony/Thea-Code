@@ -107,7 +107,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 
 					console.log(`✅ ${providerName}: Found ${models.length} models`)
 					console.log(`   Sample models: ${models.slice(0, 3).map(m => m.id).join(", ")}`)
-				} catch (error) {
+} catch (error) {
 					console.error(`❌ ${providerName} failed:`, error)
 					throw error
 				}
@@ -138,10 +138,10 @@ suite("All Dynamic Providers Runtime Test", () => {
 					
 					if (models.length > 0) {
 						console.log(`✅ ${providerName}: Found ${models.length} static models`)
-					} else {
+} else {
 						console.log(`ℹ️ ${providerName}: No models configured (expected for some providers)`)
 					}
-				} catch (error) {
+} catch (error) {
 					console.error(`❌ ${providerName} failed:`, error)
 					// Don't throw for static providers as they may not have mock endpoints
 				}
@@ -187,7 +187,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 			try {
 				await registry.getModels("nonexistent-provider", {})
 				fail("Should have thrown an error for invalid provider")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				console.log("✅ Invalid provider handled correctly")
 			}
@@ -198,7 +198,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 				// Try with completely empty config
 				await registry.getModels("anthropic", {})
 				fail("Should have thrown an error for missing API key")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				console.log("✅ Missing configuration handled correctly")
 			}
@@ -229,7 +229,6 @@ suite("All Dynamic Providers Runtime Test", () => {
 		})
 	})
 // Mock cleanup
-
 // Performance test
 suite("Performance Tests", () => {
 	test("should fetch all provider models within reasonable time", async () => {
@@ -246,9 +245,7 @@ suite("Performance Tests", () => {
 			try {
 				const config = testConfigs[provider as keyof typeof testConfigs]
 				const models = await registry.getModels(provider, config)
-// Mock return block needs context
-// 				return { provider, modelCount: models.length, success: true }
-// 			} catch (error) {
+// Mock removed - needs manual implementation catch (error) {
 // 				return { provider, error: error.message, success: false }
 // 			}
 		})
@@ -261,7 +258,7 @@ suite("Performance Tests", () => {
 		results.forEach(result => {
 			if (result.success) {
 				console.log(`   ✅ ${result.provider}: ${result.modelCount} models`)
-			} else {
+} else {
 				console.log(`   ❌ ${result.provider}: ${result.error}`)
 			}
 		})

@@ -7,8 +7,7 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 import * as vscode from 'vscode'
 const mockCreateTerminal = sinon.stub()
-// TODO: Mock setup needs manual migration
-// TODO: Mock needs manual migration
+// Mock needs manual implementation
 // TODO: Implement proper mock with proxyquire
 
 suite("TerminalRegistry", () => {
@@ -22,7 +21,7 @@ suite("TerminalRegistry", () => {
 			assert.ok(mockCreateTerminal.calledWith({
 				cwd: "/test/path",
 				name: EXTENSION_DISPLAY_NAME as string,
-				iconPath: expect.any(Object)) as unknown,
+				iconPath: sinon.match.instanceOf(Object)) as unknown,
 				env: {
 					PAGER: "cat",
 					PROMPT_COMMAND: "sleep 0.050",

@@ -25,8 +25,7 @@ interface MockLanguageModelToolResultPart {
 }
 
 // Mock vscode namespace
-// TODO: Mock setup needs manual migration for "vscode"
-// 	const LanguageModelChatMessageRole = {
+// Mock needs manual implementation
 		Assistant: "assistant",
 		User: "user",
 	}
@@ -52,15 +51,7 @@ interface MockLanguageModelToolResultPart {
 			public parts: MockLanguageModelTextPart[],
 		) {}
 	}
-// Mock return block needs context
-// 
-// 	return {
-// 		LanguageModelChatMessage: {
-// 			Assistant: sinon.stub((content: string | MockLanguageModelTextPart[]) => ({
-// 				role: LanguageModelChatMessageRole.Assistant,
-// 				name: "assistant",
-// 				content: Array.isArray(content) ? content : [new MockLanguageModelTextPart(content)],
-// 			})),
+// Mock removed - needs manual implementation)),
 // 			User: sinon.stub((content: string | MockLanguageModelTextPart[]) => ({
 // 				role: LanguageModelChatMessageRole.User,
 // 				name: "user",
@@ -73,7 +64,6 @@ interface MockLanguageModelToolResultPart {
 // 		LanguageModelToolResultPart: MockLanguageModelToolResultPart,
 // 	}
 // Mock cleanup
-
 suite("convertToVsCodeLmMessages", () => {
 	test("should convert simple string messages", () => {
 		const messages: NeutralConversationHistory = [
@@ -169,7 +159,6 @@ suite("convertToVsCodeLmMessages", () => {
 		assert.ok(imagePlaceholder.value.includes("[Image (base64)): image/png not supported by VSCode LM API]")
 	})
 // Mock cleanup
-
 suite("convertToAnthropicRole", () => {
 	test("should convert assistant role correctly", () => {
 		const result = convertToAnthropicRole(vscode.LanguageModelChatMessageRole.Assistant)
@@ -187,7 +176,6 @@ suite("convertToAnthropicRole", () => {
 		assert.strictEqual(result, null)
 	})
 // Mock cleanup
-
 suite("asObjectSafe via convertToVsCodeLmMessages", () => {
 	test("parses JSON strings in tool_use input", () => {
 		const messages: NeutralConversationHistory = [

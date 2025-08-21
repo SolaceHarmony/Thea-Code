@@ -19,8 +19,7 @@ import type {
 } from "../types"
 
 // Mock dependencies
-// TODO: Mock setup needs manual migration for "../../../services/telemetry/TelemetryService"
-// TODO: Mock setup needs manual migration for "../../TheaTask"
+// Mock needs manual implementation
 
 suite("attemptCompletionTool - Partial/Final Flow Tests", () => {
 	let mockTheaTask: sinon.SinonStubbedInstance<TheaTask>
@@ -610,15 +609,15 @@ suite("attemptCompletionTool - Partial/Final Flow Tests", () => {
 			)
 
 			// Should include command result in user message content
-			expect(mockTheaTask.userMessageContent).toContainEqual({
+			assert.ok(mockTheaTask.userMessageContent.some(x => JSON.stringify(x) === JSON.stringify({
 				type: "text",
 				text: "Tests passed"
-			})
+			})))
 
-			expect(mockTheaTask.userMessageContent).toContainEqual({
+			assert.ok(mockTheaTask.userMessageContent.some(x => JSON.stringify(x) === JSON.stringify({
 				type: "image",
 				data: "test-results.png"
-			})
+			})))
 		})
 	})
 

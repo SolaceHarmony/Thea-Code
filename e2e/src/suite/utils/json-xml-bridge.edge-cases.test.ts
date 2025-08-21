@@ -199,7 +199,6 @@ suite("JsonMatcher Edge Cases", () => {
 		})
 	})
 // Mock cleanup
-
 suite("FormatDetector Edge Cases", () => {
 	let sandbox: sinon.SinonSandbox
 
@@ -390,7 +389,6 @@ suite("FormatDetector Edge Cases", () => {
 		})
 	})
 // Mock cleanup
-
 // Helper function defined in the module scope for test access
 function extractMatched(results: JsonMatcherResult[]): any[] {
 	return results

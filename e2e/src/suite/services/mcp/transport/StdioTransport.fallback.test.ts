@@ -331,7 +331,7 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 			// Restore PATH
 			if (originalPath !== undefined) {
 				process.env.PATH = originalPath
-			} else {
+} else {
 				delete process.env.PATH
 			}
 			

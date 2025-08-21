@@ -414,4 +414,3 @@ suite("convertToGeminiHistory", () => {
 		consoleSpy.restore()
 	})
 // Mock cleanup
-

@@ -45,8 +45,7 @@ interface TestSettings {
 		from: sinon.stub(),
 	},
 // Mock cleanup
-// TODO: Mock setup needs manual migration for "fs/promises"
-// TODO: Mock setup needs manual migration for "../../../core/webview/TheaProvider" // Updated mock path
+// Mock needs manual implementation
 
 suite("McpHub", () => {
 	let mcpHub: McpHubType
@@ -320,7 +319,7 @@ suite("McpHub", () => {
 						arguments: {},
 					},
 				},
-				expect.any(Object)),
+				sinon.match.instanceOf(Object)),
 				// TODO: Object partial match - { timeout: 60000 }), // Default 60 second timeout
 			)
 		})

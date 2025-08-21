@@ -223,8 +223,7 @@ suite("Dynamic Provider Mock Servers", () => {
 						success: response.ok,
 						status: response.status,
 						modelCount: response.ok ? (await response.json()).data?.length || 0 : 0
-
-				} catch (error) {
+} catch (error) {
 					return {
 						provider,
 						success: false,
@@ -238,7 +237,7 @@ suite("Dynamic Provider Mock Servers", () => {
 			results.forEach(result => {
 				if (result.success) {
 					console.log(`   ✅ ${result.provider}: ${result.modelCount} models`)
-				} else {
+} else {
 					console.log(`   ❌ ${result.provider}: ${result.error || "Failed"}`)
 
 			// All providers should respond successfully

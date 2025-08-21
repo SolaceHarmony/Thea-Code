@@ -25,7 +25,7 @@ suite("OpenAI Function Format Handling", () => {
 
 			assert.deepStrictEqual(result, {
 				type: "tool_use",
-				id: expect.any(String),
+				id: sinon.match.instanceOf(String),
 				name: "get_weather",
 				input: {
 					location: "San Francisco",
@@ -81,7 +81,7 @@ suite("OpenAI Function Format Handling", () => {
 
 			assert.deepStrictEqual(result, {
 				type: "tool_use",
-				id: expect.any(String),
+				id: sinon.match.instanceOf(String),
 				name: "get_current_time",
 				input: {},
 			})
@@ -230,7 +230,7 @@ suite("OpenAI Function Format Handling", () => {
 			const result = McpConverters.toolDefinitionsToOpenAiFunctions(tools)
 
 			assert.strictEqual(result.length, 2)
-			expect(result).toContainEqual({
+			assert.ok(result.some(x => JSON.stringify(x) === JSON.stringify({
 				name: "get_weather",
 				description: "Get current weather for a location",
 				parameters: {
@@ -241,8 +241,8 @@ suite("OpenAI Function Format Handling", () => {
 					},
 					required: ["location"],
 				},
-			})
-			expect(result).toContainEqual({
+			})))
+			assert.ok(result.some(x => JSON.stringify(x) === JSON.stringify({
 				name: "calculate",
 				description: "Perform mathematical calculations",
 				parameters: {
@@ -252,7 +252,7 @@ suite("OpenAI Function Format Handling", () => {
 					},
 					required: ["expression"],
 				},
-			})
+			})))
 		})
 
 		test("should handle tool definition without description", () => {

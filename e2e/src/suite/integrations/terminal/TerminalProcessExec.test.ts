@@ -59,7 +59,7 @@ function createRealCommandStream(command: string): { stream: AsyncIterable<strin
 			encoding: "utf8",
 			maxBuffer: 100 * 1024 * 1024, // Increase buffer size to 100MB
 		exitCode = 0 // Command succeeded
-	} catch (err: unknown) {
+} catch (err: unknown) {
 		// Command failed - get output and exit code from error
 		const error = err as { stdout?: Buffer | string; signal?: string; status?: number }
 		realOutput = typeof error.stdout === "string" ? error.stdout : error.stdout?.toString() || ""
@@ -75,12 +75,11 @@ function createRealCommandStream(command: string): { stream: AsyncIterable<strin
 			const signalNum = signals[error.signal]
 			if (signalNum !== undefined) {
 				exitCode = 128 + signalNum // Signal exit codes are 128 + signal number
-			} else {
+} else {
 				// Log error and default to 1 if signal not recognized
 				console.log(`[DEBUG] Unrecognized signal '${error.signal}' from command '${command}'`)
 				exitCode = 1
-
-		} else {
+} else {
 			exitCode = error.status || 1 // Use status if available, default to 1
 
 	// Create an async iterator that yields the command output with proper markers

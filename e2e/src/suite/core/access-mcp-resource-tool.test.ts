@@ -11,15 +11,7 @@ suite("accessMcpResourceTool", () => {
 	const removeClosingTag: RemoveClosingTag = (_: string, val?: string) => val ?? ""
 
 	function createMockTask(): sinon.SinonStubbedInstance<TheaTask> {
-// Mock return block needs context
-// 		return {
-// 			consecutiveMistakeCount: 0,
-// 			sayAndCreateMissingParamError: sinon.stub().resolves("err"),
-// 			webviewCommunicator: {
-// 				ask: sinon.stub(),
-// 				say: sinon.stub(),
-// 				handleWebviewAskResponse: sinon.stub(),
-// 			} as unknown as sinon.SinonStubbedInstance<TheaTask["webviewCommunicator"]>,
+// Mock removed - needs manual implementation as unknown as sinon.SinonStubbedInstance<TheaTask["webviewCommunicator"]>,
 // 			providerRef: {
 // 				deref: sinon.stub(),
 // 			} as unknown as sinon.SinonStubbedInstance<TheaTask["providerRef"]>,

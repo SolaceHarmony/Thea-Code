@@ -22,20 +22,7 @@ class TestProvider extends BaseProvider {
 	}
 
 	getModel(): { id: string; info: ModelInfo } {
-// Mock return block needs context
-// 		return {
-// 			id: "test-model",
-// 			info: {
-// 				maxTokens: 100000,
-// 				contextWindow: 100000,
-// 				supportsImages: false,
-// 				supportsPromptCache: false,
-// 				inputPrice: 0,
-// 				outputPrice: 0,
-// 				supportsComputerUse: false,
-// 				supportsAssistantTool: false,
-// 				description: "Test model"
-// 			}
+// Mock removed - needs manual implementation
 		}
 	}
 
@@ -280,7 +267,7 @@ suite("BaseProvider - Schema-Only Tool Registration", () => {
 			for (const tool of registeredTools) {
 				try {
 					tool.handler()
-				} catch (error) {
+} catch (error) {
 					if (error.message.includes("handled by MCP provider")) {
 						executionErrors++
 					}

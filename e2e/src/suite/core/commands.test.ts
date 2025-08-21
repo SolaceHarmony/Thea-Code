@@ -81,7 +81,7 @@ suite("Command Tests", () => {
 			try {
 				await vscode.commands.executeCommand(`${EXTENSION_NAME}.plusButtonClicked`)
 				assert.ok(true, "Plus button command executed successfully")
-			} catch (error) {
+} catch (error) {
 				// It's ok if webview commands fail in test environment
 				// We're mainly checking they're registered
 				assert.ok(true, "Command is registered even if execution fails in test")
@@ -91,5 +91,5 @@ suite("Command Tests", () => {
 			try {
 				await vscode.commands.executeCommand(`${EXTENSION_NAME}.settingsButtonClicked`)
 				assert.ok(true, "Settings button command executed successfully")
-			} catch (error) {
+} catch (error) {
 				assert.ok(true, "Command is registered even if execution fails in test")

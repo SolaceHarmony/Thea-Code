@@ -13,17 +13,14 @@ import {
 import { SseTransportConfig } from "../../types/McpTransportTypes"
 
 // Mock McpToolExecutor
-// TODO: Mock setup needs manual migration for "../McpToolExecutor"
-// 	return {
+// Mock needs manual implementation
 		McpToolExecutor: {
 			getInstance: sinon.stub(),
 		},
 	}
 // Mock cleanup
-
 // Mock the McpConverters
-// TODO: Mock setup needs manual migration for "../McpConverters"
-// 	return {
+// Mock needs manual implementation
 		McpConverters: {
 			xmlToMcp: sinon.stub(),
 			jsonToMcp: sinon.stub(),
@@ -34,7 +31,6 @@ import { SseTransportConfig } from "../../types/McpTransportTypes"
 		},
 	}
 // Mock cleanup
-
 // Create a mock class with proper typing
 interface MockExecutor extends EventEmitter {
 	initialize: sinon.SinonStubbedInstanceFunction<() => Promise<void>>
@@ -131,12 +127,7 @@ suite("McpToolRouter", () => {
 
 		;(McpConverters.mcpToOpenAi as sinon.SinonStub).callsFake((result: unknown) => {
 			const typedResult = result as NeutralToolResult
-// Mock return block needs context
-// 			return {
-// 				role: "tool",
-// 				tool_call_id: typedResult.tool_use_id,
-// 				content: "Success",
-// 			}
+// Mock removed - needs manual implementation
 		})
 
 		// Explicitly create the McpToolRouter instance AFTER mock setup

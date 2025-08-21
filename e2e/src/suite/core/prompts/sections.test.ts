@@ -30,7 +30,6 @@ suite("addCustomInstructions", () => {
 		assert.ok(!result.includes("You should always speak and think in"))
 	})
 // Mock cleanup
-
 suite("getCapabilitiesSection", () => {
 	const cwd = "/test/path"
 	const mcpHub = undefined

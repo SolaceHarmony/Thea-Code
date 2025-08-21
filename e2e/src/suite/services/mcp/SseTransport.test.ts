@@ -51,10 +51,7 @@ suite("SSE Transport", () => {
 			},
 			async (args) => {
 				await Promise.resolve()
-// Mock return block needs context
-// 				return {
-// 					content: [{ type: "text", text: `Received: ${String(args.message)}` }],
-// 				}
+// Mock removed - needs manual implementation
 			},
 		)
 
@@ -104,10 +101,7 @@ suite("SSE Transport", () => {
 			},
 			async (args) => {
 				await Promise.resolve()
-// Mock return block needs context
-// 				return {
-// 					content: [{ type: "text", text: `Received: ${String(args.message)}` }],
-// 				}
+// Mock removed - needs manual implementation
 			},
 		)
 

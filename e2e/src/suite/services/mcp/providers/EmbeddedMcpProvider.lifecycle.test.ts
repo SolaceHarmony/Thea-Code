@@ -306,13 +306,7 @@ suite("EmbeddedMcpProvider Lifecycle Tests", () => {
 			
 			// Register a tool with handler
 			provider.registerTool("test_tool", "Test tool", async (args) => {
-// Mock return block needs context
-// 				return {
-// 					content: [
-// 						{
-// 							type: "text",
-// 							text: `Executed with: ${JSON.stringify(args)}`
-// 						}
+// Mock removed - needs manual implementation
 					],
 					isError: false
 				}

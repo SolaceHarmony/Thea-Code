@@ -13,8 +13,7 @@ import { McpConverters } from "../../core/McpConverters"
 import { ToolUseFormat, NeutralToolUseRequest } from "../../types/McpToolTypes"
 
 // Mock the EmbeddedMcpProvider for E2E tests
-// TODO: Mock setup needs manual migration
-// TODO: Fix mock - needs proxyquire
+// Mock needs manual implementation
 /*
 => {
 	const { EventEmitter } = require("events")
@@ -48,7 +47,7 @@ import { ToolUseFormat, NeutralToolUseRequest } from "../../types/McpToolTypes"
 
 			try {
 				return await tool.handler(args || {})
-			} catch (error) {
+} catch (error) {
 				return {
 					content: [{ type: "text", text: `Error: ${error.message}` }],
 					isError: true,
@@ -65,8 +64,7 @@ import { ToolUseFormat, NeutralToolUseRequest } from "../../types/McpToolTypes"
 })*/
 
 // Mock McpToolRegistry
-// TODO: Mock setup needs manual migration
-// TODO: Fix mock - needs proxyquire
+// Mock needs manual implementation
 /*
 => {
 	const mockRegistry = {

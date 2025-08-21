@@ -19,7 +19,7 @@ suite("CompactTransport", () => {
 					if (fs.lstatSync(curPath).isDirectory()) {
 						// Recursive call for directories
 						rmDirRecursive(curPath)
-					} else {
+} else {
 						// Delete file
 						fs.unlinkSync(curPath)
 
@@ -28,7 +28,7 @@ suite("CompactTransport", () => {
 
 		try {
 			rmDirRecursive(testDir)
-		} catch (err) {
+} catch (err) {
 			console.error("Cleanup error:", err)
 
 	setup(() => {
@@ -125,7 +125,7 @@ suite("CompactTransport", () => {
 							const curPath = path.join(dirPath, file)
 							if (fs.lstatSync(curPath).isDirectory()) {
 								rmDirRecursive(curPath)
-							} else {
+} else {
 								fs.unlinkSync(curPath)
 
 						fs.rmdirSync(dirPath)

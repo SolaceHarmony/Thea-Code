@@ -192,7 +192,7 @@ suite("TheaTaskHistory", () => {
 			try {
 				await taskHistory.getTaskWithId("non-existent-id")
 				assert.fail("Should have thrown an error")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("non-existent-id not found"))
 				assert.ok(loggerStub.warn.called)

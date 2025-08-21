@@ -8,8 +8,7 @@ import { ApiHandlerOptions, ModelInfo } from "../../../shared/api"
 import { OpenRouterHandler } from "../openrouter"
 import { API_REFERENCES } from "../../../shared/config/thea-config"
 // Mock dependencies
-// TODO: Mock setup needs manual migration for "axios"
-// TODO: Use proxyquire for module mocking - "delay", () => sinon.stub(() => Promise.resolve()))
+// Mock needs manual implementation
 
 const mockOpenRouterModelInfo: ModelInfo = {
 	maxTokens: 1000,
@@ -284,7 +283,7 @@ suite("OpenRouterHandler", () => {
 		try {
 			await generator.next()
 			assert.fail("Should have thrown an error")
-		} catch (error) {
+} catch (error) {
 			assert.ok(error instanceof Error)
 			assert.strictEqual(error.message, "OpenRouter API Error 500: API Error")
 		}
@@ -332,7 +331,7 @@ suite("OpenRouterHandler", () => {
 		try {
 			await handler.completePrompt("test prompt")
 			assert.fail("Should have thrown an error")
-		} catch (error) {
+} catch (error) {
 			assert.ok(error instanceof Error)
 			assert.strictEqual(error.message, "OpenRouter API Error 500: API Error")
 		}
@@ -347,7 +346,7 @@ suite("OpenRouterHandler", () => {
 		try {
 			await handler.completePrompt("test prompt")
 			assert.fail("Should have thrown an error")
-		} catch (error) {
+} catch (error) {
 			assert.ok(error instanceof Error)
 			assert.strictEqual(error.message, "Unexpected error")
 		}
