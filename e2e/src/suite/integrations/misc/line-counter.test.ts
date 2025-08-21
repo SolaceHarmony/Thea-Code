@@ -69,9 +69,9 @@ suite("countFileLines", () => {
 			}),
 		}
 
-		;(fs.createReadStream as sinon.SinonStub).mockReturnValueOnce(mockReadStream)
+		;(fs.createReadStream as sinon.SinonStub).onFirstCall().returns(mockReadStream)
 		const readlineMock = readline as typeof readline
-		readlineMock.createInterface.onCall(0).returns(mockEventEmitter as unknown as readline.Interface)
+		readlineMock.createInterface.onFirstCall().returns(mockEventEmitter as unknown as readline.Interface)
 
 		// Test
 		const result = await countFileLines("test-file.txt")
@@ -105,9 +105,9 @@ suite("countFileLines", () => {
 			}),
 		}
 
-		;(fs.createReadStream as sinon.SinonStub).mockReturnValueOnce(mockReadStream)
+		;(fs.createReadStream as sinon.SinonStub).onFirstCall().returns(mockReadStream)
 		const readlineMock = readline as typeof readline
-		readlineMock.createInterface.onCall(0).returns(mockEventEmitter as unknown as readline.Interface)
+		readlineMock.createInterface.onFirstCall().returns(mockEventEmitter as unknown as readline.Interface)
 
 		// Test
 		const result = await countFileLines("empty-file.txt")
@@ -139,9 +139,9 @@ suite("countFileLines", () => {
 			}),
 		}
 
-		;(fs.createReadStream as sinon.SinonStub).mockReturnValueOnce(mockReadStream)
+		;(fs.createReadStream as sinon.SinonStub).onFirstCall().returns(mockReadStream)
 		const readlineMock = readline as typeof readline
-		readlineMock.createInterface.onCall(0).returns(mockEventEmitter as unknown as readline.Interface)
+		readlineMock.createInterface.onFirstCall().returns(mockEventEmitter as unknown as readline.Interface)
 
 		// Test & Assert
 		await expect(countFileLines("error-file.txt")).rejects.toThrow("Read error")

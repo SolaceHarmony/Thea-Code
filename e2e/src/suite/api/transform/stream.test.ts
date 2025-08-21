@@ -110,7 +110,7 @@ suite("API Stream Types", () => {
 
 			assert.strictEqual(multilineChunk.type, "text")
 			assert.strictEqual(multilineChunk.text, "Line 1\nLine 2\nLine 3")
-			expect(multilineChunk.text.split("\n")).toHaveLength(3)
+			expect(multilineChunk.text.split("\n")).length, 3)
 		})
 	})
 // Mock cleanup

@@ -871,7 +871,7 @@ suite("addCustomInstructions", () => {
 		const globalIndex = instructionParts.findIndex((part) => part.includes("First instruction"))
 		const modeSpecificIndex = instructionParts.findIndex((part) => part.includes("Second instruction"))
 
-		expect(globalIndex).toBeLessThan(modeSpecificIndex)
+		assert.ok(globalIndex < modeSpecificIndex)
 		expect(instructions).toMatchSnapshot()
 	})
 

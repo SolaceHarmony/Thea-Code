@@ -41,8 +41,12 @@ suite("McpToolRouter Round-Trip Tests", () => {
 		// Unregister the test tool if it exists
 		try {
 			executor.unregisterTool("test_tool")
+		} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
 		} catch {
 			// Tool might not exist if test failed early
+		} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
 		}
 		
 		// Shutdown the executor to clean up the MCP server

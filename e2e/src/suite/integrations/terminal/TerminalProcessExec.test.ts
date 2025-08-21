@@ -59,7 +59,9 @@ function createRealCommandStream(command: string): { stream: AsyncIterable<strin
 			encoding: "utf8",
 			maxBuffer: 100 * 1024 * 1024, // Increase buffer size to 100MB
 		exitCode = 0 // Command succeeded
-} catch (err: unknown) {
+} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (err: unknown) {
 		// Command failed - get output and exit code from error
 		const error = err as { stdout?: Buffer | string; signal?: string; status?: number }
 		realOutput = typeof error.stdout === "string" ? error.stdout : error.stdout?.toString() || ""
@@ -145,7 +147,9 @@ async function testTerminalCommand(
 
 	try {
 		// Set up the mock stream with real command output and exit code
-		const { stream, exitCode } = createRealCommandStream(command)
+		const { stream, exitCode } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}= createRealCommandStream(command)
 
 		// Configure the mock terminal to return our stream
 		mockTerminal.shellIntegration.executeCommand.callsFake(() => {

@@ -331,9 +331,9 @@ suite("McpConverters - XML Escaping and Mixed Content", () => {
 			const text3Index = xml.indexOf("Text 3")
 			const nestedIndex = xml.indexOf("Nested 1")
 			
-			expect(text1Index).toBeLessThan(nestedIndex)
-			expect(nestedIndex).toBeLessThan(text2Index)
-			expect(text2Index).toBeLessThan(text3Index)
+			assert.ok(text1Index < nestedIndex)
+			assert.ok(nestedIndex < text2Index)
+			assert.ok(text2Index < text3Index)
 		})
 	})
 
@@ -375,9 +375,9 @@ suite("McpConverters - XML Escaping and Mixed Content", () => {
 
 			// Should log warnings and output unknown tags
 			assert.strictEqual(consoleWarnSpy.callCount, 4)
-			expect(xml.match(/<unknown type="image"/g)).toHaveLength(2)
-			expect(xml.match(/<unknown type="image_url"/g)).toHaveLength(1)
-			expect(xml.match(/<unknown type="image_base64"/g)).toHaveLength(1)
+			expect(xml.match(/<unknown type="image"/g)).length, 2)
+			expect(xml.match(/<unknown type="image_url"/g)).length, 1)
+			expect(xml.match(/<unknown type="image_base64"/g)).length, 1)
 		})
 
 		test("should handle non-string text content safely", () => {

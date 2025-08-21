@@ -170,5 +170,7 @@ suite("Core Configuration Tests", () => {
 				await new Promise(resolve => setTimeout(resolve, 100))
 				
 				assert.ok(eventFired, "Event should have fired")
-			} finally {
+			} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} finally {
 				disposable.dispose()

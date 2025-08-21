@@ -584,9 +584,13 @@ describe.each([
 			// Try to restore an invalid checkpoint.
 			try {
 				await service.restoreCheckpoint(invalidCommitHash)
-			} catch {
+			} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch {
 				// Expected to throw, we're testing the event emission.
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 
 			// Verify the error event was emitted.
 			assert.strictEqual(errorHandler.callCount, 1)
@@ -720,5 +724,4 @@ suite("ShadowCheckpointService", () => {
 			assert.strictEqual(storage, undefined)
 		})
 	})
-// Mock cleanup
 // Mock cleanup

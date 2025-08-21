@@ -339,9 +339,13 @@ suite("OllamaHandler Core Functionality", () => {
 				await handler.completePrompt("Test prompt")
 				assert.fail("Should have thrown an error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Ollama server unavailable"))
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 	})
 
@@ -474,12 +478,15 @@ suite("OllamaHandler Core Functionality", () => {
 				const chunks = []
 				for await (const chunk of stream) {
 					chunks.push(chunk)
-				}
-				assert.fail("Should have thrown an error")
+				} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}assert.fail("Should have thrown an error")
 } catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("ECONNREFUSED"))
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("should handle malformed responses from Ollama", async () => {
@@ -526,12 +533,15 @@ suite("OllamaHandler Core Functionality", () => {
 				const chunks = []
 				for await (const chunk of stream) {
 					chunks.push(chunk)
-				}
-				// Depending on implementation, might handle gracefully or throw
+				} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}// Depending on implementation, might handle gracefully or throw
 } catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Format conversion failed"))
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 	})
 // Mock cleanup

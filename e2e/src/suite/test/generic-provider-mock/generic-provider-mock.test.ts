@@ -288,11 +288,15 @@ suite("Generic Provider Mock", () => {
 				const url = await helper.start()
 				assert.ok(url.match(/http:\/\/127\.0\.0\.1:\d+/))
 				
-				const response = await fetch(`${url}/v1/models`)
+				const response = await fetch(`${url} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}/v1/models`)
 				assert.strictEqual(response.status, 200)
 			} finally {
 				await helper.stop()
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("should run test scenarios", async () => {

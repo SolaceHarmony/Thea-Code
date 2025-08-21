@@ -468,7 +468,9 @@ class Example {
         try {
             if (true) {
                 console.log("test");
-} catch (e) {
+} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (e) {
             console.error(e);
 
 >>>>>>> REPLACE`
@@ -481,7 +483,9 @@ class Example {
         try {
             if (true) {
                 console.log("test");
-} catch (e) {
+} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (e) {
             console.error(e);
 
 }`)

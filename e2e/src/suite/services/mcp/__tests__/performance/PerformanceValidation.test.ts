@@ -42,10 +42,14 @@ import { ToolDefinition } from "../../types/McpProviderTypes"
 // Mock removed - needs manual implementation
 			}
 			try {
-				return await tool.handler(args || {})
+				return await tool.handler(args || {} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		})
 } catch (error) {
 // Mock removed - needs manual implementation
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		return instance
@@ -97,7 +101,7 @@ suite("MCP Performance and Streaming Validation", () => {
 					// Simulate realistic async work
 					await new Promise((resolve) => setTimeout(resolve, Math.random() * 10))
 // Mock removed - needs manual implementation
-				},
+
 			}
 
 			// Ensure mcpToolExecutor is initialized before registering tools
@@ -109,7 +113,9 @@ suite("MCP Performance and Streaming Validation", () => {
 
 			try {
 				// Create concurrent requests
-				const promises = Array.from({ length: concurrentExecutions }, (_, i) =>
+				const promises = Array.from({ length: concurrentExecutions } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}, (_, i) =>
 					mcpToolExecutor.executeToolFromNeutralFormat({
 						type: "tool_use",
 						id: `test-${i}`,
@@ -140,13 +146,15 @@ suite("MCP Performance and Streaming Validation", () => {
 // 				})
 // 
 // 				// Performance assertion - should complete within reasonable time
-// 				expect(totalTime).toBeLessThan(5000) // 5 seconds for 100 concurrent operations
+// 				assert.ok(totalTime < 5000) // 5 seconds for 100 concurrent operations
 // 
 // 				console.log(`Executed ${concurrentExecutions} concurrent operations in ${totalTime}ms`)
 // 			} catch (error) {
 // 				console.error("Unexpected error in concurrent execution test:", error)
 // 				throw error
-// 			}
+// 			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("should maintain memory efficiency during batch operations", async () => {
@@ -174,7 +182,9 @@ suite("MCP Performance and Streaming Validation", () => {
 
 				// Execute batches sequentially to monitor memory usage
 				for (let batch = 0; batch < numberOfBatches; batch++) {
-					console.log(`Processing batch ${batch + 1}/${numberOfBatches}...`)
+					console.log(`Processing batch ${batch + 1} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}/${numberOfBatches}...`)
 					
 					// Create batch promises with error handling for each promise
 					const batchPromises = Array.from({ length: batchSize }, (_, i) =>
@@ -210,13 +220,15 @@ suite("MCP Performance and Streaming Validation", () => {
 				const memoryIncrease = finalMemory - initialMemory
 
 				// Memory increase should be reasonable (less than 50MB for this test)
-				expect(memoryIncrease).toBeLessThan(50 * 1024 * 1024)
+				assert.ok(memoryIncrease < 50 * 1024 * 1024)
 
 				console.log(`Memory increase: ${Math.round(memoryIncrease / 1024 / 1024)}MB`)
 } catch (error) {
 				console.error("Unexpected error in memory efficiency test:", error)
 				throw error
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("should handle rapid tool registration/unregistration", async () => {
@@ -247,7 +259,7 @@ suite("MCP Performance and Streaming Validation", () => {
 			const totalTime = endTime - startTime
 
 			// Should complete rapidly
-			expect(totalTime).toBeLessThan(1000) // 1 second for 1000 operations
+			assert.ok(totalTime < 1000) // 1 second for 1000 operations
 
 			console.log(`Completed ${numberOfOperations} register/unregister operations in ${totalTime}ms`)
 		})
@@ -296,7 +308,7 @@ suite("MCP Performance and Streaming Validation", () => {
 
 			// Should complete within reasonable time considering delays
 			assert.ok(duration > 40) // At least 5ms * 10 chunks
-			expect(duration).toBeLessThan(500) // But not too long
+			assert.ok(duration < 500) // But not too long
 		})
 
 		test("should handle large response payloads efficiently", async () => {
@@ -318,7 +330,7 @@ suite("MCP Performance and Streaming Validation", () => {
 // 						],
 // 						isError: false,
 // 					}
-				},
+
 			}
 
 			provider.registerToolDefinition(largeTool)
@@ -334,7 +346,7 @@ suite("MCP Performance and Streaming Validation", () => {
 			expect(parsedData[4999]).toHaveProperty("id", 4999)
 
 			// Should handle large payloads efficiently
-			expect(duration).toBeLessThan(1000) // Should complete within 1 second
+			assert.ok(duration < 1000) // Should complete within 1 second
 
 			console.log(`Processed ${parsedData.length} items in ${duration}ms`)
 		})
@@ -347,7 +359,7 @@ suite("MCP Performance and Streaming Validation", () => {
 					// Fixed small delay to simulate consistent work
 					await new Promise((resolve) => setTimeout(resolve, 10))
 // Mock removed - needs manual implementation
-				},
+
 			}
 
 			provider.registerToolDefinition(consistentTool)
@@ -372,9 +384,9 @@ suite("MCP Performance and Streaming Validation", () => {
 
 			// Consistency assertions
 			assert.ok(averageTime > 8) // Should be close to 10ms
-			expect(averageTime).toBeLessThan(50) // But not too much overhead
-			expect(standardDeviation).toBeLessThan(averageTime * 0.5) // Low variance
-			expect(maxTime - minTime).toBeLessThan(100) // Reasonable spread
+			assert.ok(averageTime < 50) // But not too much overhead
+			assert.ok(standardDeviation < averageTime * 0.5) // Low variance
+			assert.ok(maxTime - minTime < 100) // Reasonable spread
 
 			console.log(
 				`Response time stats: avg=${averageTime.toFixed(2)}ms, std=${standardDeviation.toFixed(2)}ms, range=${minTime}-${maxTime}ms`,
@@ -423,7 +435,9 @@ suite("MCP Performance and Streaming Validation", () => {
 					const result = await provider.executeTool("error_tool", {
 						id: i,
 						shouldError,
-					})
+					} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		})
 
 					if (result.isError) {
 						errorCount++
@@ -432,7 +446,9 @@ suite("MCP Performance and Streaming Validation", () => {
 					}
 } catch (error) {
 					errorCount++
-				}
+				} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 			}
 
 			const endTime = Date.now()
@@ -443,7 +459,7 @@ suite("MCP Performance and Streaming Validation", () => {
 			assert.strictEqual(successCount + errorCount, iterations)
 
 			// Should handle errors without significant performance impact
-			expect(totalTime).toBeLessThan(1000) // 1 second for 100 operations
+			assert.ok(totalTime < 1000) // 1 second for 100 operations
 
 			console.log(`Handled ${successCount} successes and ${errorCount} errors in ${totalTime}ms`)
 		})
@@ -462,16 +478,16 @@ suite("MCP Performance and Streaming Validation", () => {
 					// Normal operation
 					await new Promise((resolve) => setTimeout(resolve, 5))
 // Mock removed - needs manual implementation
-				},
+
 			}
 
 			try {
 				// Make sure provider is started
 				if (!provider.isRunning()) {
 					await provider.start()
-				}
-				
-				provider.registerToolDefinition(recoverTool)
+				} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}provider.registerToolDefinition(recoverTool)
 				console.log("Registered recovery tool")
 
 				// Phase 1: Error burst - properly handle errors
@@ -518,14 +534,16 @@ suite("MCP Performance and Streaming Validation", () => {
 				console.log(`Recovery phase complete: ${successfulRecoveries}/${recoveryResults.length} successful`)
 				
 				// Test should pass if most recoveries were successful
-				expect(successfulRecoveries).toBeGreaterThanOrEqual(recoveryResults.length * 0.8)
-				expect(recoveryTime).toBeLessThan(500) // Should recover quickly
+				assert.ok(successfulRecoveries >= recoveryResults.length * 0.8)
+				assert.ok(recoveryTime < 500) // Should recover quickly
 
 				console.log(`Recovered from error burst in ${recoveryTime}ms`)
 } catch (error) {
 				console.error("Unexpected error in recovery test:", error)
 				throw error
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 	})
 // Mock cleanup

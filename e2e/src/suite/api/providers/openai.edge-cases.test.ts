@@ -201,7 +201,7 @@ suite("OpenAiHandler - Edge Cases", () => {
 			mockClient.chat.completions.create.returns(mockStream as unknown as ReturnType<typeof mockClient.chat.completions.create>)
 			
 			// Mock XmlMatcher to extract thinking tags
-			mockXmlMatcher.update.onCall(0).returns([
+			mockXmlMatcher.update.onFirstCall().returns([
 				{ content: "Internal reasoning", tag: "reasoning" },
 				{ content: "Regular text", tag: "text" }
 			])
@@ -380,8 +380,8 @@ suite("OpenAiHandler - Edge Cases", () => {
 			const mockAggregator = {
 				processChunk: sinon.stub(),
 				getCompletedToolCalls: sinon.stub()
-					.mockReturnValueOnce([{ id: "call_1", name: "tool1", arguments: {} }])
-					.mockReturnValueOnce([{ id: "call_2", name: "tool2", arguments: {} }])
+					.onFirstCall().returns([{ id: "call_1", name: "tool1", arguments: {} }])
+					.onFirstCall().returns([{ id: "call_2", name: "tool2", arguments: {} }])
 			}
 			
 			require("../shared/tool-use").ToolCallAggregator.callsFake(() => mockAggregator)
@@ -395,7 +395,7 @@ suite("OpenAiHandler - Edge Cases", () => {
 			}
 
 			// Should have both tool results
-			expect(results.filter(r => r.type === "tool_result")).toHaveLength(2)
+			expect(results.filter(r => r.type === "tool_result")).length, 2)
 		})
 	})
 

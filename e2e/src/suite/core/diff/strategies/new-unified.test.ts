@@ -516,6 +516,8 @@ async function processFile(filePath: string) {
     logger.info('File read successfully');
     return data;
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
     logger.error('Failed to read file:', error);
     throw error;
 
@@ -563,7 +565,9 @@ export {
    try {
      const data = await readFile(filePath, 'utf8');
 -    logger.info('File read successfully');
-+    logger.info(\`File \${filePath} read successfully\`);
++    logger.info(\`File \${filePath} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}read successfully\`);
      return data;
 } catch (error) {
 -    logger.error('Failed to read file:', error);
@@ -586,11 +590,15 @@ export {
 +async function writeOutput(data: string, outputPath: string) {
 +  try {
 +    await writeFile(outputPath, data, 'utf8');
-+    logger.info(\`Output written to \${outputPath}\`);
++    logger.info(\`Output written to \${outputPath} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}\`);
 +  } catch (error) {
 +    logger.error(\`Failed to write output to \${outputPath}:\`, error);
 +    throw error;
-+  }
++  } catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 
 -function parseConfig(configPath: string) {
 -  logger.debug('Reading config from:', configPath);
@@ -602,12 +610,16 @@ export {
 +async function parseConfig(configPath: string): Promise<Config> {
 +  try {
 +    const configData = await readFile(configPath, 'utf8');
-+    logger.debug(\`Reading config from \${configPath}\`);
++    logger.debug(\`Reading config from \${configPath} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}\`);
 +    return JSON.parse(configData);
 +  } catch (error) {
 +    logger.error(\`Failed to parse config from \${configPath}:\`, error);
 +    throw error;
-+  }
++  } catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 
  export {
    processFile,
@@ -627,7 +639,9 @@ const logger = new Logger('FileProcessor');
 async function processFile(filePath: string) {
   try {
     const data = await readFile(filePath, 'utf8');
-    logger.info(\`File \${filePath} read successfully\`);
+    logger.info(\`File \${filePath} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}read successfully\`);
     return data;
 } catch (error) {
     logger.error(\`Failed to read file \${filePath}:\`, error);
@@ -643,7 +657,9 @@ function validateInput(input: string): boolean {
 async function writeOutput(data: string, outputPath: string) {
   try {
     await writeFile(outputPath, data, 'utf8');
-    logger.info(\`Output written to \${outputPath}\`);
+    logger.info(\`Output written to \${outputPath} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}\`);
 } catch (error) {
     logger.error(\`Failed to write output to \${outputPath}:\`, error);
     throw error;
@@ -651,7 +667,9 @@ async function writeOutput(data: string, outputPath: string) {
 async function parseConfig(configPath: string): Promise<Config> {
   try {
     const configData = await readFile(configPath, 'utf8');
-    logger.debug(\`Reading config from \${configPath}\`);
+    logger.debug(\`Reading config from \${configPath} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}\`);
     return JSON.parse(configData);
 } catch (error) {
     logger.error(\`Failed to parse config from \${configPath}:\`, error);

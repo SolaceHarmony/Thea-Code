@@ -67,9 +67,13 @@ suite("Single Completion Handler", () => {
 				await singleCompletionModule.singleCompletionHandler(mockApiConfig, "")
 				assert.fail("Should have thrown an error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "No prompt text provided")
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("throws error when no API configuration provided", async () => {
@@ -77,22 +81,30 @@ suite("Single Completion Handler", () => {
 				await singleCompletionModule.singleCompletionHandler(null, "Test prompt")
 				assert.fail("Should have thrown an error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "No valid API configuration provided")
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("throws error when API configuration has no provider", async () => {
 			try {
 				await singleCompletionModule.singleCompletionHandler(
-					{ apiProvider: null },
+					{ apiProvider: null } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		},
 					"Test prompt"
 				)
 				assert.fail("Should have thrown an error")
 } catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "No valid API configuration provided")
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("throws error when handler doesn't support single completions", async () => {
@@ -110,9 +122,13 @@ suite("Single Completion Handler", () => {
 				)
 				assert.fail("Should have thrown an error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "The selected API provider does not support prompt enhancement")
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("passes through API errors", async () => {
@@ -126,8 +142,12 @@ suite("Single Completion Handler", () => {
 				)
 				assert.fail("Should have thrown an error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.strictEqual(error, apiError)
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("handles different API providers", async () => {

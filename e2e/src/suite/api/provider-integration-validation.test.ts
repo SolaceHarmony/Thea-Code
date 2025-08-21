@@ -116,39 +116,55 @@ suite("Provider Integration Validation", () => {
 		test("should properly handle invalid configurations", () => {
 			// Test that providers properly validate their required configuration
 			try {
-				buildApiHandler({ apiProvider: "mistral", apiKey: "test" } as any)
+				buildApiHandler({ apiProvider: "mistral", apiKey: "test" } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}as any)
 				assert.fail("Should have thrown for missing Mistral API key")
 } catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Mistral API key is required"))
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 
 			try {
-				buildApiHandler({ apiProvider: "requesty", apiKey: "test" } as any)
+				buildApiHandler({ apiProvider: "requesty", apiKey: "test" } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}as any)
 				assert.fail("Should have thrown for missing Requesty API key")
 } catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Requesty API key is required"))
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 
 			try {
-				buildApiHandler({ apiProvider: "fake-ai", apiKey: "test" } as any)
+				buildApiHandler({ apiProvider: "fake-ai", apiKey: "test" } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}as any)
 				assert.fail("Should have thrown for missing Fake AI")
 } catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Fake AI is not set"))
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("should handle unsupported human-relay provider", () => {
 			try {
-				buildApiHandler({ apiProvider: "human-relay" } as any)
+				buildApiHandler({ apiProvider: "human-relay" } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}as any)
 				assert.fail("Should have thrown for unsupported provider")
 } catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("is not a valid API provider") || 
 				         error.message.includes("Unsupported provider"))
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 	})
 
@@ -250,13 +266,17 @@ suite("Provider Integration Validation", () => {
 					
 					methodsToCheck.forEach((method) => {
 						assert.ok(typeof handler[method] === "function",
-							`${provider} should have ${method} method`
+							`${provider} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}should have ${method} method`
 						)
 					})
 } catch (error) {
 					// Some providers might fail due to missing config, that's OK for this test
 					// We're just checking the API shape when they can be created
-				}
+				} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 			})
 		})
 	})

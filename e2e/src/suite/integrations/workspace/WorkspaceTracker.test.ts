@@ -332,8 +332,8 @@ const mockWatcher: {
 
 		// Mock workspace path change to trigger resetTimer
 		;(getWorkspacePath as sinon.SinonStub)
-			.mockReturnValueOnce("/test/workspace")
-			.mockReturnValueOnce("/test/new-workspace")
+			.onFirstCall().returns("/test/workspace")
+			.onFirstCall().returns("/test/new-workspace")
 
 		// Trigger resetTimer
 		await registeredTabChangeCallback!()

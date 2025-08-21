@@ -31,7 +31,9 @@ suite("Webview Tests", () => {
 		this.timeout(10000)
 		
 		try {
-			await vscode.commands.executeCommand(`${EXTENSION_NAME}.settingsButtonClicked`)
+			await vscode.commands.executeCommand(`${EXTENSION_NAME} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}.settingsButtonClicked`)
 			assert.ok(true, "Settings command executed successfully")
 } catch (error) {
 			assert.fail(`Settings command failed: ${error}`)
@@ -40,7 +42,9 @@ suite("Webview Tests", () => {
 		this.timeout(10000)
 		
 		try {
-			await vscode.commands.executeCommand(`${EXTENSION_NAME}.historyButtonClicked`)
+			await vscode.commands.executeCommand(`${EXTENSION_NAME} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}.historyButtonClicked`)
 			assert.ok(true, "History command executed successfully")
 } catch (error) {
 			assert.fail(`History command failed: ${error}`)

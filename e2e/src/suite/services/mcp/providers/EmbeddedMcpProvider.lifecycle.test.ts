@@ -17,9 +17,13 @@ suite("EmbeddedMcpProvider Lifecycle Tests", () => {
 		if (provider) {
 			try {
 				await provider.stop()
-			} catch {
+			} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch {
 				// Provider might already be stopped
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		}
 	})
 

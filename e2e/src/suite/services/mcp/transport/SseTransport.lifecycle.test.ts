@@ -16,9 +16,13 @@ suite("SseTransport Lifecycle Tests", () => {
 		if (transport) {
 			try {
 				await transport.close()
-			} catch {
+			} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch {
 				// Transport might already be closed
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		}
 	})
 
@@ -334,9 +338,13 @@ suite("SseTransport Lifecycle Tests", () => {
 				const underlying = transport.getUnderlyingTransport()
 				assert.notStrictEqual(underlying, undefined)
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				// If it throws, that's also acceptable error handling
 				assert.notStrictEqual(error, undefined)
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 	})
 // Mock cleanup

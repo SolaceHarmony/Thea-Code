@@ -181,13 +181,16 @@ suite("UnboundHandler", () => {
 			try {
 				for await (const chunk of stream) {
 					chunks.push(chunk)
-				}
-				fail("Expected error to be thrown")
+				} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		}assert.fail("Expected error to be thrown")
 } catch (e) {
 				const error = e as Error
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "API Error")
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 	})
 

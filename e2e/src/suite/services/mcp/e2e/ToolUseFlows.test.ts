@@ -46,7 +46,9 @@ import { ToolUseFormat, NeutralToolUseRequest } from "../../types/McpToolTypes"
 					isError: true,
 
 			try {
-				return await tool.handler(args || {})
+				return await tool.handler(args || {} catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		})
 } catch (error) {
 				return {
 					content: [{ type: "text", text: `Error: ${error.message}` }],

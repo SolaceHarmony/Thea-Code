@@ -193,10 +193,14 @@ suite("TheaTaskHistory", () => {
 				await taskHistory.getTaskWithId("non-existent-id")
 				assert.fail("Should have thrown an error")
 } catch (error) {
+			assert.fail('Unexpected error: ' + error.message)
+		} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("non-existent-id not found"))
 				assert.ok(loggerStub.warn.called)
-			}
+			} catch (error) {
+			assert.fail("Unexpected error: " + error.message)
+		}
 		})
 
 		test("handles missing conversation history file gracefully", async () => {
