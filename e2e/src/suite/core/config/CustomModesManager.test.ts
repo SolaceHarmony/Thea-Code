@@ -9,10 +9,8 @@ import { getWorkspacePath, arePathsEqual } from "../../../utils/path"
 import { fileExistsAtPath } from "../../../utils/fs"
 import { GLOBAL_FILENAMES as BRANDED_FILENAMES } from "../../../shared/config/thea-config"
 import { GlobalFileNames } from "../../../shared/globalFileNames"
-// TODO: Mock setup needs manual migration for "vscode"
-// TODO: Mock setup needs manual migration for "fs/promises"
-// TODO: Mock setup needs manual migration for "../../../utils/fs"
-// TODO: Mock setup needs manual migration for "../../../utils/path"
+// Mock needs manual implementation
+// Mock needs manual implementation
 
 suite("CustomModesManager", () => {
 	let manager: CustomModesManager
@@ -199,18 +197,17 @@ suite("CustomModesManager", () => {
 			await manager.updateCustomMode("mode1", newMode)
 
 			// Should write to settings file
-			assert.ok(fs.writeFile.calledWith(mockSettingsPath, expect.any(String)), "utf-8")
+			assert.ok(fs.writeFile.calledWith(mockSettingsPath, sinon.match.instanceOf(String)), "utf-8")
 
 			// Verify the content of the write
 			const writeCall = (fs.writeFile as sinon.SinonStub).mock.calls[0] as [string, string, string?]
 			const content = JSON.parse(writeCall[1]) as { customModes: unknown[] }
-			expect(content.customModes).toContainEqual(
-				// TODO: Object partial match - {
+			assert.ok(content.customModes.some(x => JSON.stringify(x) === JSON.stringify(// TODO: Object partial match - {
 					slug: "mode1",
 					name: "Updated Mode 1",
 					roleDefinition: "Updated Role 1",
 					source: "global",
-				})
+				})))
 
 			// Should update global state with merged modes where `${BRANDED_FILENAMES.MODES_FILENAME}` takes precedence
 			const expectedCall = (mockContext.globalState.update as sinon.SinonStub).mock.calls.find(
@@ -268,7 +265,7 @@ suite("CustomModesManager", () => {
 
 			// Verify `${BRANDED_FILENAMES.MODES_FILENAME}` was created with the project mode
 			assert.ok(fs.writeFile.calledWith(
-				expect.any(String)), // Don't check exact path as it may have different separators on different platforms
+				sinon.match.instanceOf(String)), // Don't check exact path as it may have different separators on different platforms
 				// TODO: String contains check - "project-mode"),
 				"utf-8",
 			)
@@ -509,5 +506,4 @@ suite("CustomModesManager", () => {
 		})
 	})
 // Mock cleanup
-
 // Mock cleanup

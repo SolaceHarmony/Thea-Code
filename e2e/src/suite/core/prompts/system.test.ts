@@ -16,18 +16,10 @@ import { addCustomInstructions } from "../sections/custom-instructions"
 // Mock cleanup needed
 
 // Mock the custom instructions
-// TODO: Mock setup needs manual migration for "../sections/custom-instructions"
-// 	const addCustomInstructions = sinon.stub()
-// Mock return block needs context
-// 	return {
-// 		addCustomInstructions,
-// 		__setMockImplementation: (impl: (...args: unknown[]) => unknown) => {
-// 			// Cast is safe in test context
-// 			addCustomInstructions.callsFake(impl as typeof addCustomInstructions)
-// 		},
+// Mock needs manual implementation
+// Mock removed - needs manual implementation,
 // 	}
 // Mock cleanup
-
 // Set up default mock implementation
 const { __setMockImplementation } = require("../sections/custom-instructions")
 __setMockImplementation(
@@ -93,7 +85,6 @@ __setMockImplementation(
 		language: "en",
 	},
 // Mock cleanup
-
 // TODO: Use proxyquire for module mocking
 		// Mock for "../../../utils/shell" needed here
 	getShell: () => "/bin/zsh",
@@ -681,7 +672,6 @@ suite("SYSTEM_PROMPT", () => {
 		sinon.restore()
 	})
 // Mock cleanup
-
 suite("addCustomInstructions", () => {
 	suiteSetup(() => {
 		// Ensure fs mock is properly initialized

@@ -56,12 +56,7 @@ suite("AnthropicHandler - Edge Cases", () => {
 		getModelParamsStub = sinon.stub().callsFake((options) => {
 			const customMaxTokens = options.options?.modelMaxTokens
 			const customTemperature = options.options?.modelTemperature
-// Mock return block needs context
-// 			return {
-// 				maxTokens: customMaxTokens !== undefined ? customMaxTokens : 8192,
-// 				temperature: customTemperature !== undefined ? customTemperature : 0,
-// 				thinking: undefined
-// 			}
+// Mock removed - needs manual implementation
 		})
 
 		// Mock BaseProvider

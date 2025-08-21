@@ -17,12 +17,9 @@ import { ProviderSettingsManager } from "../../config/ProviderSettingsManager"
 import { buildApiHandler, ApiHandler } from "../../../api"
 
 // Mock dependencies
-// TODO: Mock setup needs manual migration for "vscode"
-// TODO: Mock setup needs manual migration for "axios"
-// TODO: Mock setup needs manual migration for "../../config/ContextProxy"
-// TODO: Mock setup needs manual migration for "../../config/ProviderSettingsManager"
-// TODO: Mock setup needs manual migration for "../../../api"
-// TODO: Mock setup needs manual migration for "../../../services/telemetry/TelemetryService"
+// Mock needs manual implementation
+// Mock needs manual implementation
+// Mock needs manual implementation
 
 suite("ClineApiManager", () => {
 	let manager: TheaApiManager

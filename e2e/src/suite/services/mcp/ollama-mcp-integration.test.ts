@@ -7,8 +7,7 @@ import { McpConverters } from "../core/McpConverters"
 import * as sinon from 'sinon'
 
 // Mock the OpenAI client
-// TODO: Mock setup needs manual migration for "openai"
-// 	const OpenAI = sinon.stub().callsFake(() => ({
+// Mock needs manual implementation
 		chat: {
 			completions: {
 				create: sinon.stub
@@ -36,17 +35,8 @@ import * as sinon from 'sinon'
 									},
 									{ choices: [{ delta: { content: "Here is the result from the tool." } }] },
 								]
-// Mock return block needs context
-// 
-// 								return {
-// 									next: async () => {
-// 										await Promise.resolve()
-// 										if (count < messages.length) {
-// 											return { value: messages[count++], done: false }
-// 										}
-// Mock return block needs context
-// 										return { done: true }
-// 									},
+// Mock removed - needs manual implementation
+// Mock removed - needs manual implementation,
 // 								}
 							},
 						}
@@ -55,15 +45,8 @@ import * as sinon from 'sinon'
 			},
 		},
 	})
-// Mock return block needs context
-// 
-// 	return {
-// 		__esModule: true,
-// 		default: OpenAI,
-// 		OpenAI,
-// 	}
+// Mock removed - needs manual implementation
 // Mock cleanup
-
 suite("Ollama MCP Integration with SSE Transport", () => {
 	let mcpIntegration: McpIntegration
 	let client: McpClient
@@ -94,13 +77,7 @@ suite("Ollama MCP Integration with SSE Transport", () => {
 			},
 			handler: async (args) => {
 				await Promise.resolve()
-// Mock return block needs context
-// 				return {
-// 					content: [
-// 						{
-// 							type: "text",
-// 							text: `Tool executed with param: ${String(args.param)}`,
-// 						},
+// Mock removed - needs manual implementation,
 // 					],
 // 				}
 			},

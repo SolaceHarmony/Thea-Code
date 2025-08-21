@@ -16,8 +16,7 @@ import * as vscode from 'vscode'
 	},
 
 // Mock DecorationController
-// TODO: Mock setup needs manual migration
-// TODO: Mock needs manual migration
+// Mock needs manual implementation
 // TODO: Implement proper mock with proxyquire,
 
 suite("DiffViewProvider", () => {

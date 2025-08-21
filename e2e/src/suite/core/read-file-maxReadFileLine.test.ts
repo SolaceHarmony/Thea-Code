@@ -9,20 +9,12 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 
 // Mock dependencies
-// TODO: Mock setup needs manual migration for "../../integrations/misc/line-counter"
-// TODO: Mock setup needs manual migration for "../../integrations/misc/read-lines"
-// TODO: Mock setup needs manual migration for "../../integrations/misc/extract-text"
-// TODO: Mock setup needs manual migration for "../../services/tree-sitter"
-// TODO: Mock setup needs manual migration for "isbinaryfile"
-// TODO: Mock setup needs manual migration for "path"
+// Mock needs manual implementation
+// Mock needs manual implementation
+// Mock needs manual implementation
 // 	const originalPath = require<typeof import("path")>("path")
-// Mock return block needs context
-// 	return {
-// 		...originalPath,
-// 		resolve: sinon.stub().callsFake((...args: string[]) => args.join("/")),
-// 	}
+// Mock removed - needs manual implementation
 // Mock cleanup
-
 suite("read_file tool with maxReadFileLine setting", () => {
 	// Test data
 	const testFilePath = "test/file.txt"
@@ -279,7 +271,7 @@ suite("read_file tool with maxReadFileLine setting", () => {
 
 			// Verify
 			assert.ok(mockedReadLines.calledWith(absoluteFilePath, 3, 1)) // end_line - 1, start_line - 1
-			assert.ok(mockedAddLineNumbers.calledWith(expect.any(String)), 2) // start with proper line numbers
+			assert.ok(mockedAddLineNumbers.calledWith(sinon.match.instanceOf(String)), 2) // start with proper line numbers
 		})
 	})
 // Mock cleanup

@@ -5,12 +5,10 @@ import { McpClient } from "../McpClient"
 import { SseClientFactory } from "../SseClientFactory"
 
 // Mock the MCP SDK
-// TODO: Mock setup needs manual migration
-// TODO: Mock needs manual migration
+// Mock needs manual implementation
 // TODO: Implement proper mock with proxyquire,
 
-// TODO: Mock setup needs manual migration
-// TODO: Mock needs manual migration
+// Mock needs manual implementation
 // TODO: Implement proper mock with proxyquire,
 
 suite("SseClientFactory", () => {

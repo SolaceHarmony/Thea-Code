@@ -174,9 +174,7 @@ suite("TheaTask", () => {
 			// Simple mock implementation
 			const urlRegex = /(https?:\/\/[^\s]+)/g
 			const urls = text.match(urlRegex) || []
-// Mock return block needs context
-// 			return { urls, files: [] }
-// 		})
+// Mock removed - needs manual implementation)
 // 		
 // 		// Setup DiffStrategy mock
 // 		mockDiffStrategy = {
@@ -565,7 +563,7 @@ suite("TheaTask", () => {
 				await theaTask.streamApiResponse()
 				// Should handle error internally, not throw
 				assert.ok(true, "Error was handled")
-			} catch (error) {
+} catch (error) {
 				// If it throws, that's also acceptable
 				assert.ok(error instanceof Error)
 			}
@@ -783,7 +781,7 @@ suite("TheaTask", () => {
 			try {
 				await theaTask.streamApiResponse()
 				assert.ok(true, "Handled network error")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Network") || error.message.includes("error"))
 			}

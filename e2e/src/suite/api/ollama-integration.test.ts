@@ -42,7 +42,7 @@ suite("Ollama Integration", () => {
 						if (jsonObj.type === "thinking") {
 							return [{ matched: true, type: "reasoning", data: String(jsonObj.content) }]
 						}
-					} catch (_e: unknown) {
+} catch (_e: unknown) {
 						// Not valid JSON, treat as text
 					}
 				}
@@ -75,20 +75,7 @@ suite("Ollama Integration", () => {
 		// Mock OpenAI client
 		const mockCreate = sandbox.stub().callsFake(({ messages, stream }: any) => {
 			if (stream) {
-// Mock return block needs context
-// 				return {
-// 					async *[Symbol.asyncIterator]() {
-// 						const hasSystemMessage = messages.some((msg: any) => msg.role === "system")
-// 						
-// 						// Check for specific test cases
-// 						const lastUserMessage = messages.filter((m: any) => m.role === "user").pop()
-// 						const userText = lastUserMessage?.content?.[0]?.text || ""
-// 						
-// 						if (userText.includes("stream test")) {
-// 							yield { choices: [{ delta: { content: "First " } }] }
-// 							yield { choices: [{ delta: { content: "chunk" } }] }
-// 							yield { choices: [{ finish_reason: "stop" }] }
-// 						} else if (userText.includes("reasoning test")) {
+// Mock removed - needs manual implementation else if (userText.includes("reasoning test")) {
 // 							yield { choices: [{ delta: { content: "<think>Internal thought</think>" } }] }
 // 							yield { choices: [{ delta: { content: "Visible response" } }] }
 // 							yield { choices: [{ finish_reason: "stop" }] }
@@ -112,22 +99,16 @@ suite("Ollama Integration", () => {
 						} else if (userText.includes("multimodal test")) {
 							yield { choices: [{ delta: { content: "Image processed" } }] }
 							yield { choices: [{ finish_reason: "stop" }] }
-						} else {
+} else {
 							// Default response
 							yield { choices: [{ delta: { content: "Test response" } }] }
 							yield { choices: [{ finish_reason: "stop" }] }
 						}
 					}
 				}
-			} else {
+} else {
 				// Non-streaming response
-// Mock return block needs context
-// 				return {
-// 					choices: [{
-// 						message: {
-// 							role: "assistant",
-// 							content: "Non-streaming response"
-// 						},
+// Mock removed - needs manual implementation,
 // 						finish_reason: "stop"
 // 					}]
 // 				}
@@ -242,7 +223,7 @@ suite("Ollama Integration", () => {
 				// Should throw before getting here
 			}
 			assert.fail("Should have thrown an error")
-		} catch (error) {
+} catch (error) {
 			assert.ok(error instanceof Error)
 			assert.ok(error.message.includes("Simulated API error"))
 		}

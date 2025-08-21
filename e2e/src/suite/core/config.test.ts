@@ -56,8 +56,7 @@ suite("Core Configuration Tests", () => {
 			
 			// Custom modes might be stored as an object or array
 			const customModes = config.get("customModes")
-			assert.ok(
-				customModes === undefined || 
+			assert.ok(customModes === undefined || 
 				typeof customModes === "object",
 				"Custom modes should be undefined or an object"
 
@@ -86,8 +85,7 @@ suite("Core Configuration Tests", () => {
 			// At least the configuration should be accessible
 			for (const key of possibleProviderKeys) {
 				const value = config.get(key)
-				assert.ok(
-					value === undefined || typeof value === "string" || typeof value === "boolean",
+				assert.ok(value === undefined || typeof value === "string" || typeof value === "boolean",
 					`${key} should be undefined, string, or boolean`
 
 		test("Should mask sensitive values", () => {

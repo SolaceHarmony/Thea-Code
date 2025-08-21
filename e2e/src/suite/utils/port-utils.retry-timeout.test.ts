@@ -30,7 +30,6 @@ import { logger } from "../logging"
 		error: sinon.stub()
 	}
 // Mock cleanup
-
 suite("port-utils - Retry and Timeout Tests", () => {
 	let mockTcpPortUsed: any
 	let mockLogger: sinon.SinonStubbedInstance<typeof logger>
@@ -116,7 +115,7 @@ suite("port-utils - Retry and Timeout Tests", () => {
 			try {
 				await findAvailablePort(3000, 'localhost', undefined, 5)
 				assert.fail('Should have thrown an error')
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "No available ports found after 5 attempts")
 			}
@@ -242,7 +241,7 @@ suite("port-utils - Retry and Timeout Tests", () => {
 			try {
 				await waitForPortAvailable(3000, 'localhost', 50, 1000, 'test-service', 3)
 				assert.fail('Should have thrown an error')
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "Timeout waiting for test-service on port 3000 to become available after 3 attempts")
 			}
@@ -362,7 +361,7 @@ suite("port-utils - Retry and Timeout Tests", () => {
 			try {
 				await waitForPortInUse(3000, 'localhost', 50, 1000, 'test-server', 2)
 				assert.fail('Should have thrown an error')
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "Timeout waiting for test-server on port 3000 to be ready after 2 attempts")
 			}
@@ -562,9 +561,7 @@ suite("port-utils - Retry and Timeout Tests", () => {
 			sinon.spy(global, 'setTimeout').callsFake((fn: any, delay?: number) => {
 				if (delay) delays.push(delay)
 				fn()
-// Mock return block needs context
-// 				return {} as NodeJS.Timeout
-// 			})
+// Mock removed - needs manual implementation)
 // 			
 // 			mockTcpPortUsed.waitUntilUsed.rejects(new Error("Not ready"))
 // 			

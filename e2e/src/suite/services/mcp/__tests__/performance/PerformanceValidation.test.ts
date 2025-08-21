@@ -12,8 +12,7 @@ import { NeutralToolUseRequest } from "../../types/McpToolTypes"
 import { ToolDefinition } from "../../types/McpProviderTypes"
 
 // Mock dependencies for performance testing
-// TODO: Mock setup needs manual migration for "../../providers/EmbeddedMcpProvider"
-// 	const { EventEmitter } = require("events")
+// Mock needs manual implementation
 
 	const MockEmbeddedMcpProvider = sinon.stub().callsFake(() => {
 		const instance = new EventEmitter()
@@ -40,20 +39,12 @@ import { ToolDefinition } from "../../types/McpProviderTypes"
 		instance.executeTool = sinon.stub().callsFake(async (name, args) => {
 			const tool = tools.get(name)
 			if (!tool) {
-// Mock return block needs context
-// 				return {
-// 					content: [{ type: "text", text: `Tool '${name}' not found` }],
-// 					isError: true,
-// 				}
+// Mock removed - needs manual implementation
 			}
 			try {
 				return await tool.handler(args || {})
-			} catch (error) {
-// Mock return block needs context
-// 				return {
-// 					content: [{ type: "text", text: `Error: ${error.message}` }],
-// 					isError: true,
-// 				}
+} catch (error) {
+// Mock removed - needs manual implementation
 			}
 		})
 
@@ -64,15 +55,9 @@ import { ToolDefinition } from "../../types/McpProviderTypes"
 	MockedProviderClass.create = sinon.stub().callsFake(async () => {
 		return new MockEmbeddedMcpProvider()
 	})
-// Mock return block needs context
-// 
-// 	return {
-// 		EmbeddedMcpProvider: MockEmbeddedMcpProvider,
-// 	}
+// Mock removed - needs manual implementation
 // Mock cleanup
-
-// TODO: Mock setup needs manual migration for "../../core/McpToolRegistry"
-// 	const mockRegistry = {
+// Mock needs manual implementation
 		registerTool: sinon.stub(),
 		unregisterTool: sinon.stub().returns(true),
 		getTool: sinon.stub(),
@@ -80,15 +65,9 @@ import { ToolDefinition } from "../../types/McpProviderTypes"
 		hasTool: sinon.stub(),
 		executeTool: sinon.stub(),
 	}
-// Mock return block needs context
-// 
-// 	return {
-// 		McpToolRegistry: {
-// 			getInstance: sinon.stub().returns(mockRegistry),
-// 		},
+// Mock removed - needs manual implementation,
 // 	}
 // Mock cleanup
-
 suite("MCP Performance and Streaming Validation", () => {
 	suite("Concurrent Tool Execution", () => {
 		let mcpIntegration: McpIntegration
@@ -117,11 +96,7 @@ suite("MCP Performance and Streaming Validation", () => {
 				handler: async (args) => {
 					// Simulate realistic async work
 					await new Promise((resolve) => setTimeout(resolve, Math.random() * 10))
-// Mock return block needs context
-// 					return {
-// 						content: [{ type: "text", text: `Processed: ${args.id}` }],
-// 						isError: false,
-// 					}
+// Mock removed - needs manual implementation
 				},
 			}
 
@@ -143,13 +118,7 @@ suite("MCP Performance and Streaming Validation", () => {
 					}).catch(error => {
 						// Handle individual promise rejections to prevent test failure
 						console.error(`Error executing tool ${i}:`, error)
-// Mock return block needs context
-// 						return {
-// 							type: "tool_result",
-// 							tool_use_id: `test-${i}`,
-// 							status: "error",
-// 							content: [{ type: "text", text: `Error: ${error.message}` }]
-// 						};
+// Mock removed - needs manual implementation;
 // 					})
 // 				)
 // 
@@ -190,12 +159,7 @@ suite("MCP Performance and Streaming Validation", () => {
 						id: i,
 						value: `item-${args.batch}-${i}`,
 					}))
-// Mock return block needs context
-// 
-// 					return {
-// 						content: [{ type: "text", text: `Batch ${args.batch} processed ${data.length} items` }],
-// 						isError: false,
-// 					}
+// Mock removed - needs manual implementation
 				},
 			}
 
@@ -221,13 +185,7 @@ suite("MCP Performance and Streaming Validation", () => {
 							input: { batch },
 						}).catch(error => {
 							console.error(`Error in batch ${batch}, item ${i}:`, error.message)
-// Mock return block needs context
-// 							return {
-// 								type: "tool_result",
-// 								tool_use_id: `batch-${batch}-${i}`,
-// 								status: "error",
-// 								content: [{ type: "text", text: `Error: ${error.message}` }]
-// 							};
+// Mock removed - needs manual implementation;
 // 						})
 // 					)
 // 
@@ -255,7 +213,7 @@ suite("MCP Performance and Streaming Validation", () => {
 				expect(memoryIncrease).toBeLessThan(50 * 1024 * 1024)
 
 				console.log(`Memory increase: ${Math.round(memoryIncrease / 1024 / 1024)}MB`)
-			} catch (error) {
+} catch (error) {
 				console.error("Unexpected error in memory efficiency test:", error)
 				throw error
 			}
@@ -321,12 +279,7 @@ suite("MCP Performance and Streaming Validation", () => {
 						await new Promise((resolve) => setTimeout(resolve, 5)) // Small delay
 						content += `Chunk ${i + 1}/${chunks}. `
 					}
-// Mock return block needs context
-// 
-// 					return {
-// 						content: [{ type: "text", text: content.trim() }],
-// 						isError: false,
-// 					}
+// Mock removed - needs manual implementation
 				},
 			}
 
@@ -361,14 +314,7 @@ suite("MCP Performance and Streaming Validation", () => {
 							batch: Math.floor(i / 100),
 						},
 					})
-// Mock return block needs context
-// 
-// 					return {
-// 						content: [
-// 							{
-// 								type: "text",
-// 								text: JSON.stringify(largeData, null, 2),
-// 							},
+// Mock removed - needs manual implementation,
 // 						],
 // 						isError: false,
 // 					}
@@ -400,11 +346,7 @@ suite("MCP Performance and Streaming Validation", () => {
 				handler: async () => {
 					// Fixed small delay to simulate consistent work
 					await new Promise((resolve) => setTimeout(resolve, 10))
-// Mock return block needs context
-// 					return {
-// 						content: [{ type: "text", text: "Consistent response" }],
-// 						isError: false,
-// 					}
+// Mock removed - needs manual implementation
 				},
 			}
 
@@ -461,11 +403,7 @@ suite("MCP Performance and Streaming Validation", () => {
 					if (args.shouldError) {
 						throw new Error(`Test error ${args.id}`)
 					}
-// Mock return block needs context
-// 					return {
-// 						content: [{ type: "text", text: `Success ${args.id}` }],
-// 						isError: false,
-// 					}
+// Mock removed - needs manual implementation
 				},
 			}
 
@@ -489,10 +427,10 @@ suite("MCP Performance and Streaming Validation", () => {
 
 					if (result.isError) {
 						errorCount++
-					} else {
+} else {
 						successCount++
 					}
-				} catch (error) {
+} catch (error) {
 					errorCount++
 				}
 			}
@@ -523,11 +461,7 @@ suite("MCP Performance and Streaming Validation", () => {
 
 					// Normal operation
 					await new Promise((resolve) => setTimeout(resolve, 5))
-// Mock return block needs context
-// 					return {
-// 						content: [{ type: "text", text: `Recovery success ${args.id}` }],
-// 						isError: false,
-// 					}
+// Mock removed - needs manual implementation
 				},
 			}
 
@@ -551,11 +485,7 @@ suite("MCP Performance and Streaming Validation", () => {
 						})
 						.catch(error => {
 							// Expected path - convert error to a result object
-// Mock return block needs context
-// 							return { 
-// 								content: [{ type: "text", text: error.message || "Burst error" }],
-// 								isError: true 
-// 							}
+// Mock removed - needs manual implementation
 						})
 				)
 
@@ -576,11 +506,7 @@ suite("MCP Performance and Streaming Validation", () => {
 					provider.executeTool("recover_tool", { phase: "recovery", id: i })
 						.catch(error => {
 							console.error(`Unexpected error in recovery phase for item ${i}:`, error)
-// Mock return block needs context
-// 							return { 
-// 								content: [{ type: "text", text: `Recovery failed: ${error.message}` }],
-// 								isError: true 
-// 							}
+// Mock removed - needs manual implementation
 						})
 				)
 
@@ -596,7 +522,7 @@ suite("MCP Performance and Streaming Validation", () => {
 				expect(recoveryTime).toBeLessThan(500) // Should recover quickly
 
 				console.log(`Recovered from error burst in ${recoveryTime}ms`)
-			} catch (error) {
+} catch (error) {
 				console.error("Unexpected error in recovery test:", error)
 				throw error
 			}

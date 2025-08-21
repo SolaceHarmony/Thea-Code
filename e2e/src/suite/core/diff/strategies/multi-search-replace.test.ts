@@ -468,8 +468,7 @@ class Example {
         try {
             if (true) {
                 console.log("test");
-
-        } catch (e) {
+} catch (e) {
             console.error(e);
 
 >>>>>>> REPLACE`
@@ -482,8 +481,7 @@ class Example {
         try {
             if (true) {
                 console.log("test");
-
-        } catch (e) {
+} catch (e) {
             console.error(e);
 
 }`)

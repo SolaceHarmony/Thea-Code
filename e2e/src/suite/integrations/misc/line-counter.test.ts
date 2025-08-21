@@ -5,15 +5,8 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 
 // Mock the fs module
-// TODO: Mock setup needs manual migration for "fs"
-// 	const originalModule: typeof import("fs") = require("fs")
-// Mock return block needs context
-// 	return {
-// 		...originalModule,
-// 		createReadStream: sinon.stub(),
-// 		promises: {
-// 			access: sinon.stub(),
-// 		},
+// Mock needs manual implementation
+// Mock removed - needs manual implementation,
 // 	} as typeof import("fs")
 // // Mock cleanup
 // 
@@ -78,7 +71,7 @@ suite("countFileLines", () => {
 
 		;(fs.createReadStream as sinon.SinonStub).mockReturnValueOnce(mockReadStream)
 		const readlineMock = readline as typeof readline
-		readlineMock.createInterface.mockReturnValueOnce(mockEventEmitter as unknown as readline.Interface)
+		readlineMock.createInterface.onCall(0).returns(mockEventEmitter as unknown as readline.Interface)
 
 		// Test
 		const result = await countFileLines("test-file.txt")
@@ -114,7 +107,7 @@ suite("countFileLines", () => {
 
 		;(fs.createReadStream as sinon.SinonStub).mockReturnValueOnce(mockReadStream)
 		const readlineMock = readline as typeof readline
-		readlineMock.createInterface.mockReturnValueOnce(mockEventEmitter as unknown as readline.Interface)
+		readlineMock.createInterface.onCall(0).returns(mockEventEmitter as unknown as readline.Interface)
 
 		// Test
 		const result = await countFileLines("empty-file.txt")
@@ -148,7 +141,7 @@ suite("countFileLines", () => {
 
 		;(fs.createReadStream as sinon.SinonStub).mockReturnValueOnce(mockReadStream)
 		const readlineMock = readline as typeof readline
-		readlineMock.createInterface.mockReturnValueOnce(mockEventEmitter as unknown as readline.Interface)
+		readlineMock.createInterface.onCall(0).returns(mockEventEmitter as unknown as readline.Interface)
 
 		// Test & Assert
 		await expect(countFileLines("error-file.txt")).rejects.toThrow("Read error")

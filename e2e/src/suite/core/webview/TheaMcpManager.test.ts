@@ -8,22 +8,12 @@ import { EXTENSION_DISPLAY_NAME, EXTENSION_CONFIG_DIR } from "../../../shared/co
 import * as sinon from 'sinon'
 
 // Mock dependencies
-// TODO: Mock setup needs manual migration for "vscode"
-// TODO: Mock setup needs manual migration for "os"
-// TODO: Mock setup needs manual migration for "fs/promises"
-// TODO: Mock setup needs manual migration for "../../../services/mcp/management/McpHub"
-// TODO: Mock setup needs manual migration for "path"
-// 	const originalPath: Record<string, unknown> = require("path")
-// Mock return block needs context
-// 	return {
-// 		...originalPath,
-// 		// Ensure consistent path separators in tests regardless of platform
-// 		join: (...paths: string[]) => {
-// 			return paths.join("/")
-// 		},
+// Mock needs manual implementation
+// Mock needs manual implementation
+// Mock needs manual implementation
+// Mock removed - needs manual implementation,
 // 	}
 // Mock cleanup
-
 suite("TheaMcpManager", () => {
 	let mcpManager: TheaMcpManager
 	let mockContext: vscode.ExtensionContext

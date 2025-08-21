@@ -23,18 +23,7 @@ const mockFakeAI = {
 		yield { type: "text" as const, text: "Mock response" }
 	},
 	getModel(): { id: string; info: ModelInfo } {
-// Mock return block needs context
-// 		return {
-// 			id: "fake-ai-test",
-// 			info: {
-// 				maxTokens: 1000,
-// 				contextWindow: 4000,
-// 				supportsImages: false,
-// 				supportsPromptCache: false,
-// 				inputPrice: 0,
-// 				outputPrice: 0,
-// 				description: "Mock fake AI for testing",
-// 			},
+// Mock removed - needs manual implementation,
 // 		}
 	},
 	async countTokens(content: NeutralMessageContent): Promise<number> {
@@ -61,7 +50,6 @@ const { buildApiHandler } = proxyquire('../../../../src/api/index', {
 		McpIntegration: MockMcpIntegration
 	}
 // Mock cleanup
-
 suite("Provider Enablement Validation", () => {
 	const baseConfig: Omit<ApiConfiguration, "apiProvider"> = {
 		apiKey: "test-key",
@@ -192,7 +180,7 @@ suite("Provider Enablement Validation", () => {
 				// vscode-lm returns 0 in test environment, which is expected
 				if (provider === "vscode-lm") {
 					assert.ok(tokenCount >= 0, `Token count for ${provider} should be >= 0`)
-				} else {
+} else {
 					assert.ok(tokenCount > 0, `Token count for ${provider} should be > 0`)
 				}
 			})

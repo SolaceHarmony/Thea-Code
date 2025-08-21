@@ -61,11 +61,9 @@ setup(async () => {
 		return [200, stream]
 	})
 // Mock cleanup
-
 teardown(async () => {
 	await openaiTeardown()
 // Mock cleanup
-
 suite("OpenAiHandler with usage tracking fix", () => {
 	let handler: OpenAiHandler
 	let mockOptions: ApiHandlerOptions

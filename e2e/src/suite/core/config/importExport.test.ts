@@ -25,7 +25,6 @@ import { ContextProxy } from "../ContextProxy"
 		file: sinon.stub((filePath: string) => ({ fsPath: filePath })),
 	},
 // Mock cleanup
-
 // Mock fs/promises
 // TODO: Use proxyquire for module mocking
 		// Mock for "fs/promises" needed here

@@ -26,7 +26,7 @@ suite("MCP (Model Context Protocol) Tests", () => {
 			try {
 				await vscode.commands.executeCommand(`${EXTENSION_NAME}.mcpButtonClicked`)
 				assert.ok(true, "MCP button command executed")
-			} catch (error) {
+} catch (error) {
 				// Expected in test environment without full MCP setup
 				assert.ok(true, "MCP command registered (execution may fail in test)")
 

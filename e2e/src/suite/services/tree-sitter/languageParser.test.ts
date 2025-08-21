@@ -6,8 +6,7 @@ import Parser from "web-tree-sitter"
 
 // Mock web-tree-sitter
 const mockSetLanguage = sinon.stub()
-// TODO: Mock setup needs manual migration
-// TODO: Fix mock - needs proxyquire
+// Mock needs manual implementation
 /*
 => {
 	return {

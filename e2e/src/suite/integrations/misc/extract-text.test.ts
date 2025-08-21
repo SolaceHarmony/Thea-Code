@@ -38,7 +38,6 @@ suite("addLineNumbers", () => {
 		expect(addLineNumbers(input, 99)).toBe(expected)
 	})
 // Mock cleanup
-
 suite("everyLineHasLineNumbers", () => {
 	test("should return true for content with line numbers", () => {
 		const input = "1 | line one\n2 | line two\n3 | line three"
@@ -69,7 +68,6 @@ suite("everyLineHasLineNumbers", () => {
 		expect(everyLineHasLineNumbers(input)).toBe(false)
 	})
 // Mock cleanup
-
 suite("stripLineNumbers", () => {
 	test("should strip line numbers from content", () => {
 		const input = "1 | line one\n2 | line two\n3 | line three"
@@ -109,7 +107,6 @@ suite("stripLineNumbers", () => {
 		expect(stripLineNumbers(input)).toBe(expected)
 	})
 // Mock cleanup
-
 suite("truncateOutput", () => {
 	test("returns original content when no line limit provided", () => {
 		const content = "line1\nline2\nline3"
@@ -173,7 +170,6 @@ suite("truncateOutput", () => {
 		assert.deepStrictEqual(resultLines, expectedLines)
 	})
 // Mock cleanup
-
 suite("applyRunLengthEncoding", () => {
 	test("should handle empty input", () => {
 		expect(applyRunLengthEncoding("")).toBe("")

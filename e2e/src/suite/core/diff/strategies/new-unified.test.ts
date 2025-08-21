@@ -229,7 +229,7 @@ function PrimeCheck(candidate){
   for(var i = 2; i < candidate && isPrime; i++){
     if(candidate%i === 0){
       isPrime = false;
-    } else {
+} else {
       isPrime = true;
 
   if(isPrime){
@@ -286,7 +286,7 @@ function PrimeCheck(candidate){
   for(var i = 2; i < candidate && isPrime; i++){
     if(candidate%i === 0){
       isPrime = false;
-    } else {
+} else {
       isPrime = true;
 
   if(isPrime){
@@ -515,7 +515,7 @@ async function processFile(filePath: string) {
     const data = await readFile(filePath, 'utf8');
     logger.info('File read successfully');
     return data;
-  } catch (error) {
+} catch (error) {
     logger.error('Failed to read file:', error);
     throw error;
 
@@ -565,7 +565,7 @@ export {
 -    logger.info('File read successfully');
 +    logger.info(\`File \${filePath} read successfully\`);
      return data;
-   } catch (error) {
+} catch (error) {
 -    logger.error('Failed to read file:', error);
 +    logger.error(\`Failed to read file \${filePath}:\`, error);
      throw error;
@@ -629,7 +629,7 @@ async function processFile(filePath: string) {
     const data = await readFile(filePath, 'utf8');
     logger.info(\`File \${filePath} read successfully\`);
     return data;
-  } catch (error) {
+} catch (error) {
     logger.error(\`Failed to read file \${filePath}:\`, error);
     throw error;
 
@@ -644,7 +644,7 @@ async function writeOutput(data: string, outputPath: string) {
   try {
     await writeFile(outputPath, data, 'utf8');
     logger.info(\`Output written to \${outputPath}\`);
-  } catch (error) {
+} catch (error) {
     logger.error(\`Failed to write output to \${outputPath}:\`, error);
     throw error;
 
@@ -653,7 +653,7 @@ async function parseConfig(configPath: string): Promise<Config> {
     const configData = await readFile(configPath, 'utf8');
     logger.debug(\`Reading config from \${configPath}\`);
     return JSON.parse(configData);
-  } catch (error) {
+} catch (error) {
     logger.error(\`Failed to parse config from \${configPath}:\`, error);
     throw error;
 

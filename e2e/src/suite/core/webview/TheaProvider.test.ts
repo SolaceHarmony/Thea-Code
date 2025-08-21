@@ -551,7 +551,7 @@ suite("TheaProvider", () => {
 				await theaProvider.initClineWithTask({ instructions: "test" })
 				// Should handle error gracefully
 				assert.ok(true, "Error was handled")
-			} catch (error) {
+} catch (error) {
 				// If it throws, that's also acceptable
 				assert.ok(error instanceof Error)
 			}
@@ -563,7 +563,7 @@ suite("TheaProvider", () => {
 			try {
 				await theaProvider.postMessageToWebview({ type: "test" })
 				assert.ok(true, "Error was handled")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 			}
 		})

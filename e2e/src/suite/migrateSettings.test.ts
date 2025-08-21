@@ -8,10 +8,8 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 
 // Mock dependencies
-// TODO: Mock setup needs manual migration for "vscode"
-// TODO: Mock setup needs manual migration for "fs/promises"
-// TODO: Mock setup needs manual migration for "fs"
-// TODO: Mock setup needs manual migration for "../utils/fs"
+// Mock needs manual implementation
+// Mock needs manual implementation
 // We're testing the real migrateSettings function
 
 declare global {

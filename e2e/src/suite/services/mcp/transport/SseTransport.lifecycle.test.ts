@@ -66,8 +66,7 @@ suite("SseTransport Lifecycle Tests", () => {
 		test("should handle missing SDK gracefully", async () => {
 			// Mock the dynamic import to fail
 			const originalRequire = require
-			// TODO: Mock setup needs manual migration for "@modelcontextprotocol/sdk/server/streamableHttp.js"
-// 				throw new Error("Module not found")
+			// Mock needs manual implementation
 			})
 			
 			const config: SseTransportConfig = {
@@ -334,7 +333,7 @@ suite("SseTransport Lifecycle Tests", () => {
 				// If it doesn't throw, check that transport is in a valid state
 				const underlying = transport.getUnderlyingTransport()
 				assert.notStrictEqual(underlying, undefined)
-			} catch (error) {
+} catch (error) {
 				// If it throws, that's also acceptable error handling
 				assert.notStrictEqual(error, undefined)
 			}

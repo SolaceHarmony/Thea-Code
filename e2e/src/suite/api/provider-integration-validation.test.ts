@@ -51,18 +51,7 @@ suite("Provider Integration Validation", () => {
 			yield { type: "text" as const, text: " How can I assist you today?" }
 		},
 		getModel() {
-// Mock return block needs context
-// 			return {
-// 				id: "fake-ai-integration",
-// 				info: {
-// 					maxTokens: 1000,
-// 					contextWindow: 4000,
-// 					supportsImages: false,
-// 					supportsPromptCache: false,
-// 					inputPrice: 0,
-// 					outputPrice: 0,
-// 					description: "Integration test fake AI"
-// 				}
+// Mock removed - needs manual implementation
 			}
 		},
 		async countTokens() {
@@ -129,7 +118,7 @@ suite("Provider Integration Validation", () => {
 			try {
 				buildApiHandler({ apiProvider: "mistral", apiKey: "test" } as any)
 				assert.fail("Should have thrown for missing Mistral API key")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Mistral API key is required"))
 			}
@@ -137,7 +126,7 @@ suite("Provider Integration Validation", () => {
 			try {
 				buildApiHandler({ apiProvider: "requesty", apiKey: "test" } as any)
 				assert.fail("Should have thrown for missing Requesty API key")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Requesty API key is required"))
 			}
@@ -145,7 +134,7 @@ suite("Provider Integration Validation", () => {
 			try {
 				buildApiHandler({ apiProvider: "fake-ai", apiKey: "test" } as any)
 				assert.fail("Should have thrown for missing Fake AI")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Fake AI is not set"))
 			}
@@ -155,7 +144,7 @@ suite("Provider Integration Validation", () => {
 			try {
 				buildApiHandler({ apiProvider: "human-relay" } as any)
 				assert.fail("Should have thrown for unsupported provider")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("is not a valid API provider") || 
 				         error.message.includes("Unsupported provider"))
@@ -260,12 +249,11 @@ suite("Provider Integration Validation", () => {
 					const handler = buildApiHandler(config)
 					
 					methodsToCheck.forEach((method) => {
-						assert.ok(
-							typeof handler[method] === "function",
+						assert.ok(typeof handler[method] === "function",
 							`${provider} should have ${method} method`
 						)
 					})
-				} catch (error) {
+} catch (error) {
 					// Some providers might fail due to missing config, that's OK for this test
 					// We're just checking the API shape when they can be created
 				}

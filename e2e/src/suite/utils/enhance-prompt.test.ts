@@ -66,7 +66,7 @@ suite("Single Completion Handler", () => {
 			try {
 				await singleCompletionModule.singleCompletionHandler(mockApiConfig, "")
 				assert.fail("Should have thrown an error")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "No prompt text provided")
 			}
@@ -76,7 +76,7 @@ suite("Single Completion Handler", () => {
 			try {
 				await singleCompletionModule.singleCompletionHandler(null, "Test prompt")
 				assert.fail("Should have thrown an error")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "No valid API configuration provided")
 			}
@@ -89,7 +89,7 @@ suite("Single Completion Handler", () => {
 					"Test prompt"
 				)
 				assert.fail("Should have thrown an error")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "No valid API configuration provided")
 			}
@@ -109,7 +109,7 @@ suite("Single Completion Handler", () => {
 					"Test prompt"
 				)
 				assert.fail("Should have thrown an error")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.strictEqual(error.message, "The selected API provider does not support prompt enhancement")
 			}
@@ -125,7 +125,7 @@ suite("Single Completion Handler", () => {
 					"Test prompt"
 				)
 				assert.fail("Should have thrown an error")
-			} catch (error) {
+} catch (error) {
 				assert.strictEqual(error, apiError)
 			}
 		})

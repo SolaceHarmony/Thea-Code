@@ -62,7 +62,7 @@ suite("convertToBedrockConverseMessages", () => {
 			assert.strictEqual(imageBlock.image.format, "jpeg")
 			assert.notStrictEqual(imageBlock.image.source, undefined)
 			assert.notStrictEqual(imageBlock.image.source.bytes, undefined)
-		} else {
+} else {
 			fail("Expected image block not found")
 		}
 	})
@@ -99,7 +99,7 @@ suite("convertToBedrockConverseMessages", () => {
 				name: "read_file",
 				input: "<read_file>\n<path>\ntest.txt\n</path>\n</read_file>",
 			})
-		} else {
+} else {
 			fail("Expected tool use block not found")
 		}
 	})
@@ -134,7 +134,7 @@ suite("convertToBedrockConverseMessages", () => {
 				content: expectedContent,
 				status: "success",
 			})
-		} else {
+} else {
 			fail("Expected tool result block not found")
 		}
 	})

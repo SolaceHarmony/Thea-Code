@@ -18,22 +18,15 @@ import type {
 import { XmlMatcher, XmlMatcherResult } from "../../../utils/xml-matcher"
 
 // Mock OpenAI client
-// TODO: Mock setup needs manual migration for "openai"
-// 	const mockClient = {
+// Mock needs manual implementation
 		chat: {
 			completions: {
 				create: sinon.stub()
 			}
 		}
 	}
-// Mock return block needs context
-// 	return {
-// 		__esModule: true,
-// 		default: sinon.stub(() => mockClient),
-// 		AzureOpenAI: sinon.stub(() => mockClient)
-// 	}
+// Mock removed - needs manual implementation
 // Mock cleanup
-
 // Mock axios for any HTTP requests
 // TODO: Mock setup needs manual migration for "axios"
 
@@ -97,7 +90,6 @@ import { XmlMatcher, XmlMatcherResult } from "../../../utils/xml-matcher"
 		}
 	}
 // Mock cleanup
-
 // Mock model capabilities
 // TODO: Use proxyquire for module mocking
 		// Mock for "../../../utils/model-capabilities" needed here
@@ -122,7 +114,6 @@ import { XmlMatcher, XmlMatcherResult } from "../../../utils/xml-matcher"
 		APP_TITLE: "Test App"
 	}
 // Mock cleanup
-
 suite("OpenAiHandler - Edge Cases", () => {
 	let handler: OpenAiHandler
 	let mockClient: sinon.SinonStubbedInstance<OpenAI>
@@ -210,7 +201,7 @@ suite("OpenAiHandler - Edge Cases", () => {
 			mockClient.chat.completions.create.returns(mockStream as unknown as ReturnType<typeof mockClient.chat.completions.create>)
 			
 			// Mock XmlMatcher to extract thinking tags
-			mockXmlMatcher.update.mockReturnValueOnce([
+			mockXmlMatcher.update.onCall(0).returns([
 				{ content: "Internal reasoning", tag: "reasoning" },
 				{ content: "Regular text", tag: "text" }
 			])
@@ -230,17 +221,17 @@ suite("OpenAiHandler - Edge Cases", () => {
 			assert.ok(mockXmlMatcher.update.called)
 			
 			// Should include reasoning from reasoning_content
-			expect(results).toContainEqual({
+			assert.ok(results.some(x => JSON.stringify(x) === JSON.stringify({
 				type: "reasoning",
 				text: "More reasoning"
-			})
+			})))
 			
 			// Should include usage
-			expect(results).toContainEqual({
+			assert.ok(results.some(x => JSON.stringify(x) === JSON.stringify({
 				type: "usage",
 				inputTokens: 10,
 				outputTokens: 20
-			})
+			})))
 		})
 
 		test("should handle non-streaming mode", async () => {
@@ -351,11 +342,11 @@ suite("OpenAiHandler - Edge Cases", () => {
 			}
 
 			// Should convert to tool_result
-			expect(results).toContainEqual({
+			assert.ok(results.some(x => JSON.stringify(x) === JSON.stringify({
 				type: "tool_result",
 				id: "call_123",
 				content: "Tool result for calculator"
-			})
+			})))
 		})
 
 		test("should handle multiple tool calls in sequence", async () => {
@@ -438,8 +429,8 @@ suite("OpenAiHandler - Edge Cases", () => {
 			}
 
 			// Should have both thinking and text
-			expect(results).toContainEqual({ type: "thinking", text: "Let me analyze this" })
-			expect(results).toContainEqual({ type: "text", text: "The answer is 42" })
+			assert.ok(results.some(x => JSON.stringify(x) === JSON.stringify({ type: "thinking", text: "Let me analyze this" })))
+			assert.ok(results.some(x => JSON.stringify(x) === JSON.stringify({ type: "text", text: "The answer is 42" })))
 		})
 
 		test("should call XmlMatcher.final() for remaining content", async () => {
@@ -471,7 +462,7 @@ suite("OpenAiHandler - Edge Cases", () => {
 
 			// Should call final() to get remaining content
 			assert.ok(mockXmlMatcher.final.called)
-			expect(results).toContainEqual({ type: "thinking", text: "incomplete" })
+			assert.ok(results.some(x => JSON.stringify(x) === JSON.stringify({ type: "thinking", text: "incomplete" })))
 		})
 	})
 
@@ -596,7 +587,7 @@ suite("OpenAiHandler - Edge Cases", () => {
 
 			// Should delegate to O3 handler
 			assert.ok(handlerWithO3.handleO3FamilyMessage.called)
-			expect(results).toContainEqual({ type: "text", text: "O3 response" })
+			assert.ok(results.some(x => JSON.stringify(x) === JSON.stringify({ type: "text", text: "O3 response" })))
 		})
 
 		test("should detect reasoning models by capability", async () => {
@@ -630,10 +621,10 @@ suite("OpenAiHandler - Edge Cases", () => {
 			}
 
 			// Should handle reasoning content
-			expect(results).toContainEqual({
+			assert.ok(results.some(x => JSON.stringify(x) === JSON.stringify({
 				type: "reasoning",
 				text: "Reasoning output"
-			})
+			})))
 		})
 	})
 

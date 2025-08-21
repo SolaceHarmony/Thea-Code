@@ -6,8 +6,7 @@ import { NeutralConversationHistory } from "../../../shared/neutral-history"
 import * as sinon from 'sinon'
 
 // Mock vscode namespace
-// TODO: Mock setup needs manual migration for "vscode"
-// 	class MockLanguageModelTextPart {
+// Mock needs manual implementation
 		type = "text"
 		constructor(public value: string) {}
 	}
@@ -22,13 +21,7 @@ import * as sinon from 'sinon'
 	}
 
 	type MockLanguageModelPart = MockLanguageModelTextPart | MockLanguageModelToolCallPart
-// Mock return block needs context
-// 
-// 	return {
-// 		workspace: {
-// 			onDidChangeConfiguration: sinon.stub((() => ({
-// 				dispose: sinon.stub(),
-// 			})) as (callback: (e: vscode.ConfigurationChangeEvent) => void) => { dispose: sinon.SinonStub }),
+// Mock removed - needs manual implementation)) as (callback: (e: vscode.ConfigurationChangeEvent) => void) => { dispose: sinon.SinonStub }),
 // 		},
 // 		CancellationTokenSource: sinon.stub(() => ({
 // 			token: {
@@ -61,7 +54,6 @@ import * as sinon from 'sinon'
 		},
 	}
 // Mock cleanup
-
 const mockLanguageModelChat = {
 	id: "test-model",
 	name: "Test Model",
@@ -179,8 +171,8 @@ suite("VsCodeLmHandler", () => {
 			})
 			expect(chunks[1]).toMatchObject({
 				type: "usage",
-				inputTokens: expect.any(Number), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-				outputTokens: expect.any(Number), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+				inputTokens: sinon.match.instanceOf(Number), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+				outputTokens: sinon.match.instanceOf(Number), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
 			})
 		})
 

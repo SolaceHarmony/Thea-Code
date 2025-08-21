@@ -27,16 +27,13 @@ suite("Comprehensive Provider Tests", () => {
 			const modelId = config.get("openAiModelId")
 			
 			// These might be undefined but should be the right types if set
-			assert.ok(
-				apiKey === undefined || typeof apiKey === "string",
+			assert.ok(apiKey === undefined || typeof apiKey === "string",
 				"API key should be string or undefined"
 			)
-			assert.ok(
-				baseUrl === undefined || typeof baseUrl === "string",
+			assert.ok(baseUrl === undefined || typeof baseUrl === "string",
 				"Base URL should be string or undefined"
 			)
-			assert.ok(
-				modelId === undefined || typeof modelId === "string",
+			assert.ok(modelId === undefined || typeof modelId === "string",
 				"Model ID should be string or undefined"
 			)
 		})
@@ -57,8 +54,7 @@ suite("Comprehensive Provider Tests", () => {
 			const baseUrl = config.get("anthropicBaseUrl")
 			const modelId = config.get("anthropicModelId")
 			
-			assert.ok(
-				apiKey === undefined || typeof apiKey === "string",
+			assert.ok(apiKey === undefined || typeof apiKey === "string",
 				"API key should be string or undefined"
 			)
 		})
@@ -78,12 +74,10 @@ suite("Comprehensive Provider Tests", () => {
 			const projectId = config.get("vertexProjectId")
 			const region = config.get("vertexRegion")
 			
-			assert.ok(
-				projectId === undefined || typeof projectId === "string",
+			assert.ok(projectId === undefined || typeof projectId === "string",
 				"Project ID should be string or undefined"
 			)
-			assert.ok(
-				region === undefined || typeof region === "string",
+			assert.ok(region === undefined || typeof region === "string",
 				"Region should be string or undefined"
 			)
 		})
@@ -100,8 +94,7 @@ suite("Comprehensive Provider Tests", () => {
 			const region = config.get("bedrockRegion")
 			const accessKey = config.get("bedrockAccessKey")
 			
-			assert.ok(
-				region === undefined || typeof region === "string",
+			assert.ok(region === undefined || typeof region === "string",
 				"Region should be string or undefined"
 			)
 		})
@@ -119,8 +112,7 @@ suite("Comprehensive Provider Tests", () => {
 			const siteUrl = config.get("openRouterSiteUrl")
 			const siteName = config.get("openRouterSiteName")
 			
-			assert.ok(
-				apiKey === undefined || typeof apiKey === "string",
+			assert.ok(apiKey === undefined || typeof apiKey === "string",
 				"API key should be string or undefined"
 			)
 		})
@@ -136,8 +128,7 @@ suite("Comprehensive Provider Tests", () => {
 		test("Should detect VSCode LM availability", () => {
 			const useVsCodeLm = config.get("vsCodeLmModelSelector")
 			
-			assert.ok(
-				useVsCodeLm === undefined || typeof useVsCodeLm === "boolean",
+			assert.ok(useVsCodeLm === undefined || typeof useVsCodeLm === "boolean",
 				"VSCode LM selector should be boolean or undefined"
 			)
 		})
@@ -159,8 +150,7 @@ suite("Comprehensive Provider Tests", () => {
 				const baseUrl = config.get("ollamaBaseUrl")
 				const modelId = config.get("ollamaModelId")
 				
-				assert.ok(
-					baseUrl === undefined || typeof baseUrl === "string",
+				assert.ok(baseUrl === undefined || typeof baseUrl === "string",
 					"Base URL should be string or undefined"
 				)
 			})
@@ -175,8 +165,7 @@ suite("Comprehensive Provider Tests", () => {
 			test("Should support LM Studio configuration", () => {
 				const baseUrl = config.get("lmStudioBaseUrl")
 				
-				assert.ok(
-					baseUrl === undefined || typeof baseUrl === "string",
+				assert.ok(baseUrl === undefined || typeof baseUrl === "string",
 					"Base URL should be string or undefined"
 				)
 			})

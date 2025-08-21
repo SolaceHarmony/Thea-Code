@@ -204,7 +204,7 @@ suite("convertToR1Format", () => {
 			assert.ok(first.content.includes("hello"))
 			assert.ok(first.content.includes("world"))
 			assert.ok(first.content.includes("foo")) // stringified unknown part
-		} else {
+} else {
 			type TextPart = { type: "text"; text: string }
 			const contentArr = first.content as Array<TextPart | { type: string }>
 			const textPart = contentArr.find((p): p is TextPart => p.type === "text")

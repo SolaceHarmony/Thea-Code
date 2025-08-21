@@ -19,18 +19,13 @@ import { downloadTask } from "../../../../integrations/misc/export-markdown"
 import type { NeutralConversationHistory } from "../../../../shared/neutral-history"
 
 // Mock dependencies
-// TODO: Mock setup needs manual migration
-// TODO: Mock needs manual migration
+// Mock needs manual implementation
 // TODO: Implement proper mock with proxyquire
-// TODO: Mock setup needs manual migration
-// TODO: Mock setup needs manual migration
-// TODO: Mock setup needs manual migration
-// TODO: Mock setup needs manual migration
-// TODO: Mock setup needs manual migration
-// TODO: Mock needs manual migration
+// Mock needs manual implementation
+// Mock needs manual implementation
+// Mock needs manual implementation
 // TODO: Implement proper mock with proxyquire
-// TODO: Mock setup needs manual migration
-// TODO: Mock needs manual migration
+// Mock needs manual implementation
 // TODO: Implement proper mock with proxyquire
 
 suite("TheaTaskHistory - IO and Cleanup Operations", () => {

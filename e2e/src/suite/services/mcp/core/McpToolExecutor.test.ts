@@ -55,23 +55,16 @@ const mockEmbeddedMcpProviderInstance = {
 	removeAllListeners: sinon.stub(),
 } as MockEmbeddedMcpProviderInstance
 
-// TODO: Mock setup needs manual migration for "../../providers/EmbeddedMcpProvider"
-// 	const MockEmbeddedMcpProvider = sinon.stub().callsFake(() => mockEmbeddedMcpProviderInstance)
+// Mock needs manual implementation
 
 	const mockConstructor = MockEmbeddedMcpProvider as unknown as MockEmbeddedMcpProviderConstructor
 	mockConstructor.create = sinon.stub().callsFake(() => {
 		return Promise.resolve(mockEmbeddedMcpProviderInstance)
 	})
-// Mock return block needs context
-// 
-// 	return {
-// 		EmbeddedMcpProvider: mockConstructor,
-// 	}
+// Mock removed - needs manual implementation
 // Mock cleanup
-
 // Mock the McpToolRegistry
-// TODO: Mock setup needs manual migration for "../McpToolRegistry"
-// 	const mockRegistry = {
+// Mock needs manual implementation
 		getInstance: sinon.stub(),
 		registerTool: sinon.stub(),
 		unregisterTool: sinon.stub().returns(true),
@@ -80,15 +73,9 @@ const mockEmbeddedMcpProviderInstance = {
 		hasTool: sinon.stub(),
 		executeTool: sinon.stub(),
 	}
-// Mock return block needs context
-// 
-// 	return {
-// 		McpToolRegistry: {
-// 			getInstance: sinon.stub().returns(mockRegistry),
-// 		},
+// Mock removed - needs manual implementation,
 // 	}
 // Mock cleanup
-
 suite("McpToolExecutor", () => {
 	// Reset the singleton instance before each test
 	setup(() => {

@@ -12,8 +12,7 @@ import { NeutralToolUseRequest } from "../../types/McpToolTypes"
 import { ToolDefinition } from "../../types/McpProviderTypes"
 
 // Mock dependencies for performance testing
-// TODO: Mock setup needs manual migration
-// TODO: Fix mock - needs proxyquire
+// Mock needs manual implementation
 /*
 => {
 	const { EventEmitter } = require("events")
@@ -47,7 +46,7 @@ import { ToolDefinition } from "../../types/McpProviderTypes"
 
 			try {
 				return await tool.handler(args || {})
-			} catch (error) {
+} catch (error) {
 				return {
 					content: [{ type: "text", text: `Error: ${error.message}` }],
 					isError: true,
@@ -63,8 +62,7 @@ import { ToolDefinition } from "../../types/McpProviderTypes"
 
 })*/
 
-// TODO: Mock setup needs manual migration
-// TODO: Fix mock - needs proxyquire
+// Mock needs manual implementation
 /*
 => {
 	const mockRegistry = {
@@ -158,7 +156,7 @@ suite("MCP Performance and Streaming Validation", () => {
 				assert.ok(totalTime < 5000) // 5 seconds for 100 concurrent operations
 
 				console.log(`Executed ${concurrentExecutions} concurrent operations in ${totalTime}ms`)
-			} catch (error) {
+} catch (error) {
 				console.error("Unexpected error in concurrent execution test:", error)
 				throw error
 
@@ -229,7 +227,7 @@ suite("MCP Performance and Streaming Validation", () => {
 				assert.ok(memoryIncrease < 50 * 1024 * 1024)
 
 				console.log(`Memory increase: ${Math.round(memoryIncrease / 1024 / 1024)}MB`)
-			} catch (error) {
+} catch (error) {
 				console.error("Unexpected error in memory efficiency test:", error)
 				throw error
 
@@ -435,10 +433,9 @@ suite("MCP Performance and Streaming Validation", () => {
 
 					if (result.isError) {
 						errorCount++
-					} else {
+} else {
 						successCount++
-
-				} catch (error) {
+} catch (error) {
 					errorCount++
 
 			const endTime = Date.now()
@@ -526,6 +523,6 @@ suite("MCP Performance and Streaming Validation", () => {
 				assert.ok(recoveryTime < 500) // Should recover quickly
 
 				console.log(`Recovered from error burst in ${recoveryTime}ms`)
-			} catch (error) {
+} catch (error) {
 				console.error("Unexpected error in recovery test:", error)
 				throw error

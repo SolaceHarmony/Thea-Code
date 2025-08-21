@@ -338,7 +338,7 @@ suite("OllamaHandler Core Functionality", () => {
 			try {
 				await handler.completePrompt("Test prompt")
 				assert.fail("Should have thrown an error")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Ollama server unavailable"))
 			}
@@ -476,7 +476,7 @@ suite("OllamaHandler Core Functionality", () => {
 					chunks.push(chunk)
 				}
 				assert.fail("Should have thrown an error")
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("ECONNREFUSED"))
 			}
@@ -528,7 +528,7 @@ suite("OllamaHandler Core Functionality", () => {
 					chunks.push(chunk)
 				}
 				// Depending on implementation, might handle gracefully or throw
-			} catch (error) {
+} catch (error) {
 				assert.ok(error instanceof Error)
 				assert.ok(error.message.includes("Format conversion failed"))
 			}

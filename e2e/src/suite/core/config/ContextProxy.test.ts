@@ -24,7 +24,6 @@ import { GLOBAL_STATE_KEYS, SECRET_STATE_KEYS } from "../../../schemas"
 		Test: 3,
 	},
 // Mock cleanup
-
 suite("ContextProxy", () => {
 	let proxy: ContextProxy
 	let mockContext: any

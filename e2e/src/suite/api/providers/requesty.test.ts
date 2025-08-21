@@ -9,8 +9,7 @@ import { convertToR1Format } from "../../transform/r1-format"
 import { convertToOpenAiHistory } from "../../transform/neutral-openai-format"
 import { API_REFERENCES } from "../../../shared/config/thea-config"
 // Mock OpenAI and transform functions
-// TODO: Mock setup needs manual migration for "openai"
-// TODO: Mock setup needs manual migration for "../../transform/neutral-openai-format"
+// Mock needs manual implementation
 // TODO: Mock setup needs manual migration for "../../transform/r1-format"
 
 suite("RequestyHandler", () => {
@@ -148,7 +147,7 @@ suite("RequestyHandler", () => {
 
 				assert.ok(mockCreate.calledWith(
 					expect.not.objectContaining({
-						max_tokens: expect.any(Number)), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+						max_tokens: sinon.match.instanceOf(Number)), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
 					})
 			})
 		})
@@ -237,8 +236,8 @@ suite("RequestyHandler", () => {
 			assert.ok(mockCreate.calledWith({
 				model: defaultOptions.requestyModelId,
 				messages: [{ role: "user", content: "Test prompt" }],
-				max_tokens: expect.any(Number)), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-				temperature: expect.any(Number), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+				max_tokens: sinon.match.instanceOf(Number)), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+				temperature: sinon.match.instanceOf(Number), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
 				stream: false, // Expect stream to be false
 			})
 		})

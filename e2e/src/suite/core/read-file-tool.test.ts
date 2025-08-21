@@ -6,8 +6,7 @@ import { extractTextFromFile, addLineNumbers } from "../../integrations/misc/ext
 import * as sinon from 'sinon'
 
 // Mock the required functions
-// TODO: Mock setup needs manual migration for "../../integrations/misc/line-counter"
-// TODO: Mock setup needs manual migration for "../../integrations/misc/read-lines"
+// Mock needs manual implementation
 // TODO: Mock setup needs manual migration for "../../integrations/misc/extract-text"
 
 suite("read_file tool with maxReadFileLine setting", () => {
@@ -146,5 +145,4 @@ suite("read_file tool with maxReadFileLine setting", () => {
 		assert.ok(addLineNumbers.called)
 	})
 // Mock cleanup
-
 // Mock cleanup

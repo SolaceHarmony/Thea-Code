@@ -15,8 +15,7 @@ import { TheaAskResponse } from "../../../shared/WebviewMessage" // Import respo
 import { AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../types"
 
 // Mock dependencies
-// TODO: Mock setup needs manual migration for "../../TheaTask" // Renamed mock
-// TODO: Mock setup needs manual migration for "../../prompts/responses"
+// Mock needs manual implementation
 // TODO: Mock setup needs manual migration for "../../ignore/TheaIgnoreController"
 
 suite("executeCommandTool", () => {

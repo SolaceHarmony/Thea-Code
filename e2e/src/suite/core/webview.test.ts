@@ -33,7 +33,7 @@ suite("Webview Tests", () => {
 		try {
 			await vscode.commands.executeCommand(`${EXTENSION_NAME}.settingsButtonClicked`)
 			assert.ok(true, "Settings command executed successfully")
-		} catch (error) {
+} catch (error) {
 			assert.fail(`Settings command failed: ${error}`)
 
 	test("Should handle history button", async function() {
@@ -42,5 +42,5 @@ suite("Webview Tests", () => {
 		try {
 			await vscode.commands.executeCommand(`${EXTENSION_NAME}.historyButtonClicked`)
 			assert.ok(true, "History command executed successfully")
-		} catch (error) {
+} catch (error) {
 			assert.fail(`History command failed: ${error}`)

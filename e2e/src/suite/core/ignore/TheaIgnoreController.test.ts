@@ -8,26 +8,15 @@ import { GLOBAL_FILENAMES, AI_IDENTITY_NAME } from "../../../shared/config/thea-
 import { fileExistsAtPath } from "../../../utils/fs"
 
 // Mock dependencies
-// TODO: Mock setup needs manual migration for "fs/promises"
-// TODO: Mock setup needs manual migration for "../../../utils/fs"
+// Mock needs manual implementation
 
 // Mock vscode
-// TODO: Mock setup needs manual migration for "vscode"
-// 	const mockDisposable = { dispose: sinon.stub() }
+// Mock needs manual implementation
 	const mockEventEmitter = {
 		event: sinon.stub(),
 		fire: sinon.stub(),
 	}
-// Mock return block needs context
-// 
-// 	return {
-// 		workspace: {
-// 			createFileSystemWatcher: sinon.stub(() => ({
-// 				onDidCreate: sinon.stub(() => mockDisposable),
-// 				onDidChange: sinon.stub(() => mockDisposable),
-// 				onDidDelete: sinon.stub(() => mockDisposable),
-// 				dispose: sinon.stub(),
-// 			})),
+// Mock removed - needs manual implementation)),
 // 		},
 // 		RelativePattern: sinon.stub().callsFake((base: string, pattern: string) => ({
 // 			base,
@@ -39,7 +28,6 @@ import { fileExistsAtPath } from "../../../utils/fs"
 // 		},
 // 	}
 // Mock cleanup
-
 suite(`${AI_IDENTITY_NAME}Ignore Controller`, () => {
 	const TEST_CWD = "/test/path"
 	let controller: TheaIgnoreController // Use renamed class
