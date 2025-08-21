@@ -1,6 +1,6 @@
-import {
 import * as assert from 'assert'
 import * as sinon from 'sinon'
+import {
   isClaudeModel,
   isClaude37Model,
   isClaude35Model,
@@ -244,4 +244,4 @@ suite("Model Pattern Detection", () => {
       assert.strictEqual(baseModelInfo.cacheWritesPrice, undefined)
     })
   })
-})
+// Mock cleanup

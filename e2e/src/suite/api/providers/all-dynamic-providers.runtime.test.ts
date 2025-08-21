@@ -1,11 +1,12 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * Comprehensive runtime test for all dynamic model providers
  * Tests that all 14 providers can successfully fetch models from their respective mock APIs
  */
 
-import { ModelRegistry } from "../model-registry"
 import { providerMocks } from "../../../../test/generic-provider-mock/setup"
+import { ModelRegistry } from "../model-registry"
 
 // Test configuration with mock API credentials
 const testConfigs = {
@@ -92,13 +93,13 @@ suite("All Dynamic Providers Runtime Test", () => {
 					
 					assert.notStrictEqual(models, undefined)
 					expect(Array.isArray(models)).toBe(true)
-					expect(models.length).toBeGreaterThan(0)
+					assert.ok(models.length > 0)
 
 					// Validate model structure
 					models.forEach(model => {
-						expect(model).toHaveProperty("id")
-						expect(model).toHaveProperty("name")
-						expect(model).toHaveProperty("capabilities")
+						assert.ok(model.hasOwnProperty('id'))
+						assert.ok(model.hasOwnProperty('name'))
+						assert.ok(model.hasOwnProperty('capabilities'))
 						assert.strictEqual(typeof model.id, "string")
 						assert.strictEqual(typeof model.name, "string")
 						expect(Array.isArray(model.capabilities)).toBe(true)
@@ -155,7 +156,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 
 			// First request - should hit the API
 			const firstRequest = await registry.getModels(providerName, config)
-			expect(firstRequest.length).toBeGreaterThan(0)
+			assert.ok(firstRequest.length > 0)
 
 			// Second request - should use cache
 			const secondRequest = await registry.getModels(providerName, config)
@@ -170,13 +171,13 @@ suite("All Dynamic Providers Runtime Test", () => {
 
 			// Get models and cache them
 			const initialModels = await registry.getModels(providerName, config)
-			expect(initialModels.length).toBeGreaterThan(0)
+			assert.ok(initialModels.length > 0)
 
 			// Force refresh
 			await registry.refreshModels(providerName, config)
 			const refreshedModels = await registry.getModels(providerName, config)
 			
-			expect(refreshedModels.length).toBeGreaterThan(0)
+			assert.ok(refreshedModels.length > 0)
 			console.log(`✅ Refresh test: Got ${refreshedModels.length} models after refresh`)
 		})
 	})
@@ -187,7 +188,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 				await registry.getModels("nonexistent-provider", {})
 				fail("Should have thrown an error for invalid provider")
 			} catch (error) {
-				expect(error).toBeInstanceOf(Error)
+				assert.ok(error instanceof Error)
 				console.log("✅ Invalid provider handled correctly")
 			}
 		})
@@ -198,7 +199,7 @@ suite("All Dynamic Providers Runtime Test", () => {
 				await registry.getModels("anthropic", {})
 				fail("Should have thrown an error for missing API key")
 			} catch (error) {
-				expect(error).toBeInstanceOf(Error)
+				assert.ok(error instanceof Error)
 				console.log("✅ Missing configuration handled correctly")
 			}
 		})
@@ -223,11 +224,11 @@ suite("All Dynamic Providers Runtime Test", () => {
 			const visionModels = models.filter(m => m.capabilities.includes("vision"))
 			const toolModels = models.filter(m => m.capabilities.includes("tools"))
 			
-			expect(chatModels.length).toBeGreaterThan(0)
+			assert.ok(chatModels.length > 0)
 			console.log(`✅ Gemini capabilities - Chat: ${chatModels.length}, Vision: ${visionModels.length}, Tools: ${toolModels.length}`)
 		})
 	})
-})
+// Mock cleanup
 
 // Performance test
 suite("Performance Tests", () => {
@@ -245,10 +246,11 @@ suite("Performance Tests", () => {
 			try {
 				const config = testConfigs[provider as keyof typeof testConfigs]
 				const models = await registry.getModels(provider, config)
-				return { provider, modelCount: models.length, success: true }
-			} catch (error) {
-				return { provider, error: error.message, success: false }
-			}
+// Mock return block needs context
+// 				return { provider, modelCount: models.length, success: true }
+// 			} catch (error) {
+// 				return { provider, error: error.message, success: false }
+// 			}
 		})
 		
 		const results = await Promise.all(promises)
@@ -271,4 +273,4 @@ suite("Performance Tests", () => {
 		const successCount = results.filter(r => r.success).length
 		expect(successCount).toBeGreaterThanOrEqual(3)
 	}, 20000)
-})
+// Mock cleanup

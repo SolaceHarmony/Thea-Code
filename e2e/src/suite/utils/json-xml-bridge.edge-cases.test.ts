@@ -1,5 +1,6 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * Edge case tests for JsonMatcher and FormatDetector
  * Tests buffer overflow, partial chunks, format detection
  */
@@ -197,7 +198,7 @@ suite("JsonMatcher Edge Cases", () => {
 			}
 		})
 	})
-})
+// Mock cleanup
 
 suite("FormatDetector Edge Cases", () => {
 	let sandbox: sinon.SinonSandbox
@@ -388,7 +389,7 @@ suite("FormatDetector Edge Cases", () => {
 			assert.ok(nonMatched.length > 0)
 		})
 	})
-})
+// Mock cleanup
 
 // Helper function defined in the module scope for test access
 function extractMatched(results: JsonMatcherResult[]): any[] {

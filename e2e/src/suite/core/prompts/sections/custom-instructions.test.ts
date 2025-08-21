@@ -1,10 +1,10 @@
-import { loadRuleFiles, addCustomInstructions } from "../custom-instructions"
 import fs from "fs/promises"
+import { loadRuleFiles, addCustomInstructions } from "../custom-instructions"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 
 // Mock fs/promises
-// TODO: Use proxyquire for module mocking - "fs/promises")
+// TODO: Mock setup needs manual migration for "fs/promises"
 const mockedFs = fs as typeof fs
 
 suite("loadRuleFiles", () => {
@@ -102,7 +102,7 @@ suite("loadRuleFiles", () => {
 		const result = await loadRuleFiles("/fake/path")
 		assert.strictEqual(result, "\n# Rules from .cursorrules:\ncursor rules content\n")
 	})
-})
+// Mock cleanup
 
 suite("addCustomInstructions", () => {
 	setup(() => {
@@ -151,7 +151,7 @@ suite("addCustomInstructions", () => {
 
 		assert.ok(result.includes("Global Instructions:"))
 		assert.ok(result.includes("Mode-specific Instructions:"))
-		expect(result).not.toContain("Rules from .Thearules-test-mode")
+		assert.ok(!result.includes("Rules from .Thearules-test-mode"))
 	})
 
 	test("should handle unknown language codes properly", async () => {
@@ -205,6 +205,6 @@ suite("addCustomInstructions", () => {
 
 		assert.ok(result.includes("Global Instructions:\nglobal instructions"))
 		assert.ok(result.includes("Mode-specific Instructions:\nmode instructions"))
-		expect(result).not.toContain("Rules from .Thearules-test-mode")
+		assert.ok(!result.includes("Rules from .Thearules-test-mode"))
 	})
-})
+// Mock cleanup

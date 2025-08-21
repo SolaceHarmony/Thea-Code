@@ -4,22 +4,22 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 import * as vscode from "vscode"
 import * as os from "os"
-import { TheaStateManager } from "../thea/TheaStateManager" // Renamed import and path
 import { ContextProxy } from "../../config/ContextProxy"
-import { ProviderSettingsManager } from "../../config/ProviderSettingsManager"
+import { TheaStateManager } from "../thea/TheaStateManager" // Renamed import and path
 import { CustomModesManager } from "../../config/CustomModesManager"
-import { defaultModeSlug } from "../../../shared/modes"
+import { ProviderSettingsManager } from "../../config/ProviderSettingsManager"
 import { experimentDefault } from "../../../shared/experiments"
-import { formatLanguage } from "../../../shared/language"
+import { defaultModeSlug } from "../../../shared/modes"
 import { TERMINAL_SHELL_INTEGRATION_TIMEOUT } from "../../../integrations/terminal/Terminal"
+import { formatLanguage } from "../../../shared/language"
 
 // Mock dependencies
-// TODO: Use proxyquire for module mocking - "vscode")
-// TODO: Use proxyquire for module mocking - "os")
-// TODO: Use proxyquire for module mocking - "../../config/ContextProxy")
-// TODO: Use proxyquire for module mocking - "../../config/ProviderSettingsManager")
-// TODO: Use proxyquire for module mocking - "../../config/CustomModesManager")
-// TODO: Use proxyquire for module mocking - "../../../shared/language")
+// TODO: Mock setup needs manual migration for "vscode"
+// TODO: Mock setup needs manual migration for "os"
+// TODO: Mock setup needs manual migration for "../../config/ContextProxy"
+// TODO: Mock setup needs manual migration for "../../config/ProviderSettingsManager"
+// TODO: Mock setup needs manual migration for "../../config/CustomModesManager"
+// TODO: Mock setup needs manual migration for "../../../shared/language"
 
 suite("TheaStateManager", () => {
 	// Renamed describe block
@@ -94,8 +94,7 @@ suite("TheaStateManager", () => {
 		const state = await stateManager.getState()
 
 		// Verify
-		assert.deepStrictEqual(state, 
-			// TODO: Object partial match - {
+		assert.deepStrictEqual(state, {
 				apiConfiguration: { apiProvider: "anthropic" },
 				osInfo: "unix",
 				alwaysAllowReadOnly: false,
@@ -143,8 +142,7 @@ suite("TheaStateManager", () => {
 				telemetrySetting: "unset",
 				showTheaIgnoredFiles: true,
 				maxReadFileLine: 500,
-			}),
-		)
+			})
 	})
 
 	test("getState correctly integrates stored state values", async () => {
@@ -166,8 +164,7 @@ suite("TheaStateManager", () => {
 		const state = await stateManager.getState()
 
 		// Verify
-		assert.deepStrictEqual(state, 
-			// TODO: Object partial match - {
+		assert.deepStrictEqual(state, {
 				apiConfiguration: {
 					apiProvider: "openrouter",
 					openRouterApiKey: "test-key",
@@ -178,8 +175,7 @@ suite("TheaStateManager", () => {
 				browserViewportSize: "1200x800",
 				maxWorkspaceFiles: 300,
 				customModePrompts: { architect: { customInstructions: "Test instructions" } },
-			}),
-		)
+			})
 	})
 
 	test("getState uses getCustomModes method if available", async () => {
@@ -292,4 +288,4 @@ suite("TheaStateManager", () => {
 		// Verify
 		assert.ok(mockContextProxy.setValues.calledWith(mockValues))
 	})
-})
+// Mock cleanup

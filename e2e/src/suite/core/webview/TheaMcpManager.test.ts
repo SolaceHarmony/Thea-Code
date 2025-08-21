@@ -1,27 +1,28 @@
 import * as vscode from "vscode"
 import * as os from "os"
 import fs from "fs/promises"
-import { TheaMcpManager } from "../mcp/TheaMcpManager"
 import { McpHub } from "../../../services/mcp/management/McpHub"
-import { EXTENSION_DISPLAY_NAME, EXTENSION_CONFIG_DIR } from "../../../shared/config/thea-config"
+import { TheaMcpManager } from "../mcp/TheaMcpManager"
 import * as assert from 'assert'
+import { EXTENSION_DISPLAY_NAME, EXTENSION_CONFIG_DIR } from "../../../shared/config/thea-config"
 import * as sinon from 'sinon'
 
 // Mock dependencies
-// TODO: Use proxyquire for module mocking - "vscode")
-// TODO: Use proxyquire for module mocking - "os")
-// TODO: Use proxyquire for module mocking - "fs/promises")
-// TODO: Use proxyquire for module mocking - "../../../services/mcp/management/McpHub")
-// TODO: Use proxyquire for module mocking - "path", () => {
-	const originalPath: Record<string, unknown> = require("path")
-	return {
-		...originalPath,
-		// Ensure consistent path separators in tests regardless of platform
-		join: (...paths: string[]) => {
-			return paths.join("/")
-		},
-	}
-})
+// TODO: Mock setup needs manual migration for "vscode"
+// TODO: Mock setup needs manual migration for "os"
+// TODO: Mock setup needs manual migration for "fs/promises"
+// TODO: Mock setup needs manual migration for "../../../services/mcp/management/McpHub"
+// TODO: Mock setup needs manual migration for "path"
+// 	const originalPath: Record<string, unknown> = require("path")
+// Mock return block needs context
+// 	return {
+// 		...originalPath,
+// 		// Ensure consistent path separators in tests regardless of platform
+// 		join: (...paths: string[]) => {
+// 			return paths.join("/")
+// 		},
+// 	}
+// Mock cleanup
 
 suite("TheaMcpManager", () => {
 	let mcpManager: TheaMcpManager
@@ -290,4 +291,4 @@ suite("TheaMcpManager", () => {
 		expect(mcpManager.getMcpHub()).toBeUndefined()
 		assert.ok(console.log.calledWith(// TODO: String contains check - "TheaMcpManager disposed")))
 	})
-})
+// Mock cleanup

@@ -6,16 +6,16 @@ import * as vscode from 'vscode'
  * Tests file I/O operations, cleanup order, export paths, and error handling
  */
 
-import { TheaTaskHistory } from "../TheaTaskHistory"
 import * as vscode from "vscode"
+import { TheaTaskHistory } from "../TheaTaskHistory"
 import * as fs from "fs/promises"
 import * as path from "path"
-import { ContextProxy } from "../../../config/ContextProxy"
 import { ShadowCheckpointService } from "../../../../services/checkpoints/ShadowCheckpointService"
-import { fileExistsAtPath } from "../../../../utils/fs"
+import { ContextProxy } from "../../../config/ContextProxy"
 import { getTaskDirectoryPath } from "../../../../shared/storagePathManager"
-import { downloadTask } from "../../../../integrations/misc/export-markdown"
+import { fileExistsAtPath } from "../../../../utils/fs"
 import type { HistoryItem } from "../../../../shared/HistoryItem"
+import { downloadTask } from "../../../../integrations/misc/export-markdown"
 import type { NeutralConversationHistory } from "../../../../shared/neutral-history"
 
 // Mock dependencies
@@ -138,7 +138,7 @@ suite("TheaTaskHistory - IO and Cleanup Operations", () => {
 			// Should log error (check console.error was called)
 			assert.ok(console.error.calledWith(
 				sinon.match.string.and(sinon.match(`Error reading conversation history for task ${testTaskId}:`))),
-				expect.any(Error)
+				sinon.match.instanceOf(Error)
 
 		test("should handle file read errors gracefully", async () => {
 			mockFs.readFile.rejects(new Error("Permission denied"))
@@ -397,16 +397,16 @@ suite("TheaTaskHistory - IO and Cleanup Operations", () => {
 
 			assert.ok(console.error.calledWith(
 				sinon.match.string.and(sinon.match("General error in deleteTaskWithId"))),
-				expect.any(Error)
+				sinon.match.instanceOf(Error)
 
 		test("should provide all required paths in getTaskWithId result", async () => {
 			const result = await taskHistory.getTaskWithId(testTaskId)
 
-			expect(result).toHaveProperty("historyItem")
-			expect(result).toHaveProperty("taskDirPath")
-			expect(result).toHaveProperty("apiConversationHistoryFilePath")
-			expect(result).toHaveProperty("uiMessagesFilePath")
-			expect(result).toHaveProperty("apiConversationHistory")
+			assert.ok(result.hasOwnProperty('historyItem'))
+			assert.ok(result.hasOwnProperty('taskDirPath'))
+			assert.ok(result.hasOwnProperty('apiConversationHistoryFilePath'))
+			assert.ok(result.hasOwnProperty('uiMessagesFilePath'))
+			assert.ok(result.hasOwnProperty('apiConversationHistory'))
 
 			// Verify paths are constructed correctly
 			assert.strictEqual(result.taskDirPath, testTaskDir)

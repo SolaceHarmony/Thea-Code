@@ -534,4 +534,4 @@ suite("OllamaHandler Core Functionality", () => {
 			}
 		})
 	})
-})
+// Mock cleanup

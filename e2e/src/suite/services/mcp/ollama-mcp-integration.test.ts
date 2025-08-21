@@ -1,14 +1,14 @@
-import { McpClient } from "../client/McpClient"
 import OpenAI from "openai"
-import { McpIntegration } from "../integration/McpIntegration"
+import { McpClient } from "../client/McpClient"
 import { SseClientFactory } from "../client/SseClientFactory"
-import { McpConverters } from "../core/McpConverters"
+import { McpIntegration } from "../integration/McpIntegration"
 import * as assert from 'assert'
+import { McpConverters } from "../core/McpConverters"
 import * as sinon from 'sinon'
 
 // Mock the OpenAI client
-// TODO: Use proxyquire for module mocking - "openai", () => {
-	const OpenAI = sinon.stub().callsFake(() => ({
+// TODO: Mock setup needs manual migration for "openai"
+// 	const OpenAI = sinon.stub().callsFake(() => ({
 		chat: {
 			completions: {
 				create: sinon.stub
@@ -36,30 +36,33 @@ import * as sinon from 'sinon'
 									},
 									{ choices: [{ delta: { content: "Here is the result from the tool." } }] },
 								]
-
-								return {
-									next: async () => {
-										await Promise.resolve()
-										if (count < messages.length) {
-											return { value: messages[count++], done: false }
-										}
-										return { done: true }
-									},
-								}
+// Mock return block needs context
+// 
+// 								return {
+// 									next: async () => {
+// 										await Promise.resolve()
+// 										if (count < messages.length) {
+// 											return { value: messages[count++], done: false }
+// 										}
+// Mock return block needs context
+// 										return { done: true }
+// 									},
+// 								}
 							},
 						}
 						return stream
 					}),
 			},
 		},
-	}))
-
-	return {
-		__esModule: true,
-		default: OpenAI,
-		OpenAI,
-	}
-})
+	})
+// Mock return block needs context
+// 
+// 	return {
+// 		__esModule: true,
+// 		default: OpenAI,
+// 		OpenAI,
+// 	}
+// Mock cleanup
 
 suite("Ollama MCP Integration with SSE Transport", () => {
 	let mcpIntegration: McpIntegration
@@ -91,14 +94,15 @@ suite("Ollama MCP Integration with SSE Transport", () => {
 			},
 			handler: async (args) => {
 				await Promise.resolve()
-				return {
-					content: [
-						{
-							type: "text",
-							text: `Tool executed with param: ${String(args.param)}`,
-						},
-					],
-				}
+// Mock return block needs context
+// 				return {
+// 					content: [
+// 						{
+// 							type: "text",
+// 							text: `Tool executed with param: ${String(args.param)}`,
+// 						},
+// 					],
+// 				}
 			},
 		})
 
@@ -272,4 +276,4 @@ suite("Ollama MCP Integration with SSE Transport", () => {
 			param: "test value",
 		})
 	})
-})
+// Mock cleanup

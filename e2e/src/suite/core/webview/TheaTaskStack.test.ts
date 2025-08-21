@@ -1,11 +1,11 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'// filepath: /Volumes/stuff/Projects/Thea-Code/src/core/webview/__tests__/TheaTaskStack.test.ts
 /* eslint-disable @typescript-eslint/unbound-method */
-import { TheaTaskStack } from "../thea/TheaTaskStack" // Renamed import and path
 import { TheaTask } from "../../TheaTask" // Renamed import
+import { TheaTaskStack } from "../thea/TheaTaskStack" // Renamed import and path
 
 // Mock dependencies
-// TODO: Use proxyquire for module mocking - "../../TheaTask") // Updated mock path
+// TODO: Mock setup needs manual migration for "../../TheaTask" // Updated mock path
 
 suite("TheaTaskStack", () => {
 	let theaTaskStack: TheaTaskStack
@@ -230,4 +230,4 @@ suite("TheaTaskStack", () => {
 		// Verify - Should not throw errors
 		expect(theaTaskStack.getSize()).toBe(0)
 	})
-})
+// Mock cleanup

@@ -1,27 +1,29 @@
-import { SYSTEM_PROMPT } from "../system"
 import { defaultModeSlug, modes } from "../../../shared/modes"
+import { SYSTEM_PROMPT } from "../system"
 import * as vscode from "vscode"
 import * as fs from "fs/promises"
-import { toPosix } from "./utils"
 import { EXTENSION_CONFIG_DIR } from "../../../shared/config/thea-config"
+import { toPosix } from "./utils"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 
 // Mock the fs/promises module
-// TODO: Use proxyquire for module mocking - "fs/promises", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "fs/promises" needed here
 	readFile: sinon.stub(),
 	mkdir: sinon.stub().resolves(undefined),
 	access: sinon.stub().resolves(undefined),
-}))
+// Mock cleanup needed
 
 // Get the mocked fs module
 const mockedFs = fs as sinon.SinonStubbedInstance<typeof fs>
 
 // Mock the fileExistsAtPath function
-// TODO: Use proxyquire for module mocking - "../../../utils/fs", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../../../utils/fs" needed here
 	fileExistsAtPath: sinon.stub().resolves(true),
 	createDirectoriesForFile: sinon.stub().resolves([]),
-}))
+// Mock cleanup needed
 
 // Create a mock ExtensionContext with relative paths instead of absolute paths
 const mockContext = {
@@ -123,8 +125,8 @@ suite("File-Based Custom System Prompt", () => {
 		assert.ok(prompt.includes(fileCustomSystemPrompt))
 
 		// Should not contain any of the default sections
-		expect(prompt).not.toContain("CAPABILITIES")
-		expect(prompt).not.toContain("MODES")
+		assert.ok(!prompt.includes("CAPABILITIES"))
+		assert.ok(!prompt.includes("MODES"))
 	})
 
 	test("should combine file-based system prompt with role definition and custom instructions", async () => {
@@ -169,7 +171,7 @@ suite("File-Based Custom System Prompt", () => {
 		assert.ok(prompt.includes(fileCustomSystemPrompt))
 
 		// Should not contain any of the default sections
-		expect(prompt).not.toContain("CAPABILITIES")
-		expect(prompt).not.toContain("MODES")
+		assert.ok(!prompt.includes("CAPABILITIES"))
+		assert.ok(!prompt.includes("MODES"))
 	})
-})
+// Mock cleanup

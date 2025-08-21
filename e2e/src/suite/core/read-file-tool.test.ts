@@ -1,14 +1,14 @@
 import * as path from "path"
-import { countFileLines } from "../../integrations/misc/line-counter"
 import { readLines } from "../../integrations/misc/read-lines"
-import { extractTextFromFile, addLineNumbers } from "../../integrations/misc/extract-text"
+import { countFileLines } from "../../integrations/misc/line-counter"
 import * as assert from 'assert'
+import { extractTextFromFile, addLineNumbers } from "../../integrations/misc/extract-text"
 import * as sinon from 'sinon'
 
 // Mock the required functions
-// TODO: Use proxyquire for module mocking - "../../integrations/misc/line-counter")
-// TODO: Use proxyquire for module mocking - "../../integrations/misc/read-lines")
-// TODO: Use proxyquire for module mocking - "../../integrations/misc/extract-text")
+// TODO: Mock setup needs manual migration for "../../integrations/misc/line-counter"
+// TODO: Mock setup needs manual migration for "../../integrations/misc/read-lines"
+// TODO: Mock setup needs manual migration for "../../integrations/misc/extract-text"
 
 suite("read_file tool with maxReadFileLine setting", () => {
 	// Mock original implementation first to use in tests
@@ -72,7 +72,7 @@ suite("read_file tool with maxReadFileLine setting", () => {
 
 		// Check line count
 		const lineCount = await countFileLines(filePath)
-		expect(lineCount).toBeGreaterThan(maxReadFileLine)
+		assert.ok(lineCount > maxReadFileLine)
 
 		// Should use readLines for large files
 		if (lineCount > maxReadFileLine) {
@@ -103,7 +103,7 @@ suite("read_file tool with maxReadFileLine setting", () => {
 
 		// Check line count
 		const lineCount = await countFileLines(filePath)
-		expect(lineCount).toBeGreaterThan(maxReadFileLine)
+		assert.ok(lineCount > maxReadFileLine)
 
 		// Check if the file is a source code file
 		const fileExt = path.extname(filePath).toLowerCase()
@@ -145,4 +145,6 @@ suite("read_file tool with maxReadFileLine setting", () => {
 		assert.ok(readLines.calledWith(filePath, maxReadFileLine - 1, 0))
 		assert.ok(addLineNumbers.called)
 	})
-})
+// Mock cleanup
+
+// Mock cleanup

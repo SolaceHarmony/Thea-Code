@@ -1,7 +1,7 @@
-import { EmbeddedMcpProvider } from "../providers/EmbeddedMcpProvider"
 import { SseClientFactory } from "../client/SseClientFactory"
-import { SseTransportConfig } from "../transport/config/SseTransportConfig"
+import { EmbeddedMcpProvider } from "../providers/EmbeddedMcpProvider"
 import * as assert from 'assert'
+import { SseTransportConfig } from "../transport/config/SseTransportConfig"
 import * as sinon from 'sinon'
 
 suite("SSE Transport", () => {
@@ -51,9 +51,10 @@ suite("SSE Transport", () => {
 			},
 			async (args) => {
 				await Promise.resolve()
-				return {
-					content: [{ type: "text", text: `Received: ${String(args.message)}` }],
-				}
+// Mock return block needs context
+// 				return {
+// 					content: [{ type: "text", text: `Received: ${String(args.message)}` }],
+// 				}
 			},
 		)
 
@@ -103,9 +104,10 @@ suite("SSE Transport", () => {
 			},
 			async (args) => {
 				await Promise.resolve()
-				return {
-					content: [{ type: "text", text: `Received: ${String(args.message)}` }],
-				}
+// Mock return block needs context
+// 				return {
+// 					content: [{ type: "text", text: `Received: ${String(args.message)}` }],
+// 				}
 			},
 		)
 
@@ -204,4 +206,4 @@ suite("SSE Transport", () => {
 		// The new URL should be different from the old one (different port)
 		expect(url2?.toString()).not.toBe(url1?.toString())
 	})
-})
+// Mock cleanup

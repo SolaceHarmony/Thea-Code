@@ -1,28 +1,29 @@
-import { VertexHandler } from "../vertex"
 import { ApiHandlerOptions } from "../../../shared/api"
-import { NeutralConversationHistory, NeutralMessageContent } from "../../../shared/neutral-history"
+import { VertexHandler } from "../vertex"
 import * as neutralVertexFormat from "../../transform/neutral-vertex-format"
+import { NeutralConversationHistory, NeutralMessageContent } from "../../../shared/neutral-history"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 
 // Mock the Vertex AI SDK
-// TODO: Use proxyquire for module mocking - "@google-cloud/vertexai", () => {
-	return {
+// TODO: Mock setup needs manual migration for "@google-cloud/vertexai"
+// 	return {
 		VertexAI: sinon.stub().callsFake(() => ({
 			getGenerativeModel: sinon.stub().callsFake(() => ({
 				generateContentStream: sinon.stub().callsFake(() => {
-					return {
-						stream: {
-							[Symbol.asyncIterator]: function* () {
-								yield {
-									candidates: [
-										{
-											content: {
-												parts: [{ text: "Test response" }],
-											},
-										},
-									],
-								}
+// Mock return block needs context
+// 					return {
+// 						stream: {
+// 							[Symbol.asyncIterator]: function* () {
+// 								yield {
+// 									candidates: [
+// 										{
+// 											content: {
+// 												parts: [{ text: "Test response" }],
+// 											},
+// 										},
+// 									],
+// 								}
 							},
 						},
 						response: {
@@ -47,17 +48,18 @@ import * as sinon from 'sinon'
 			})),
 		})),
 	}
-})
+// Mock cleanup
 
 // Mock the neutral-vertex-format module
-// TODO: Use proxyquire for module mocking - "../../transform/neutral-vertex-format", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../../transform/neutral-vertex-format" needed here
 	convertToVertexClaudeHistory: sinon.stub
 		.fn()
 		.returns([{ role: "user", content: [{ type: "text", text: "Test message" }] }]),
 	convertToVertexGeminiHistory: sinon.stub().returns([{ role: "user", parts: [{ text: "Test message" }] }]),
 	formatMessageForCache: sinon.stub().callsFake((msg: any) => msg), // eslint-disable-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
 	convertToVertexClaudeContentBlocks: sinon.stub().returns([{ type: "text", text: "Test content" }]),
-}))
+// Mock cleanup needed
 
 suite("VertexHandler", () => {
 	suite("Claude model", () => {
@@ -167,4 +169,4 @@ suite("VertexHandler", () => {
 			})
 		})
 	})
-})
+// Mock cleanup

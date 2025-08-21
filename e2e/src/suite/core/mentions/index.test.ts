@@ -16,7 +16,7 @@ const createMockUri = (scheme: string, path: string) => ({
 		query: "",
 		fragment: "",
 	}),
-})
+// Mock cleanup
 
 const mockExecuteCommand = sinon.stub()
 const mockOpenExternal = sinon.stub()
@@ -76,13 +76,13 @@ const mockVscode = {
 
 // Mock modules
 // TODO: Use proxyquire for module mocking - "vscode", () => mockVscode)
-// TODO: Use proxyquire for module mocking - "../../../services/browser/UrlContentFetcher")
-// TODO: Use proxyquire for module mocking - "../../../utils/git")
-// TODO: Use proxyquire for module mocking - "../../../utils/path")
+// TODO: Mock setup needs manual migration for "../../../services/browser/UrlContentFetcher"
+// TODO: Mock setup needs manual migration for "../../../utils/git"
+// TODO: Mock setup needs manual migration for "../../../utils/path"
 
 // Now import the modules that use the mocks
-import { parseMentions, openMention } from "../index"
 import { UrlContentFetcher } from "../../../services/browser/UrlContentFetcher"
+import { parseMentions, openMention } from "../index"
 import * as git from "../../../utils/git"
 
 import { getWorkspacePath } from "../../../utils/path"
@@ -175,15 +175,13 @@ Detailed commit message with multiple lines
 			assert.ok(mockVscode.env.openExternal.called)
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 			const calledArg = mockVscode.env.openExternal.mock.calls[0][0]
-			assert.deepStrictEqual(calledArg, 
-				// TODO: Object partial match - {
+			assert.deepStrictEqual(calledArg, {
 					scheme: mockUri.scheme,
 					authority: mockUri.authority,
 					path: mockUri.path,
 					query: mockUri.query,
 					fragment: mockUri.fragment,
-				}),
-			)
+				})
 		})
 	})
-})
+// Mock cleanup

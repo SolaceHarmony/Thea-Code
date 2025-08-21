@@ -1,47 +1,51 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * OpenAI provider edge case tests
  * Tests streaming/non-streaming, XmlMatcher reasoning, tool_calls to MCP conversion
  */
 
-import { OpenAiHandler } from "../openai"
 import OpenAI from "openai"
-import { ApiHandlerOptions } from "../../../shared/api"
-import type { 
+import { OpenAiHandler } from "../openai"
+import type { ApiHandlerOptions   } from "../../../shared/api"
+import type {
 	NeutralConversationHistory, 
 	NeutralMessageContent,
 	NeutralMessage,
 	NeutralContentBlock,
-	NeutralTextContentBlock 
+	NeutralTextContentBlock
 } from "../../../shared/neutral-history"
 import { XmlMatcher, XmlMatcherResult } from "../../../utils/xml-matcher"
 
 // Mock OpenAI client
-// TODO: Use proxyquire for module mocking - "openai", () => {
-	const mockClient = {
+// TODO: Mock setup needs manual migration for "openai"
+// 	const mockClient = {
 		chat: {
 			completions: {
 				create: sinon.stub()
 			}
 		}
 	}
-	return {
-		__esModule: true,
-		default: sinon.stub(() => mockClient),
-		AzureOpenAI: sinon.stub(() => mockClient)
-	}
-})
+// Mock return block needs context
+// 	return {
+// 		__esModule: true,
+// 		default: sinon.stub(() => mockClient),
+// 		AzureOpenAI: sinon.stub(() => mockClient)
+// 	}
+// Mock cleanup
 
 // Mock axios for any HTTP requests
-// TODO: Use proxyquire for module mocking - "axios")
+// TODO: Mock setup needs manual migration for "axios"
 
 // Mock XmlMatcher
-// TODO: Use proxyquire for module mocking - "../../../utils/xml-matcher", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../../../utils/xml-matcher" needed here
 	XmlMatcher: sinon.stub()
-}))
+// Mock cleanup needed
 
 // Mock conversion functions
-// TODO: Use proxyquire for module mocking - "../../transform/neutral-openai-format", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../../transform/neutral-openai-format" needed here
 	convertToOpenAiHistory: sinon.stub((messages: NeutralMessage[]) => {
 		// Simple mock conversion
 		return messages.map((msg: NeutralMessage) => ({
@@ -57,19 +61,21 @@ import { XmlMatcher, XmlMatcherResult } from "../../../utils/xml-matcher"
 			return block
 		})
 	})
-}))
+// Mock cleanup needed
 
 // Mock shared tool use functions
-// TODO: Use proxyquire for module mocking - "../shared/tool-use", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../shared/tool-use" needed here
 	hasToolCalls: sinon.stub(),
 	ToolCallAggregator: sinon.stub().callsFake(() => ({
 		processChunk: sinon.stub(),
 		getCompletedToolCalls: sinon.stub().returns([])
 	}))
-}))
+// Mock cleanup needed
 
 // Mock BaseProvider
-// TODO: Use proxyquire for module mocking - "../base-provider", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../base-provider" needed here
 	BaseProvider: class MockBaseProvider {
 		mcpIntegration: { registerTool: sinon.SinonStub; executeTool: sinon.SinonStub }
 		
@@ -90,29 +96,32 @@ import { XmlMatcher, XmlMatcherResult } from "../../../utils/xml-matcher"
 			return Promise.resolve(100)
 		}
 	}
-}))
+// Mock cleanup
 
 // Mock model capabilities
-// TODO: Use proxyquire for module mocking - "../../../utils/model-capabilities", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../../../utils/model-capabilities" needed here
 	supportsTemperature: sinon.stub((model: { reasoningEffort?: string }) => {
 		// Mock that most models support temperature
 		return model?.reasoningEffort !== 'extreme'
 	}),
 	hasCapability: sinon.stub()
-}))
+// Mock cleanup needed
 
 // Mock constants
-// TODO: Use proxyquire for module mocking - "../constants", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../constants" needed here
 	ANTHROPIC_DEFAULT_MAX_TOKENS: 8192
-}))
+// Mock cleanup needed
 
 // Mock branded constants
-// TODO: Use proxyquire for module mocking - "../../../shared/config/thea-config", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../../../shared/config/thea-config" needed here
 	API_REFERENCES: {
 		HOMEPAGE: "https://example.com",
 		APP_TITLE: "Test App"
 	}
-}))
+// Mock cleanup
 
 suite("OpenAiHandler - Edge Cases", () => {
 	let handler: OpenAiHandler
@@ -294,8 +303,7 @@ suite("OpenAiHandler - Edge Cases", () => {
 			}
 
 			// Should not have usage chunk
-			expect(results).not.toContainEqual(
-				// TODO: Object partial match - { type: "usage" })
+			assert.ok(!results.some(item => JSON.stringify(item) === JSON.stringify(// TODO: Object partial match - { type: "usage" })))
 			)
 		})
 	})
@@ -481,12 +489,10 @@ suite("OpenAiHandler - Edge Cases", () => {
 			const count = await handler.countTokens(content)
 
 			assert.strictEqual(count, 42)
-			assert.ok(mockClient.chat.completions.create.calledWith(
-				// TODO: Object partial match - {
+			assert.ok(mockClient.chat.completions.create.calledWith({
 					model: "gpt-4",
 					stream: false
-				}))
-			)
+}))
 		})
 
 		test("should fallback on API error", async () => {
@@ -502,7 +508,7 @@ suite("OpenAiHandler - Edge Cases", () => {
 			assert.strictEqual(count, 100)
 			assert.ok(consoleWarnSpy.calledWith(
 				"OpenAI token counting failed, using fallback",
-				expect.any(Error))
+				sinon.match.instanceOf(Error))
 			)
 		})
 
@@ -535,12 +541,10 @@ suite("OpenAiHandler - Edge Cases", () => {
 
 			handler = new OpenAiHandler(mockOptions)
 
-			assert.ok(AzureOpenAI.calledWith(
-				// TODO: Object partial match - {
+			assert.ok(AzureOpenAI.calledWith({
 					baseURL: "https://myinstance.openai.azure.com/v1",
 					apiKey: "test-key"
-				}))
-			)
+}))
 		})
 
 		test("should use AzureOpenAI when openAiUseAzure flag is set", () => {
@@ -639,11 +643,9 @@ suite("OpenAiHandler - Edge Cases", () => {
 			
 			handler = new OpenAiHandler(mockOptions)
 			
-			assert.ok(OpenAI.calledWith(
-				// TODO: Object partial match - {
+			assert.ok(OpenAI.calledWith({
 					apiKey: "not-provided"
-				}))
-			)
+}))
 		})
 
 		test("should use default base URL when not provided", () => {
@@ -651,11 +653,9 @@ suite("OpenAiHandler - Edge Cases", () => {
 			
 			handler = new OpenAiHandler(mockOptions)
 			
-			assert.ok(OpenAI.calledWith(
-				// TODO: Object partial match - {
+			assert.ok(OpenAI.calledWith({
 					baseURL: "https://api.openai.com/v1"
-				}))
-			)
+}))
 		})
 
 		test("should handle empty model ID", async () => {
@@ -679,7 +679,7 @@ suite("OpenAiHandler - Edge Cases", () => {
 				results.push(chunk)
 			}
 			
-			expect(results.length).toBeGreaterThan(0)
+			assert.ok(results.length > 0)
 		})
 	})
-})
+// Mock cleanup

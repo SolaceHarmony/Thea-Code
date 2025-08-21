@@ -1,11 +1,12 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * Stdio Transport lifecycle tests as recommended by architect
  * Tests SDK import with fallback, stderr exposure, and handler management
  */
 
-import { StdioTransport } from "../StdioTransport"
 import { StdioTransportConfig } from "../../types/McpProviderTypes"
+import { StdioTransport } from "../StdioTransport"
 
 suite("StdioTransport Lifecycle Tests", () => {
 	let transport: StdioTransport
@@ -39,8 +40,8 @@ suite("StdioTransport Lifecycle Tests", () => {
 
 		test("should handle missing SDK with fallback mock", async () => {
 			// Mock the SDK import to fail
-			// TODO: Use proxyquire dynamic mock - "@modelcontextprotocol/sdk/server/stdio.js", () => {
-				throw new Error("Module not found")
+			// TODO: Mock setup needs manual migration for "@modelcontextprotocol/sdk/server/stdio.js"
+// 				throw new Error("Module not found")
 			})
 			
 			const config: StdioTransportConfig = {
@@ -253,8 +254,8 @@ suite("StdioTransport Lifecycle Tests", () => {
 	suite("MockStdioServerTransport fallback", () => {
 		setup(() => {
 			// Force mock usage by making SDK unavailable
-			// TODO: Use proxyquire dynamic mock - "@modelcontextprotocol/sdk/server/stdio.js", () => {
-				throw new Error("Module not found")
+			// TODO: Mock setup needs manual migration for "@modelcontextprotocol/sdk/server/stdio.js"
+// 				throw new Error("Module not found")
 			})
 		})
 
@@ -350,4 +351,4 @@ suite("StdioTransport Lifecycle Tests", () => {
 			assert.notStrictEqual(transport.stderr, undefined)
 		})
 	})
-})
+// Mock cleanup

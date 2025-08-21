@@ -241,4 +241,4 @@ suite("AnthropicHandler", () => {
 			Object.getPrototypeOf(Object.getPrototypeOf(handler)).countTokens = originalCountTokens
 		})
 	})
-})
+// Mock cleanup

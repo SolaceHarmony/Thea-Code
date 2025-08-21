@@ -3,16 +3,16 @@ import * as sinon from 'sinon'
 import * as vscode from "vscode"
 import * as path from "path"
 import * as fs from "fs/promises"
-import { CustomModesManager } from "../CustomModesManager"
 import { ModeConfig } from "../../../shared/modes"
-import { fileExistsAtPath } from "../../../utils/fs"
+import { CustomModesManager } from "../CustomModesManager"
 import { getWorkspacePath, arePathsEqual } from "../../../utils/path"
-import { GlobalFileNames } from "../../../shared/globalFileNames"
+import { fileExistsAtPath } from "../../../utils/fs"
 import { GLOBAL_FILENAMES as BRANDED_FILENAMES } from "../../../shared/config/thea-config"
-// TODO: Use proxyquire for module mocking - "vscode")
-// TODO: Use proxyquire for module mocking - "fs/promises")
-// TODO: Use proxyquire for module mocking - "../../../utils/fs")
-// TODO: Use proxyquire for module mocking - "../../../utils/path")
+import { GlobalFileNames } from "../../../shared/globalFileNames"
+// TODO: Mock setup needs manual migration for "vscode"
+// TODO: Mock setup needs manual migration for "fs/promises"
+// TODO: Mock setup needs manual migration for "../../../utils/fs"
+// TODO: Mock setup needs manual migration for "../../../utils/path"
 
 suite("CustomModesManager", () => {
 	let manager: CustomModesManager
@@ -210,8 +210,7 @@ suite("CustomModesManager", () => {
 					name: "Updated Mode 1",
 					roleDefinition: "Updated Role 1",
 					source: "global",
-				}),
-			)
+				})
 
 			// Should update global state with merged modes where `${BRANDED_FILENAMES.MODES_FILENAME}` takes precedence
 			const expectedCall = (mockContext.globalState.update as sinon.SinonStub).mock.calls.find(
@@ -335,7 +334,7 @@ suite("CustomModesManager", () => {
 			const allCalls = (mockContext.globalState.update as sinon.SinonStub).mock.calls.filter(
 				(call: unknown[]) => Array.isArray(call) && call[0] === "customModes"
 			) as [string, unknown[]][]
-			expect(allCalls.length).toBeGreaterThan(0)
+			assert.ok(allCalls.length > 0)
 			
 			// Check the final call has both modes
 			const finalCall = allCalls[allCalls.length - 1]
@@ -509,4 +508,6 @@ suite("CustomModesManager", () => {
 			})
 		})
 	})
-})
+// Mock cleanup
+
+// Mock cleanup

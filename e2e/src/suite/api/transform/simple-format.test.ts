@@ -143,4 +143,4 @@ suite("simple-format", () => {
 			])
 		})
 	})
-})
+// Mock cleanup

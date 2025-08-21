@@ -1,6 +1,6 @@
-import {
 import * as assert from 'assert'
 import * as sinon from 'sinon'
+import {
 	JsonMatcher,
 	FormatDetector,
 	jsonThinkingToXml,
@@ -623,7 +623,7 @@ suite("json-xml-bridge", () => {
 			assert.ok(results.length > 0)
 			const toolUseItem = results.find((item) => item.matched && (item as JsonMatcherResult).type === "tool_use")
 			assert.notStrictEqual(toolUseItem, undefined)
-			expect(toolUseItem?.data).toBeInstanceOf(Object)
+			assert.ok(toolUseItem?.data instanceof Object)
 			expect((toolUseItem?.data as ToolUseJsonObject).name).toBe("read_file")
 			expect((toolUseItem?.data as ToolUseJsonObject).input.path).toBe("src/main.js")
 
@@ -698,4 +698,4 @@ suite("json-xml-bridge", () => {
 			expect((toolResultItem?.data as ToolResultJsonObject).content[0].text).toBe("File content here")
 		})
 	})
-})
+// Mock cleanup

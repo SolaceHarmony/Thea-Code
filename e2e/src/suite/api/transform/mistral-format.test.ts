@@ -298,4 +298,4 @@ suite("convertToMistralMessages", () => {
 		assert.strictEqual(mistralMessages[0].role, "assistant")
 		assert.strictEqual(mistralMessages[0].content, undefined)
 	})
-})
+// Mock cleanup

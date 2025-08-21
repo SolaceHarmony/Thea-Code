@@ -25,8 +25,8 @@ interface MockLanguageModelToolResultPart {
 }
 
 // Mock vscode namespace
-// TODO: Use proxyquire for module mocking - "vscode", () => {
-	const LanguageModelChatMessageRole = {
+// TODO: Mock setup needs manual migration for "vscode"
+// 	const LanguageModelChatMessageRole = {
 		Assistant: "assistant",
 		User: "user",
 	}
@@ -52,26 +52,27 @@ interface MockLanguageModelToolResultPart {
 			public parts: MockLanguageModelTextPart[],
 		) {}
 	}
-
-	return {
-		LanguageModelChatMessage: {
-			Assistant: sinon.stub((content: string | MockLanguageModelTextPart[]) => ({
-				role: LanguageModelChatMessageRole.Assistant,
-				name: "assistant",
-				content: Array.isArray(content) ? content : [new MockLanguageModelTextPart(content)],
-			})),
-			User: sinon.stub((content: string | MockLanguageModelTextPart[]) => ({
-				role: LanguageModelChatMessageRole.User,
-				name: "user",
-				content: Array.isArray(content) ? content : [new MockLanguageModelTextPart(content)],
-			})),
-		},
-		LanguageModelChatMessageRole,
-		LanguageModelTextPart: MockLanguageModelTextPart,
-		LanguageModelToolCallPart: MockLanguageModelToolCallPart,
-		LanguageModelToolResultPart: MockLanguageModelToolResultPart,
-	}
-})
+// Mock return block needs context
+// 
+// 	return {
+// 		LanguageModelChatMessage: {
+// 			Assistant: sinon.stub((content: string | MockLanguageModelTextPart[]) => ({
+// 				role: LanguageModelChatMessageRole.Assistant,
+// 				name: "assistant",
+// 				content: Array.isArray(content) ? content : [new MockLanguageModelTextPart(content)],
+// 			})),
+// 			User: sinon.stub((content: string | MockLanguageModelTextPart[]) => ({
+// 				role: LanguageModelChatMessageRole.User,
+// 				name: "user",
+// 				content: Array.isArray(content) ? content : [new MockLanguageModelTextPart(content)],
+// 			})),
+// 		},
+// 		LanguageModelChatMessageRole,
+// 		LanguageModelTextPart: MockLanguageModelTextPart,
+// 		LanguageModelToolCallPart: MockLanguageModelToolCallPart,
+// 		LanguageModelToolResultPart: MockLanguageModelToolResultPart,
+// 	}
+// Mock cleanup
 
 suite("convertToVsCodeLmMessages", () => {
 	test("should convert simple string messages", () => {
@@ -167,7 +168,7 @@ suite("convertToVsCodeLmMessages", () => {
 		const imagePlaceholder = result[0].content[1] as MockLanguageModelTextPart
 		assert.ok(imagePlaceholder.value.includes("[Image (base64)): image/png not supported by VSCode LM API]")
 	})
-})
+// Mock cleanup
 
 suite("convertToAnthropicRole", () => {
 	test("should convert assistant role correctly", () => {
@@ -185,7 +186,7 @@ suite("convertToAnthropicRole", () => {
 		const result = convertToAnthropicRole("unknown")
 		assert.strictEqual(result, null)
 	})
-})
+// Mock cleanup
 
 suite("asObjectSafe via convertToVsCodeLmMessages", () => {
 	test("parses JSON strings in tool_use input", () => {
@@ -239,4 +240,4 @@ suite("asObjectSafe via convertToVsCodeLmMessages", () => {
 		assert.deepStrictEqual(toolCall.input, obj)
 		assert.notStrictEqual(toolCall.input, obj)
 	})
-})
+// Mock cleanup

@@ -1,18 +1,19 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * Performance and streaming response validation tests for MCP system
  * Tests concurrent execution, memory usage, and response times
  */
 import { MockMcpProvider } from "../../providers/MockMcpProvider"
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-require-imports, @typescript-eslint/require-await, @typescript-eslint/no-explicit-any, @typescript-eslint/restrict-template-expressions */
-import { McpToolExecutor } from "../../core/McpToolExecutor"
 import { McpIntegration } from "../../integration/McpIntegration"
-import { ToolDefinition } from "../../types/McpProviderTypes"
+import { McpToolExecutor } from "../../core/McpToolExecutor"
 import { NeutralToolUseRequest } from "../../types/McpToolTypes"
+import { ToolDefinition } from "../../types/McpProviderTypes"
 
 // Mock dependencies for performance testing
-// TODO: Use proxyquire for module mocking - "../../providers/EmbeddedMcpProvider", () => {
-	const { EventEmitter } = require("events")
+// TODO: Mock setup needs manual migration for "../../providers/EmbeddedMcpProvider"
+// 	const { EventEmitter } = require("events")
 
 	const MockEmbeddedMcpProvider = sinon.stub().callsFake(() => {
 		const instance = new EventEmitter()
@@ -39,18 +40,20 @@ import { NeutralToolUseRequest } from "../../types/McpToolTypes"
 		instance.executeTool = sinon.stub().callsFake(async (name, args) => {
 			const tool = tools.get(name)
 			if (!tool) {
-				return {
-					content: [{ type: "text", text: `Tool '${name}' not found` }],
-					isError: true,
-				}
+// Mock return block needs context
+// 				return {
+// 					content: [{ type: "text", text: `Tool '${name}' not found` }],
+// 					isError: true,
+// 				}
 			}
 			try {
 				return await tool.handler(args || {})
 			} catch (error) {
-				return {
-					content: [{ type: "text", text: `Error: ${error.message}` }],
-					isError: true,
-				}
+// Mock return block needs context
+// 				return {
+// 					content: [{ type: "text", text: `Error: ${error.message}` }],
+// 					isError: true,
+// 				}
 			}
 		})
 
@@ -61,14 +64,15 @@ import { NeutralToolUseRequest } from "../../types/McpToolTypes"
 	MockedProviderClass.create = sinon.stub().callsFake(async () => {
 		return new MockEmbeddedMcpProvider()
 	})
+// Mock return block needs context
+// 
+// 	return {
+// 		EmbeddedMcpProvider: MockEmbeddedMcpProvider,
+// 	}
+// Mock cleanup
 
-	return {
-		EmbeddedMcpProvider: MockEmbeddedMcpProvider,
-	}
-})
-
-// TODO: Use proxyquire for module mocking - "../../core/McpToolRegistry", () => {
-	const mockRegistry = {
+// TODO: Mock setup needs manual migration for "../../core/McpToolRegistry"
+// 	const mockRegistry = {
 		registerTool: sinon.stub(),
 		unregisterTool: sinon.stub().returns(true),
 		getTool: sinon.stub(),
@@ -76,13 +80,14 @@ import { NeutralToolUseRequest } from "../../types/McpToolTypes"
 		hasTool: sinon.stub(),
 		executeTool: sinon.stub(),
 	}
-
-	return {
-		McpToolRegistry: {
-			getInstance: sinon.stub().returns(mockRegistry),
-		},
-	}
-})
+// Mock return block needs context
+// 
+// 	return {
+// 		McpToolRegistry: {
+// 			getInstance: sinon.stub().returns(mockRegistry),
+// 		},
+// 	}
+// Mock cleanup
 
 suite("MCP Performance and Streaming Validation", () => {
 	suite("Concurrent Tool Execution", () => {
@@ -112,10 +117,11 @@ suite("MCP Performance and Streaming Validation", () => {
 				handler: async (args) => {
 					// Simulate realistic async work
 					await new Promise((resolve) => setTimeout(resolve, Math.random() * 10))
-					return {
-						content: [{ type: "text", text: `Processed: ${args.id}` }],
-						isError: false,
-					}
+// Mock return block needs context
+// 					return {
+// 						content: [{ type: "text", text: `Processed: ${args.id}` }],
+// 						isError: false,
+// 					}
 				},
 			}
 
@@ -137,40 +143,41 @@ suite("MCP Performance and Streaming Validation", () => {
 					}).catch(error => {
 						// Handle individual promise rejections to prevent test failure
 						console.error(`Error executing tool ${i}:`, error)
-						return {
-							type: "tool_result",
-							tool_use_id: `test-${i}`,
-							status: "error",
-							content: [{ type: "text", text: `Error: ${error.message}` }]
-						};
-					})
-				)
-
-				const results = await Promise.all(promises)
-				const endTime = Date.now()
-				const totalTime = endTime - startTime
-
-				// Validate all executions completed (successfully or with error)
-				assert.strictEqual(results.length, concurrentExecutions)
-				
-				// Count successful results
-				const successfulResults = results.filter(result => result.status === "success")
-				console.log(`${successfulResults.length} of ${concurrentExecutions} operations succeeded`)
-				
-				// Validate successful results
-				successfulResults.forEach((result) => {
-					const id = parseInt(result.tool_use_id.split('-')[1], 10)
-					assert.strictEqual(result.content[0].text, `Processed: ${id}`)
-				})
-
-				// Performance assertion - should complete within reasonable time
-				expect(totalTime).toBeLessThan(5000) // 5 seconds for 100 concurrent operations
-
-				console.log(`Executed ${concurrentExecutions} concurrent operations in ${totalTime}ms`)
-			} catch (error) {
-				console.error("Unexpected error in concurrent execution test:", error)
-				throw error
-			}
+// Mock return block needs context
+// 						return {
+// 							type: "tool_result",
+// 							tool_use_id: `test-${i}`,
+// 							status: "error",
+// 							content: [{ type: "text", text: `Error: ${error.message}` }]
+// 						};
+// 					})
+// 				)
+// 
+// 				const results = await Promise.all(promises)
+// 				const endTime = Date.now()
+// 				const totalTime = endTime - startTime
+// 
+// 				// Validate all executions completed (successfully or with error)
+// 				assert.strictEqual(results.length, concurrentExecutions)
+// 				
+// 				// Count successful results
+// 				const successfulResults = results.filter(result => result.status === "success")
+// 				console.log(`${successfulResults.length} of ${concurrentExecutions} operations succeeded`)
+// 				
+// 				// Validate successful results
+// 				successfulResults.forEach((result) => {
+// 					const id = parseInt(result.tool_use_id.split('-')[1], 10)
+// 					assert.strictEqual(result.content[0].text, `Processed: ${id}`)
+// 				})
+// 
+// 				// Performance assertion - should complete within reasonable time
+// 				expect(totalTime).toBeLessThan(5000) // 5 seconds for 100 concurrent operations
+// 
+// 				console.log(`Executed ${concurrentExecutions} concurrent operations in ${totalTime}ms`)
+// 			} catch (error) {
+// 				console.error("Unexpected error in concurrent execution test:", error)
+// 				throw error
+// 			}
 		})
 
 		test("should maintain memory efficiency during batch operations", async () => {
@@ -183,11 +190,12 @@ suite("MCP Performance and Streaming Validation", () => {
 						id: i,
 						value: `item-${args.batch}-${i}`,
 					}))
-
-					return {
-						content: [{ type: "text", text: `Batch ${args.batch} processed ${data.length} items` }],
-						isError: false,
-					}
+// Mock return block needs context
+// 
+// 					return {
+// 						content: [{ type: "text", text: `Batch ${args.batch} processed ${data.length} items` }],
+// 						isError: false,
+// 					}
 				},
 			}
 
@@ -213,28 +221,29 @@ suite("MCP Performance and Streaming Validation", () => {
 							input: { batch },
 						}).catch(error => {
 							console.error(`Error in batch ${batch}, item ${i}:`, error.message)
-							return {
-								type: "tool_result",
-								tool_use_id: `batch-${batch}-${i}`,
-								status: "error",
-								content: [{ type: "text", text: `Error: ${error.message}` }]
-							};
-						})
-					)
-
-					// Wait for all promises in the batch to complete
-					const results = await Promise.all(batchPromises)
-					assert.strictEqual(results.length, batchSize)
-					
-					// Log success rate for the batch
-					const successCount = results.filter(r => r.status === "success").length
-					console.log(`Batch ${batch + 1} completed: ${successCount}/${batchSize} successful`)
-
-					// Force garbage collection if available (testing environment)
-					if (global.gc) {
-						global.gc()
-					}
-					
+// Mock return block needs context
+// 							return {
+// 								type: "tool_result",
+// 								tool_use_id: `batch-${batch}-${i}`,
+// 								status: "error",
+// 								content: [{ type: "text", text: `Error: ${error.message}` }]
+// 							};
+// 						})
+// 					)
+// 
+// 					// Wait for all promises in the batch to complete
+// 					const results = await Promise.all(batchPromises)
+// 					assert.strictEqual(results.length, batchSize)
+// 					
+// 					// Log success rate for the batch
+// 					const successCount = results.filter(r => r.status === "success").length
+// 					console.log(`Batch ${batch + 1} completed: ${successCount}/${batchSize} successful`)
+// 
+// 					// Force garbage collection if available (testing environment)
+// 					if (global.gc) {
+// 						global.gc()
+// 					}
+// 					
 					// Add a small delay between batches to allow for cleanup
 					await new Promise(resolve => setTimeout(resolve, 10))
 				}
@@ -312,11 +321,12 @@ suite("MCP Performance and Streaming Validation", () => {
 						await new Promise((resolve) => setTimeout(resolve, 5)) // Small delay
 						content += `Chunk ${i + 1}/${chunks}. `
 					}
-
-					return {
-						content: [{ type: "text", text: content.trim() }],
-						isError: false,
-					}
+// Mock return block needs context
+// 
+// 					return {
+// 						content: [{ type: "text", text: content.trim() }],
+// 						isError: false,
+// 					}
 				},
 			}
 
@@ -332,7 +342,7 @@ suite("MCP Performance and Streaming Validation", () => {
 			assert.strictEqual(result.isError, false)
 
 			// Should complete within reasonable time considering delays
-			expect(duration).toBeGreaterThan(40) // At least 5ms * 10 chunks
+			assert.ok(duration > 40) // At least 5ms * 10 chunks
 			expect(duration).toBeLessThan(500) // But not too long
 		})
 
@@ -350,17 +360,18 @@ suite("MCP Performance and Streaming Validation", () => {
 							index: i,
 							batch: Math.floor(i / 100),
 						},
-					}))
-
-					return {
-						content: [
-							{
-								type: "text",
-								text: JSON.stringify(largeData, null, 2),
-							},
-						],
-						isError: false,
-					}
+					})
+// Mock return block needs context
+// 
+// 					return {
+// 						content: [
+// 							{
+// 								type: "text",
+// 								text: JSON.stringify(largeData, null, 2),
+// 							},
+// 						],
+// 						isError: false,
+// 					}
 				},
 			}
 
@@ -389,10 +400,11 @@ suite("MCP Performance and Streaming Validation", () => {
 				handler: async () => {
 					// Fixed small delay to simulate consistent work
 					await new Promise((resolve) => setTimeout(resolve, 10))
-					return {
-						content: [{ type: "text", text: "Consistent response" }],
-						isError: false,
-					}
+// Mock return block needs context
+// 					return {
+// 						content: [{ type: "text", text: "Consistent response" }],
+// 						isError: false,
+// 					}
 				},
 			}
 
@@ -417,7 +429,7 @@ suite("MCP Performance and Streaming Validation", () => {
 			const standardDeviation = Math.sqrt(variance)
 
 			// Consistency assertions
-			expect(averageTime).toBeGreaterThan(8) // Should be close to 10ms
+			assert.ok(averageTime > 8) // Should be close to 10ms
 			expect(averageTime).toBeLessThan(50) // But not too much overhead
 			expect(standardDeviation).toBeLessThan(averageTime * 0.5) // Low variance
 			expect(maxTime - minTime).toBeLessThan(100) // Reasonable spread
@@ -449,10 +461,11 @@ suite("MCP Performance and Streaming Validation", () => {
 					if (args.shouldError) {
 						throw new Error(`Test error ${args.id}`)
 					}
-					return {
-						content: [{ type: "text", text: `Success ${args.id}` }],
-						isError: false,
-					}
+// Mock return block needs context
+// 					return {
+// 						content: [{ type: "text", text: `Success ${args.id}` }],
+// 						isError: false,
+// 					}
 				},
 			}
 
@@ -487,8 +500,8 @@ suite("MCP Performance and Streaming Validation", () => {
 			const endTime = Date.now()
 			const totalTime = endTime - startTime
 
-			expect(successCount).toBeGreaterThan(0)
-			expect(errorCount).toBeGreaterThan(0)
+			assert.ok(successCount > 0)
+			assert.ok(errorCount > 0)
 			assert.strictEqual(successCount + errorCount, iterations)
 
 			// Should handle errors without significant performance impact
@@ -510,10 +523,11 @@ suite("MCP Performance and Streaming Validation", () => {
 
 					// Normal operation
 					await new Promise((resolve) => setTimeout(resolve, 5))
-					return {
-						content: [{ type: "text", text: `Recovery success ${args.id}` }],
-						isError: false,
-					}
+// Mock return block needs context
+// 					return {
+// 						content: [{ type: "text", text: `Recovery success ${args.id}` }],
+// 						isError: false,
+// 					}
 				},
 			}
 
@@ -537,10 +551,11 @@ suite("MCP Performance and Streaming Validation", () => {
 						})
 						.catch(error => {
 							// Expected path - convert error to a result object
-							return { 
-								content: [{ type: "text", text: error.message || "Burst error" }],
-								isError: true 
-							}
+// Mock return block needs context
+// 							return { 
+// 								content: [{ type: "text", text: error.message || "Burst error" }],
+// 								isError: true 
+// 							}
 						})
 				)
 
@@ -561,10 +576,11 @@ suite("MCP Performance and Streaming Validation", () => {
 					provider.executeTool("recover_tool", { phase: "recovery", id: i })
 						.catch(error => {
 							console.error(`Unexpected error in recovery phase for item ${i}:`, error)
-							return { 
-								content: [{ type: "text", text: `Recovery failed: ${error.message}` }],
-								isError: true 
-							}
+// Mock return block needs context
+// 							return { 
+// 								content: [{ type: "text", text: `Recovery failed: ${error.message}` }],
+// 								isError: true 
+// 							}
 						})
 				)
 
@@ -586,4 +602,4 @@ suite("MCP Performance and Streaming Validation", () => {
 			}
 		})
 	})
-})
+// Mock cleanup

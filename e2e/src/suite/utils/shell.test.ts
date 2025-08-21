@@ -339,4 +339,4 @@ suite("Shell Detection Tests", () => {
 			assert.strictEqual(shell, "/usr/bin/zsh")
 		})
 	})
-})
+// Mock cleanup

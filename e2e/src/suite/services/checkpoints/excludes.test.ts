@@ -8,9 +8,9 @@ import { fileExistsAtPath } from "../../../utils/fs"
 import { getExcludePatterns } from "../excludes"
 import { GIT_DISABLED_SUFFIX } from "../constants" // Fixed: removed type-only import
 
-// TODO: Use proxyquire for module mocking - "fs/promises")
+// TODO: Mock setup needs manual migration for "fs/promises"
 
-// TODO: Use proxyquire for module mocking - "../../../utils/fs")
+// TODO: Mock setup needs manual migration for "../../../utils/fs"
 
 suite("getExcludePatterns", () => {
 	const mockedFs = fs as sinon.SinonStubbedInstance<typeof fs>
@@ -153,4 +153,4 @@ readme.md text
 			assert.ok(excludePatterns.includes("*.log")) // log
 		})
 	})
-})
+// Mock cleanup

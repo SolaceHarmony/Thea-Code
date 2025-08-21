@@ -4,8 +4,8 @@ import * as assert from 'assert'
  * Validates conversion between OpenAI function calls and MCP neutral format
  */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/require-await, @typescript-eslint/no-explicit-any */
-import { McpConverters } from "../../core/McpConverters"
 import { ToolDefinition } from "../../types/McpProviderTypes"
+import { McpConverters } from "../../core/McpConverters"
 
 suite("OpenAI Function Format Handling", () => {
 	suite("Function Call to MCP Conversion", () => {
@@ -302,7 +302,7 @@ suite("OpenAI Function Format Handling", () => {
 			const xmlFormat = "<test_function><param>value</param></test_function>"
 
 			expect(JSON.parse(neutralFormat)).not.toHaveProperty("function_call")
-			expect(xmlFormat).not.toContain("function_call")
+			assert.ok(!xmlFormat.includes("function_call"))
 
 	suite("OpenAI Function Format Edge Cases", () => {
 		test("should handle function call with null arguments", () => {

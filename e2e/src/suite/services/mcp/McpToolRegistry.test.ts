@@ -1,5 +1,5 @@
-import { McpToolRegistry } from "../core/McpToolRegistry"
 import { ToolDefinition } from "../types/McpProviderTypes"
+import { McpToolRegistry } from "../core/McpToolRegistry"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 
@@ -168,4 +168,4 @@ suite("McpToolRegistry", () => {
 		// Clean up event listeners
 		registry.removeAllListeners()
 	})
-})
+// Mock cleanup

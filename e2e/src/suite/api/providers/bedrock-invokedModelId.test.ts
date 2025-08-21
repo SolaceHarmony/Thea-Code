@@ -31,11 +31,12 @@ suite("AwsBedrockHandler InvokedModelId Cost Tracking", () => {
 
 	// Helper to create realistic stream events
 	function createMockStream(events: any[]) {
-		return {
-			[Symbol.asyncIterator]: async function* () {
-				for (const event of events) {
-					yield event
-				}
+// Mock return block needs context
+// 		return {
+// 			[Symbol.asyncIterator]: async function* () {
+// 				for (const event of events) {
+// 					yield event
+// 				}
 				// Always yield final metadata for usage tracking
 				yield {
 					metadata: {
@@ -453,4 +454,4 @@ suite("AwsBedrockHandler InvokedModelId Cost Tracking", () => {
 			assert.ok(textEvents.length > 0, "Should emit text events normally")
 		})
 	})
-})
+// Mock cleanup

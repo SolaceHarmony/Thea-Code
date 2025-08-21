@@ -2,8 +2,8 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 import { ZodError } from "zod"
 
-import { modeConfigSchema } from "../../../schemas"
 import { ModeConfig } from "../../../shared/modes"
+import { modeConfigSchema } from "../../../schemas"
 
 function validateCustomMode(mode: unknown): asserts mode is ModeConfig {
 	modeConfigSchema.parse(mode)
@@ -253,4 +253,4 @@ suite("CustomModeSchema", () => {
 			expect(() => modeConfigSchema.parse(modeWithUndefined)).toThrow()
 		})
 	})
-})
+// Mock cleanup

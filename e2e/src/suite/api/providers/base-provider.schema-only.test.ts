@@ -1,17 +1,18 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * BaseProvider schema-only registration tests
  * Verifies that BaseProvider only registers tool schemas and delegates execution to MCP
  */
 
-import { BaseProvider } from "../base-provider"
 import { McpIntegration } from "../../../services/mcp/integration/McpIntegration"
-import { ApiStream } from "../../transform/stream"
+import { BaseProvider } from "../base-provider"
 import type { ModelInfo } from "../../../shared/api"
+import { ApiStream } from "../../transform/stream"
 import type { NeutralConversationHistory } from "../../../shared/neutral-history"
 
 // Mock McpIntegration
-// TODO: Use proxyquire for module mocking - "../../../services/mcp/integration/McpIntegration")
+// TODO: Mock setup needs manual migration for "../../../services/mcp/integration/McpIntegration"
 
 // Create a concrete implementation for testing
 class TestProvider extends BaseProvider {
@@ -21,19 +22,20 @@ class TestProvider extends BaseProvider {
 	}
 
 	getModel(): { id: string; info: ModelInfo } {
-		return {
-			id: "test-model",
-			info: {
-				maxTokens: 100000,
-				contextWindow: 100000,
-				supportsImages: false,
-				supportsPromptCache: false,
-				inputPrice: 0,
-				outputPrice: 0,
-				supportsComputerUse: false,
-				supportsAssistantTool: false,
-				description: "Test model"
-			}
+// Mock return block needs context
+// 		return {
+// 			id: "test-model",
+// 			info: {
+// 				maxTokens: 100000,
+// 				contextWindow: 100000,
+// 				supportsImages: false,
+// 				supportsPromptCache: false,
+// 				inputPrice: 0,
+// 				outputPrice: 0,
+// 				supportsComputerUse: false,
+// 				supportsAssistantTool: false,
+// 				description: "Test model"
+// 			}
 		}
 	}
 
@@ -257,8 +259,8 @@ suite("BaseProvider - Schema-Only Tool Registration", () => {
 			// Check optional parameters are in properties but not required
 			assert.notStrictEqual(readFileTool.paramSchema.properties.start_line, undefined)
 			assert.notStrictEqual(readFileTool.paramSchema.properties.end_line, undefined)
-			expect(readFileTool.paramSchema.required).not.toContain("start_line")
-			expect(readFileTool.paramSchema.required).not.toContain("end_line")
+			assert.ok(!readFileTool.paramSchema.required.includes("start_line"))
+			assert.ok(!readFileTool.paramSchema.required.includes("end_line"))
 		})
 	})
 
@@ -291,7 +293,7 @@ suite("BaseProvider - Schema-Only Tool Registration", () => {
 
 		test("should provide tool schemas for provider use", () => {
 			// The schemas are registered so providers can advertise capabilities
-			expect(registeredTools.length).toBeGreaterThan(0)
+			assert.ok(registeredTools.length > 0)
 			
 			// Each tool should have the minimal required fields for schema
 			for (const tool of registeredTools) {
@@ -354,7 +356,7 @@ suite("BaseProvider - Schema-Only Tool Registration", () => {
 			const listTool = registeredTools.find(t => t.name === "list_files")
 			
 			// recursive is optional
-			expect(listTool.paramSchema.required).not.toContain("recursive")
+			assert.ok(!listTool.paramSchema.required.includes("recursive"))
 			assert.notStrictEqual(listTool.paramSchema.properties.recursive, undefined)
 		})
 
@@ -379,7 +381,7 @@ suite("BaseProvider - Schema-Only Tool Registration", () => {
 			const newProvider = new TestProvider()
 			
 			const toolNames = registeredTools.map(t => t.name)
-			expect(toolNames).not.toContain("fake_tool")
+			assert.ok(!toolNames.includes("fake_tool"))
 		})
 	})
-})
+// Mock cleanup

@@ -1,7 +1,7 @@
 import type { ToolUse } from "../assistant-message"
 import type { TheaTask } from "../TheaTask"
-import { accessMcpResourceTool } from "../tools/accessMcpResourceTool"
 import type { RemoveClosingTag } from "../tools/types"
+import { accessMcpResourceTool } from "../tools/accessMcpResourceTool"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 
@@ -11,20 +11,21 @@ suite("accessMcpResourceTool", () => {
 	const removeClosingTag: RemoveClosingTag = (_: string, val?: string) => val ?? ""
 
 	function createMockTask(): sinon.SinonStubbedInstance<TheaTask> {
-		return {
-			consecutiveMistakeCount: 0,
-			sayAndCreateMissingParamError: sinon.stub().resolves("err"),
-			webviewCommunicator: {
-				ask: sinon.stub(),
-				say: sinon.stub(),
-				handleWebviewAskResponse: sinon.stub(),
-			} as unknown as sinon.SinonStubbedInstance<TheaTask["webviewCommunicator"]>,
-			providerRef: {
-				deref: sinon.stub(),
-			} as unknown as sinon.SinonStubbedInstance<TheaTask["providerRef"]>,
-		} as unknown as sinon.SinonStubbedInstance<TheaTask>
-	}
-
+// Mock return block needs context
+// 		return {
+// 			consecutiveMistakeCount: 0,
+// 			sayAndCreateMissingParamError: sinon.stub().resolves("err"),
+// 			webviewCommunicator: {
+// 				ask: sinon.stub(),
+// 				say: sinon.stub(),
+// 				handleWebviewAskResponse: sinon.stub(),
+// 			} as unknown as sinon.SinonStubbedInstance<TheaTask["webviewCommunicator"]>,
+// 			providerRef: {
+// 				deref: sinon.stub(),
+// 			} as unknown as sinon.SinonStubbedInstance<TheaTask["providerRef"]>,
+// 		} as unknown as sinon.SinonStubbedInstance<TheaTask>
+// 	}
+// 
 	test("increments mistake count and reports missing server_name", async () => {
 		const theaTask = createMockTask()
 		const pushToolResult = sinon.stub()
@@ -60,4 +61,4 @@ suite("accessMcpResourceTool", () => {
 		assert.ok(theaTask.sayAndCreateMissingParamError.calledWith("access_mcp_resource", "uri"))
 		assert.ok(pushToolResult.calledWith("err"))
 	})
-})
+// Mock cleanup

@@ -1,5 +1,5 @@
-import { JsonMatcher } from "../json-xml-bridge"
 import * as assert from 'assert'
+import { JsonMatcher } from "../json-xml-bridge"
 import * as sinon from 'sinon'
 
 suite("JsonMatcher buffer cap", () => {
@@ -25,4 +25,4 @@ suite("JsonMatcher buffer cap", () => {
       assert.ok(typeof r.data === "string")
     }
   })
-})
+// Mock cleanup

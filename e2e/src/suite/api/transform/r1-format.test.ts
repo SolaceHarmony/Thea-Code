@@ -214,4 +214,4 @@ suite("convertToR1Format", () => {
 			assert.ok(text.includes("foo"))
 		}
 	})
-})
+// Mock cleanup

@@ -1,7 +1,7 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
-import { customModesSettingsSchema } from "../../../schemas"
 import { ModeConfig } from "../../../shared/modes"
+import { customModesSettingsSchema } from "../../../schemas"
 import { ZodError } from "zod"
 
 suite("CustomModesSettings", () => {
@@ -168,4 +168,4 @@ suite("CustomModesSettings", () => {
 			assert.notStrictEqual(settings.customModes[0].customInstructions, undefined)
 		})
 	})
-})
+// Mock cleanup

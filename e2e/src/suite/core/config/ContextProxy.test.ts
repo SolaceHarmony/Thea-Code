@@ -13,7 +13,8 @@ import { ContextProxy } from "../ContextProxy"
 
 import { GLOBAL_STATE_KEYS, SECRET_STATE_KEYS } from "../../../schemas"
 
-// TODO: Use proxyquire for module mocking - "vscode", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "vscode" needed here
 	Uri: {
 		file: sinon.stub((path: string) => ({ path })),
 	},
@@ -22,7 +23,7 @@ import { GLOBAL_STATE_KEYS, SECRET_STATE_KEYS } from "../../../schemas"
 		Production: 2,
 		Test: 3,
 	},
-}))
+// Mock cleanup
 
 suite("ContextProxy", () => {
 	let proxy: ContextProxy
@@ -318,8 +319,7 @@ suite("ContextProxy", () => {
 			// Verify setValues was called with the correct parameters
 			// It should include undefined for openAiBaseUrl (to clear it)
 			// and the new values for apiModelId and apiProvider
-			assert.ok(setValuesSpy.calledWith(
-				// TODO: Object partial match - {
+			assert.ok(setValuesSpy.calledWith({
 					apiModelId: "new-model",
 					apiProvider: "anthropic",
 					openAiBaseUrl: undefined,
@@ -346,8 +346,7 @@ suite("ContextProxy", () => {
 			await proxy.setProviderSettings({})
 
 			// Verify setValues was called with undefined for all existing API config keys
-			assert.ok(setValuesSpy.calledWith(
-				// TODO: Object partial match - {
+			assert.ok(setValuesSpy.calledWith({
 					apiModelId: undefined,
 					openAiBaseUrl: undefined,
 				})),
@@ -426,4 +425,4 @@ suite("ContextProxy", () => {
 			assert.strictEqual(initializeSpy.callCount, 1)
 		})
 	})
-})
+// Mock cleanup

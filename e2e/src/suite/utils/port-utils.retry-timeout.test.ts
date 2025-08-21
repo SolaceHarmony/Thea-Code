@@ -1,5 +1,6 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * port-utils retry and timeout tests
  * Tests retry logic, exponential backoff, timeout handling, and abort signals
  */
@@ -13,20 +14,22 @@ import {
 import { logger } from "../logging"
 
 // Mock tcp-port-used module
-// TODO: Use proxyquire for module mocking - "tcp-port-used", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "tcp-port-used" needed here
 	check: sinon.stub(),
 	waitUntilFree: sinon.stub(),
 	waitUntilUsed: sinon.stub()
-}))
+// Mock cleanup needed
 
 // Mock logger
-// TODO: Use proxyquire for module mocking - "../logging", () => ({
+// TODO: Use proxyquire for module mocking
+		// Mock for "../logging" needed here
 	logger: {
 		info: sinon.stub(),
 		warn: sinon.stub(),
 		error: sinon.stub()
 	}
-}))
+// Mock cleanup
 
 suite("port-utils - Retry and Timeout Tests", () => {
 	let mockTcpPortUsed: any
@@ -83,7 +86,7 @@ suite("port-utils - Retry and Timeout Tests", () => {
 			assert.strictEqual(result, false)
 			assert.ok(consoleErrorSpy.calledWith(
 				"Error checking port 3000 availability:",
-				expect.any(Error))
+				sinon.match.instanceOf(Error))
 			)
 		})
 
@@ -500,7 +503,7 @@ suite("port-utils - Retry and Timeout Tests", () => {
 			assert.strictEqual(result, false)
 			assert.ok(consoleErrorSpy.calledWith(
 				// TODO: String contains check - "Error checking port")),
-				expect.any(Error)
+				sinon.match.instanceOf(Error)
 			)
 		})
 
@@ -559,17 +562,18 @@ suite("port-utils - Retry and Timeout Tests", () => {
 			sinon.spy(global, 'setTimeout').callsFake((fn: any, delay?: number) => {
 				if (delay) delays.push(delay)
 				fn()
-				return {} as NodeJS.Timeout
-			})
-			
-			mockTcpPortUsed.waitUntilUsed.rejects(new Error("Not ready"))
-			
-			try {
-				await waitForPortInUse(3000, 'localhost', 100, 1000, 'test', 3)
-			} catch {
-				// Expected to fail
-			}
-			
+// Mock return block needs context
+// 				return {} as NodeJS.Timeout
+// 			})
+// 			
+// 			mockTcpPortUsed.waitUntilUsed.rejects(new Error("Not ready"))
+// 			
+// 			try {
+// 				await waitForPortInUse(3000, 'localhost', 100, 1000, 'test', 3)
+// 			} catch {
+// 				// Expected to fail
+// 			}
+// 			
 			// Delays should include jitter (not exactly the same)
 			assert.ok(delays.length > 0)
 			// Verify delays are not all identical (jitter is applied)
@@ -577,4 +581,4 @@ suite("port-utils - Retry and Timeout Tests", () => {
 			assert.ok(uniqueDelays.size > 1)
 		})
 	})
-})
+// Mock cleanup

@@ -1,11 +1,12 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'/**
+import * as sinon from 'sinon'
+/**
  * StdioTransport fallback and mock stderr tests
  * Tests fallback behavior when SDK is not available, mock stderr handling, and error handlers
  */
 
-import { StdioTransport } from "../StdioTransport"
 import { StdioTransportConfig } from "../../types/McpTransportTypes"
+import { StdioTransport } from "../StdioTransport"
 import { EventEmitter } from "events"
 
 // Create a mock stderr stream
@@ -120,7 +121,8 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 			}
 
 			// Mock the dynamic import to return our mock transport
-			// TODO: Use proxyquire dynamic mock - "@modelcontextprotocol/sdk/server/stdio.js", () => ({
+			// TODO: Use proxyquire for module mocking
+		// Mock for "@modelcontextprotocol/sdk/server/stdio.js" needed here
 				StdioServerTransport: MockTransportClass
 			}))
 
@@ -186,7 +188,7 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 			
 			// Handler should be set (even if mock doesn't trigger it)
 			// We're mainly testing that the setter doesn't throw
-			expect(() => transport!.onerror = errorHandler).not.toThrow()
+			assert.doesNotThrow(() => transport!.onerror = errorHandler)
 		})
 
 		test("should set close handler on mock transport", async () => {
@@ -203,7 +205,7 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 			transport.onclose = closeHandler
 			
 			// Handler should be set (even if mock doesn't trigger it)
-			expect(() => transport!.onclose = closeHandler).not.toThrow()
+			assert.doesNotThrow(() => transport!.onclose = closeHandler)
 		})
 
 		test("should forward handlers to real transport when available", async () => {
@@ -234,13 +236,14 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 
 			const mockInstance = new MockTransportClass()
 			
-			// TODO: Use proxyquire dynamic mock - "@modelcontextprotocol/sdk/server/stdio.js", () => ({
+			// TODO: Use proxyquire for module mocking
+		// Mock for "@modelcontextprotocol/sdk/server/stdio.js" needed here
 				StdioServerTransport: class {
 					constructor() {
 						return mockInstance
 					}
 				}
-			}))
+			})
 
 			const config: StdioTransportConfig = {
 				command: "test",
@@ -282,10 +285,10 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 			const closeHandler = sinon.stub()
 			
 			// Should not throw even without transport initialized
-			expect(() => {
+			assert.doesNotThrow(() => {
 				transport!.onerror = errorHandler
 				transport!.onclose = closeHandler
-			}).not.toThrow()
+			})
 		})
 	})
 
@@ -305,7 +308,8 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 				async close(): Promise<void> {}
 			}
 
-			// TODO: Use proxyquire dynamic mock - "@modelcontextprotocol/sdk/server/stdio.js", () => ({
+			// TODO: Use proxyquire for module mocking
+		// Mock for "@modelcontextprotocol/sdk/server/stdio.js" needed here
 				StdioServerTransport: MockTransportClass
 			}))
 
@@ -350,7 +354,8 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 				async close(): Promise<void> {}
 			}
 
-			// TODO: Use proxyquire dynamic mock - "@modelcontextprotocol/sdk/server/stdio.js", () => ({
+			// TODO: Use proxyquire for module mocking
+		// Mock for "@modelcontextprotocol/sdk/server/stdio.js" needed here
 				StdioServerTransport: MockTransportClass
 			}))
 
@@ -392,7 +397,8 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 				async close(): Promise<void> {}
 			}
 
-			// TODO: Use proxyquire dynamic mock - "@modelcontextprotocol/sdk/server/stdio.js", () => ({
+			// TODO: Use proxyquire for module mocking
+		// Mock for "@modelcontextprotocol/sdk/server/stdio.js" needed here
 				StdioServerTransport: MockTransportClass
 			}))
 
@@ -436,7 +442,8 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 				async close(): Promise<void> {}
 			}
 
-			// TODO: Use proxyquire dynamic mock - "@modelcontextprotocol/sdk/server/stdio.js", () => ({
+			// TODO: Use proxyquire for module mocking
+		// Mock for "@modelcontextprotocol/sdk/server/stdio.js" needed here
 				StdioServerTransport: MockTransportClass
 			}))
 
@@ -495,7 +502,8 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 				async close(): Promise<void> {}
 			}
 
-			// TODO: Use proxyquire dynamic mock - "@modelcontextprotocol/sdk/server/stdio.js", () => ({
+			// TODO: Use proxyquire for module mocking
+		// Mock for "@modelcontextprotocol/sdk/server/stdio.js" needed here
 				StdioServerTransport: MockTransportClass
 			}))
 
@@ -529,7 +537,8 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 				async close(): Promise<void> {}
 			}
 
-			// TODO: Use proxyquire dynamic mock - "@modelcontextprotocol/sdk/server/stdio.js", () => ({
+			// TODO: Use proxyquire for module mocking
+		// Mock for "@modelcontextprotocol/sdk/server/stdio.js" needed here
 				StdioServerTransport: MockTransportClass
 			}))
 
@@ -552,4 +561,4 @@ suite("StdioTransport - Fallback and Mock Behavior", () => {
 			// TODO: Use actual module - "@modelcontextprotocol/sdk/server/stdio.js")
 		})
 	})
-})
+// Mock cleanup

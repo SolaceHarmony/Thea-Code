@@ -173,4 +173,4 @@ suite("Single Completion Handler", () => {
 			assert.ok(mockHandler.completePrompt.calledWith(specialPrompt))
 		})
 	})
-})
+// Mock cleanup

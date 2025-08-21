@@ -10,3 +10,5 @@ suite("Ripgrep", () => {
 		// This file can be expanded with tests for the exported functions
 		// like searchFiles, getBinPath, etc.
 		assert.strictEqual(true, true)
+
+})})

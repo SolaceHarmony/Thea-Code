@@ -591,4 +591,4 @@ suite("TheaProvider", () => {
 			// Other cleanup should occur
 		})
 	})
-})
+// Mock cleanup

@@ -1,43 +1,44 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
-import { TheaIgnoreController, LOCK_TEXT_SYMBOL } from "../TheaIgnoreController" // Use renamed class, keep original path
 import * as vscode from "vscode"
+import { TheaIgnoreController, LOCK_TEXT_SYMBOL } from "../TheaIgnoreController" // Use renamed class, keep original path
 import * as path from "path"
 import * as fs from "fs/promises"
-import { fileExistsAtPath } from "../../../utils/fs"
 import { GLOBAL_FILENAMES, AI_IDENTITY_NAME } from "../../../shared/config/thea-config"
+import { fileExistsAtPath } from "../../../utils/fs"
 
 // Mock dependencies
-// TODO: Use proxyquire for module mocking - "fs/promises")
-// TODO: Use proxyquire for module mocking - "../../../utils/fs")
+// TODO: Mock setup needs manual migration for "fs/promises"
+// TODO: Mock setup needs manual migration for "../../../utils/fs"
 
 // Mock vscode
-// TODO: Use proxyquire for module mocking - "vscode", () => {
-	const mockDisposable = { dispose: sinon.stub() }
+// TODO: Mock setup needs manual migration for "vscode"
+// 	const mockDisposable = { dispose: sinon.stub() }
 	const mockEventEmitter = {
 		event: sinon.stub(),
 		fire: sinon.stub(),
 	}
-
-	return {
-		workspace: {
-			createFileSystemWatcher: sinon.stub(() => ({
-				onDidCreate: sinon.stub(() => mockDisposable),
-				onDidChange: sinon.stub(() => mockDisposable),
-				onDidDelete: sinon.stub(() => mockDisposable),
-				dispose: sinon.stub(),
-			})),
-		},
-		RelativePattern: sinon.stub().callsFake((base: string, pattern: string) => ({
-			base,
-			pattern,
-		})),
-		EventEmitter: sinon.stub().callsFake(() => mockEventEmitter),
-		Disposable: {
-			from: sinon.stub(),
-		},
-	}
-})
+// Mock return block needs context
+// 
+// 	return {
+// 		workspace: {
+// 			createFileSystemWatcher: sinon.stub(() => ({
+// 				onDidCreate: sinon.stub(() => mockDisposable),
+// 				onDidChange: sinon.stub(() => mockDisposable),
+// 				onDidDelete: sinon.stub(() => mockDisposable),
+// 				dispose: sinon.stub(),
+// 			})),
+// 		},
+// 		RelativePattern: sinon.stub().callsFake((base: string, pattern: string) => ({
+// 			base,
+// 			pattern,
+// 		})),
+// 		EventEmitter: sinon.stub().callsFake(() => mockEventEmitter),
+// 		Disposable: {
+// 			from: sinon.stub(),
+// 		},
+// 	}
+// Mock cleanup
 
 suite(`${AI_IDENTITY_NAME}Ignore Controller`, () => {
 	const TEST_CWD = "/test/path"
@@ -127,8 +128,7 @@ suite(`${AI_IDENTITY_NAME}Ignore Controller`, () => {
 		 */
 		test(`should set up file watcher for ${GLOBAL_FILENAMES.IGNORE_FILENAME} changes`, () => {
 			// Check that watcher was created with correct pattern
-			assert.ok(vscode.workspace.createFileSystemWatcher.calledWith(
-				// TODO: Object partial match - {
+			assert.ok(vscode.workspace.createFileSystemWatcher.calledWith({
 					base: TEST_CWD,
 					pattern: GLOBAL_FILENAMES.IGNORE_FILENAME,
 				})),
@@ -515,4 +515,4 @@ suite(`${AI_IDENTITY_NAME}Ignore Controller`, () => {
 			expect(controller.validateAccess("node_modules/package.json")).toBe(true)
 		})
 	})
-})
+// Mock cleanup

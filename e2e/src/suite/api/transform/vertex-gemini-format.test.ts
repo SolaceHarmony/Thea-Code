@@ -339,4 +339,4 @@ suite("convertAnthropicMessageToVertexGemini", () => {
 			"Unsupported content block type: unknown_type",
 		)
 	})
-})
+// Mock cleanup

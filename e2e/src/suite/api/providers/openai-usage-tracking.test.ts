@@ -1,9 +1,9 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
-import { OpenAiHandler } from "../openai"
 import { ApiHandlerOptions } from "../../../shared/api"
-import { NeutralMessage } from "../../../shared/neutral-history"
+import { OpenAiHandler } from "../openai"
 import { Readable } from "stream"
+import { NeutralMessage } from "../../../shared/neutral-history"
 import openaiSetup, { openAIMock } from "../../../../test/openai-mock/setup.ts"
 import { openaiTeardown } from "../../../../test/openai-mock/teardown.ts"
 
@@ -60,11 +60,11 @@ setup(async () => {
 		stream.push(null)
 		return [200, stream]
 	})
-})
+// Mock cleanup
 
 teardown(async () => {
 	await openaiTeardown()
-})
+// Mock cleanup
 
 suite("OpenAiHandler with usage tracking fix", () => {
 	let handler: OpenAiHandler
@@ -121,16 +121,14 @@ suite("OpenAiHandler with usage tracking fix", () => {
 			assert.strictEqual(lastChunk.inputTokens, 10)
 			assert.strictEqual(lastChunk.outputTokens, 5)
 
-			assert.deepStrictEqual(requestBody, 
-				// TODO: Object partial match - {
+			assert.deepStrictEqual(requestBody, {
 					model: mockOptions.openAiModelId,
 					messages: [
 						{ role: "system", content: systemPrompt },
 						{ role: "user", content: "Hello!" },
 					],
 					stream: true,
-				}),
-			)
+				})
 		})
 
 		test("should handle case where usage is only in the final chunk", async () => {
@@ -225,4 +223,4 @@ suite("OpenAiHandler with usage tracking fix", () => {
 			assert.strictEqual(usageChunks.length, 0)
 		})
 	})
-})
+// Mock cleanup

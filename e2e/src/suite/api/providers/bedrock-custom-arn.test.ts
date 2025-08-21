@@ -390,4 +390,4 @@ suite("AwsBedrockHandler Custom ARN Functionality", () => {
 			}
 		})
 	})
-})
+// Mock cleanup

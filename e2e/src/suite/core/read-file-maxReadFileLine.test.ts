@@ -1,46 +1,27 @@
 import * as path from "path"
-import { countFileLines } from "../../integrations/misc/line-counter"
 import { readLines } from "../../integrations/misc/read-lines"
-import { extractTextFromFile, addLineNumbers } from "../../integrations/misc/extract-text"
+import { countFileLines } from "../../integrations/misc/line-counter"
 import { parseSourceCodeDefinitionsForFile } from "../../services/tree-sitter"
-import { isBinaryFile } from "isbinaryfile"
+import { extractTextFromFile, addLineNumbers } from "../../integrations/misc/extract-text"
 import { ReadFileToolUse } from "../assistant-message"
+import { isBinaryFile } from "isbinaryfile"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 
 // Mock dependencies
-// TODO: Use proxyquire for module mocking - "../../integrations/misc/line-counter")
-// TODO: Use proxyquire for module mocking - "../../integrations/misc/read-lines")
-// TODO: Use proxyquire for module mocking - "../../integrations/misc/extract-text")
-// TODO: Use proxyquire for module mocking - "../../services/tree-sitter")
-// TODO: Use proxyquire for module mocking - "isbinaryfile")
-// TODO: Use proxyquire for module mocking - "../ignore/TheaIgnoreController", () => ({
-	TheaIgnoreController: class {
-		initialize() {
-			return Promise.resolve()
-		}
-		validateAccess() {
-			return true
-		}
-	},
-}))
-// TODO: Use proxyquire for module mocking - "fs/promises", () => ({
-	mkdir: sinon.stub().resolves(undefined),
-	writeFile: sinon.stub().resolves(undefined),
-	readFile: sinon.stub().resolves("{}"),
-}))
-// TODO: Use proxyquire for module mocking - "../../utils/fs", () => ({
-	fileExistsAtPath: sinon.stub().returns(true),
-}))
-
-// Mock path
-// TODO: Use proxyquire for module mocking - "path", () => {
-	const originalPath = require<typeof import("path")>("path")
-	return {
-		...originalPath,
-		resolve: sinon.stub().callsFake((...args: string[]) => args.join("/")),
-	}
-})
+// TODO: Mock setup needs manual migration for "../../integrations/misc/line-counter"
+// TODO: Mock setup needs manual migration for "../../integrations/misc/read-lines"
+// TODO: Mock setup needs manual migration for "../../integrations/misc/extract-text"
+// TODO: Mock setup needs manual migration for "../../services/tree-sitter"
+// TODO: Mock setup needs manual migration for "isbinaryfile"
+// TODO: Mock setup needs manual migration for "path"
+// 	const originalPath = require<typeof import("path")>("path")
+// Mock return block needs context
+// 	return {
+// 		...originalPath,
+// 		resolve: sinon.stub().callsFake((...args: string[]) => args.join("/")),
+// 	}
+// Mock cleanup
 
 suite("read_file tool with maxReadFileLine setting", () => {
 	// Test data
@@ -301,4 +282,4 @@ suite("read_file tool with maxReadFileLine setting", () => {
 			assert.ok(mockedAddLineNumbers.calledWith(expect.any(String)), 2) // start with proper line numbers
 		})
 	})
-})
+// Mock cleanup

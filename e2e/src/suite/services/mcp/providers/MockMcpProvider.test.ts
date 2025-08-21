@@ -1,7 +1,7 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/require-await, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any */
-import { MockMcpProvider } from "../MockMcpProvider"
 import { ToolDefinition, ToolCallResult } from "../../types/McpProviderTypes"
+import { MockMcpProvider } from "../MockMcpProvider"
 
 suite("MockMcpProvider", () => {
 	let mockProvider: MockMcpProvider
@@ -189,4 +189,4 @@ suite("MockMcpProvider", () => {
 			})
 		})
 	})
-})
+// Mock cleanup

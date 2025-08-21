@@ -63,3 +63,5 @@ suite("Thea Code Subtasks", () => {
 		// Clean up - cancel all tasks.
 		await api.clearCurrentTask()
 		await waitForCompletion({ api, taskId: parentTaskId })
+
+})})})

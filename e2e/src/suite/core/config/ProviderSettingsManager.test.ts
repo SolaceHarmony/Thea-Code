@@ -1,10 +1,10 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
-import { ExtensionContext } from "vscode"
 import { EXTENSION_SECRETS_PREFIX } from "../../../shared/config/thea-config"
+import { ExtensionContext } from "vscode"
 
-import { ProviderSettings } from "../../../schemas"
 import { ProviderSettingsManager, ProviderProfiles } from "../ProviderSettingsManager"
+import { ProviderSettings } from "../../../schemas"
 
 // Mock VSCode ExtensionContext
 const mockSecrets = {
@@ -46,8 +46,7 @@ suite("ProviderSettingsManager", () => {
 							id: "default",
 						},
 					},
-				}),
-			)
+				})
 
 			await providerSettingsManager.initialize()
 
@@ -67,8 +66,7 @@ suite("ProviderSettingsManager", () => {
 							apiProvider: "anthropic",
 						},
 					},
-				}),
-			)
+				})
 
 			await providerSettingsManager.initialize()
 
@@ -157,8 +155,7 @@ suite("ProviderSettingsManager", () => {
 						architect: "default",
 						ask: "default",
 					},
-				}),
-			)
+				})
 
 			const newConfig: ProviderSettings = {
 				apiProvider: "anthropic",
@@ -237,8 +234,7 @@ suite("ProviderSettingsManager", () => {
 				JSON.stringify({
 					currentApiConfigName: "default",
 					apiConfigs: { default: {} },
-				}),
-			)
+				})
 			mockSecrets.store.mockRejectedValueOnce(new Error("Storage failed"))
 
 			await expect(providerSettingsManager.saveConfig("test", {})).rejects.toThrow(
@@ -278,8 +274,7 @@ suite("ProviderSettingsManager", () => {
 				JSON.stringify({
 					currentApiConfigName: "default",
 					apiConfigs: { default: {} },
-				}),
-			)
+				})
 
 			await expect(providerSettingsManager.deleteConfig("nonexistent")).rejects.toThrow(
 				"Config 'nonexistent' not found",
@@ -295,8 +290,7 @@ suite("ProviderSettingsManager", () => {
 							id: "default",
 						},
 					},
-				}),
-			)
+				})
 
 			await expect(providerSettingsManager.deleteConfig("default")).rejects.toThrow(
 				"Failed to delete config: Error: Cannot delete the last remaining configuration",
@@ -347,8 +341,7 @@ suite("ProviderSettingsManager", () => {
 							id: "default",
 						},
 					},
-				}),
-			)
+				})
 
 			await expect(providerSettingsManager.loadConfig("nonexistent")).rejects.toThrow(
 				"Config 'nonexistent' not found",
@@ -367,8 +360,7 @@ suite("ProviderSettingsManager", () => {
 							id: "test-id",
 						},
 					},
-				}),
-			)
+				})
 			mockSecrets.store.mockRejectedValueOnce(new Error("Storage failed"))
 
 			await expect(providerSettingsManager.loadConfig("test")).rejects.toThrow(
@@ -389,8 +381,7 @@ suite("ProviderSettingsManager", () => {
 							id: "test-id",
 						},
 					},
-				}),
-			)
+				})
 
 			await providerSettingsManager.resetAllConfigs()
 
@@ -425,8 +416,7 @@ suite("ProviderSettingsManager", () => {
 				JSON.stringify({
 					currentApiConfigName: "default",
 					apiConfigs: { default: {} },
-				}),
-			)
+				})
 
 			const hasConfig = await providerSettingsManager.hasConfig("nonexistent")
 			assert.strictEqual(hasConfig, false)
@@ -440,4 +430,4 @@ suite("ProviderSettingsManager", () => {
 			)
 		})
 	})
-})
+// Mock cleanup

@@ -1,5 +1,5 @@
-import { getNonce } from "../getNonce"
 import * as assert from 'assert'
+import { getNonce } from "../getNonce"
 import * as sinon from 'sinon'
 
 suite("getNonce", () => {
@@ -15,4 +15,4 @@ suite("getNonce", () => {
 		expect(first).toMatch(/^[A-Za-z0-9]{32}$/)
 		expect(second).toMatch(/^[A-Za-z0-9]{32}$/)
 	})
-})
+// Mock cleanup

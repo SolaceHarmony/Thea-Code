@@ -2,10 +2,10 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 import type { NeutralConversationHistory, NeutralMessageContent } from "../../../shared/neutral-history"
 
-import { ModelInfo } from "../../../shared/api"
 import { BaseProvider } from "../../../api/providers/base-provider"
-import { ApiStream } from "../../../api/transform/stream"
+import { ModelInfo } from "../../../shared/api"
 import { TOKEN_BUFFER_PERCENTAGE } from "../index"
+import { ApiStream } from "../../../api/transform/stream"
 import { estimateTokenCount, truncateConversation, truncateConversationIfNeeded } from "../index"
 
 // Create a mock ApiHandler for testing
@@ -21,18 +21,19 @@ class MockApiHandler extends BaseProvider {
 	}
 
 	getModel(): { id: string; info: ModelInfo } {
-		return {
-			id: "test-model",
-			info: {
-				contextWindow: 100000,
-				maxTokens: 50000,
-				supportsPromptCache: true,
-				supportsImages: false,
-				inputPrice: 0,
-				outputPrice: 0,
-				description: "Test model",
-			},
-		}
+// Mock return block needs context
+// 		return {
+// 			id: "test-model",
+// 			info: {
+// 				contextWindow: 100000,
+// 				maxTokens: 50000,
+// 				supportsPromptCache: true,
+// 				supportsImages: false,
+// 				inputPrice: 0,
+// 				outputPrice: 0,
+// 				description: "Test model",
+// 			},
+// 		}
 	}
 }
 
@@ -126,7 +127,7 @@ suite("truncateConversation", () => {
 		assert.deepStrictEqual(result[0], messages[0])
 		assert.deepStrictEqual(result[1], messages[3])
 	})
-})
+// Mock cleanup
 
 /**
  * Tests for the estimateTokenCount function
@@ -144,7 +145,7 @@ suite("estimateTokenCount", () => {
 		// With tiktoken, the exact token count may differ from character-based estimation
 		// Instead of expecting an exact number, we verify it's a reasonable positive number
 		const result = await estimateTokenCount(content, mockApiHandler)
-		expect(result).toBeGreaterThan(0)
+		assert.ok(result > 0)
 
 		// We can also verify that longer text results in more tokens
 		const longerContent: NeutralMessageContent = [
@@ -154,7 +155,7 @@ suite("estimateTokenCount", () => {
 			},
 		]
 		const longerResult = await estimateTokenCount(longerContent, mockApiHandler)
-		expect(longerResult).toBeGreaterThan(result)
+		assert.ok(longerResult > result)
 	})
 
 	test("should estimate tokens for image blocks based on data size", async () => {
@@ -172,10 +173,10 @@ suite("estimateTokenCount", () => {
 		const largerImageTokens = await estimateTokenCount(largerImage, mockApiHandler)
 
 		// Small image should have some tokens
-		expect(smallImageTokens).toBeGreaterThan(0)
+		assert.ok(smallImageTokens > 0)
 
 		// Larger image should have proportionally more tokens
-		expect(largerImageTokens).toBeGreaterThan(smallImageTokens)
+		assert.ok(largerImageTokens > smallImageTokens)
 
 		// Verify the larger image calculation matches our formula including the 50% fudge factor
 		assert.strictEqual(largerImageTokens, 48)
@@ -194,14 +195,14 @@ suite("estimateTokenCount", () => {
 		// With tiktoken, we can't predict exact text token counts,
 		// but we can verify the total is greater than just the image tokens
 		const result = await estimateTokenCount(content, mockApiHandler)
-		expect(result).toBeGreaterThan(imageTokens)
+		assert.ok(result > imageTokens)
 
 		// Also test against a version with only the image to verify text adds tokens
 		const imageOnlyContent: NeutralMessageContent = [
 			{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: "dummy_data" } },
 		]
 		const imageOnlyResult = await estimateTokenCount(imageOnlyContent, mockApiHandler)
-		expect(result).toBeGreaterThan(imageOnlyResult)
+		assert.ok(result > imageOnlyResult)
 	})
 
 	test("should handle empty text blocks", async () => {
@@ -213,7 +214,7 @@ suite("estimateTokenCount", () => {
 		const content = "This is a plain text message"
 		expect(await estimateTokenCount([{ type: "text", text: content }], mockApiHandler)).toBeGreaterThan(0)
 	})
-})
+// Mock cleanup
 
 /**
  * Tests for the truncateConversationIfNeeded function
@@ -413,7 +414,7 @@ suite("truncateConversationIfNeeded", () => {
 		})
 		assert.deepStrictEqual(result, expectedResult)
 	})
-})
+// Mock cleanup
 
 /**
  * Tests for the getMaxTokens function (private but tested through truncateConversationIfNeeded)
@@ -553,4 +554,4 @@ suite("getMaxTokens", () => {
 		assert.notDeepStrictEqual(result2, messagesWithSmallContent)
 		assert.strictEqual(result2.length, 3) // Truncated with 0.5 fraction
 	})
-})
+// Mock cleanup

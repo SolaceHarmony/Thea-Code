@@ -300,4 +300,4 @@ index 123..456 100644
 			assert.ok(result.includes("Truncated diff"))
 		})
 	})
-})
+// Mock cleanup

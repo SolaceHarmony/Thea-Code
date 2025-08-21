@@ -3,10 +3,10 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 import * as vscode from "vscode"
 import axios from "axios"
-import { TheaApiManager } from "../api/TheaApiManager"
 import { ContextProxy } from "../../config/ContextProxy"
-import { ProviderSettingsManager } from "../../config/ProviderSettingsManager"
+import { TheaApiManager } from "../api/TheaApiManager"
 import {
+import { ProviderSettingsManager } from "../../config/ProviderSettingsManager"
 	openRouterDefaultModelId,
 	openRouterDefaultModelInfo,
 	glamaDefaultModelId,
@@ -17,12 +17,12 @@ import {
 import { buildApiHandler, ApiHandler } from "../../../api"
 
 // Mock dependencies
-// TODO: Use proxyquire for module mocking - "vscode")
-// TODO: Use proxyquire for module mocking - "axios")
-// TODO: Use proxyquire for module mocking - "../../config/ContextProxy")
-// TODO: Use proxyquire for module mocking - "../../config/ProviderSettingsManager")
-// TODO: Use proxyquire for module mocking - "../../../api")
-// TODO: Use proxyquire for module mocking - "../../../services/telemetry/TelemetryService")
+// TODO: Mock setup needs manual migration for "vscode"
+// TODO: Mock setup needs manual migration for "axios"
+// TODO: Mock setup needs manual migration for "../../config/ContextProxy"
+// TODO: Mock setup needs manual migration for "../../config/ProviderSettingsManager"
+// TODO: Mock setup needs manual migration for "../../../api"
+// TODO: Mock setup needs manual migration for "../../../services/telemetry/TelemetryService"
 
 suite("ClineApiManager", () => {
 	let manager: TheaApiManager
@@ -273,4 +273,4 @@ suite("ClineApiManager", () => {
 		assert.ok(buildApiHandler.calledWith(mockApiConfig))
 		assert.strictEqual(result, mockApiHandler)
 	})
-})
+// Mock cleanup

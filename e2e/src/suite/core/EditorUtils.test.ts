@@ -1,11 +1,11 @@
 import * as vscode from "vscode"
-import { EditorUtils } from "../EditorUtils"
 import * as assert from 'assert'
+import { EditorUtils } from "../EditorUtils"
 import * as sinon from 'sinon'
 
 // Use simple classes to simulate VSCode's Range and Position behavior.
-// TODO: Use proxyquire for module mocking - "vscode", () => {
-	class MockPosition {
+// TODO: Mock setup needs manual migration for "vscode"
+// 	class MockPosition {
 		constructor(
 			public line: number,
 			public character: number,
@@ -19,23 +19,24 @@ import * as sinon from 'sinon'
 			this.end = end
 		}
 	}
-
-	return {
-		Range: MockRange,
-		Position: MockPosition,
-		EndOfLine: {
-			LF: 1,
-			CRLF: 2,
-		},
-		workspace: {
-			getWorkspaceFolder: sinon.stub(),
-		},
-		window: { activeTextEditor: undefined },
-		languages: {
-			getDiagnostics: sinon.stub(() => []),
-		},
-	}
-})
+// Mock return block needs context
+// 
+// 	return {
+// 		Range: MockRange,
+// 		Position: MockPosition,
+// 		EndOfLine: {
+// 			LF: 1,
+// 			CRLF: 2,
+// 		},
+// 		workspace: {
+// 			getWorkspaceFolder: sinon.stub(),
+// 		},
+// 		window: { activeTextEditor: undefined },
+// 		languages: {
+// 			getDiagnostics: sinon.stub(() => []),
+// 		},
+// 	}
+// Mock cleanup
 
 suite("EditorUtils", () => {
 	let mockDocument: sinon.SinonStubbedInstance<vscode.TextDocument>
@@ -73,80 +74,81 @@ suite("EditorUtils", () => {
 			lineAt: sinon.stub((line: number | vscode.Position) => {
 				const lineNumber = typeof line === "number" ? line : line.line
 				const text = `Line ${lineNumber} text`
-				return {
-					text: text,
-					lineNumber: lineNumber,
-					range: new vscode.Range(lineNumber, 0, lineNumber, text.length),
-					rangeIncludingLineBreak: new vscode.Range(lineNumber, 0, lineNumber, text.length + 1),
-					firstNonWhitespaceCharacterIndex: 0,
-					isEmptyOrWhitespace: false,
-				} as vscode.TextLine
-			}),
-			offsetAt: sinon.stub(),
-			positionAt: sinon.stub(),
-			getWordRangeAtPosition: sinon.stub(),
-			validateRange: sinon.stub(),
-			validatePosition: sinon.stub(),
-			save: sinon.stub(),
-		} satisfies Partial<vscode.TextDocument> as sinon.SinonStubbedInstance<vscode.TextDocument>
-	})
-
-	suite("getEffectiveRange", () => {
-		test("should return selected text when available", () => {
-			const mockRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 10))
-			mockDocument.getText.returns("selected text")
-
-			const result = EditorUtils.getEffectiveRange(mockDocument, mockRange)
-
-			assert.deepStrictEqual(result, {
-				range: mockRange,
-				text: "selected text",
-			})
-		})
-
-		test("should return null for empty line", () => {
-			const mockRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 10))
-			mockDocument.getText.returns("")
-			mockDocument.lineAt.returns({
-				text: "",
-				lineNumber: 0,
-				range: new vscode.Range(0, 0, 0, 0),
-				rangeIncludingLineBreak: new vscode.Range(0, 0, 0, 1),
-				firstNonWhitespaceCharacterIndex: 0,
-				isEmptyOrWhitespace: true,
-			} as vscode.TextLine)
-
-			const result = EditorUtils.getEffectiveRange(mockDocument, mockRange)
-
-			assert.strictEqual(result, null)
-		})
-
-		test("should expand empty selection to full lines", () => {
-			// Simulate a caret (empty selection) on line 2 at character 5.
-			const initialRange = new vscode.Range(new vscode.Position(2, 5), new vscode.Position(2, 5))
-			// Return non-empty text for any line with text (lines 1, 2, and 3).
-			mockDocument.lineAt.callsFake((line: number | vscode.Position) => {
-				const lineNumber = typeof line === "number" ? line : line.line
-				const text = `Line ${lineNumber} text`
-				return {
-					text: text,
-					lineNumber: lineNumber,
-					range: new vscode.Range(lineNumber, 0, lineNumber, text.length),
-					rangeIncludingLineBreak: new vscode.Range(lineNumber, 0, lineNumber, text.length + 1),
-					firstNonWhitespaceCharacterIndex: 0,
-					isEmptyOrWhitespace: false,
-				} as vscode.TextLine
-			})
-			mockDocument.getText.callsFake((range?: vscode.Range) => {
-				// If the range is exactly the empty initial selection, return an empty string.
-				if (
-					range?.start.line === initialRange.start.line &&
-					range?.start.character === initialRange.start.character &&
-					range?.end.line === initialRange.end.line &&
-					range?.end.character === initialRange.end.character
-				) {
-					return ""
-				}
+// Mock return block needs context
+// 				return {
+// 					text: text,
+// 					lineNumber: lineNumber,
+// 					range: new vscode.Range(lineNumber, 0, lineNumber, text.length),
+// 					rangeIncludingLineBreak: new vscode.Range(lineNumber, 0, lineNumber, text.length + 1),
+// 					firstNonWhitespaceCharacterIndex: 0,
+// 					isEmptyOrWhitespace: false,
+// 				} as vscode.TextLine
+// 			}),
+// 			offsetAt: sinon.stub(),
+// 			positionAt: sinon.stub(),
+// 			getWordRangeAtPosition: sinon.stub(),
+// 			validateRange: sinon.stub(),
+// 			validatePosition: sinon.stub(),
+// 			save: sinon.stub(),
+// 		} satisfies Partial<vscode.TextDocument> as sinon.SinonStubbedInstance<vscode.TextDocument>
+// 	})
+// 
+// 	suite("getEffectiveRange", () => {
+// 		test("should return selected text when available", () => {
+// 			const mockRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 10))
+// 			mockDocument.getText.returns("selected text")
+// 
+// 			const result = EditorUtils.getEffectiveRange(mockDocument, mockRange)
+// 
+// 			assert.deepStrictEqual(result, {
+// 				range: mockRange,
+// 				text: "selected text",
+// 			})
+// 		})
+// 
+// 		test("should return null for empty line", () => {
+// 			const mockRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 10))
+// 			mockDocument.getText.returns("")
+// 			mockDocument.lineAt.returns({
+// 				text: "",
+// 				lineNumber: 0,
+// 				range: new vscode.Range(0, 0, 0, 0),
+// 				rangeIncludingLineBreak: new vscode.Range(0, 0, 0, 1),
+// 				firstNonWhitespaceCharacterIndex: 0,
+// 				isEmptyOrWhitespace: true,
+// 			} as vscode.TextLine)
+// 
+// 			const result = EditorUtils.getEffectiveRange(mockDocument, mockRange)
+// 
+// 			assert.strictEqual(result, null)
+// 		})
+// 
+// 		test("should expand empty selection to full lines", () => {
+// 			// Simulate a caret (empty selection) on line 2 at character 5.
+// 			const initialRange = new vscode.Range(new vscode.Position(2, 5), new vscode.Position(2, 5))
+// 			// Return non-empty text for any line with text (lines 1, 2, and 3).
+// 			mockDocument.lineAt.callsFake((line: number | vscode.Position) => {
+// 				const lineNumber = typeof line === "number" ? line : line.line
+// 				const text = `Line ${lineNumber} text`
+// 				return {
+// 					text: text,
+// 					lineNumber: lineNumber,
+// 					range: new vscode.Range(lineNumber, 0, lineNumber, text.length),
+// 					rangeIncludingLineBreak: new vscode.Range(lineNumber, 0, lineNumber, text.length + 1),
+// 					firstNonWhitespaceCharacterIndex: 0,
+// 					isEmptyOrWhitespace: false,
+// 				} as vscode.TextLine
+// 			})
+// 			mockDocument.getText.callsFake((range?: vscode.Range) => {
+// 				// If the range is exactly the empty initial selection, return an empty string.
+// 				if (
+// 					range?.start.line === initialRange.start.line &&
+// 					range?.start.character === initialRange.start.character &&
+// 					range?.end.line === initialRange.end.line &&
+// 					range?.end.character === initialRange.end.character
+// 				) {
+// 					return ""
+// 				}
 				return "expanded text"
 			})
 
@@ -213,4 +215,4 @@ suite("EditorUtils", () => {
 			assert.strictEqual(result, "/test/file.ts")
 		})
 	})
-})
+// Mock cleanup

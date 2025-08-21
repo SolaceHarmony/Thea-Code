@@ -282,4 +282,4 @@ suite("Comprehensive Provider Tests", () => {
 			// Test reasoning/thinking support
 		})
 	})
-})
+// Mock cleanup

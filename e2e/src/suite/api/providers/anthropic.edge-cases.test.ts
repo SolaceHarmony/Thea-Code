@@ -7,8 +7,8 @@ import * as proxyquire from 'proxyquire'
  * Tests thinking budget clamping, tool_use to tool_result conversion, countTokens fallback
  */
 
-import { ApiHandlerOptions } from "../../../../../src/shared/api"
 import type { NeutralConversationHistory, NeutralMessageContent } from "../../../../../src/shared/neutral-history"
+import { ApiHandlerOptions } from "../../../../../src/shared/api"
 
 suite("AnthropicHandler - Edge Cases", () => {
 	let AnthropicHandler: any
@@ -56,11 +56,12 @@ suite("AnthropicHandler - Edge Cases", () => {
 		getModelParamsStub = sinon.stub().callsFake((options) => {
 			const customMaxTokens = options.options?.modelMaxTokens
 			const customTemperature = options.options?.modelTemperature
-			return {
-				maxTokens: customMaxTokens !== undefined ? customMaxTokens : 8192,
-				temperature: customTemperature !== undefined ? customTemperature : 0,
-				thinking: undefined
-			}
+// Mock return block needs context
+// 			return {
+// 				maxTokens: customMaxTokens !== undefined ? customMaxTokens : 8192,
+// 				temperature: customTemperature !== undefined ? customTemperature : 0,
+// 				thinking: undefined
+// 			}
 		})
 
 		// Mock BaseProvider
@@ -507,4 +508,4 @@ suite("AnthropicHandler - Edge Cases", () => {
 			assert.strictEqual(model.maxTokens, 8192)
 		})
 	})
-})
+// Mock cleanup

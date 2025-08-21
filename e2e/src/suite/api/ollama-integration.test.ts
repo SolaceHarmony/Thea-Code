@@ -75,34 +75,35 @@ suite("Ollama Integration", () => {
 		// Mock OpenAI client
 		const mockCreate = sandbox.stub().callsFake(({ messages, stream }: any) => {
 			if (stream) {
-				return {
-					async *[Symbol.asyncIterator]() {
-						const hasSystemMessage = messages.some((msg: any) => msg.role === "system")
-						
-						// Check for specific test cases
-						const lastUserMessage = messages.filter((m: any) => m.role === "user").pop()
-						const userText = lastUserMessage?.content?.[0]?.text || ""
-						
-						if (userText.includes("stream test")) {
-							yield { choices: [{ delta: { content: "First " } }] }
-							yield { choices: [{ delta: { content: "chunk" } }] }
-							yield { choices: [{ finish_reason: "stop" }] }
-						} else if (userText.includes("reasoning test")) {
-							yield { choices: [{ delta: { content: "<think>Internal thought</think>" } }] }
-							yield { choices: [{ delta: { content: "Visible response" } }] }
-							yield { choices: [{ finish_reason: "stop" }] }
-						} else if (userText.includes("json reasoning")) {
-							yield { choices: [{ delta: { content: '{"type":"thinking","content":"JSON thought"}' } }] }
-							yield { choices: [{ delta: { content: "Visible response" } }] }
-							yield { choices: [{ finish_reason: "stop" }] }
-						} else if (userText.includes("error test")) {
-							throw new Error("Simulated API error")
-						} else if (userText.includes("system role test")) {
-							if (hasSystemMessage) {
-								yield { choices: [{ delta: { content: "System message handled" } }] }
-							} else {
-								yield { choices: [{ delta: { content: "No system message" } }] }
-							}
+// Mock return block needs context
+// 				return {
+// 					async *[Symbol.asyncIterator]() {
+// 						const hasSystemMessage = messages.some((msg: any) => msg.role === "system")
+// 						
+// 						// Check for specific test cases
+// 						const lastUserMessage = messages.filter((m: any) => m.role === "user").pop()
+// 						const userText = lastUserMessage?.content?.[0]?.text || ""
+// 						
+// 						if (userText.includes("stream test")) {
+// 							yield { choices: [{ delta: { content: "First " } }] }
+// 							yield { choices: [{ delta: { content: "chunk" } }] }
+// 							yield { choices: [{ finish_reason: "stop" }] }
+// 						} else if (userText.includes("reasoning test")) {
+// 							yield { choices: [{ delta: { content: "<think>Internal thought</think>" } }] }
+// 							yield { choices: [{ delta: { content: "Visible response" } }] }
+// 							yield { choices: [{ finish_reason: "stop" }] }
+// 						} else if (userText.includes("json reasoning")) {
+// 							yield { choices: [{ delta: { content: '{"type":"thinking","content":"JSON thought"}' } }] }
+// 							yield { choices: [{ delta: { content: "Visible response" } }] }
+// 							yield { choices: [{ finish_reason: "stop" }] }
+// 						} else if (userText.includes("error test")) {
+// 							throw new Error("Simulated API error")
+// 						} else if (userText.includes("system role test")) {
+// 							if (hasSystemMessage) {
+// 								yield { choices: [{ delta: { content: "System message handled" } }] }
+// 							} else {
+// 								yield { choices: [{ delta: { content: "No system message" } }] }
+// 							}
 							yield { choices: [{ finish_reason: "stop" }] }
 						} else if (userText.includes("tool use test")) {
 							yield { choices: [{ delta: { content: "I'll use a tool" } }] }
@@ -120,15 +121,16 @@ suite("Ollama Integration", () => {
 				}
 			} else {
 				// Non-streaming response
-				return {
-					choices: [{
-						message: {
-							role: "assistant",
-							content: "Non-streaming response"
-						},
-						finish_reason: "stop"
-					}]
-				}
+// Mock return block needs context
+// 				return {
+// 					choices: [{
+// 						message: {
+// 							role: "assistant",
+// 							content: "Non-streaming response"
+// 						},
+// 						finish_reason: "stop"
+// 					}]
+// 				}
 			}
 		})
 		
@@ -312,4 +314,5 @@ suite("Ollama Integration", () => {
 		// The handler should be configured with the test model
 		assert.ok(handler.options.ollamaModelId === "llama2")
 	})
-})
+// Mock cleanup
+// Mock cleanup

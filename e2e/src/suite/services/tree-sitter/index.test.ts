@@ -63,7 +63,7 @@ suite("Tree-sitter Service", () => {
 
 			assert.ok(result.includes("file1.ts"))
 			assert.ok(result.includes("file2.tsx"))
-			expect(result).not.toContain("readme.md")
+			assert.ok(!result.includes("readme.md"))
 			assert.ok(result.includes("export class TestClass"))
 
 		test("should handle multiple definition types", async () => {
@@ -238,4 +238,4 @@ suite("Tree-sitter Service", () => {
 
 			// Should use forward slashes regardless of platform
 			assert.ok(result.includes("dir/file.ts"))
-			expect(result).not.toContain("dir\\file.ts")
+			assert.ok(!result.includes("dir\\file.ts"))

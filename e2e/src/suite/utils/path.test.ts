@@ -280,4 +280,4 @@ suite("Path Utilities", () => {
 			assert.strictEqual(result, "src/file.ts")
 		})
 	})
-})
+// Mock cleanup
