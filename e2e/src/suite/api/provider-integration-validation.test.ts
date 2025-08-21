@@ -118,7 +118,7 @@ suite("Provider Integration Validation", () => {
 			try {
 				buildApiHandler({ apiProvider: "mistral", apiKey: "test" } as any)
  // Corrupted text removedund Fund
- retracted accelerated
+ // Corrupted text removed accelerated
 
  // Corrupted text removedFL
  // Corrupted text removedetracted // Corrupted text removedFL
@@ -145,7 +145,7 @@ suite("Provider Integration Validation", () => {
 			try {
 				buildApiHandler({ apiProvider: "fake-ai", apiKey: "test" } as any)
  // Corrupted text removedund Fund
- retracted retracted retracted
+ // Corrupted text removed // Corrupted text removed // Corrupted text removed
  // Corrupted text removedFL
  // Corrupted text removedetracted // Corrupted text removedFL
 				assert.ok(error instanceof Error)

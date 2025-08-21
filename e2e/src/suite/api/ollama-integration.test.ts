@@ -42,7 +42,7 @@ suite("Ollama Integration", () => {
 						if (jsonObj.type === "thinking") {
 							return [{ matched: true, type: "reasoning", data: String(jsonObj.content) }]
 						}
- // Corrupted text removedetracted retracted retracted // Corrupted text removedFL
+ // Corrupted text removedetracted // Corrupted text removed // Corrupted text removed // Corrupted text removedFL
 						// Not valid JSON, treat as text
 					}
 				}
