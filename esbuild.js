@@ -29,14 +29,21 @@ const copyWasmFiles = {
 	name: "copy-wasm-files",
 	setup(build) {
 		build.onEnd(() => {
-			// tree sitter
 			const sourceDir = path.join(__dirname, "node_modules", "web-tree-sitter")
 			const targetDir = path.join(__dirname, "dist")
 
-			// Copy tree-sitter.wasm
-			fs.copyFileSync(path.join(sourceDir, "tree-sitter.wasm"), path.join(targetDir, "tree-sitter.wasm"))
+			// Ensure the target directory exists so copyFileSync doesn't throw
+			fs.mkdirSync(targetDir, { recursive: true })
 
-			// Copy language-specific WASM files
+			// Copy tree-sitter.wasm if available
+			const wasmSource = path.join(sourceDir, "tree-sitter.wasm")
+			if (fs.existsSync(wasmSource)) {
+				fs.copyFileSync(wasmSource, path.join(targetDir, "tree-sitter.wasm"))
+			} else {
+				console.warn(`tree-sitter.wasm not found in ${sourceDir}, skipping copy`)
+			}
+
+			// Copy language-specific WASM files when present
 			const languageWasmDir = path.join(__dirname, "node_modules", "tree-sitter-wasms", "out")
 			const languages = [
 				"typescript",
@@ -57,7 +64,13 @@ const copyWasmFiles = {
 
 			languages.forEach((lang) => {
 				const filename = `tree-sitter-${lang}.wasm`
-				fs.copyFileSync(path.join(languageWasmDir, filename), path.join(targetDir, filename))
+				const src = path.join(languageWasmDir, filename)
+				const dest = path.join(targetDir, filename)
+				if (fs.existsSync(src)) {
+					fs.copyFileSync(src, dest)
+				} else {
+					console.warn(`Missing ${filename} in ${languageWasmDir}, skipping`)
+				}
 			})
 		})
 	},
@@ -100,7 +113,7 @@ async function copyLocaleFiles() {
 					// Copy the file
 					await fs.promises.copyFile(srcPath, destPath)
 				}
-			})
+			}),
 		)
 	}
 
