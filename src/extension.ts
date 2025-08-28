@@ -49,7 +49,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	outputChannel.appendLine(`${EXTENSION_DISPLAY_NAME} extension activated`)
 
 	// Detect e2e/test mode to reduce heavy startup during integration tests
-	const isE2E = process.env.THEA_E2E === '1' || process.env.NODE_ENV === 'test'
+	const isE2E = process.env.THEA_E2E === "1" || process.env.NODE_ENV === "test"
 	outputChannel.appendLine(`Activation starting (testMode=${isE2E})`)
 
 	if (isE2E) {
@@ -161,11 +161,6 @@ export async function deactivate() {
 	outputChannel.appendLine(`${EXTENSION_DISPLAY_NAME} extension deactivated`)
 	// Clean up MCP server manager
 	await McpServerManager.cleanup(extensionContext)
-	await telemetryService.shutdown()
-
-	// Clean up terminal handlers
-	TerminalRegistry.cleanup()
-}
 	await telemetryService.shutdown()
 
 	// Clean up terminal handlers

@@ -72,11 +72,11 @@ async function getOpenRouterProvidersForModel(modelId: string) {
 				description,
 				label: providerName,
 			}
-			
+
 			// Set default cache pricing
 			modelInfo.cacheWritesPrice = 0.3
 			modelInfo.cacheReadsPrice = 0.03
-			
+
 			// Use the capability detection system to set capabilities based on model ID patterns
 			const updated = setCapabilitiesFromModelId(modelId, modelInfo)
 			// Preserve label if helper returns a new object without it in the type
@@ -86,7 +86,7 @@ async function getOpenRouterProvidersForModel(modelId: string) {
 		}
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			console.error(`OpenRouter API response validation failed:`, error.errors)
+			console.error(`OpenRouter API response validation failed:`, error.issues)
 		} else {
 			console.error(`Error fetching OpenRouter providers:`, error)
 		}
