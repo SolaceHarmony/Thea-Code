@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react"
+import type { ZodIssue } from "zod"
 import { GLOBAL_FILENAMES, CONFIG_DIR_NAME } from "../../../../src/shared/config/thea-config"
 import {
 	VSCodeButton,
@@ -227,10 +228,10 @@ const PromptsView = ({ onDone }: PromptsViewProps) => {
 		const result = modeConfigSchema.safeParse(newMode)
 
 		if (!result.success) {
-			// Map Zod errors to specific fields
-			result.error.errors.forEach((error) => {
-				const field = error.path[0] as string
-				const message = error.message
+			// Map Zod issues to specific fields
+			result.error.issues.forEach((issue: ZodIssue) => {
+				const field = issue.path[0] as string
+				const message = issue.message
 
 				switch (field) {
 					case "name":
