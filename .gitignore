@@ -74,3 +74,4 @@ dist/
 .vscode/mcp.json
 mcp-claude/requirements.txt
 mcp-claude/server.py
+*.log
