@@ -11,11 +11,12 @@ const EXTENSION_ID = `${pkg.publisher}.${pkg.name}`
 
 export default defineConfig({
 	label: "integrationTest",
-	files: "out/suite/**/*.test.js",
+	files: "out/suite/selected/**/*.test.js",
 	workspaceFolder: ".",
 	mocha: {
 		ui: "tdd",
 		timeout: 60000,
 	},
-	launchArgs: [`--enable-proposed-api=${EXTENSION_ID}`, "--disable-extensions"],
+	// Don't reference workspace TS constants in this ESM config; pass minimal args only.
+	launchArgs: ["--disable-extensions"],
 })

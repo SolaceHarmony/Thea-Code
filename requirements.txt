@@ -1,0 +1,41 @@
+# Core Dependencies
+torch>=2.0.0
+ray[default]>=2.0.0
+
+# LFM2-style training (exact versions from their colab)
+transformers==4.54.0
+trl>=0.18.2
+peft>=0.15.2
+
+# Datasets
+datasets>=2.0.0
+huggingface-hub>=0.16.0
+
+# M2-BERT specific (if using FlashMM and FlashFFT)
+# git+https://github.com/HazyResearch/flash-fft-conv.git
+
+# Training utilities
+accelerate>=0.20.0
+bitsandbytes>=0.41.0
+scipy>=1.10.0
+sentencepiece>=0.1.99
+
+# Monitoring and visualization
+tensorboard>=2.13.0
+wandb>=0.15.0
+rich>=13.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# Development
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.4.0
+
+# Optional optimizations
+# ninja  # For compiling CUDA kernels
+# triton>=2.0.0  # For Flash Attention 2

@@ -30,7 +30,7 @@
 	],
 	"overrides": [
 		{
-			"files": ["e2e/**/*.ts"],
+			"files": ["e2e/**/*.ts", "e2e/**/*.d.ts"],
 			"parserOptions": {
 				"project": "./e2e/tsconfig.json"
 			}

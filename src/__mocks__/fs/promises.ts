@@ -64,8 +64,12 @@ const ensureDirectoryExists = (path: string) => {
 	}
 }
 
+
+import sinon from 'sinon'
+import * as realFs from 'fs'
+
 const mockFs = {
-	readFile: jest.fn().mockImplementation(async (filePath: string, encoding?: string) => {
+	readFile: sinon.stub().callsFake(async (filePath: string, encoding?: string) => {
 		// Return stored content if it exists
 		if (mockFiles.has(filePath)) {
 			return mockFiles.get(filePath)
@@ -98,11 +102,12 @@ const mockFs = {
 
 		// Handle file not found
 		const error = new Error(`ENOENT: no such file or directory, open '${filePath}'`)
-		;(error as unknown as { type: string }).code = "ENOENT"
+		Object.assign(error, { code: "ENOENT" as string })
 		throw error
 	}),
 
-	writeFile: jest.fn().mockImplementation(async (path: string, content: string) => {
+
+	writeFile: sinon.stub().callsFake(async (path: string, content: string) => {
 		// Ensure parent directory exists
 		const parentDir = path.split("/").slice(0, -1).join("/")
 		ensureDirectoryExists(parentDir)
@@ -110,7 +115,8 @@ const mockFs = {
 		return Promise.resolve()
 	}),
 
-	mkdir: jest.fn().mockImplementation(async (path: string, options?: { recursive?: boolean }) => {
+
+	mkdir: sinon.stub().callsFake(async (path: string, options?: { recursive?: boolean }) => {
 		// Always handle recursive creation
 		const parts = path.split("/")
 		let currentPath = ""
@@ -131,7 +137,7 @@ const mockFs = {
 			currentPath += "/" + parts[i]
 			if (!mockDirectories.has(currentPath)) {
 				const error = new Error(`ENOENT: no such file or directory, mkdir '${path}'`)
-				;(error as unknown as { type: string }).code = "ENOENT"
+				Object.assign(error, { code: "ENOENT" as string })
 				throw error
 			}
 		}
@@ -142,17 +148,19 @@ const mockFs = {
 		return Promise.resolve()
 	}),
 
-	access: jest.fn().mockImplementation(async (path: string) => {
+
+	access: sinon.stub().callsFake(async (path: string) => {
 		// Check if the path exists in either files or directories
 		if (mockFiles.has(path) || mockDirectories.has(path) || path.startsWith("/test")) {
 			return Promise.resolve()
 		}
 		const error = new Error(`ENOENT: no such file or directory, access '${path}'`)
-		;(error as unknown as { type: string }).code = "ENOENT"
+		Object.assign(error, { code: "ENOENT" as string })
 		throw error
 	}),
 
-	rename: jest.fn().mockImplementation(async (oldPath: string, newPath: string) => {
+
+	rename: sinon.stub().callsFake(async (oldPath: string, newPath: string) => {
 		// Check if the old file exists
 		if (mockFiles.has(oldPath)) {
 			// Copy content to new path
@@ -164,11 +172,11 @@ const mockFs = {
 		}
 		// If old file doesn't exist, throw an error
 		const error = new Error(`ENOENT: no such file or directory, rename '${oldPath}'`)
-		;(error as unknown as { type: string }).code = "ENOENT"
+		Object.assign(error, { code: "ENOENT" as string })
 		throw error
 	}),
 
-	constants: jest.requireActual("fs").constants,
+	constants: realFs.constants,
 
 	// Expose mock data for test assertions
 	_mockFiles: mockFiles,

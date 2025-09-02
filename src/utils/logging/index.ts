@@ -4,6 +4,7 @@
  */
 
 import { CompactLogger } from "./CompactLogger"
+import { isTestEnv } from "../test-env"
 
 /**
  * No-operation logger implementation for production environments
@@ -22,4 +23,4 @@ const noopLogger = {
  * Default logger instance
  * Uses CompactLogger for normal operation, switches to noop logger in Jest test environment
  */
-export const logger = process.env.JEST_WORKER_ID !== undefined ? noopLogger : new CompactLogger()
+export const logger = isTestEnv() ? noopLogger : new CompactLogger()

@@ -332,7 +332,7 @@
     "test:roo-migration": "node test/roo-migration/runTest.js",
     "test:extension-harness": "node test/extension-api-harness/runTest.js",
     "test:integration": "cd e2e && npm run test",
-    "test:vscode": "cd e2e && npx vscode-test --label integrationTest",
+  "test:vscode": "cd e2e && npx @vscode/test-cli --label integrationTest",
     "test:all": "npm run test:integration",
     "test:e2e": "cd e2e && npm test",
     "test:compile": "cd e2e && npm run compile",

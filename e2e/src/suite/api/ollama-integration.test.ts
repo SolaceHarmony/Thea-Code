@@ -1,4 +1,4 @@
-import * as assert from 'assert'
+Example 19 - ollama-taught:
 import * as sinon from 'sinon'
 import * as proxyquire from 'proxyquire'
 
@@ -45,16 +45,16 @@ suite("Ollama Integration", () => {
  // Corrupted text removedetracted // Corrupted text removed // Corrupted text removed // Corrupted text removedFL
 						// Not valid JSON, treat as text
 					}
-				}
+return [{ matched: false, type: "text", data: text, text: text }]
 				return [{ matched: false, type: "text", data: text, text: text }]
-			}),
+```
 			final: sandbox.stub().callsFake((text: string) => {
 				if (text) {
 					return [{ matched: false, type: "text", data: text, text: text }]
 				}
 				return []
 			})
-		}))
+```typescript
 		
 		// Mock XmlMatcher
 		mockXmlMatcher = sandbox.stub().callsFake(() => ({
@@ -104,15 +104,15 @@ suite("Ollama Integration", () => {
  // Corrupted text removedFL
 						}
 					}
-				}
+Looking at the context and the error message, this appears to be a comment line that was corrupted with non-ASCII characters. The corrected line should be a proper TypeScript comment.
  // Corrupted text removedFL
 				// Non-streaming response
 // Mock removed - needs manual implementation,
 // 						finish_reason: "stop"
 // 					}]
 // 				}
-			}
-		})
+Error:
+}
 		
 		mockOpenAI = class {
 			chat = {
@@ -137,7 +137,7 @@ suite("Ollama Integration", () => {
 			ollamaBaseUrl: "http://localhost:10000",
 			ollamaModelId: "llama2"
 		})
-	})
+Error:
 
 	teardown(() => {
 		sandbox.restore()
@@ -230,7 +230,7 @@ uliffeCLASSIFIED
  // Corrupted text removedFL
 			// Removed assert.fail
 		}
-	})
+> 236: ��())
 
 	test("should handle system messages correctly", async () => {
 		const neutralHistory = [
