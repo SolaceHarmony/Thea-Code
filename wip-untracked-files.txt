@@ -1,0 +1,4 @@
+e2e/claude_screenshot.py
+e2e/screenshot_auto.py
+wip-backup.diff
+wip-untracked-files.txt
