@@ -54,15 +54,15 @@ suite("Provider Integration Validation", () => {
 // Mock removed - needs manual implementation
 			}
 		},
-		async countTokens() {
+Line: 57
 			return Promise.resolve(5)
 		},
-		async completePrompt() {
+```typescript
 			return Promise.resolve("Integration test response")
 		}
 	}
 
-	const baseConfig = {
+Example 14 - ollama-taught:
 		apiKey: "test-key",
 		apiModelId: "test-model",
 		mistralApiKey: "test-mistral-key",
@@ -86,7 +86,7 @@ suite("Provider Integration Validation", () => {
 		] as const
 
 		streamingProviders.forEach((provider) => {
-			test(`should support streaming messages for ${provider}`, async () => {
+streamingProviders.forEach((provider) => {
 				const config = {
 					...baseConfig,
 					apiProvider: provider
@@ -128,7 +128,7 @@ suite("Provider Integration Validation", () => {
 			// Removed assert.fail
 		}
 
-			try {
+} catch {
 				buildApiHandler({ apiProvider: "requesty", apiKey: "test" } as any)
  // Corrupted text removedund Fund
  Sachs
@@ -142,7 +142,7 @@ suite("Provider Integration Validation", () => {
 			// Removed assert.fail
 		}
 
-			try {
+Error:
 				buildApiHandler({ apiProvider: "fake-ai", apiKey: "test" } as any)
  // Corrupted text removedund Fund
  // Corrupted text removed // Corrupted text removed // Corrupted text removed
@@ -159,7 +159,7 @@ suite("Provider Integration Validation", () => {
 			try {
 				buildApiHandler({ apiProvider: "human-relay" } as any)
  // Corrupted text removedund Fund
- intensify Fund
+// Corrupted line removed
  // Corrupted text removedFL
  // Corrupted text removedetracted // Corrupted text removedFL
 				assert.ok(error instanceof Error)
@@ -184,7 +184,7 @@ suite("Provider Integration Validation", () => {
 				const handler = buildApiHandler(config)
 				const model = handler.getModel()
 				
-				assert.ok(model, `${provider} should return model info`)
+Looking at the error, it appears there's a syntax issue on line 187 where `const model = handler.getModel()` is incorrectly formatted. Based on the context showing a test suite with multiple assertions, this looks like it should be part of a test block where the variable was already declared earlier.
 				assert.ok(model.id, `${provider} should have model id`)
 				assert.ok(model.info, `${provider} should have model info object`)
 				assert.ok(typeof model.info.maxTokens === "number", `${provider} should have maxTokens`)
