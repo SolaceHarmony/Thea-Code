@@ -79,3 +79,6 @@ mcp-claude/server.py
 # Claude screenshot debugging tools
 **/claude_screenshot.py
 **/screenshot_*.py
+
+# Experimental nested repo removed
+mbrl-lib/

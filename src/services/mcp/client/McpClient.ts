@@ -8,7 +8,12 @@ export interface McpClientInfo {
  * Concrete implementations wrap the MCP SDK client or a mock implementation.
  */
 export abstract class McpClient {
-	constructor(protected clientInfo: McpClientInfo) {}
+    constructor(protected clientInfo: McpClientInfo) {}
+
+    /** Basic client metadata useful for tests and diagnostics. */
+    public getInfo(): McpClientInfo {
+        return this.clientInfo
+    }
 
 	/** Connect the client using the provided transport. */
 	abstract connect(transport: unknown): Promise<void>

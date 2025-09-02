@@ -18,23 +18,26 @@ suite("Global E2E Setup", () => {
 			await extension!.activate()
 		}
 
-		const exportsObj = extension!.exports as
-			| TheaCodeAPI
-			| { getAPI?: () => TheaCodeAPI; api?: TheaCodeAPI; isTestMode?: boolean }
-			| any
+		const exp: unknown = extension!.exports
 
-		// In test mode, we get a minimal API
-		if (exportsObj?.isTestMode) {
-			console.log("Extension running in test mode with minimal API")
-			global.api = exportsObj as any
-		} else {
-			const resolvedApi =
-				exportsObj && typeof (exportsObj as any).getAPI === "function"
-					? (exportsObj as any).getAPI()
-					: ((exportsObj as any).api ?? (exportsObj as TheaCodeAPI))
-
-			assert.ok(resolvedApi, "TheaCodeAPI not available from extension exports")
-			global.api = resolvedApi
+		function hasGetAPI(x: unknown): x is { getAPI: () => TheaCodeAPI } {
+			return typeof (x as { getAPI?: unknown })?.getAPI === "function"
 		}
+		function hasApiOrTest(x: unknown): x is { api?: TheaCodeAPI; isTestMode?: boolean } {
+			const o = x as { api?: unknown; isTestMode?: unknown }
+			return typeof o === "object" && o !== null && ("api" in o || "isTestMode" in o)
+		}
+
+		let resolvedApi: TheaCodeAPI | undefined
+		if (hasApiOrTest(exp) && (typeof exp.isTestMode === "boolean" || typeof exp.api !== "undefined")) {
+			resolvedApi = (exp.api as TheaCodeAPI | undefined) ?? (exp as unknown as TheaCodeAPI)
+		} else if (hasGetAPI(exp)) {
+			resolvedApi = exp.getAPI()
+		} else {
+			resolvedApi = exp as TheaCodeAPI
+		}
+
+		assert.ok(resolvedApi, "TheaCodeAPI not available from extension exports")
+		global.api = resolvedApi
 	})
 })

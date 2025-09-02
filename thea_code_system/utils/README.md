@@ -6,7 +6,8 @@ This module contains all the supporting utilities, libraries, and components tha
 ## 📁 Structure
 
 ### MBRL (`mbrl/`)
-**License**: MIT ✅  
+Note: Optional integration; not included in this repository by default.
+**License**: MIT (upstream) ✅  
 **Source**: Facebook Research (before archival)
 
 Contains Facebook's production-tested Model-Based Reinforcement Learning library:

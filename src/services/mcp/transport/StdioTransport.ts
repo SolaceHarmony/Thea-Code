@@ -6,17 +6,22 @@ import { StdioTransportConfig } from "../types/McpTransportTypes"
  * This will be replaced with the actual implementation when the MCP SDK is installed
  */
 class MockStdioServerTransport {
-	start(): Promise<void> {
-		return Promise.resolve()
-	}
-	close(): Promise<void> {
-		return Promise.resolve()
-	}
-	get stderr(): unknown {
-		return undefined
-	}
-	onerror?: (error: Error) => void
-	onclose?: () => void
+    private readonly _stderr: { on?: (event: string, handler: (data: Buffer) => void) => void }
+    constructor() {
+        // Provide a minimal event emitter-ish object to satisfy tests reading stderr
+        this._stderr = { on: () => void 0 }
+    }
+    start(): Promise<void> {
+        return Promise.resolve()
+    }
+    close(): Promise<void> {
+        return Promise.resolve()
+    }
+    get stderr(): unknown {
+        return this._stderr
+    }
+    onerror?: (error: Error) => void
+    onclose?: () => void
 }
 
 /**
@@ -39,29 +44,32 @@ export class StdioTransport implements IMcpTransport {
 		this.options = options
 	}
 
-	private async initTransport(): Promise<void> {
-		if (this.transport) {
-			return
-		}
-		try {
-			const mod = await import("@modelcontextprotocol/sdk/server/stdio.js")
-			const Transport = mod.StdioServerTransport as unknown as new (
-				opts: StdioTransportConfig & { stderr: string },
-			) => StdioServerTransportLike
-			this.transport = new Transport({
-				command: this.options.command,
-				args: this.options.args,
-				env: {
-					...this.options.env,
-					...(process.env.PATH ? { PATH: process.env.PATH } : {}),
-				},
-				stderr: "pipe",
-			})
-		} catch {
-			console.warn("MCP SDK not found, using mock implementation")
-			this.transport = new MockStdioServerTransport()
-		}
-	}
+    private async initTransport(): Promise<void> {
+        if (this.transport) {
+            return
+        }
+        try {
+            if (process.env.THEA_DISABLE_MCP_SDK === '1') {
+                throw new Error('MCP SDK disabled via THEA_DISABLE_MCP_SDK=1')
+            }
+            const mod = await import("@modelcontextprotocol/sdk/server/stdio.js")
+            const Transport = mod.StdioServerTransport as unknown as new (
+                opts: StdioTransportConfig & { stderr: string },
+            ) => StdioServerTransportLike
+            this.transport = new Transport({
+                command: this.options.command,
+                args: this.options.args,
+                env: {
+                    ...this.options.env,
+                    ...(process.env.PATH ? { PATH: process.env.PATH } : {}),
+                },
+                stderr: "pipe",
+            })
+        } catch (e) {
+            console.warn("MCP SDK not found or disabled, using mock implementation", e instanceof Error ? e.message : String(e))
+            this.transport = new MockStdioServerTransport()
+        }
+    }
 
 	async start(): Promise<void> {
 		await this.initTransport()

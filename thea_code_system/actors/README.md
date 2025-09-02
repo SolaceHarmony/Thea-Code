@@ -94,7 +94,7 @@ from ...models.m2bert.compatibility import load_pretrained_m2bert
 ```python
 from ...utils.mbrl.models import ModelEnv, EnsembleDynamicsModel
 
-# Facebook's production-tested MBRL components
+# Optional integration: MBRL components are not included in this repo by default
 ```
 
 ### With Pattern Matching

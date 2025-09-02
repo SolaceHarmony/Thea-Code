@@ -63,7 +63,8 @@ async function main() {
         ...process.env,
         ELECTRON_ENABLE_LOGGING: "1",
         ELECTRON_ENABLE_STACK_DUMPING: "1",
-  THEA_E2E: "1",
+  // Run full extension for true E2E by default
+  THEA_E2E: process.env.THEA_E2E ?? "0",
   NODE_ENV: process.env.NODE_ENV ?? "test",
   E2E_SMOKE_ONLY: process.env.E2E_SMOKE_ONLY ?? "0",
   E2E_DIRECT_TEST: process.env.E2E_DIRECT_TEST ?? "1",

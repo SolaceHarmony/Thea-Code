@@ -43,26 +43,23 @@ suite("StdioTransport Lifecycle Tests", () => {
 		})
 
 		test("should handle missing SDK with fallback mock", async () => {
-			// Mock the SDK import to fail
-			// Mock needs manual implementation
-			})
-			
-			const config: StdioTransportConfig = {
+			const prev = process.env.THEA_DISABLE_MCP_SDK
+			process.env.THEA_DISABLE_MCP_SDK = "1"
+			try {
+				const config: StdioTransportConfig = {
 				command: "echo",
 				args: ["test"],
 				env: {}
 			}
-			
-			transport = new StdioTransport(config)
-			
-			// Should use mock transport as fallback
-			await expect(transport.start()).resolves.not.toThrow()
-			
-			// Should still have stderr (from mock)
-			assert.notStrictEqual(transport.stderr, undefined)
-			
-			// Restore
-			// TODO: Remove proxyquire mock - "@modelcontextprotocol/sdk/server/stdio.js")
+				transport = new StdioTransport(config)
+				// Should use mock transport as fallback
+				await expect(transport.start()).resolves.not.toThrow()
+				// Should still have stderr (from mock)
+				assert.notStrictEqual(transport.stderr, undefined)
+			} finally {
+				if (prev === undefined) delete process.env.THEA_DISABLE_MCP_SDK
+				else process.env.THEA_DISABLE_MCP_SDK = prev
+			}
 		})
 
 		test("should pass config to underlying transport", async () => {
@@ -259,14 +256,15 @@ suite("StdioTransport Lifecycle Tests", () => {
 	})
 
 	suite("MockStdioServerTransport fallback", () => {
+		let prevEnv: string | undefined
 		setup(() => {
-			// Force mock usage by making SDK unavailable
-			// Mock needs manual implementation
-			})
+			prevEnv = process.env.THEA_DISABLE_MCP_SDK
+			process.env.THEA_DISABLE_MCP_SDK = "1"
 		})
 
 		teardown(() => {
-			// TODO: Remove proxyquire mock - "@modelcontextprotocol/sdk/server/stdio.js")
+			if (prevEnv === undefined) delete process.env.THEA_DISABLE_MCP_SDK
+			else process.env.THEA_DISABLE_MCP_SDK = prevEnv
 		})
 
 		test("should use mock when SDK is not available", async () => {

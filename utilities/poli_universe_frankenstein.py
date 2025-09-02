@@ -23,10 +23,10 @@ from typing import Dict, List, Optional, Tuple, Any
 import asyncio
 from dataclasses import dataclass
 
-# Facebook's MBRL components
-from mbrl.models import EnsembleDynamicsModel, ModelEnv
-from mbrl.planning import CEMOptimizer
-from mbrl.util.common import create_replay_buffer
+# Optional: MBRL components can be integrated externally
+# from mbrl.models import EnsembleDynamicsModel, ModelEnv
+# from mbrl.planning import CEMOptimizer
+# from mbrl.util.common import create_replay_buffer
 
 # Our M2-BERT components
 from transformers import AutoModel, AutoTokenizer
@@ -218,8 +218,8 @@ class PoliUniverseActor:
         ).to(self.device)
         
         # 4. Setup MBRL components (like Cheetah experiments)
-        print("4. Setting up MBRL...")
-        self.setup_mbrl()
+        print("4. (Optional) Setting up MBRL... (skipped by default)")
+        # self.setup_mbrl()
         
         # 5. Code correction head
         print("5. Adding code correction head...")
@@ -232,7 +232,7 @@ class PoliUniverseActor:
         print("✓ Poli Universe Actor ready!")
     
     def setup_mbrl(self):
-        """Setup MBRL like the Cheetah experiments"""
+        """Placeholder to setup MBRL like the Cheetah experiments (optional)."""
         
         # State space: LTC hidden states
         obs_shape = (self.config.ltc_units,)
@@ -240,30 +240,10 @@ class PoliUniverseActor:
         # Action space: ESLint fixes
         action_shape = (self.config.eslint_rules,)
         
-        # Ensemble dynamics model (Facebook's MBRL)
-        self.dynamics_model = EnsembleDynamicsModel(
-            ensemble_size=self.config.ensemble_size,
-            obs_shape=obs_shape,
-            action_shape=action_shape,
-            num_layers=3,
-            hid_size=256,
-            device=self.device
-        )
-        
-        # CEM planner (like Cheetah)
-        self.planner = CEMOptimizer(
-            num_iterations=5,
-            elite_ratio=0.1,
-            population_size=200,
-            device=self.device
-        )
-        
-        # Replay buffer
-        self.replay_buffer = create_replay_buffer(
-            capacity=50000,
-            obs_shape=obs_shape,
-            action_shape=action_shape
-        )
+        # Stubs: integrate your preferred MBRL stack here
+        self.dynamics_model = None
+        self.planner = None
+        self.replay_buffer = None
     
     async def process_code_with_poli_universe(self, code: str) -> Dict:
         """
@@ -326,6 +306,13 @@ class PoliUniverseActor:
         def termination_fn(obs, action, next_obs):
             # Terminate when no more fixes needed
             return torch.zeros(obs.size(0), dtype=torch.bool, device=obs.device)
+        
+        # If no MBRL stack configured, return zeros
+        if not self.planner or not self.dynamics_model:
+            return torch.zeros(
+                (ltc_state.size(0), self.config.eslint_rules),
+                device=ltc_state.device,
+            )
         
         # Use model environment for planning
         model_env = ModelEnv(
