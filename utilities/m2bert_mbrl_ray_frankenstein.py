@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 """
-M2-BERT + Facebook MBRL + Ray Actors = Production Frankenstein
-Taking the best of industry-hardened code and combining it
+Experimental: M2-BERT + model-based RL + Ray actors
 
-Strategy:
-1. Use Facebook's MBRL-lib for world modeling
-2. Ray actors for distributed training (our architecture)
-3. M2-BERT-32k as the backbone (Apache 2.0!)
-4. Task-aware focusing from the paper
+Note: References to Facebook's MBRL-lib have been removed from this repo.
+This file remains as a scratchpad/example and is not part of the product.
 """
 
 import ray
@@ -17,11 +13,12 @@ import numpy as np
 from typing import Dict, List, Optional, Tuple, Any
 import asyncio
 
-# Facebook's MBRL components (we'll install: pip install mbrl)
-from mbrl.models import EnsembleDynamicsModel, ModelEnv, ModelTrainer
-from mbrl.planning import RandomShootingPlanner, CEMOptimizer
-from mbrl.util import ReplayBuffer
-from mbrl.util.common import create_replay_buffer
+# Optional: model-based RL components (e.g., from mbrl-lib) can be plugged in
+# These imports are intentionally commented out to avoid implying a dependency
+# from mbrl.models import EnsembleDynamicsModel, ModelEnv, ModelTrainer
+# from mbrl.planning import RandomShootingPlanner, CEMOptimizer
+# from mbrl.util import ReplayBuffer
+# from mbrl.util.common import create_replay_buffer
 
 # Our M2-BERT components
 from transformers import AutoModel, AutoTokenizer
@@ -30,8 +27,8 @@ import time
 @ray.remote(num_gpus=0.5 if torch.cuda.is_available() else 0)
 class M2BertWorldModelActor:
     """
-    Ray actor wrapping Facebook's MBRL world model with M2-BERT
-    This is our frankenstein creation!
+    Ray actor stub showing how to combine an encoder with a world model.
+    Not wired to any specific MBRL implementation in this repo.
     """
     
     def __init__(self, model_path: str = "togethercomputer/m2-bert-80M-32k-retrieval"):
@@ -57,13 +54,13 @@ class M2BertWorldModelActor:
         if hasattr(torch, 'compile'):
             self.m2bert = torch.compile(self.m2bert, mode="max-autotune")
         
-        # Initialize Facebook's MBRL components
-        self.setup_mbrl_components()
+        # Initialize world-model components if available (skipped by default)
+        # self.setup_mbrl_components()
         
         print(f"✓ World model actor ready on {self.device}")
     
     def setup_mbrl_components(self):
-        """Setup Facebook's MBRL components"""
+        """Placeholder for setting up model-based RL components (optional)."""
         
         # Observation space: M2-BERT hidden states (768-dim)
         obs_shape = (768,)
@@ -71,43 +68,11 @@ class M2BertWorldModelActor:
         # Action space: ESLint fix actions (100 possible fixes)
         act_shape = (100,)
         
-        # Facebook's ensemble dynamics model
-        # This predicts next state given current state and action
-        self.dynamics_model = EnsembleDynamicsModel(
-            ensemble_size=5,  # Ensemble for uncertainty
-            obs_shape=obs_shape,
-            action_shape=act_shape,
-            num_layers=3,
-            hid_size=512,
-            activation="relu",
-            decay_weights=[0.000025, 0.00005, 0.000075, 0.000075, 0.0001],
-            device=self.device
-        )
-        
-        # Model environment for planning
-        self.model_env = ModelEnv(
-            env=None,  # We'll use our custom code env
-            dynamics_model=self.dynamics_model,
-            termination_fn=self.code_termination_fn,
-            reward_fn=self.code_reward_fn,
-            generator=torch.Generator(device=self.device)
-        )
-        
-        # Planner for action selection (CEM or random shooting)
-        self.planner = CEMOptimizer(
-            num_iterations=5,
-            elite_ratio=0.1,
-            population_size=500,
-            alpha=0.1,
-            device=self.device
-        )
-        
-        # Replay buffer for experience
-        self.replay_buffer = create_replay_buffer(
-            capacity=100000,
-            obs_shape=obs_shape,
-            action_shape=act_shape
-        )
+        # Example placeholders: plug in your chosen MBRL stack here if needed
+        self.dynamics_model = None
+        self.model_env = None
+        self.planner = None
+        self.replay_buffer = None
     
     def code_termination_fn(self, obs, act, next_obs):
         """Termination function for code correction"""
@@ -146,36 +111,27 @@ class M2BertWorldModelActor:
         return hidden_states
     
     async def plan_action(self, obs: torch.Tensor) -> np.ndarray:
-        """Plan next action using Facebook's MBRL planner"""
-        # Use CEM optimizer to find best action sequence
-        action = self.planner.optimize(
-            obs,
-            self.model_env,
-            horizon=10  # Look ahead 10 steps
-        )
-        
-        return action[0].cpu().numpy()  # Return first action
+        """Plan next action using an MBRL planner (if configured)."""
+        if self.planner and self.model_env:
+            action = self.planner.optimize(obs, self.model_env, horizon=10)
+            return action[0].cpu().numpy()
+        return np.zeros((100,), dtype=np.float32)
     
     async def train_dynamics(self, transitions: List[Tuple]):
         """Train dynamics model on collected transitions"""
-        # Add to replay buffer
-        for obs, action, next_obs, reward, done in transitions:
-            self.replay_buffer.add(obs, action, next_obs, reward, done)
-        
-        # Sample batch and train
-        if len(self.replay_buffer) > 256:
-            batch = self.replay_buffer.sample(256)
-            
-            # Train dynamics model (Facebook's MBRL)
-            loss = self.dynamics_model.update(
-                batch.observations,
-                batch.actions,
-                batch.next_observations,
-                batch.rewards
-            )
-            
-            return loss
-        
+        # No-op unless an MBRL stack is configured
+        if self.replay_buffer and self.dynamics_model:
+            for obs, action, next_obs, reward, done in transitions:
+                self.replay_buffer.add(obs, action, next_obs, reward, done)
+            if len(self.replay_buffer) > 256:
+                batch = self.replay_buffer.sample(256)
+                loss = self.dynamics_model.update(
+                    batch.observations,
+                    batch.actions,
+                    batch.next_observations,
+                    batch.rewards
+                )
+                return loss
         return 0.0
 
 @ray.remote
@@ -390,7 +346,7 @@ async def main():
     advantages = """
     What we get from each component:
     
-    Facebook MBRL-lib:
+    MBRL stack (optional):
     ✓ Ensemble dynamics models
     ✓ CEM planning
     ✓ Model-based RL algorithms

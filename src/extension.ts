@@ -4,7 +4,7 @@ import * as vscode from "vscode"
 import { EXTENSION_DISPLAY_NAME, EXTENSION_NAME } from "./shared/config/thea-config"
 
 // Type-only imports (don't affect runtime)
-import type { TheaProvider as TheaProviderType } from "./core/webview/TheaProvider"
+// type-only imports omitted to avoid unused-var warnings in E2E path
 
 /**
  * Built using https://github.com/microsoft/vscode-webview-ui-toolkit
@@ -16,18 +16,16 @@ import type { TheaProvider as TheaProviderType } from "./core/webview/TheaProvid
 
 let outputChannel: vscode.OutputChannel
 let extensionContext: vscode.ExtensionContext
-let provider: TheaProviderType | undefined // <-- single shared provider variable
+// Note: provider instance is managed by API and VS Code registrations
 
 // This method is called when your extension is activated.
 // Your extension is activated the very first time the command is executed.
 export async function activate(context: vscode.ExtensionContext) {
 	console.log('[Thea Code] activate() function called')
     
-	// Detect e2e/test mode to reduce heavy startup during integration tests.
-	// Also treat sandbox runs (globalStorageUri under .vscode-test) as E2E.
-	const isSandbox = context.globalStorageUri?.fsPath?.includes('.vscode-test') ?? false
-	const isE2E = isSandbox || process.env.THEA_E2E === '1' || process.env.NODE_ENV === 'test'
-	console.log(`[Thea Code] Test mode: ${isE2E} (sandbox=${isSandbox})`)
+	// Detect e2e/test mode only via env for explicit control.
+	const isE2E = process.env.THEA_E2E === '1' || process.env.NODE_ENV === 'test'
+	console.log(`[Thea Code] Test mode: ${isE2E}`)
 	
 	extensionContext = context
 	outputChannel = vscode.window.createOutputChannel(String(EXTENSION_DISPLAY_NAME))
@@ -61,12 +59,13 @@ export async function activate(context: vscode.ExtensionContext) {
 			)
 		}
 
-		// Return a minimal API for tests
-		const minimalApi = {
-			outputChannel,
-			isTestMode: true,
-			version: context.extension.packageJSON.version
-		}
+			// Return a minimal API for tests (avoid unsafe packageJSON access)
+			const pkg = context.extension?.packageJSON as { version?: string } | undefined
+			const minimalApi = {
+				outputChannel,
+				isTestMode: true,
+				version: pkg?.version ?? ""
+			}
 		
 		return minimalApi
 	}
@@ -124,19 +123,19 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 		
 		outputChannel.appendLine("Creating TheaProvider...")
-		const { TheaProvider } = await import("./core/webview/TheaProvider")
-		provider = new TheaProvider(context, outputChannel, "sidebar") as TheaProviderType
-		outputChannel.appendLine("TheaProvider created")
-		telemetryService.setProvider(provider!)
+			const { TheaProvider } = await import("./core/webview/TheaProvider")
+			const theaProvider = new TheaProvider(context, outputChannel, "sidebar")
+			outputChannel.appendLine("TheaProvider created")
+			telemetryService.setProvider(theaProvider)
 
-	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(String(TheaProvider.sideBarId), provider!, {
-			webviewOptions: { retainContextWhenHidden: true },
-		}),
-	)
+		context.subscriptions.push(
+			vscode.window.registerWebviewViewProvider(String(TheaProvider.sideBarId), theaProvider, {
+				webviewOptions: { retainContextWhenHidden: true },
+			}),
+		)
 
 		const { registerCommands } = await import("./activate")
-		registerCommands({ context, outputChannel, provider: provider! })
+		registerCommands({ context, outputChannel, provider: theaProvider })
 
 	/**
 	 * We use the text document content provider API to show the left side for diff
@@ -185,8 +184,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.commands.executeCommand(`${EXTENSION_NAME}.activationCompleted`)
 		
 		// Return the API
-		const { API } = await import("./exports/api")
-		return new API(outputChannel, provider!)
+			const { API } = await import("./exports/api")
+			return new API(outputChannel, theaProvider)
 	} catch (error) {
 		outputChannel.appendLine(`Failed to initialize extension: ${error}`)
 		console.error('[Thea Code] Failed to initialize:', error)

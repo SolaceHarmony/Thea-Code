@@ -4,7 +4,7 @@ import * as path from "path"
 import * as fs from "fs"
 const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../../../package.json"), "utf-8"))
 const EXTENSION_NAME: string = pkg.name
-import { TheaCodeAPI } from "../../../exports/thea-code"
+import { TheaCodeAPI, TheaMessage } from "../../../exports/thea-code"
 
 type WaitForOptions = {
 	timeout?: number
@@ -74,7 +74,9 @@ export const waitForCompletion = async ({
 }) => waitFor(() => !!getCompletion({ api, taskId }), options)
 
 export const getCompletion = ({ api, taskId }: { api: TheaCodeAPI; taskId: string }) =>
-	api.getMessages(taskId).find(({ say, partial }: any) => say === "completion_result" && partial === false)
+	api
+		.getMessages(taskId)
+		.find((msg: TheaMessage) => msg.say === "completion_result" && msg.partial === false)
 
 type WaitForMessageOptions = WaitUntilReadyOptions & {
 	taskId: string
@@ -95,9 +97,6 @@ type GetMessageOptions = {
 export const getMessage = ({ api, taskId, include, exclude }: GetMessageOptions) =>
 	api
 		.getMessages(taskId)
-		.find(
-			({ type, text }: any) =>
-				type === "say" && text && text.includes(include) && (!exclude || !text.includes(exclude)),
-		)
+		.find((m: TheaMessage) => m.type === "say" && !!m.text && m.text.includes(include) && (!exclude || !m.text.includes(exclude)))
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
