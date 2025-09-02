@@ -12,8 +12,8 @@ suite("Generic Provider Mock", () => {
 
 	setup(() => {
 		// Load modules with proxyquire if needed
-		const serverModule = proxyquire('../../../../../src/test/generic-provider-mock/server', {})
-		const helpersModule = proxyquire('../../../../../src/test/generic-provider-mock/test-helpers', {})
+    const serverModule = proxyquire('../../../../../test/generic-provider-mock/server', {})
+    const helpersModule = proxyquire('../../../../../test/generic-provider-mock/test-helpers', {})
 		
 		GenericProviderMock = serverModule.default
 		PROVIDER_CONFIGS = serverModule.PROVIDER_CONFIGS
