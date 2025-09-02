@@ -1,0 +1,188 @@
+import * as assert from 'assert'
+import * as sinon from 'sinon'
+import * as vscode from 'vscode'
+/**
+ * Integration test to validate provider functionality with streaming and       test(`should support streaming messages for ${provider}`, async () => {
+        const config: ApiConfiguration = {
+          ...baseConfig,
+          apiProvider: provider
+
+        const handler = buildApiHandler(config)
+        const messages: NeutralConversationHistory = [
+          { role: "user", content: [{ type: "text", text: "Hello, test message" }] }
+
+        // Test that the stream generator function exists and can be called
+        const stream = handler.createMessage("You are a helpful assistant.", messages)
+        assert.ok(stream !== undefined)
+        assert.strictEqual(typeof stream[Symbol.asyncIterator], 'function')
+
+        // For this test, we just verify the stream is properly created
+        // Actual streaming functionality would require more complex mocking
+        await Promise.resolve() // Add await to satisfy the async requirement
+      })dresses the acceptance criteria from issue #107
+ */
+import { buildApiHandler } from "../index"
+import { ApiConfiguration } from "../../shared/api"
+import { NeutralConversationHistory } from "../../shared/neutral-history"
+
+// Mock the McpIntegration to avoid initialization issues
+// TODO: Mock setup needs manual migration
+// TODO: Fix mock - needs proxyquire
+/*
+=> {
+	const mockInstance = {
+		initialize: sinon.stub().resolves(undefined),
+		registerTool: sinon.stub(),
+		routeToolUse: jest
+			.fn()
+			.resolves(
+				'{"type": "tool_result", "content": [{"type": "text", "text": "Tool executed successfully"}]}',
+			),
+
+	class MockMcpIntegration {
+		initialize = sinon.stub().resolves(undefined)
+		registerTool = sinon.stub()
+		routeToolUse = jest
+			.fn()
+			.resolves(
+				'{"type": "tool_result", "content": [{"type": "text", "text": "Tool executed successfully"}]}',
+
+		static getInstance = sinon.stub().returns(mockInstance)
+
+	return {
+		McpIntegration: MockMcpIntegration,
+
+})*/
+
+suite("Provider Integration Validation", () => {
+	// Mock FakeAI implementation for integration testing
+	const mockFakeAI = {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		async *createMessage(_systemPrompt: string, _messages: NeutralConversationHistory) {
+			await Promise.resolve() // Add await to satisfy async requirement
+			yield { type: "text" as const, text: "Hello! I'm ready to help." }
+			yield { type: "text" as const, text: " How can I assist you today?" }
+		},
+		getModel() {
+			return {
+				id: "fake-ai-integration",
+				info: {
+					maxTokens: 1000,
+					contextWindow: 4000,
+					supportsImages: false,
+					supportsPromptCache: false,
+					inputPrice: 0,
+					outputPrice: 0,
+					description: "Integration test fake AI",
+				},
+
+		},
+		async countTokens() {
+			return Promise.resolve(5)
+		},
+		async completePrompt() {
+			return Promise.resolve("Integration test response")
+		},
+
+	const baseConfig = {
+		apiKey: "test-key",
+		apiModelId: "test-model",
+		mistralApiKey: "test-mistral-key",
+		requestyApiKey: "test-requesty-key",
+		fakeAi: mockFakeAI,
+
+	suite("Streaming functionality", () => {
+		const streamingProviders = [
+			"openai",
+			"ollama",
+			"lmstudio",
+			"openai-native",
+			"deepseek",
+			"vscode-lm",
+			"mistral",
+			"unbound",
+			"requesty",
+			"glama",
+			"fake-ai",
+		] as const
+
+		streamingProviders.forEach((provider) => {
+			test(`should support streaming messages for ${provider}`, async () => {
+				const config: ApiConfiguration = {
+					...baseConfig,
+					apiProvider: provider,
+
+				const handler = buildApiHandler(config)
+				const messages: NeutralConversationHistory = [
+					{ role: "user", content: [{ type: "text", text: "Hello, test message" }] },
+
+				// Test that the stream generator function exists and can be called
+				const stream = handler.createMessage("You are a helpful assistant.", messages)
+				assert.ok(stream !== undefined)
+				assert.strictEqual(typeof stream[Symbol.asyncIterator], "function")
+
+				// For this test, we just verify the stream is properly created
+				// Actual streaming functionality would require more complex mocking
+				// but the key point is that all providers have the createMessage method
+
+				// Add await to satisfy async requirement
+				await Promise.resolve()
+
+	suite("Error handling", () => {
+		test("should properly handle invalid configurations", () => {
+			// Test that providers properly validate their required configuration
+			expect(() => {
+				buildApiHandler({ apiProvider: "mistral", apiKey: "test" } as ApiConfiguration)
+			}).toThrow("Mistral API key is required")
+
+			expect(() => {
+				buildApiHandler({ apiProvider: "requesty", apiKey: "test" } as ApiConfiguration)
+			}).toThrow("Requesty API key is required")
+
+			expect(() => {
+				buildApiHandler({ apiProvider: "fake-ai", apiKey: "test" } as ApiConfiguration)
+			}).toThrow("Fake AI is not set")
+
+		test("should handle unsupported human-relay provider", () => {
+			expect(() => {
+				buildApiHandler({ apiProvider: "human-relay", apiKey: "test" } as ApiConfiguration)
+			}).toThrow("HumanRelayHandler is not supported in this architecture.")
+
+	suite("Provider compatibility", () => {
+		const compatibleProviders = [
+			"openai",
+			"ollama",
+			"lmstudio",
+			"openai-native",
+			"deepseek",
+			"vscode-lm",
+			"mistral",
+			"unbound",
+			"requesty",
+			"glama",
+			"fake-ai",
+		] as const
+
+		test("should have all expected providers enabled in buildApiHandler", () => {
+			compatibleProviders.forEach((provider) => {
+				const config: ApiConfiguration = {
+					...baseConfig,
+					apiProvider: provider,
+
+				// Should not throw for any supported provider
+				expect(() => buildApiHandler(config)).not.toThrow()
+
+		test("should return different handler instances for different providers", () => {
+			const handler1 = buildApiHandler({ ...baseConfig, apiProvider: "openai" })
+			const handler2 = buildApiHandler({ ...baseConfig, apiProvider: "ollama" })
+			const handler3 = buildApiHandler({ ...baseConfig, apiProvider: "fake-ai" })
+
+			// Each provider should return a different instance
+			assert.notStrictEqual(handler1, handler2)
+			assert.notStrictEqual(handler2, handler3)
+			assert.notStrictEqual(handler1, handler3)
+
+			// But all should have the same interface
+			assert.strictEqual(typeof handler1.createMessage, "function")
+			assert.strictEqual(typeof handler2.createMessage, "function")
+			assert.strictEqual(typeof handler3.createMessage, "function")
