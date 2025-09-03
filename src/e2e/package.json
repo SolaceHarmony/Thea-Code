@@ -3,14 +3,14 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"build": "cd .. && npm run build",
+		"build": "cd ../.. && npm run build",
 		"compile": "rm -rf out && tsc -p .",
 		"lint": "eslint src --ext ts",
 		"check-types": "tsc --noEmit",
-		"test": "cd .. && npm run build:extension && cd e2e && npm run compile && node out/suite/launch.js",
-		"test:full": "cd .. && npm run build && cd e2e && npm run compile && node out/suite/launch.js",
+		"test": "cd ../.. && npm run build:extension && cd src/e2e && npm run compile && node out/suite/launch.js",
+		"test:full": "cd ../.. && npm run build && cd src/e2e && npm run compile && node out/suite/launch.js",
 		"ci": "npm run build && npm run test",
-		"clean": "rimraf out .vscode-test ../.vscode-test"
+		"clean": "rimraf out .vscode-test ../../.vscode-test"
 	},
 	"devDependencies": {
 		"@types/mocha": "^10.0.10",
