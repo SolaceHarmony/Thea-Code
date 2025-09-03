@@ -3,6 +3,8 @@ out
 out-*
 node_modules/
 coverage/
+src/e2e/out/
+src/e2e/.vscode-test/
 
 .DS_Store
 
