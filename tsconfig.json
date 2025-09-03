@@ -25,8 +25,8 @@
 	"include": [
 		"src/**/*",
 		// Only typecheck e2e bootstrap and migrated/selected specs to keep non-migrated files out
-		"e2e/src/suite/setup.test.ts",
-		"e2e/src/suite/selected/**/*",
+		"src/e2e/src/suite/setup.test.ts",
+		"src/e2e/src/suite/selected/**/*",
 		".changeset/**/*"
 	],
 	"exclude": [
@@ -38,8 +38,8 @@
 		"src/**/*.test.ts",
 		"test/**",
 		// Exclude the rest of e2e tests until migrated
-		"e2e/src/suite/**",
-		"!e2e/src/suite/selected/**",
-		"!e2e/src/suite/setup.test.ts"
+		"src/e2e/src/suite/**",
+		"!src/e2e/src/suite/selected/**",
+		"!src/e2e/src/suite/setup.test.ts"
 	]
 }
