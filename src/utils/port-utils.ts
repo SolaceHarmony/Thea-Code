@@ -11,6 +11,7 @@
 import * as tcpPortUsedModule from 'tcp-port-used';
 import { logger } from "./logging"
 import { isTestEnv } from './test-env'
+
 const tcpPortUsed = tcpPortUsedModule as {
   check: (port: number, host: string) => Promise<boolean>;
   waitUntilFree: (port: number, host: string, retryTimeMs: number, timeOutMs: number) => Promise<void>;
@@ -129,6 +130,7 @@ export async function waitForPortAvailable(
 	signal?: AbortSignal
 ): Promise<void> {
 		if (isTestEnv()) return
+
 	const resourceDesc = resourceName ? `${resourceName} on port ${port}` : `port ${port}`;
 	logger.info(`Waiting for ${resourceDesc} to become available...`, { ctx: 'ports' });
 	let currentRetry = 0;

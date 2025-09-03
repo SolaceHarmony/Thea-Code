@@ -70,6 +70,7 @@ import * as realFs from 'fs'
 
 const mockFs = {
 	readFile: sinon.stub().callsFake(async (filePath: string, encoding?: string) => {
+
 		// Return stored content if it exists
 		if (mockFiles.has(filePath)) {
 			return mockFiles.get(filePath)
@@ -108,6 +109,7 @@ const mockFs = {
 
 
 	writeFile: sinon.stub().callsFake(async (path: string, content: string) => {
+
 		// Ensure parent directory exists
 		const parentDir = path.split("/").slice(0, -1).join("/")
 		ensureDirectoryExists(parentDir)
@@ -117,6 +119,7 @@ const mockFs = {
 
 
 	mkdir: sinon.stub().callsFake(async (path: string, options?: { recursive?: boolean }) => {
+
 		// Always handle recursive creation
 		const parts = path.split("/")
 		let currentPath = ""
@@ -138,6 +141,7 @@ const mockFs = {
 			if (!mockDirectories.has(currentPath)) {
 				const error = new Error(`ENOENT: no such file or directory, mkdir '${path}'`)
 				Object.assign(error, { code: "ENOENT" as string })
+
 				throw error
 			}
 		}
@@ -150,6 +154,7 @@ const mockFs = {
 
 
 	access: sinon.stub().callsFake(async (path: string) => {
+
 		// Check if the path exists in either files or directories
 		if (mockFiles.has(path) || mockDirectories.has(path) || path.startsWith("/test")) {
 			return Promise.resolve()
@@ -161,6 +166,7 @@ const mockFs = {
 
 
 	rename: sinon.stub().callsFake(async (oldPath: string, newPath: string) => {
+
 		// Check if the old file exists
 		if (mockFiles.has(oldPath)) {
 			// Copy content to new path
@@ -177,6 +183,7 @@ const mockFs = {
 	}),
 
 	constants: realFs.constants,
+
 
 	// Expose mock data for test assertions
 	_mockFiles: mockFiles,

@@ -15,6 +15,7 @@ export abstract class McpClient {
         return this.clientInfo
     }
 
+
 	/** Connect the client using the provided transport. */
 	abstract connect(transport: unknown): Promise<void>
 

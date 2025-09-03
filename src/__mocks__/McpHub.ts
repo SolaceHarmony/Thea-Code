@@ -1,5 +1,6 @@
 import sinon from 'sinon'
 
+
 export class McpHub {
 	connections = []
 	isConnecting = false
@@ -7,6 +8,7 @@ export class McpHub {
 	constructor() {
 		this.toggleToolAlwaysAllow = sinon.stub()
 		this.callTool = sinon.stub()
+
 	}
 
 	async toggleToolAlwaysAllow(serverName: string, toolName: string, shouldAllow: boolean): Promise<void> {
