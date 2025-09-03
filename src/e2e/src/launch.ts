@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as fs from "fs"
-import { execSync } from "child_process"
-import { runTests } from "@vscode/test-electron"
+import { execSync, spawn } from "child_process"
+import { runTests, downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePath } from "@vscode/test-electron"
 
 async function main() {
   try {
@@ -54,23 +54,59 @@ async function main() {
       execSync("npm run build:extension", { cwd: repoRoot, stdio: "inherit" })
     }
 
-    await runTests({
-      extensionDevelopmentPath,
-      extensionTestsPath,
-      version: "insiders",
-      launchArgs,
-      extensionTestsEnv: {
-        ...process.env,
-        ELECTRON_ENABLE_LOGGING: "1",
-        ELECTRON_ENABLE_STACK_DUMPING: "1",
-  // Run full extension for true E2E by default
-  THEA_E2E: process.env.THEA_E2E ?? "0",
-  NODE_ENV: process.env.NODE_ENV ?? "test",
-  E2E_SMOKE_ONLY: process.env.E2E_SMOKE_ONLY ?? "0",
-  E2E_DIRECT_TEST: process.env.E2E_DIRECT_TEST ?? "1",
-  E2E_TEST_GLOB: process.env.E2E_TEST_GLOB ?? "selected/activation.test.js",
-      },
-    })
+    const env = {
+      ...process.env,
+      ELECTRON_ENABLE_LOGGING: "1",
+      ELECTRON_ENABLE_STACK_DUMPING: "1",
+      // Run full extension for true E2E by default
+      THEA_E2E: process.env.THEA_E2E ?? "0",
+      NODE_ENV: process.env.NODE_ENV ?? "test",
+      E2E_SMOKE_ONLY: process.env.E2E_SMOKE_ONLY ?? "0",
+      E2E_DIRECT_TEST: process.env.E2E_DIRECT_TEST ?? "1",
+      E2E_TEST_GLOB: process.env.E2E_TEST_GLOB ?? "selected/activation.test.js",
+    }
+
+    try {
+      // Prefer invoking the VS Code CLI shim to avoid Insiders app binary rejecting args on macOS
+      const vscodeExecutablePath = await downloadAndUnzipVSCode({ version: "insiders", extensionDevelopmentPath })
+      const [cli, ...cliBaseArgs] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath)
+
+      const args = [
+        ...launchArgs,
+        "--no-sandbox",
+        "--disable-gpu-sandbox",
+        "--disable-updates",
+        "--skip-welcome",
+        "--skip-release-notes",
+        "--disable-workspace-trust",
+        `--extensionDevelopmentPath=${extensionDevelopmentPath}`,
+        `--extensionTestsPath=${extensionTestsPath}`,
+      ]
+
+      console.log(`[e2e/launch] Spawning VS Code CLI: ${cli}`)
+      const shell = process.platform === "win32"
+      await new Promise<void>((resolve, reject) => {
+        const child = spawn(shell ? `"${cli}"` : cli, [...cliBaseArgs, ...args], {
+          env,
+          stdio: "inherit",
+          shell,
+        })
+        child.on("error", reject)
+        child.on("exit", (code, signal) => {
+          console.log(`[e2e/launch] VS Code exited with ${code ?? signal}`)
+          code === 0 ? resolve() : reject(new Error(`VS Code exited with ${code ?? signal}`))
+        })
+      })
+    } catch (cliErr) {
+      console.warn(`[e2e/launch] CLI spawn failed (${cliErr instanceof Error ? cliErr.message : String(cliErr)}); falling back to test-electron`)
+      await runTests({
+        extensionDevelopmentPath,
+        extensionTestsPath,
+        version: "insiders",
+        launchArgs,
+        extensionTestsEnv: env,
+      })
+    }
   } catch (err) {
     console.error("[e2e] VS Code test launch failed:", err)
     process.exit(1)
