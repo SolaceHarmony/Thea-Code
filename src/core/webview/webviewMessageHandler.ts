@@ -185,9 +185,9 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				
 				if (anthropicModelsList.length > 0) {
 					// Convert to Record<string, ModelInfo> format expected by frontend
-					const anthropicModels: Record<string, any> = {}
+					const anthropicModels: Record<string, import("../../schemas").ModelInfo> = {}
 					for (const model of anthropicModelsList) {
-						anthropicModels[model.modelId] = model.info
+						anthropicModels[model.id] = model.info
 					}
 					
 					await fs.writeFile(
@@ -198,11 +198,14 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 					
 					const { apiConfiguration } = await provider.getState()
 					
-					if (apiConfiguration?.anthropicModelId && anthropicModels[apiConfiguration.anthropicModelId]) {
-						await provider.updateGlobalState(
-							"anthropicModelInfo",
-							anthropicModels[apiConfiguration.anthropicModelId]
-						)
+					if (apiConfiguration?.anthropicModelId) {
+						const key = String(apiConfiguration.anthropicModelId)
+						if (anthropicModels[key]) {
+							await provider.updateGlobalState(
+								"anthropicModelInfo",
+								anthropicModels[key]
+							)
+						}
 						await provider.postStateToWebview()
 					}
 				}
@@ -528,9 +531,9 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			
 			if (anthropicModels.length > 0) {
 				// Convert to Record<string, ModelInfo> format expected by frontend
-				const modelsRecord: Record<string, any> = {}
+				const modelsRecord: Record<string, import("../../schemas").ModelInfo> = {}
 				for (const model of anthropicModels) {
-					modelsRecord[model.modelId] = model.info
+					modelsRecord[model.id] = model.info
 				}
 				
 				const cacheDir = await provider.ensureCacheDirectoryExists()
@@ -545,13 +548,13 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 		}
 		case "refreshBedrockModels": {
 			const { apiConfiguration: configForRefresh } = await provider.getState()
-			const bedrockModels = await getBedrockModels({
-				awsRegion: configForRefresh.awsRegion,
-				awsAccessKeyId: configForRefresh.awsAccessKeyId,
-				awsSecretAccessKey: configForRefresh.awsSecretAccessKey,
-				awsUseProfile: configForRefresh.awsUseProfile,
-				awsProfile: configForRefresh.awsProfile,
-			})
+				const bedrockModels = await getBedrockModels({
+					awsRegion: configForRefresh.awsRegion,
+					awsAccessKey: configForRefresh.awsAccessKey,
+					awsSecretKey: configForRefresh.awsSecretKey,
+					awsUseProfile: configForRefresh.awsUseProfile,
+					awsProfile: configForRefresh.awsProfile,
+				})
 			
 			if (Object.keys(bedrockModels).length > 0) {
 				const cacheDir = await provider.ensureCacheDirectoryExists()

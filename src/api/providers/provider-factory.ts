@@ -7,7 +7,7 @@
 
 import { ApiHandlerOptions, ProviderName } from "../../shared/api"
 import { SingleCompletionHandler } from "../index"
-import { modelRegistry, ModelProvider } from "./model-registry"
+import { modelRegistry } from "./model-registry"
 
 // Dynamic providers
 import { DynamicAnthropicHandler } from "./anthropic-dynamic"
@@ -40,12 +40,12 @@ export class ProviderFactory {
 	/**
 	 * Initialize the factory and register model providers
 	 */
-	async initialize(options?: {
+	initialize(options?: {
 		anthropicApiKey?: string
 		openAiApiKey?: string
 		anthropicBaseUrl?: string
 		openAiBaseUrl?: string
-	}): Promise<void> {
+	}): void {
 		if (this.initialized) {
 			return
 		}
@@ -125,7 +125,7 @@ export class ProviderFactory {
 	 * Get available models for a provider
 	 */
 	async getAvailableModels(providerName: string) {
-		await this.initialize()
+		this.initialize()
 		return modelRegistry.getModels(providerName)
 	}
 	
@@ -133,7 +133,7 @@ export class ProviderFactory {
 	 * Get model info for a specific model
 	 */
 	async getModelInfo(providerName: string, modelId: string) {
-		await this.initialize()
+		this.initialize()
 		return modelRegistry.getModelInfo(providerName, modelId)
 	}
 	
@@ -141,7 +141,7 @@ export class ProviderFactory {
 	 * Get default model for a provider
 	 */
 	async getDefaultModel(providerName: string) {
-		await this.initialize()
+		this.initialize()
 		return modelRegistry.getDefaultModelId(providerName)
 	}
 	
@@ -149,7 +149,7 @@ export class ProviderFactory {
 	 * Refresh model list for a provider
 	 */
 	async refreshModels(providerName: string) {
-		await this.initialize()
+		this.initialize()
 		return modelRegistry.getModels(providerName, true)
 	}
 	
@@ -179,10 +179,10 @@ export const providerFactory = ProviderFactory.getInstance()
  */
 export async function findModelAcrossProviders(modelId: string): Promise<{
 	provider: string
-	info: any
+	info: import("../../schemas").ModelInfo
 } | null> {
 	const factory = ProviderFactory.getInstance()
-	await factory.initialize()
+	factory.initialize()
 	
 	const providers = modelRegistry.getProviderNames()
 	
@@ -204,7 +204,7 @@ export async function selectModel(
 	preferredModelId?: string
 ): Promise<string> {
 	const factory = ProviderFactory.getInstance()
-	await factory.initialize()
+	factory.initialize()
 	
 	if (preferredModelId) {
 		// Check if the model exists

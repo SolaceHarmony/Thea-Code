@@ -3,21 +3,7 @@ import axios from "axios"
 import { ModelProvider, ModelListing } from "../model-registry"
 import { ModelInfo, ApiHandlerOptions } from "../../../shared/api"
 
-interface VertexModel {
-  name: string
-  displayName?: string
-  description?: string
-  versionId?: string
-  createTime?: string
-  updateTime?: string
-  deployedModels?: unknown[]
-  supportedActions?: string[]
-}
-
-interface VertexModelsResponse {
-  models: VertexModel[]
-  nextPageToken?: string
-}
+// Model interfaces are omitted; responses are typed inline per request
 
 interface CacheEntry {
   models: ModelListing[]
@@ -125,7 +111,7 @@ export class VertexModelProvider implements ModelProvider {
     
     if (options.vertexJsonCredentials) {
       try {
-        this.credentials = JSON.parse(options.vertexJsonCredentials)
+        this.credentials = JSON.parse(options.vertexJsonCredentials) as Record<string, unknown>
       } catch (error) {
         console.error("Failed to parse Vertex credentials:", error)
       }
@@ -219,7 +205,7 @@ export class VertexModelProvider implements ModelProvider {
     const url = `https://${this.region}-aiplatform.googleapis.com/v1/projects/${this.projectId}/locations/${this.region}/publishers/google/models`
     
     try {
-      const response = await axios.get(url, {
+      const response = await axios.get<{ models?: Array<{ name?: string }> }>(url, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
@@ -234,10 +220,7 @@ export class VertexModelProvider implements ModelProvider {
         
         if (this.isGeminiModel(modelId)) {
           const capabilities = this.getModelCapabilities(modelId)
-          models.push({
-            modelId,
-            info: capabilities,
-          })
+          models.push({ id: modelId, info: capabilities })
         }
       }
       
@@ -253,7 +236,7 @@ export class VertexModelProvider implements ModelProvider {
     const url = `https://${this.region}-aiplatform.googleapis.com/v1/projects/${this.projectId}/locations/${this.region}/models`
     
     try {
-      const response = await axios.get(url, {
+      const response = await axios.get<{ models?: Array<{ name?: string }> }>(url, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
@@ -271,10 +254,7 @@ export class VertexModelProvider implements ModelProvider {
         
         if (this.isClaudeModel(modelId)) {
           const capabilities = this.getModelCapabilities(modelId)
-          models.push({
-            modelId,
-            info: capabilities,
-          })
+          models.push({ id: modelId, info: capabilities })
         }
       }
       
@@ -320,7 +300,6 @@ export class VertexModelProvider implements ModelProvider {
     if (isClaude) {
       const isOpus = modelId.includes("opus")
       const isSonnet = modelId.includes("sonnet")
-      const isHaiku = modelId.includes("haiku")
       
       return {
         maxTokens: isSonnet && modelId.includes("3-5") ? 8192 : 4096,
@@ -368,7 +347,7 @@ export class VertexModelProvider implements ModelProvider {
 
   async getModelInfo(modelId: string): Promise<ModelInfo | null> {
     const models = await this.getModels()
-    const model = models.find((m) => m.modelId === modelId)
+    const model = models.find((m) => m.id === modelId)
     return model?.info || null
   }
 
@@ -377,25 +356,25 @@ export class VertexModelProvider implements ModelProvider {
     const models = await this.getModels()
     
     // Try to find Claude 3.5 Sonnet
-    const claude35 = models.find((m) => m.modelId.includes("claude-3-5-sonnet"))
-    if (claude35) return claude35.modelId
+    const claude35 = models.find((m) => m.id.includes("claude-3-5-sonnet"))
+    if (claude35) return claude35.id
     
     // Fallback to Gemini 1.5 Flash (good performance/cost ratio)
-    const geminiFlash = models.find((m) => m.modelId.includes("gemini-1.5-flash"))
-    if (geminiFlash) return geminiFlash.modelId
+    const geminiFlash = models.find((m) => m.id.includes("gemini-1.5-flash"))
+    if (geminiFlash) return geminiFlash.id
     
     // Fallback to any Claude model
-    const anyClaude = models.find((m) => m.modelId.includes("claude"))
-    if (anyClaude) return anyClaude.modelId
+    const anyClaude = models.find((m) => m.id.includes("claude"))
+    if (anyClaude) return anyClaude.id
     
     // Return first available model
-    return models[0]?.modelId || "claude-3-5-sonnet@20241022"
+    return models[0]?.id || "claude-3-5-sonnet@20241022"
   }
 
   private getFallbackModels(): ModelListing[] {
     // Return known Vertex AI models as fallback
-    return Object.entries(this.modelCapabilities).map(([modelId, info]) => ({
-      modelId,
+    return Object.entries(this.modelCapabilities).map(([id, info]) => ({
+      id,
       info: info as ModelInfo,
     }))
   }

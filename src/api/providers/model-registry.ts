@@ -40,6 +40,9 @@ export interface ModelProvider {
 	 * @returns The default model ID
 	 */
 	getDefaultModelId(): string
+
+	/** Optional: configure provider with API options */
+	configure?(options: ApiHandlerOptions): void
 }
 
 /**
@@ -109,9 +112,7 @@ export class ModelRegistry {
 	 */
 	configureProvider(providerName: string, options: ApiHandlerOptions): void {
 		const provider = this.providers.get(providerName)
-		if (provider && "configure" in provider && typeof provider.configure === "function") {
-			provider.configure(options)
-		}
+		provider?.configure?.(options)
 	}
 	
 	/**
@@ -318,12 +319,12 @@ export class StaticModelProvider implements ModelProvider {
 		private defaultModelId: string
 	) {}
 	
-	async listModels(): Promise<ModelListing[]> {
-		return migrateStaticModels(this.models)
+	listModels(): Promise<ModelListing[]> {
+		return Promise.resolve(migrateStaticModels(this.models))
 	}
 	
-	async getModelInfo(modelId: string): Promise<ModelInfo | null> {
-		return this.models[modelId] || null
+	getModelInfo(modelId: string): Promise<ModelInfo | null> {
+		return Promise.resolve(this.models[modelId] || null)
 	}
 	
 	getDefaultModelId(): string {

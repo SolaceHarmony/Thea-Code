@@ -55,15 +55,15 @@ export class SseTransport implements IMcpTransport {
             const address = this.httpServer?.address()
             if (address && typeof address !== 'string') this.port = address.port
             this.usingSdk = true
-        } catch (error) {
+        } catch {
             // Fallback to a minimal mock server that responds OK for routes
             const app = express()
             app.use(express.json())
             // Minimal mock transport that discards requests
             const mockTransport: StreamableHTTPServerTransportLike = {
-                async start() {},
-                async close() {},
-                async handleRequest(_req, res) { res.status(200).end() },
+                start() { return Promise.resolve() },
+                close() { return Promise.resolve() },
+                handleRequest(_req, res) { res.status(200).end(); return Promise.resolve() },
             }
             this.transport = mockTransport
             await new Promise<void>(r => { this.httpServer = app.listen((this.config.port ?? 3000), (this.config.hostname ?? 'localhost'), () => r()) })

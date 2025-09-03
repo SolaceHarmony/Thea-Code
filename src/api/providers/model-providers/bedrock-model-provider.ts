@@ -30,7 +30,7 @@ export class BedrockModelProvider implements ModelProvider {
   private cache: Map<string, CacheEntry> = new Map()
   private cacheTTL = 3600000 // 1 hour
   private region: string = "us-east-1"
-  private credentials: Record<string, unknown> | null = null
+  private credentials: { accessKeyId: string; secretAccessKey: string; sessionToken?: string } | null = null
 
   /**
    * Known model capabilities based on model ID patterns
@@ -120,12 +120,14 @@ export class BedrockModelProvider implements ModelProvider {
 
   configure(options: ApiHandlerOptions): void {
     this.region = options.awsRegion || "us-east-1"
-    this.credentials = options.awsCredentials || null
-    
+    this.credentials = options.awsAccessKey && options.awsSecretKey
+      ? { accessKeyId: options.awsAccessKey, secretAccessKey: options.awsSecretKey, sessionToken: options.awsSessionToken }
+      : null
+
     // Initialize Bedrock client with configuration
     this.client = new BedrockClient({
       region: this.region,
-      credentials: this.credentials,
+      credentials: this.credentials ?? undefined,
     })
   }
 
@@ -184,7 +186,7 @@ export class BedrockModelProvider implements ModelProvider {
       const capabilities = this.modelCapabilities[baseId] || this.deriveCapabilities(model)
       
       models.push({
-        modelId,
+        id: modelId,
         info: {
           maxTokens: capabilities.maxTokens || 4096,
           contextWindow: capabilities.contextWindow || 4096,
@@ -242,30 +244,30 @@ export class BedrockModelProvider implements ModelProvider {
     const models = await this.getModels()
     
     // Try to find Claude 3.5 Sonnet
-    const claude35 = models.find((m) => m.modelId.includes("claude-3-5-sonnet"))
-    if (claude35) return claude35.modelId
+    const claude35 = models.find((m) => m.id.includes("claude-3-5-sonnet"))
+    if (claude35) return claude35.id
     
     // Fallback to any Claude model
-    const anyClaud = models.find((m) => m.modelId.includes("claude"))
-    if (anyClaud) return anyClaud.modelId
+    const anyClaud = models.find((m) => m.id.includes("claude"))
+    if (anyClaud) return anyClaud.id
     
     // Return first available model
-    return models[0]?.modelId || "anthropic.claude-3-5-sonnet-20241022-v2:0"
+    return models[0]?.id || "anthropic.claude-3-5-sonnet-20241022-v2:0"
   }
 
   private getFallbackModels(): ModelListing[] {
     // Return a basic set of known models as fallback
     return [
       {
-        modelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+        id: "anthropic.claude-3-5-sonnet-20241022-v2:0",
         info: this.modelCapabilities["anthropic.claude-3-5-sonnet"] as ModelInfo,
       },
       {
-        modelId: "anthropic.claude-3-opus-20240229-v1:0",
+        id: "anthropic.claude-3-opus-20240229-v1:0",
         info: this.modelCapabilities["anthropic.claude-3-opus"] as ModelInfo,
       },
       {
-        modelId: "anthropic.claude-3-haiku-20240307-v1:0",
+        id: "anthropic.claude-3-haiku-20240307-v1:0",
         info: this.modelCapabilities["anthropic.claude-3-haiku"] as ModelInfo,
       },
     ]

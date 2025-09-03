@@ -89,6 +89,12 @@ export default [
 		"scripts/",
 		"test/",
 		"benchmark/", // Re-enabled ignore to fix ESLint parsing issues
+		"src/e2e/src/suite/**",
+		"src/e2e/.vscode-test/**",
+		// Exclude unit tests from type-aware linting; they are not in tsconfig project
+		"src/**/__tests__/**",
+		"src/**/*.test.ts",
+		"src/**/*.test.tsx",
 		"**/*.md",
 		"**/*.json",
 		"**/*.yaml",
@@ -151,7 +157,13 @@ export default [
 		},
 	},
 	{
-		files: ["e2e/src/**/*.{ts,tsx}", "!e2e/src/**/*.js"],
+		files: [
+			"src/e2e/src/launch.ts",
+			"src/e2e/src/runTest.ts",
+			"src/e2e/src/suite/index.ts",
+			"src/e2e/src/suite/setup.test.ts",
+			"src/e2e/src/suite/selected/**/*.{ts,tsx}",
+		],
 		...commonTsConfig,
 		languageOptions: {
 			...commonTsConfig.languageOptions,
@@ -160,7 +172,7 @@ export default [
 				ecmaFeatures: {
 					jsx: true,
 				},
-				project: "./e2e/tsconfig.json",
+				project: "./src/e2e/tsconfig.json",
 			},
 		},
 	},

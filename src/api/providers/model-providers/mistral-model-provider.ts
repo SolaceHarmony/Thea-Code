@@ -192,7 +192,7 @@ export class MistralModelProvider implements ModelProvider {
       const capabilities = this.getModelCapabilities(modelId)
       
       models.push({
-        modelId,
+        id: modelId,
         info: capabilities,
       })
     }
@@ -272,7 +272,7 @@ export class MistralModelProvider implements ModelProvider {
 
   async getModelInfo(modelId: string): Promise<ModelInfo | null> {
     const models = await this.getModels()
-    const model = models.find((m) => m.modelId === modelId)
+    const model = models.find((m) => m.id === modelId)
     return model?.info || null
   }
 
@@ -281,25 +281,25 @@ export class MistralModelProvider implements ModelProvider {
     const models = await this.getModels()
     
     // Try to find mistral-small-latest
-    const smallModel = models.find((m) => m.modelId === "mistral-small-latest")
-    if (smallModel) return smallModel.modelId
+    const smallModel = models.find((m) => m.id === "mistral-small-latest")
+    if (smallModel) return smallModel.id
     
     // Fallback to any small model
-    const anySmall = models.find((m) => m.modelId.includes("small"))
-    if (anySmall) return anySmall.modelId
+    const anySmall = models.find((m) => m.id.includes("small"))
+    if (anySmall) return anySmall.id
     
     // Fallback to any model that's not "large" (to avoid high costs)
-    const affordable = models.find((m) => !m.modelId.includes("large"))
-    if (affordable) return affordable.modelId
+    const affordable = models.find((m) => !m.id.includes("large"))
+    if (affordable) return affordable.id
     
     // Return first available model
-    return models[0]?.modelId || "mistral-small-latest"
+    return models[0]?.id || "mistral-small-latest"
   }
 
   private getFallbackModels(): ModelListing[] {
     // Return known Mistral models as fallback
-    return Object.entries(this.modelCapabilities).map(([modelId, info]) => ({
-      modelId,
+    return Object.entries(this.modelCapabilities).map(([id, info]) => ({
+      id,
       info: info as ModelInfo,
     }))
   }

@@ -94,7 +94,11 @@ async function main() {
         child.on("error", reject)
         child.on("exit", (code, signal) => {
           console.log(`[e2e/launch] VS Code exited with ${code ?? signal}`)
-          code === 0 ? resolve() : reject(new Error(`VS Code exited with ${code ?? signal}`))
+          if (code === 0) {
+            resolve()
+          } else {
+            reject(new Error(`VS Code exited with ${code ?? signal}`))
+          }
         })
       })
     } catch (cliErr) {
