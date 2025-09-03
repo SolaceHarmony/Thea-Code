@@ -1,0 +1,1116 @@
+{
+  "summary": {
+    "total_files": 17,
+    "total_imports": 81,
+    "files_with_errors": 0
+  },
+  "external_dependencies": {
+    "argparse": 1,
+    "asyncio": 3,
+    "ray": 4,
+    "sys": 1,
+    "time": 4,
+    "pathlib": 2,
+    "typing": 7,
+    "torch": 7,
+    "traceback": 1,
+    "dataclasses": 5,
+    "os": 3,
+    "re": 1,
+    "math": 1,
+    "json": 1,
+    "transformers": 1,
+    "numpy": 1,
+    "gc": 1
+  },
+  "internal_dependencies": {
+    "thea_code_system/__init__.py": [
+      "relative:utils",
+      "relative:models",
+      "relative:actors"
+    ],
+    "thea_code_system/main.py": [
+      "relative:models.m2bert",
+      "relative:config",
+      "relative:actors.core"
+    ],
+    "thea_code_system/config/__init__.py": [
+      "relative:production"
+    ],
+    "thea_code_system/utils/__init__.py": [
+      "relative:mbrl",
+      "relative:patterns",
+      "relative:monitoring"
+    ],
+    "thea_code_system/models/__init__.py": [
+      "relative:liquid",
+      "relative:m2bert"
+    ],
+    "thea_code_system/actors/__init__.py": [
+      "relative:training",
+      "relative:core"
+    ],
+    "thea_code_system/utils/mbrl/__init__.py": [
+      "relative:planning",
+      "relative:util",
+      "relative:models"
+    ],
+    "thea_code_system/utils/patterns/__init__.py": [
+      "relative:pattern_matcher",
+      "relative:eslint_patterns"
+    ],
+    "thea_code_system/utils/mbrl/models/__init__.py": [
+      "relative:model_trainer",
+      "relative:one_dim_tr_model",
+      "relative:gaussian_mlp",
+      "relative:model_env",
+      "relative:model",
+      "relative:util",
+      "relative:basic_ensemble"
+    ],
+    "thea_code_system/models/m2bert/__init__.py": [
+      "relative:compatibility",
+      "relative:modern",
+      "relative:monarch"
+    ],
+    "thea_code_system/actors/core/__init__.py": [
+      "relative:tensor_store_actor",
+      "relative:correction_actor",
+      "relative:orchestration_actor"
+    ],
+    "thea_code_system/actors/core/correction_actor.py": [
+      "relative:models.m2bert.compatibility",
+      "relative:utils.patterns.eslint_patterns",
+      "relative:config.production"
+    ],
+    "thea_code_system/actors/core/orchestration_actor.py": [
+      "relative:correction_actor",
+      "relative:config.production"
+    ]
+  },
+  "circular_dependencies": [],
+  "missing_dependencies": {},
+  "files": {
+    "thea_code_system/__init__.py": {
+      "imports": [
+        {
+          "module": "actors",
+          "names": [
+            "*"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 16
+        },
+        {
+          "module": "models",
+          "names": [
+            "*"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 17
+        },
+        {
+          "module": "utils",
+          "names": [
+            "*"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 18
+        }
+      ],
+      "exports": [
+        "__author__",
+        "__license__",
+        "__version__"
+      ],
+      "errors": []
+    },
+    "thea_code_system/main.py": {
+      "imports": [
+        {
+          "module": "argparse",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 12
+        },
+        {
+          "module": "asyncio",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 13
+        },
+        {
+          "module": "ray",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 14
+        },
+        {
+          "module": "sys",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 15
+        },
+        {
+          "module": "time",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 16
+        },
+        {
+          "module": "pathlib",
+          "names": [
+            "Path"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 17
+        },
+        {
+          "module": "typing",
+          "names": [
+            "Optional"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 18
+        },
+        {
+          "module": "config",
+          "names": [
+            "get_config",
+            "load_config_from_env",
+            "ProductionConfig"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 20
+        },
+        {
+          "module": "actors.core",
+          "names": [
+            "OrchestrationActor"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 21
+        },
+        {
+          "module": "torch",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 87
+        },
+        {
+          "module": "models.m2bert",
+          "names": [
+            "M2BertConfig"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 103
+        },
+        {
+          "module": "traceback",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 211
+        }
+      ],
+      "exports": [
+        "process_directory",
+        "orchestrator",
+        "processing_time",
+        "temp_dir",
+        "config_test",
+        "parser",
+        "main",
+        "group",
+        "results",
+        "start_time",
+        "config",
+        "process_file",
+        "args",
+        "report",
+        "health_check"
+      ],
+      "errors": []
+    },
+    "thea_code_system/config/__init__.py": {
+      "imports": [
+        {
+          "module": "production",
+          "names": [
+            "ProductionConfig",
+            "get_config",
+            "load_config_from_env"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 6
+        }
+      ],
+      "exports": [
+        "__all__"
+      ],
+      "errors": []
+    },
+    "thea_code_system/config/production.py": {
+      "imports": [
+        {
+          "module": "dataclasses",
+          "names": [
+            "dataclass",
+            "field"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 9
+        },
+        {
+          "module": "typing",
+          "names": [
+            "List",
+            "Optional",
+            "Dict",
+            "Any"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 10
+        },
+        {
+          "module": "os",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 11
+        }
+      ],
+      "exports": [
+        "get_config",
+        "for_edge_device",
+        "from_dict",
+        "configs",
+        "for_production",
+        "to_dict",
+        "__all__",
+        "__post_init__",
+        "environment",
+        "ProductionConfig",
+        "config",
+        "load_config_from_env",
+        "for_development"
+      ],
+      "errors": []
+    },
+    "thea_code_system/utils/__init__.py": {
+      "imports": [
+        {
+          "module": "mbrl",
+          "names": [
+            "*"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 12
+        },
+        {
+          "module": "patterns",
+          "names": [
+            "*"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 13
+        },
+        {
+          "module": "monitoring",
+          "names": [
+            "*"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 14
+        }
+      ],
+      "exports": [],
+      "errors": []
+    },
+    "thea_code_system/models/__init__.py": {
+      "imports": [
+        {
+          "module": "m2bert",
+          "names": [
+            "*"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 12
+        },
+        {
+          "module": "liquid",
+          "names": [
+            "*"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 13
+        }
+      ],
+      "exports": [],
+      "errors": []
+    },
+    "thea_code_system/actors/__init__.py": {
+      "imports": [
+        {
+          "module": "core",
+          "names": [
+            "*"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 11
+        },
+        {
+          "module": "training",
+          "names": [
+            "*"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 12
+        }
+      ],
+      "exports": [],
+      "errors": []
+    },
+    "thea_code_system/utils/mbrl/__init__.py": {
+      "imports": [
+        {
+          "module": "models",
+          "names": [
+            "*"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 16
+        },
+        {
+          "module": "planning",
+          "names": [
+            "*"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 17
+        },
+        {
+          "module": "util",
+          "names": [
+            "*"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 18
+        }
+      ],
+      "exports": [
+        "__version__"
+      ],
+      "errors": []
+    },
+    "thea_code_system/utils/patterns/eslint_patterns.py": {
+      "imports": [
+        {
+          "module": "re",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 10
+        },
+        {
+          "module": "typing",
+          "names": [
+            "Dict",
+            "List",
+            "Tuple",
+            "Callable",
+            "Any"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 11
+        },
+        {
+          "module": "dataclasses",
+          "names": [
+            "dataclass"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 12
+        }
+      ],
+      "exports": [
+        "rules",
+        "get_rules_by_category",
+        "matches",
+        "CodePattern",
+        "ESLintRules",
+        "category",
+        "RULE_CATEGORIES",
+        "__init__",
+        "fixed_code",
+        "apply_fixes",
+        "results",
+        "get_rule_info",
+        "analyze_code",
+        "pattern",
+        "PatternMatcher",
+        "get_all_patterns",
+        "SEVERITY_LEVELS",
+        "PatternRule",
+        "patterns",
+        "__all__",
+        "before_code",
+        "apply_pattern",
+        "get_rules_by_severity",
+        "fix_report",
+        "severity"
+      ],
+      "errors": []
+    },
+    "thea_code_system/utils/patterns/__init__.py": {
+      "imports": [
+        {
+          "module": "eslint_patterns",
+          "names": [
+            "CodePattern",
+            "ESLintRules"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 8
+        },
+        {
+          "module": "pattern_matcher",
+          "names": [
+            "PatternMatcher"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 9
+        }
+      ],
+      "exports": [
+        "__all__"
+      ],
+      "errors": []
+    },
+    "thea_code_system/utils/mbrl/models/__init__.py": {
+      "imports": [
+        {
+          "module": "basic_ensemble",
+          "names": [
+            "BasicEnsemble"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 10
+        },
+        {
+          "module": "gaussian_mlp",
+          "names": [
+            "GaussianMLP"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 11
+        },
+        {
+          "module": "model",
+          "names": [
+            "Ensemble",
+            "Model"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 12
+        },
+        {
+          "module": "model_env",
+          "names": [
+            "ModelEnv"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 13
+        },
+        {
+          "module": "model_trainer",
+          "names": [
+            "ModelTrainer"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 14
+        },
+        {
+          "module": "one_dim_tr_model",
+          "names": [
+            "OneDTransitionRewardModel"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 15
+        },
+        {
+          "module": "util",
+          "names": [
+            "EnsembleLinearLayer",
+            "truncated_normal_init"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 16
+        }
+      ],
+      "exports": [],
+      "errors": []
+    },
+    "thea_code_system/models/m2bert/compatibility.py": {
+      "imports": [
+        {
+          "module": "torch",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 10
+        },
+        {
+          "module": "torch.nn",
+          "names": [],
+          "alias": "nn",
+          "is_relative": false,
+          "line_number": 11
+        },
+        {
+          "module": "torch.nn.functional",
+          "names": [],
+          "alias": "F",
+          "is_relative": false,
+          "line_number": 12
+        },
+        {
+          "module": "typing",
+          "names": [
+            "Dict",
+            "Optional",
+            "Tuple"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 13
+        },
+        {
+          "module": "math",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 14
+        },
+        {
+          "module": "json",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 15
+        },
+        {
+          "module": "os",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 16
+        },
+        {
+          "module": "dataclasses",
+          "names": [
+            "dataclass"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 17
+        }
+      ],
+      "exports": [
+        "key_layer",
+        "model",
+        "attn_output",
+        "MonarchLinearCompat",
+        "M2BertLayer",
+        "forward",
+        "word_embeds",
+        "reset_parameters",
+        "from_pretrained",
+        "LinearClass",
+        "key",
+        "attention_output",
+        "embeddings",
+        "position_ids",
+        "intermediate_output",
+        "load_pretrained_m2bert",
+        "attention_mask",
+        "state_dict",
+        "M2BertAttention",
+        "token_type_ids",
+        "HyenaOperatorStub",
+        "__init__",
+        "pooled_output",
+        "rest",
+        "bound",
+        "M2BertConfig",
+        "value_layer",
+        "mapped_state_dict",
+        "parts",
+        "layer_output",
+        "query_layer",
+        "config_dict",
+        "config_path",
+        "__all__",
+        "state_dict_path",
+        "position_embeds",
+        "fan_in",
+        "layer_num",
+        "mapped_key",
+        "M2BertModel",
+        "hidden_states",
+        "config",
+        "token_type_embeds"
+      ],
+      "errors": []
+    },
+    "thea_code_system/models/m2bert/__init__.py": {
+      "imports": [
+        {
+          "module": "compatibility",
+          "names": [
+            "M2BertModel",
+            "M2BertConfig",
+            "load_pretrained_m2bert"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 12
+        },
+        {
+          "module": "modern",
+          "names": [
+            "M2BertModern"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 13
+        },
+        {
+          "module": "monarch",
+          "names": [
+            "MonarchMixerLayer",
+            "MonarchLinear"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 14
+        }
+      ],
+      "exports": [
+        "__all__"
+      ],
+      "errors": []
+    },
+    "thea_code_system/actors/core/__init__.py": {
+      "imports": [
+        {
+          "module": "correction_actor",
+          "names": [
+            "CodeCorrectionActor"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 10
+        },
+        {
+          "module": "orchestration_actor",
+          "names": [
+            "OrchestrationActor"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 11
+        },
+        {
+          "module": "tensor_store_actor",
+          "names": [
+            "TensorStoreActor"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 12
+        }
+      ],
+      "exports": [
+        "__all__"
+      ],
+      "errors": []
+    },
+    "thea_code_system/actors/core/correction_actor.py": {
+      "imports": [
+        {
+          "module": "ray",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 9
+        },
+        {
+          "module": "torch",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 10
+        },
+        {
+          "module": "torch.nn",
+          "names": [],
+          "alias": "nn",
+          "is_relative": false,
+          "line_number": 11
+        },
+        {
+          "module": "asyncio",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 12
+        },
+        {
+          "module": "time",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 13
+        },
+        {
+          "module": "typing",
+          "names": [
+            "Dict",
+            "List",
+            "Optional",
+            "Tuple",
+            "Any"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 14
+        },
+        {
+          "module": "dataclasses",
+          "names": [
+            "dataclass"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 15
+        },
+        {
+          "module": "models.m2bert.compatibility",
+          "names": [
+            "M2BertModel",
+            "M2BertConfig",
+            "load_pretrained_m2bert"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 18
+        },
+        {
+          "module": "utils.patterns.eslint_patterns",
+          "names": [
+            "CodePattern"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 19
+        },
+        {
+          "module": "config.production",
+          "names": [
+            "ProductionConfig"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 20
+        },
+        {
+          "module": "transformers",
+          "names": [
+            "AutoTokenizer"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 94
+        }
+      ],
+      "exports": [
+        "load_m2bert",
+        "CodeCorrectionActor",
+        "test_code",
+        "start_time",
+        "detected_rules",
+        "applied_fixes",
+        "original_code",
+        "rule_probs",
+        "token_count",
+        "__init__",
+        "fixed_code",
+        "analyze_code",
+        "health_check",
+        "rule",
+        "pattern",
+        "rule_name",
+        "device",
+        "inputs",
+        "__all__",
+        "result",
+        "load_patterns",
+        "inference_time",
+        "fix_code",
+        "_setup_device",
+        "pooled",
+        "confidence",
+        "outputs",
+        "hidden_states"
+      ],
+      "errors": []
+    },
+    "thea_code_system/actors/core/tensor_store_actor.py": {
+      "imports": [
+        {
+          "module": "ray",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 9
+        },
+        {
+          "module": "torch",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 10
+        },
+        {
+          "module": "numpy",
+          "names": [],
+          "alias": "np",
+          "is_relative": false,
+          "line_number": 11
+        },
+        {
+          "module": "typing",
+          "names": [
+            "Dict",
+            "Optional",
+            "Tuple",
+            "Any"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 12
+        },
+        {
+          "module": "time",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 13
+        },
+        {
+          "module": "gc",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 14
+        }
+      ],
+      "exports": [
+        "total_tensors",
+        "stored_tensor",
+        "tensor_id",
+        "delete_tensor",
+        "_generate_tensor_id",
+        "list_tensors",
+        "put",
+        "avg_size",
+        "_cleanup_old_tensors",
+        "store_tensor",
+        "get",
+        "delete",
+        "sorted_tensors",
+        "__init__",
+        "tensor_size",
+        "TensorStoreActor",
+        "device",
+        "__all__",
+        "get_storage_stats",
+        "tensor",
+        "most_accessed",
+        "meta",
+        "total_size",
+        "_get_tensor_size",
+        "to_remove",
+        "cleanup_all",
+        "TensorStoreClient",
+        "stats",
+        "retrieve_tensor"
+      ],
+      "errors": []
+    },
+    "thea_code_system/actors/core/orchestration_actor.py": {
+      "imports": [
+        {
+          "module": "ray",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 9
+        },
+        {
+          "module": "asyncio",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 10
+        },
+        {
+          "module": "time",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 11
+        },
+        {
+          "module": "os",
+          "names": [],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 12
+        },
+        {
+          "module": "typing",
+          "names": [
+            "Dict",
+            "List",
+            "Optional",
+            "Tuple",
+            "Any"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 13
+        },
+        {
+          "module": "dataclasses",
+          "names": [
+            "dataclass",
+            "asdict"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 14
+        },
+        {
+          "module": "pathlib",
+          "names": [
+            "Path"
+          ],
+          "alias": null,
+          "is_relative": false,
+          "line_number": 15
+        },
+        {
+          "module": "config.production",
+          "names": [
+            "ProductionConfig"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 17
+        },
+        {
+          "module": "correction_actor",
+          "names": [
+            "CodeCorrectionActor"
+          ],
+          "alias": null,
+          "is_relative": true,
+          "line_number": 18
+        }
+      ],
+      "exports": [
+        "healthy_workers",
+        "fixes",
+        "fixed_files",
+        "batch_results",
+        "code_files",
+        "error_files",
+        "fix_summary",
+        "health_check_workers",
+        "start_time",
+        "clean_files",
+        "health",
+        "all_results",
+        "total_fixes",
+        "fix_result",
+        "generate_report",
+        "analysis",
+        "batch",
+        "get_next_worker",
+        "file_path",
+        "task",
+        "with_issues",
+        "__init__",
+        "health_results",
+        "health_tasks",
+        "worker_status",
+        "process_codebase",
+        "batch_size",
+        "process_single_file",
+        "worker",
+        "OrchestrationActor",
+        "__all__",
+        "report",
+        "discover_code_files",
+        "successful",
+        "errors",
+        "tasks",
+        "code",
+        "total_tokens",
+        "processing_time",
+        "code_extensions"
+      ],
+      "errors": []
+    }
+  }
+}

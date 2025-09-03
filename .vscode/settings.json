@@ -9,5 +9,7 @@
 	},
 	"typescript.tsc.autoDetect": "off",
 	"IDX.aI.enableInlineCompletion": true,
-	"IDX.aI.enableCodebaseIndexing": true
+		"IDX.aI.enableCodebaseIndexing": true,
+		"eslint.useFlatConfig": true
+
 }

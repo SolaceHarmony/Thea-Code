@@ -1,0 +1,3 @@
+e2e/src/suite/api/provider-integration-validation.test.ts
+e2e/src/suite/api/providers/all-dynamic-providers.runtime.test.ts
+e2e/src/suite/api/ollama-integration.test.ts

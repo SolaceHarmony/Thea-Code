@@ -1,0 +1,9 @@
+{
+  "name": "thea-e2e-harness",
+  "displayName": "Thea E2E Harness",
+  "publisher": "e2e",
+  "version": "0.0.0",
+  "engines": { "vscode": ">=1.103.0" },
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js"
+}

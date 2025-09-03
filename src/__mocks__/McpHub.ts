@@ -1,10 +1,14 @@
+import sinon from 'sinon'
+
+
 export class McpHub {
 	connections = []
 	isConnecting = false
 
 	constructor() {
-		this.toggleToolAlwaysAllow = jest.fn()
-		this.callTool = jest.fn()
+		this.toggleToolAlwaysAllow = sinon.stub()
+		this.callTool = sinon.stub()
+
 	}
 
 	async toggleToolAlwaysAllow(serverName: string, toolName: string, shouldAllow: boolean): Promise<void> {
