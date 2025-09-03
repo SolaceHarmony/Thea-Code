@@ -19,9 +19,9 @@ export async function getBedrockModels(options?: ApiHandlerOptions) {
   const models = await registry.getModels("bedrock")
   
   // Transform to Record<string, ModelInfo> format expected by frontend
-  const modelsRecord: Record<string, any> = {}
+  const modelsRecord: Record<string, import("../../schemas").ModelInfo> = {}
   for (const model of models) {
-    modelsRecord[model.modelId] = model.info
+    modelsRecord[model.id] = model.info
   }
   
   return modelsRecord
@@ -40,9 +40,9 @@ export async function getGeminiModels(options?: ApiHandlerOptions) {
   const models = await registry.getModels("gemini")
   
   // Transform to Record<string, ModelInfo> format expected by frontend
-  const modelsRecord: Record<string, any> = {}
+  const modelsRecord: Record<string, import("../../schemas").ModelInfo> = {}
   for (const model of models) {
-    modelsRecord[model.modelId] = model.info
+    modelsRecord[model.id] = model.info
   }
   
   return modelsRecord
@@ -61,9 +61,9 @@ export async function getVertexModels(options?: ApiHandlerOptions) {
   const models = await registry.getModels("vertex")
   
   // Transform to Record<string, ModelInfo> format expected by frontend
-  const modelsRecord: Record<string, any> = {}
+  const modelsRecord: Record<string, import("../../schemas").ModelInfo> = {}
   for (const model of models) {
-    modelsRecord[model.modelId] = model.info
+    modelsRecord[model.id] = model.info
   }
   
   return modelsRecord
@@ -82,9 +82,9 @@ export async function getMistralModels(options?: ApiHandlerOptions) {
   const models = await registry.getModels("mistral")
   
   // Transform to Record<string, ModelInfo> format expected by frontend
-  const modelsRecord: Record<string, any> = {}
+  const modelsRecord: Record<string, import("../../schemas").ModelInfo> = {}
   for (const model of models) {
-    modelsRecord[model.modelId] = model.info
+    modelsRecord[model.id] = model.info
   }
   
   return modelsRecord
@@ -103,9 +103,9 @@ export async function getDeepSeekModels(options?: ApiHandlerOptions) {
   const models = await registry.getModels("deepseek")
   
   // Transform to Record<string, ModelInfo> format expected by frontend
-  const modelsRecord: Record<string, any> = {}
+  const modelsRecord: Record<string, import("../../schemas").ModelInfo> = {}
   for (const model of models) {
-    modelsRecord[model.modelId] = model.info
+    modelsRecord[model.id] = model.info
   }
   
   return modelsRecord
@@ -124,9 +124,9 @@ export async function getAnthropicModels(options?: ApiHandlerOptions) {
   const models = await registry.getModels("anthropic")
   
   // Transform to Record<string, ModelInfo> format expected by frontend
-  const modelsRecord: Record<string, any> = {}
+  const modelsRecord: Record<string, import("../../schemas").ModelInfo> = {}
   for (const model of models) {
-    modelsRecord[model.modelId] = model.info
+    modelsRecord[model.id] = model.info
   }
   
   return modelsRecord

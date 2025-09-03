@@ -35,8 +35,8 @@ export class OpenAIModelProvider implements ModelProvider {
 			
 			for (const model of response.data) {
 				// Only include chat models
-				if (this.isChatModel(model.id)) {
-					const info = await this.getModelCapabilities(model.id)
+					if (this.isChatModel(model.id)) {
+						const info = this.getModelCapabilities(model.id)
 					if (info) {
 						models.push({
 							id: model.id,
@@ -80,7 +80,7 @@ export class OpenAIModelProvider implements ModelProvider {
 		}
 		
 		// Try to get capabilities for unknown model
-		return this.getModelCapabilities(modelId)
+		return Promise.resolve(this.getModelCapabilities(modelId))
 	}
 	
 	getDefaultModelId(): string {
@@ -98,7 +98,7 @@ export class OpenAIModelProvider implements ModelProvider {
 	/**
 	 * Get model capabilities based on model ID
 	 */
-	private async getModelCapabilities(modelId: string): Promise<ModelInfo | null> {
+	private getModelCapabilities(modelId: string): ModelInfo | null {
 		// Try to get actual capabilities from API if possible
 		// OpenAI doesn't expose detailed capabilities, so we use patterns
 		

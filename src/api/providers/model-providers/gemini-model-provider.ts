@@ -189,7 +189,7 @@ export class GeminiModelProvider implements ModelProvider {
 
   async getModelInfo(modelId: string): Promise<ModelInfo | null> {
     const models = await this.getModels()
-    const model = models.find((m) => m.modelId === modelId)
+    const model = models.find((m) => m.id === modelId)
     return model?.info || null
   }
 
@@ -198,22 +198,22 @@ export class GeminiModelProvider implements ModelProvider {
     const models = await this.getModels()
     
     // Try to find Gemini 1.5 Flash
-    const flash = models.find((m) => m.modelId === "gemini-1.5-flash-latest")
-    if (flash) return flash.modelId
+    const flash = models.find((m) => m.id === "gemini-1.5-flash-latest")
+    if (flash) return flash.id
     
     // Fallback to any 1.5 model
-    const any15 = models.find((m) => m.modelId.includes("gemini-1.5"))
-    if (any15) return any15.modelId
+    const any15 = models.find((m) => m.id.includes("gemini-1.5"))
+    if (any15) return any15.id
     
     // Return first available model
-    return models[0]?.modelId || "gemini-1.5-flash-latest"
+    return models[0]?.id || "gemini-1.5-flash-latest"
   }
 
   private getFallbackModels(): ModelListing[] {
     // Return a basic set of known Gemini models as fallback
     return [
       {
-        modelId: "gemini-1.5-flash-latest",
+        id: "gemini-1.5-flash-latest",
         info: {
           maxTokens: 8192,
           contextWindow: 1048576, // 1M tokens
@@ -226,7 +226,7 @@ export class GeminiModelProvider implements ModelProvider {
         },
       },
       {
-        modelId: "gemini-1.5-pro-latest",
+        id: "gemini-1.5-pro-latest",
         info: {
           maxTokens: 8192,
           contextWindow: 2097152, // 2M tokens
@@ -239,7 +239,7 @@ export class GeminiModelProvider implements ModelProvider {
         },
       },
       {
-        modelId: "gemini-1.0-pro",
+        id: "gemini-1.0-pro",
         info: {
           maxTokens: 2048,
           contextWindow: 32768,
@@ -252,7 +252,7 @@ export class GeminiModelProvider implements ModelProvider {
         },
       },
       {
-        modelId: "gemini-2.0-flash-exp",
+        id: "gemini-2.0-flash-exp",
         info: {
           maxTokens: 8192,
           contextWindow: 1048576,

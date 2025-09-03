@@ -179,7 +179,7 @@ export class DeepSeekModelProvider implements ModelProvider {
 
   async getModelInfo(modelId: string): Promise<ModelInfo | null> {
     const models = await this.getModels()
-    const model = models.find((m) => m.modelId === modelId)
+    const model = models.find((m) => m.id === modelId)
     return model?.info || null
   }
 
@@ -188,21 +188,21 @@ export class DeepSeekModelProvider implements ModelProvider {
     const models = await this.getModels()
     
     // Try to find deepseek-chat
-    const chatModel = models.find((m) => m.modelId === "deepseek-chat")
-    if (chatModel) return chatModel.modelId
+    const chatModel = models.find((m) => m.id === "deepseek-chat")
+    if (chatModel) return chatModel.id
     
     // Fallback to any non-R1 model (R1 models are expensive)
-    const regularModel = models.find((m) => !m.modelId.includes("r1"))
-    if (regularModel) return regularModel.modelId
+    const regularModel = models.find((m) => !m.id.includes("r1"))
+    if (regularModel) return regularModel.id
     
     // Return first available model
-    return models[0]?.modelId || "deepseek-chat"
+    return models[0]?.id || "deepseek-chat"
   }
 
   private getFallbackModels(): ModelListing[] {
     // Return known DeepSeek models as fallback
-    return Object.entries(this.modelCapabilities).map(([modelId, info]) => ({
-      modelId,
+    return Object.entries(this.modelCapabilities).map(([id, info]) => ({
+      id,
       info: info as ModelInfo,
     }))
   }

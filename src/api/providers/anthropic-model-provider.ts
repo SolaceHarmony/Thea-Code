@@ -56,7 +56,7 @@ export class AnthropicModelProvider implements ModelProvider {
 		}
 		
 		// Try to detect capabilities for unknown model
-		return this.detectModelCapabilities(modelId)
+		return Promise.resolve(this.detectModelCapabilities(modelId))
 	}
 	
 	getDefaultModelId(): string {
@@ -68,20 +68,20 @@ export class AnthropicModelProvider implements ModelProvider {
 	 * Attempt to fetch models from Anthropic API
 	 * This would use a models endpoint if/when available
 	 */
-	private async fetchModelsFromAPI(): Promise<ModelListing[]> {
+	private fetchModelsFromAPI(): Promise<ModelListing[]> {
 		// Anthropic doesn't currently expose a models list API
 		// When available, this would look something like:
 		// const response = await this.client.listModels()
 		// return response.models.map(m => this.convertToModelListing(m))
 		
 		// For now, return empty to trigger fallback
-		return []
+		return Promise.resolve([])
 	}
 	
 	/**
 	 * Detect model capabilities based on model ID patterns
 	 */
-	private async detectModelCapabilities(modelId: string): Promise<ModelInfo | null> {
+	private detectModelCapabilities(modelId: string): ModelInfo | null {
 		// Parse model ID to extract information
 		const patterns = {
 			// Claude 3.7 models
