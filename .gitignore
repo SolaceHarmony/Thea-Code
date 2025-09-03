@@ -75,6 +75,11 @@ dist/
 mcp-claude/requirements.txt
 mcp-claude/server.py
 *.log
+lfm2_models/
+m2_models/
+east_german/lfm2_models/
+east_german/m2_models/
+pretrained_models/
 
 # Claude screenshot debugging tools
 **/claude_screenshot.py
