@@ -51,6 +51,7 @@ export class SseClientFactory {
 			if (process.env.THEA_DISABLE_MCP_SDK === '1') {
 				throw new Error('MCP SDK disabled via THEA_DISABLE_MCP_SDK=1')
 			}
+
 			// Dynamic imports to handle cases where the SDK might not be available
 			const { Client } = (await import("@modelcontextprotocol/sdk/client/index.js")) as {
 				Client: typeof SdkClient
@@ -94,6 +95,7 @@ export class SseClientFactory {
 			if (!opts?.lazy) {
 				await client.connect(transport)
 			}
+
 			return client
 		} catch (err) {
 			// Log the error but continue with mock client
@@ -102,6 +104,7 @@ export class SseClientFactory {
 			if (!opts?.lazy) {
 				await client.connect(undefined)
 			}
+
 			return client
 		}
 	}

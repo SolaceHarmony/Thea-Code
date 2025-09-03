@@ -22,6 +22,7 @@ class MockStdioServerTransport {
     }
     onerror?: (error: Error) => void
     onclose?: () => void
+
 }
 
 /**

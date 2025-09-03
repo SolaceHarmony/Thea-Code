@@ -13,6 +13,7 @@ interface StreamableHTTPServerTransportLike {
     onerror?: (error: Error) => void
     onclose?: () => void
     handleRequest(req: express.Request, res: express.Response, body?: unknown): Promise<void>
+
 }
 
 declare global { interface Global { __JEST_TEARDOWN__?: boolean } }

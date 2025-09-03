@@ -6,6 +6,7 @@ import { EXTENSION_DISPLAY_NAME, EXTENSION_NAME } from "./shared/config/thea-con
 // Type-only imports (don't affect runtime)
 // type-only imports omitted to avoid unused-var warnings in E2E path
 
+
 /**
  * Built using https://github.com/microsoft/vscode-webview-ui-toolkit
  *
@@ -17,6 +18,7 @@ import { EXTENSION_DISPLAY_NAME, EXTENSION_NAME } from "./shared/config/thea-con
 let outputChannel: vscode.OutputChannel
 let extensionContext: vscode.ExtensionContext
 // Note: provider instance is managed by API and VS Code registrations
+
 
 // This method is called when your extension is activated.
 // Your extension is activated the very first time the command is executed.
@@ -214,4 +216,5 @@ export async function deactivate() {
 		const { TerminalRegistry } = await import("./integrations/terminal/TerminalRegistry")
 		TerminalRegistry.cleanup()
 	} catch {}
+
 }
