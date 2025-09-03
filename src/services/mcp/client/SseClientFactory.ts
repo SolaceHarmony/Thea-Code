@@ -45,8 +45,13 @@ export class SseClientFactory {
 	/**
 	 * Create a new MCP client that connects to the specified server URL
 	 */
-	public static async createClient(serverUrl: URL): Promise<McpClient> {
+	public static async createClient(serverUrl: URL, opts?: { lazy?: boolean }): Promise<McpClient> {
 		try {
+			// Allow tests to force the mock path without proxyquire
+			if (process.env.THEA_DISABLE_MCP_SDK === '1') {
+				throw new Error('MCP SDK disabled via THEA_DISABLE_MCP_SDK=1')
+			}
+
 			// Dynamic imports to handle cases where the SDK might not be available
 			const { Client } = (await import("@modelcontextprotocol/sdk/client/index.js")) as {
 				Client: typeof SdkClient
@@ -87,13 +92,19 @@ export class SseClientFactory {
 			// Create transport and client using the dynamically imported classes
 			const transport = new SSEClientTransport(serverUrl)
 			const client = new SdkClientWrapper({ name: "TheaCodeMcpClient", version: "1.0.0" })
-			await client.connect(transport)
+			if (!opts?.lazy) {
+				await client.connect(transport)
+			}
+
 			return client
 		} catch (err) {
 			// Log the error but continue with mock client
 			console.warn("MCP SDK error, using mock client", err instanceof Error ? err.message : String(err))
 			const client = new MockClient({ name: "TheaCodeMcpClient", version: "1.0.0" })
-			await client.connect(undefined)
+			if (!opts?.lazy) {
+				await client.connect(undefined)
+			}
+
 			return client
 		}
 	}

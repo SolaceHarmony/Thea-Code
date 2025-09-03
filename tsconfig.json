@@ -22,7 +22,13 @@
 		"allowImportingTsExtensions": true,
 		"noEmit": true
 	},
-	"include": ["src/**/*", "e2e/src/**/*", ".changeset/**/*"],
+	"include": [
+		"src/**/*",
+		// Only typecheck e2e bootstrap and migrated/selected specs to keep non-migrated files out
+		"e2e/src/suite/setup.test.ts",
+		"e2e/src/suite/selected/**/*",
+		".changeset/**/*"
+	],
 	"exclude": [
 		"node_modules",
 		".vscode-test",
@@ -30,6 +36,10 @@
 		"src/__mocks__",
 		"src/**/__tests__/**",
 		"src/**/*.test.ts",
-		"test/**"
+		"test/**",
+		// Exclude the rest of e2e tests until migrated
+		"e2e/src/suite/**",
+		"!e2e/src/suite/selected/**",
+		"!e2e/src/suite/setup.test.ts"
 	]
 }

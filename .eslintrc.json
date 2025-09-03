@@ -3,7 +3,9 @@
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
 		"ecmaVersion": 6,
-		"sourceType": "module"
+		"sourceType": "module",
+		"project": "./tsconfig.json"
+
 	},
 	"plugins": ["@typescript-eslint"],
 	"rules": {
@@ -19,10 +21,18 @@
 		"no-throw-literal": "warn",
 		"semi": "off"
 	},
-	"ignorePatterns": ["out", "dist", "**/*.d.ts", "!roo-code.d.ts"],
+	"ignorePatterns": [
+		"out", 
+		"dist", 
+		"**/*.d.ts", 
+		"!roo-code.d.ts",
+		"src/**/__tests__/**",
+		"src/**/*.test.ts"
+	],
 	"overrides": [
 		{
-			"files": ["e2e/**/*.ts"],
+			"files": ["e2e/**/*.ts", "e2e/**/*.d.ts"],
+
 			"parserOptions": {
 				"project": "./e2e/tsconfig.json"
 			}

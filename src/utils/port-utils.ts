@@ -10,6 +10,8 @@
 // @ts-ignore - module has no types
 import * as tcpPortUsedModule from 'tcp-port-used';
 import { logger } from "./logging"
+import { isTestEnv } from './test-env'
+
 const tcpPortUsed = tcpPortUsedModule as {
   check: (port: number, host: string) => Promise<boolean>;
   waitUntilFree: (port: number, host: string, retryTimeMs: number, timeOutMs: number) => Promise<void>;
@@ -127,8 +129,8 @@ export async function waitForPortAvailable(
 	maxRetries = 10,
 	signal?: AbortSignal
 ): Promise<void> {
-	const isTestEnv = !!process.env.JEST_WORKER_ID || process.env.NODE_ENV === 'test' || typeof (globalThis as Record<string, unknown>).jest !== 'undefined'
-	if (isTestEnv) return
+		if (isTestEnv()) return
+
 	const resourceDesc = resourceName ? `${resourceName} on port ${port}` : `port ${port}`;
 	logger.info(`Waiting for ${resourceDesc} to become available...`, { ctx: 'ports' });
 	let currentRetry = 0;
