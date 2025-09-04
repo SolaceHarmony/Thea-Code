@@ -143,7 +143,6 @@ export async function diagnosticsToProblemsString(
 			
 			if (!documentPromises.has(uriString)) {
 				// Create a properly typed promise with error handling
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 				const openDocPromise: Thenable<vscode.TextDocument> = vscode.workspace.openTextDocument(uri)
 				const docPromise: Promise<vscode.TextDocument | null> = Promise.resolve(openDocPromise)
 					.then((doc): vscode.TextDocument | null => doc)

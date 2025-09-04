@@ -5,6 +5,6 @@
 export interface TheaCodeAPI {
   // Minimal surface used by tests during setup
   isTestMode?: boolean
-  // Use index signature to allow any additional properties without strict typing
-  [key: string]: any
+  // Use index signature with unknown to avoid any
+  [key: string]: unknown
 }
