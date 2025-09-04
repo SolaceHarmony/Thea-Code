@@ -342,7 +342,8 @@
     "generate:checklist": "tsx scripts/generate-master-list.ts",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "test:unit": "mocha -r tsx src/shared/__tests__/array.test.ts src/shared/__tests__/formatPath.test.ts src/shared/__tests__/language.test.ts src/shared/__tests__/vsCodeSelectorUtils.test.ts src/shared/__tests__/experiments.test.ts src/shared/__tests__/doesFileMatchRegex.test.ts src/shared/__tests__/context-mentions.test.ts src/shared/__tests__/support-prompts.test.ts src/services/mcp/providers/__tests__/EmbeddedMcpProvider.mocha.test.ts"
+    "test:unit": "mocha -r tsx src/shared/__tests__/array.test.ts src/shared/__tests__/formatPath.test.ts src/shared/__tests__/language.test.ts src/shared/__tests__/vsCodeSelectorUtils.test.ts src/shared/__tests__/experiments.test.ts src/shared/__tests__/doesFileMatchRegex.test.ts src/shared/__tests__/context-mentions.test.ts src/shared/__tests__/support-prompts.test.ts src/services/mcp/providers/__tests__/EmbeddedMcpProvider.mocha.test.ts",
+    "kill:tests": "pkill -f 'mocha -r tsx' || true; pkill -f 'uv tool uvx' || true; pkill -f 'codex mcp' || true; pkill -f 'markitdown-mcp' || true; pkill -f 'imagesorcery-mcp' || true"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock": "^3.864.0",
