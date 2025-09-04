@@ -342,7 +342,7 @@
     "generate:checklist": "tsx scripts/generate-master-list.ts",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "test:unit": "mocha -r tsx/register \"src/shared/__tests__/{array,formatPath,language,vsCodeSelectorUtils,experiments,support-prompts}.test.ts\""
+    "test:unit": "mocha -r tsx src/shared/__tests__/array.test.ts src/shared/__tests__/formatPath.test.ts src/shared/__tests__/language.test.ts src/shared/__tests__/vsCodeSelectorUtils.test.ts src/shared/__tests__/experiments.test.ts src/shared/__tests__/doesFileMatchRegex.test.ts src/shared/__tests__/context-mentions.test.ts src/shared/__tests__/support-prompts.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock": "^3.864.0",

@@ -1,4 +1,3 @@
-import * as vscode from "vscode"
 import * as path from "path"
 
 /**
@@ -6,9 +5,12 @@ import * as path from "path"
  * @param filePath The file path to check
  * @returns true if the path is outside all workspace folders, false otherwise
  */
-export function isPathOutsideWorkspace(filePath: string): boolean {
+export interface WorkspaceFolderLike { uri: { fsPath: string } }
+
+export function isPathOutsideWorkspace(filePath: string, workspaceFolders?: WorkspaceFolderLike[]): boolean {
 	// If there are no workspace folders, consider everything outside workspace for safety
-	if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+	const folders = workspaceFolders ?? []
+	if (folders.length === 0) {
 		return true
 	}
 
@@ -16,7 +18,7 @@ export function isPathOutsideWorkspace(filePath: string): boolean {
 	const absolutePath = path.resolve(filePath)
 
 	// Check if the path is within any workspace folder
-	return !vscode.workspace.workspaceFolders.some((folder) => {
+	return !folders.some((folder) => {
 		const folderPath = folder.uri.fsPath
 		// Path is inside a workspace if it equals the workspace path or is a subfolder
 		return absolutePath === folderPath || absolutePath.startsWith(folderPath + path.sep)
