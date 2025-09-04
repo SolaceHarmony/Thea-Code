@@ -1,27 +1,20 @@
 import * as assert from "assert"
 import { EmbeddedMcpProvider } from "../EmbeddedMcpProvider"
 
-describe("EmbeddedMcpProvider (Mocha)", () => {
-  let provider: EmbeddedMcpProvider | undefined
+declare const global: typeof globalThis & { __MCP_PROVIDER__?: EmbeddedMcpProvider }
 
-  afterEach(async () => {
-    if (provider) {
-      try { await provider.stop() } catch {}
-      provider = undefined
-    }
-  })
+describe("EmbeddedMcpProvider (Mocha)", () => {
+  let provider: EmbeddedMcpProvider
 
   it("starts on a dynamic port and exposes URL", async () => {
-    provider = await EmbeddedMcpProvider.create({ port: 0, host: "127.0.0.1" })
-    await provider.start()
+    provider = global.__MCP_PROVIDER__ as EmbeddedMcpProvider
     const url = provider.getServerUrl()
     assert.ok(url, "expected server URL after start")
     assert.ok(Number.parseInt(url!.port, 10) > 0)
   })
 
   it("registers and executes a tool", async () => {
-    provider = await EmbeddedMcpProvider.create({ port: 0, host: "127.0.0.1" })
-    await provider.start()
+    provider = global.__MCP_PROVIDER__ as EmbeddedMcpProvider
 
     provider.registerTool("echo_tool", "Echo tool", async (args: Record<string, unknown>) => {
       return { content: [{ type: "text", text: JSON.stringify(args) }], isError: false }
@@ -33,4 +26,3 @@ describe("EmbeddedMcpProvider (Mocha)", () => {
     assert.ok((result.content[0] as { type: string; text: string }).text.includes("\"foo\":\"bar\""))
   })
 })
-
