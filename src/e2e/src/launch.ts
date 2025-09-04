@@ -59,7 +59,9 @@ async function main() {
       ELECTRON_ENABLE_LOGGING: "1",
       ELECTRON_ENABLE_STACK_DUMPING: "1",
       // Run full extension for true E2E by default
-      THEA_E2E: process.env.THEA_E2E ?? "0",
+      THEA_E2E: process.env.THEA_E2E ?? "1",
+      // Prefer sandboxed, workspace-local config during tests
+      THEA_PREFER_LOCAL_CONFIG: process.env.THEA_PREFER_LOCAL_CONFIG ?? "1",
       NODE_ENV: process.env.NODE_ENV ?? "test",
       E2E_SMOKE_ONLY: process.env.E2E_SMOKE_ONLY ?? "0",
       // Default to full test discovery; can override to 1 for targeted runs
