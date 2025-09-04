@@ -32,7 +32,7 @@ import { TheaTask, TheaTaskOptions } from "../TheaTask" // Corrected import
 import { getNonce } from "./getNonce"
 import { getUri } from "./getUri"
 import { telemetryService } from "../../services/telemetry/TelemetryService"
-import { getWorkspacePath } from "../../utils/path"
+import { getWorkspacePath } from "../../utils/path-vscode"
 import { webviewMessageHandler } from "./webviewMessageHandler"
 import { WebviewMessage } from "../../shared/WebviewMessage"
 import { EXTENSION_DISPLAY_NAME, VIEWS, CONFIG } from "../../shared/config/thea-config"

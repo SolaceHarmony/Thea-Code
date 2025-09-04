@@ -1,7 +1,7 @@
 import os from "os"
 import osName from "os-name"
 import { Mode, ModeConfig } from "../../../shared/modes"
-import { getShell } from "../../../utils/shell"
+import { getShell } from "../../../utils/shell-vscode"
 
 export function getSystemInfoSection(cwd: string, currentMode: Mode, customModes?: ModeConfig[]): string {
 	// mark parameters as used to satisfy lint rules

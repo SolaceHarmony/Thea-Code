@@ -89,7 +89,7 @@ jest.mock("vscode", () => ({
 	},
 }))
 
-jest.mock("../../../utils/shell", () => ({
+jest.mock("../../../utils/shell-vscode", () => ({
 	getShell: () => "/bin/zsh",
 }))
 

@@ -77,14 +77,14 @@ const mockVscode = {
 jest.mock("vscode", () => mockVscode)
 jest.mock("../../../services/browser/UrlContentFetcher")
 jest.mock("../../../utils/git")
-jest.mock("../../../utils/path")
+jest.mock("../../../utils/path-vscode")
 
 // Now import the modules that use the mocks
 import { parseMentions, openMention } from "../index"
 import { UrlContentFetcher } from "../../../services/browser/UrlContentFetcher"
 import * as git from "../../../utils/git"
 
-import { getWorkspacePath } from "../../../utils/path"
+import { getWorkspacePath } from "../../../utils/path-vscode"
 ;(getWorkspacePath as jest.Mock).mockReturnValue("/test/workspace")
 
 describe("mentions", () => {

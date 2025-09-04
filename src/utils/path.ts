@@ -1,6 +1,5 @@
 import * as path from "path"
 import os from "os"
-import * as vscode from "vscode"
 import { formatPath } from "../shared/formatPath"
 
 /*
@@ -123,12 +122,4 @@ export const toRelativePath = (filePath: string, cwd: string) => {
 	return formatPath(pathWithTrailingSlash, process.platform)
 }
 
-export const getWorkspacePath = (defaultCwdPath = "") => {
-	const cwdPath = vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).at(0) || defaultCwdPath
-	const currentFileUri = vscode.window.activeTextEditor?.document.uri
-	if (currentFileUri) {
-		const workspaceFolder = vscode.workspace.getWorkspaceFolder(currentFileUri)
-		return workspaceFolder?.uri.fsPath || cwdPath
-	}
-	return cwdPath
-}
+// Note: getWorkspacePath has been moved to `src/utils/path-vscode.ts`
