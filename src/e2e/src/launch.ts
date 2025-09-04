@@ -62,8 +62,9 @@ async function main() {
       THEA_E2E: process.env.THEA_E2E ?? "0",
       NODE_ENV: process.env.NODE_ENV ?? "test",
       E2E_SMOKE_ONLY: process.env.E2E_SMOKE_ONLY ?? "0",
-      E2E_DIRECT_TEST: process.env.E2E_DIRECT_TEST ?? "1",
-      E2E_TEST_GLOB: process.env.E2E_TEST_GLOB ?? "selected/activation.test.js",
+      // Default to full test discovery; can override to 1 for targeted runs
+      E2E_DIRECT_TEST: process.env.E2E_DIRECT_TEST ?? "0",
+      E2E_TEST_GLOB: process.env.E2E_TEST_GLOB ?? "**/*.test.js",
     }
 
     try {

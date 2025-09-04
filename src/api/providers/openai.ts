@@ -170,54 +170,51 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 					}) as const,
 			)
 
-			let lastUsage
+				let lastUsage: { prompt_tokens?: number; completion_tokens?: number } | undefined
 
 			for await (const chunk of stream) {
-				const choices = (chunk as Partial<OpenAI.Chat.Completions.ChatCompletionChunk>).choices
-				const delta = (choices && choices[0] && (choices[0] as any).delta) ?? ({} as Record<string, unknown>)
+				const delta = chunk.choices?.[0]?.delta
 
-				if ((delta as any).content) {
-					for (const chunk of matcher.update((delta as any).content as string)) {
-						yield chunk
+				const content = delta?.content
+				if (typeof content === "string" && content.length > 0) {
+					for (const m of matcher.update(content)) {
+						yield m
 					}
 				}
 
 				// Handle tool use (function calls) using the helper method
-				const toolCalls = this.extractToolCalls(delta as Record<string, unknown>)
+				const toolCalls = this.extractToolCalls(delta ?? {})
 				for (const toolCall of toolCalls) {
 					if (toolCall.function) {
-						// Process tool use using MCP integration
+						const argsStr = toolCall.function.arguments || "{}"
+						let parsed: unknown
+						try {
+							parsed = JSON.parse(argsStr)
+						} catch {
+							parsed = {}
+						}
 						const toolResult = await this.processToolUse({
 							id: toolCall.id,
 							name: toolCall.function.name,
-							input: JSON.parse(toolCall.function.arguments || "{}"),
+							input: parsed as Record<string, unknown>,
 						})
 
-						// Ensure the tool result content is a string
-						const toolResultString =
-							typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult)
-
-						// Yield tool result
-						yield {
-							type: "tool_result",
-							id: toolCall.id,
-							content: toolResultString,
-						}
+						const toolResultString = typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult)
+						yield { type: "tool_result", id: toolCall.id, content: toolResultString }
 					}
 				}
 
-				if ("reasoning_content" in (delta as any) && (delta as any).reasoning_content) {
-					yield {
-						type: "reasoning",
-						text: ((delta as any).reasoning_content as string | undefined) || "",
-					}
+				// Non-standard reasoning stream field
+				const maybeReason = (delta as unknown as { reasoning_content?: unknown })?.reasoning_content
+				if (typeof maybeReason === "string") {
+					yield { type: "reasoning", text: maybeReason }
 				}
 				if (chunk.usage) {
 					lastUsage = chunk.usage
 				}
 			}
-			for (const chunk of matcher.final()) {
-				yield chunk
+			for (const m of matcher.final()) {
+				yield m
 			}
 
 			if (lastUsage) {

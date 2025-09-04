@@ -81,12 +81,12 @@ export class ProviderFactory {
 	/**
 	 * Create a provider handler
 	 */
-	async createHandler(
-		providerName: ProviderName,
-		options: ApiHandlerOptions
-	): Promise<SingleCompletionHandler> {
+createHandler(
+    providerName: ProviderName,
+    options: ApiHandlerOptions
+): SingleCompletionHandler {
 		// Ensure factory is initialized
-		await this.initialize({
+		this.initialize({
 			anthropicApiKey: options.apiKey,
 			openAiApiKey: options.openAiApiKey,
 			anthropicBaseUrl: options.anthropicBaseUrl,
@@ -99,21 +99,24 @@ export class ProviderFactory {
 				return new DynamicAnthropicHandler(options)
 			
 			case "openai":
-				// TODO: Create DynamicOpenAIHandler
-				// For now, use legacy handler
-				return new OpenAiHandler(options)
+            // TODO: Create DynamicOpenAIHandler; for now use legacy handler
+            const OpenAiCtor = OpenAiHandler as unknown as new (o: ApiHandlerOptions) => SingleCompletionHandler
+            return new OpenAiCtor(options)
 			
 			case "vertex":
-				// TODO: Create DynamicVertexHandler
-				return new VertexHandler(options)
+            // TODO: Create DynamicVertexHandler
+            const VertexCtor = VertexHandler as unknown as new (o: ApiHandlerOptions) => SingleCompletionHandler
+            return new VertexCtor(options)
 			
 			case "bedrock":
-				// TODO: Create DynamicBedrockHandler
-				return new BedrockHandler(options)
+            // TODO: Create DynamicBedrockHandler
+            const BedrockCtor = BedrockHandler as unknown as new (o: ApiHandlerOptions) => SingleCompletionHandler
+            return new BedrockCtor(options)
 			
 			case "ollama":
-				// TODO: Create DynamicOllamaHandler
-				return new OllamaHandler(options)
+            // TODO: Create DynamicOllamaHandler
+            const OllamaCtor = OllamaHandler as unknown as new (o: ApiHandlerOptions) => SingleCompletionHandler
+            return new OllamaCtor(options)
 			
 			// Add other providers as needed
 			default:

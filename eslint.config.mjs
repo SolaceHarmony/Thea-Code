@@ -7,6 +7,8 @@ import reactHooksPlugin from "eslint-plugin-react-hooks"
 import * as espree from "espree"
 import { globalIgnores } from "eslint/config"
 
+const tsconfigRootDir = new URL('.', import.meta.url).pathname
+
 const commonTsConfig = {
 	languageOptions: {
 		parser: tseslintParser,
@@ -17,7 +19,7 @@ const commonTsConfig = {
 		},
 		globals: {
 			...globals.node,
-			...globals.jest,
+        
 			...globals.mocha,
 		},
 	},
@@ -45,7 +47,7 @@ export default [
 			globals: {
 				...globals.browser,
 				...globals.node,
-				...globals.jest,
+            
 				...globals.mocha,
 			},
 		},
@@ -91,10 +93,6 @@ export default [
 		"benchmark/", // Re-enabled ignore to fix ESLint parsing issues
 		"src/e2e/src/suite/**",
 		"src/e2e/.vscode-test/**",
-		// Exclude unit tests from type-aware linting; they are not in tsconfig project
-		"src/**/__tests__/**",
-		"src/**/*.test.ts",
-		"src/**/*.test.tsx",
 		"**/*.md",
 		"**/*.json",
 		"**/*.yaml",
@@ -143,7 +141,15 @@ export default [
 		"**/*.snap",
 	]),
 	{
-		files: ["src/**/*.{ts,tsx}", "!src/**/*.js", "!src/__mocks__/**/*"],
+		files: [
+			"src/**/*.{ts,tsx}",
+			"!src/**/*.js",
+			"!src/__mocks__/**/*",
+			"!src/**/*.test.ts",
+			"!src/**/*.test.tsx",
+			"!src/**/__tests__/**/*.ts",
+			"!src/**/__tests__/**/*.tsx",
+		],
 		...commonTsConfig,
 		languageOptions: {
 			...commonTsConfig.languageOptions,
@@ -152,7 +158,25 @@ export default [
 				ecmaFeatures: {
 					jsx: true,
 				},
-				project: "./tsconfig.json",
+				project: "./tsconfig.eslint.json",
+				tsconfigRootDir,
+			},
+		},
+	},
+  {
+    files: [
+      "src/shared/__tests__/{array,formatPath,language,vsCodeSelectorUtils,experiments,support-prompts}.test.ts",
+    ],
+		...commonTsConfig,
+		languageOptions: {
+			...commonTsConfig.languageOptions,
+			parserOptions: {
+				...commonTsConfig.languageOptions.parserOptions,
+				ecmaFeatures: {
+					jsx: true,
+				},
+				project: "./tsconfig.eslint.json",
+				tsconfigRootDir,
 			},
 		},
 	},
@@ -173,6 +197,7 @@ export default [
 					jsx: true,
 				},
 				project: "./src/e2e/tsconfig.json",
+				tsconfigRootDir,
 			},
 		},
 	},
@@ -186,7 +211,8 @@ export default [
 				ecmaFeatures: {
 					jsx: true,
 				},
-				project: "./tsconfig.json",
+				project: "./tsconfig.eslint.json",
+				tsconfigRootDir,
 			},
 		},
 	},
@@ -199,7 +225,7 @@ export default [
 			globals: {
 				...globals.browser,
 				...globals.node,
-				...globals.jest,
+            
 				...globals.mocha,
 			},
 		},
