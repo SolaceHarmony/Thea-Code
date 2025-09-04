@@ -3,7 +3,7 @@ import * as path from "path"
 import { listFiles } from "../../services/glob/list-files"
 import { TheaProvider } from "../../core/webview/TheaProvider" // Renamed import
 import { toRelativePath } from "../../utils/path"
-import { getWorkspacePath } from "../../utils/path"
+import { getWorkspacePath } from "../../utils/path-vscode"
 // Remove unused logger import
 
 const MAX_INITIAL_FILES = 1_000

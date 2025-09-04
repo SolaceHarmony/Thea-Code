@@ -24,13 +24,10 @@ suite("Path Utilities", () => {
 			}
 		}
 		
-		// Load the path module with mocked VS Code
-		pathModule = proxyquire('../../../src/utils/path', {
-			'vscode': mockVscode,
-			'../shared/formatPath': {
-				formatPath: (p: string) => p  // Simple pass-through for testing
-			}
-		})
+    // Load the VS Code specific path module with mocked VS Code
+    pathModule = proxyquire('../../../src/utils/path-vscode', {
+        'vscode': mockVscode,
+    })
 		
 		// Add toPosix to String prototype (since the module extends it)
 		String.prototype.toPosix = function(this: string): string {

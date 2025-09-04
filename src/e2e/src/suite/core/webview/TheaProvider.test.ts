@@ -310,7 +310,7 @@ suite("TheaProvider", () => {
 			'../../services/checkpoints/ShadowCheckpointService': { ShadowCheckpointService: mockShadowCheckpointService },
 			'../../utils/sound': { setSoundEnabled: sandbox.stub() },
 			'../../utils/tts': { setTtsEnabled: sandbox.stub(), setTtsSpeed: sandbox.stub() },
-			'../../utils/path': { getWorkspacePath: sandbox.stub().returns('/test/workspace') },
+			'../../utils/path-vscode': { getWorkspacePath: sandbox.stub().returns('/test/workspace') },
 			'p-wait-for': pWaitForStub,
 			'delay': delayStub,
 			'../../i18n': { t: (key: string) => key }

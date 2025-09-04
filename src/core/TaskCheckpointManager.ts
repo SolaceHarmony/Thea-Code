@@ -10,7 +10,7 @@ import {
 import { CheckpointStorage } from "../shared/checkpoints"
 import { TheaProvider } from "./webview/TheaProvider" // Renamed import and path
 import { TheaMessage } from "../shared/ExtensionMessage" // Renamed imports
-import { getWorkspacePath } from "../utils/path"
+import { getWorkspacePath } from "../utils/path-vscode"
 import { DIFF_VIEW_URI_SCHEME } from "../integrations/editor/DiffViewProvider" // Fixed: removed type-only import
 import { logger } from "../utils/logging"
 

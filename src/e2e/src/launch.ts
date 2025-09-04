@@ -70,7 +70,7 @@ async function main() {
     try {
       // Prefer invoking the VS Code CLI shim to avoid Insiders app binary rejecting args on macOS
       const vscodeExecutablePath = await downloadAndUnzipVSCode({ version: "insiders", extensionDevelopmentPath })
-      const [cli, ...cliBaseArgs] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath)
+      const [cli] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath)
 
       const args = [
         ...launchArgs,
@@ -87,7 +87,8 @@ async function main() {
       console.log(`[e2e/launch] Spawning VS Code CLI: ${cli}`)
       const shell = process.platform === "win32"
       await new Promise<void>((resolve, reject) => {
-        const child = spawn(shell ? `"${cli}"` : cli, [...cliBaseArgs, ...args], {
+        // Pass only our args to avoid duplicate options becoming arrays in yargs
+        const child = spawn(shell ? `"${cli}"` : cli, [...args], {
           env,
           stdio: "inherit",
           shell,

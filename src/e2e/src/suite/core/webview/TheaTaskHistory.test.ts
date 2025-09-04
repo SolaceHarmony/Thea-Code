@@ -74,7 +74,7 @@ suite("TheaTaskHistory", () => {
 		const module = proxyquire('../history/TheaTaskHistory', {
 			'fs/promises': { default: fsStub },
 			'../../../utils/fs': { fileExistsAtPath: fileExistsStub },
-			'../../../utils/path': { getWorkspacePath: getWorkspacePathStub },
+        '../../../utils/path-vscode': { getWorkspacePath: getWorkspacePathStub },
 			'../../../integrations/misc/export-markdown': { downloadTask: downloadTaskStub },
 			'../../../shared/storagePathManager': { getTaskDirectoryPath: getTaskDirectoryPathStub },
 			'../../../services/checkpoints/ShadowCheckpointService': { ShadowCheckpointService: ShadowCheckpointServiceStub },

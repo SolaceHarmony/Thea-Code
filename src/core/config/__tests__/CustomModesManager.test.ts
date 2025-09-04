@@ -6,13 +6,14 @@ import * as fs from "fs/promises"
 import { CustomModesManager } from "../CustomModesManager"
 import { ModeConfig } from "../../../shared/modes"
 import { fileExistsAtPath } from "../../../utils/fs"
-import { getWorkspacePath, arePathsEqual } from "../../../utils/path"
+import { arePathsEqual } from "../../../utils/path"
+import { getWorkspacePath } from "../../../utils/path-vscode"
 import { GlobalFileNames } from "../../../shared/globalFileNames"
 import { GLOBAL_FILENAMES as BRANDED_FILENAMES } from "../../../shared/config/thea-config"
 jest.mock("vscode")
 jest.mock("fs/promises")
 jest.mock("../../../utils/fs")
-jest.mock("../../../utils/path")
+jest.mock("../../../utils/path-vscode")
 
 describe("CustomModesManager", () => {
 	let manager: CustomModesManager

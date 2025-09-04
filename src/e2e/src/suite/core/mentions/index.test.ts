@@ -83,7 +83,7 @@ import { UrlContentFetcher } from "../../../services/browser/UrlContentFetcher"
 import { parseMentions, openMention } from "../index"
 import * as git from "../../../utils/git"
 
-import { getWorkspacePath } from "../../../utils/path"
+import { getWorkspacePath } from "../../../utils/path-vscode"
 ;(getWorkspacePath as sinon.SinonStub).returns("/test/workspace")
 
 suite("mentions", () => {

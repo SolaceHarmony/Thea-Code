@@ -27,7 +27,7 @@ jest.mock("../../../../utils/fs")
 jest.mock("../../../../shared/storagePathManager")
 jest.mock("../../../../integrations/misc/export-markdown")
 jest.mock("../../../../services/checkpoints/ShadowCheckpointService")
-jest.mock("../../../../utils/path", () => ({
+jest.mock("../../../../utils/path-vscode", () => ({
 	getWorkspacePath: jest.fn().mockReturnValue("/workspace")
 }))
 jest.mock("../../../../utils/logging", () => ({

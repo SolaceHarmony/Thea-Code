@@ -11,7 +11,7 @@ import { TheaTask } from "../../TheaTask" // Updated import path and type
 import { ShadowCheckpointService } from "../../../services/checkpoints/ShadowCheckpointService" // Adjusted path
 import { downloadTask } from "../../../integrations/misc/export-markdown" // Adjusted path
 import { t } from "../../../i18n" // Adjusted path
-import { getWorkspacePath } from "../../../utils/path" // Adjusted path
+import { getWorkspacePath } from "../../../utils/path-vscode" // Adjusted path
 import type { NeutralConversationHistory } from "../../../shared/neutral-history" // Import neutral history types
 import { logger } from "../../../utils/logging"
 

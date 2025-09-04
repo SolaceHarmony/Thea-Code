@@ -1,4 +1,3 @@
-import * as vscode from "vscode"
 import { userInfo } from "os"
 
 const SHELL_PATHS = {
@@ -43,37 +42,40 @@ type LinuxTerminalProfiles = Record<string, LinuxTerminalProfile>
 // 1) VS Code Terminal Configuration Helpers
 // -----------------------------------------------------
 
-function getWindowsTerminalConfig() {
-	try {
-		const config = vscode.workspace.getConfiguration("terminal.integrated")
-		const defaultProfileName = config.get<string>("defaultProfile.windows")
-		const profiles = config.get<WindowsTerminalProfiles>("profiles.windows") || {}
-		return { defaultProfileName, profiles }
-	} catch {
-		return { defaultProfileName: null, profiles: {} as WindowsTerminalProfiles }
-	}
+function getWindowsTerminalConfig(vs?: Pick<typeof import('vscode'), 'workspace'>) {
+    try {
+        if (!vs) return { defaultProfileName: null, profiles: {} as WindowsTerminalProfiles }
+        const config = vs.workspace.getConfiguration("terminal.integrated")
+        const defaultProfileName = config.get<string>("defaultProfile.windows")
+        const profiles = config.get<WindowsTerminalProfiles>("profiles.windows") || {}
+        return { defaultProfileName, profiles }
+    } catch {
+        return { defaultProfileName: null, profiles: {} as WindowsTerminalProfiles }
+    }
 }
 
-function getMacTerminalConfig() {
-	try {
-		const config = vscode.workspace.getConfiguration("terminal.integrated")
-		const defaultProfileName = config.get<string>("defaultProfile.osx")
-		const profiles = config.get<MacTerminalProfiles>("profiles.osx") || {}
-		return { defaultProfileName, profiles }
-	} catch {
-		return { defaultProfileName: null, profiles: {} as MacTerminalProfiles }
-	}
+function getMacTerminalConfig(vs?: Pick<typeof import('vscode'), 'workspace'>) {
+    try {
+        if (!vs) return { defaultProfileName: null, profiles: {} as MacTerminalProfiles }
+        const config = vs.workspace.getConfiguration("terminal.integrated")
+        const defaultProfileName = config.get<string>("defaultProfile.osx")
+        const profiles = config.get<MacTerminalProfiles>("profiles.osx") || {}
+        return { defaultProfileName, profiles }
+    } catch {
+        return { defaultProfileName: null, profiles: {} as MacTerminalProfiles }
+    }
 }
 
-function getLinuxTerminalConfig() {
-	try {
-		const config = vscode.workspace.getConfiguration("terminal.integrated")
-		const defaultProfileName = config.get<string>("defaultProfile.linux")
-		const profiles = config.get<LinuxTerminalProfiles>("profiles.linux") || {}
-		return { defaultProfileName, profiles }
-	} catch {
-		return { defaultProfileName: null, profiles: {} as LinuxTerminalProfiles }
-	}
+function getLinuxTerminalConfig(vs?: Pick<typeof import('vscode'), 'workspace'>) {
+    try {
+        if (!vs) return { defaultProfileName: null, profiles: {} as LinuxTerminalProfiles }
+        const config = vs.workspace.getConfiguration("terminal.integrated")
+        const defaultProfileName = config.get<string>("defaultProfile.linux")
+        const profiles = config.get<LinuxTerminalProfiles>("profiles.linux") || {}
+        return { defaultProfileName, profiles }
+    } catch {
+        return { defaultProfileName: null, profiles: {} as LinuxTerminalProfiles }
+    }
 }
 
 // -----------------------------------------------------
@@ -81,8 +83,8 @@ function getLinuxTerminalConfig() {
 // -----------------------------------------------------
 
 /** Attempts to retrieve a shell path from VS Code config on Windows. */
-function getWindowsShellFromVSCode(): string | null {
-	const { defaultProfileName, profiles } = getWindowsTerminalConfig()
+function getWindowsShellFromVSCode(vs?: Pick<typeof import('vscode'), 'workspace'>): string | null {
+    const { defaultProfileName, profiles } = getWindowsTerminalConfig(vs)
 	if (!defaultProfileName) {
 		return null
 	}
@@ -119,8 +121,8 @@ function getWindowsShellFromVSCode(): string | null {
 }
 
 /** Attempts to retrieve a shell path from VS Code config on macOS. */
-function getMacShellFromVSCode(): string | null {
-	const { defaultProfileName, profiles } = getMacTerminalConfig()
+function getMacShellFromVSCode(vs?: Pick<typeof import('vscode'), 'workspace'>): string | null {
+    const { defaultProfileName, profiles } = getMacTerminalConfig(vs)
 	if (!defaultProfileName) {
 		return null
 	}
@@ -130,8 +132,8 @@ function getMacShellFromVSCode(): string | null {
 }
 
 /** Attempts to retrieve a shell path from VS Code config on Linux. */
-function getLinuxShellFromVSCode(): string | null {
-	const { defaultProfileName, profiles } = getLinuxTerminalConfig()
+function getLinuxShellFromVSCode(vs?: Pick<typeof import('vscode'), 'workspace'>): string | null {
+    const { defaultProfileName, profiles } = getLinuxTerminalConfig(vs)
 	if (!defaultProfileName) {
 		return null
 	}
@@ -182,23 +184,23 @@ function getShellFromEnv(): string | null {
 // 4) Publicly Exposed Shell Getter
 // -----------------------------------------------------
 
-export function getShell(): string {
+export function getShell(vs?: Pick<typeof import('vscode'), 'workspace'>): string {
 	// 1. Check VS Code config first.
 	if (process.platform === "win32") {
 		// Special logic for Windows
-		const windowsShell = getWindowsShellFromVSCode()
+        const windowsShell = getWindowsShellFromVSCode(vs)
 		if (windowsShell) {
 			return windowsShell
 		}
 	} else if (process.platform === "darwin") {
 		// macOS from VS Code
-		const macShell = getMacShellFromVSCode()
+        const macShell = getMacShellFromVSCode(vs)
 		if (macShell) {
 			return macShell
 		}
 	} else if (process.platform === "linux") {
 		// Linux from VS Code
-		const linuxShell = getLinuxShellFromVSCode()
+        const linuxShell = getLinuxShellFromVSCode(vs)
 		if (linuxShell) {
 			return linuxShell
 		}

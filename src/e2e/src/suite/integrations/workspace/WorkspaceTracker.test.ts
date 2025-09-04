@@ -4,7 +4,7 @@ import * as vscode from "vscode"
 import WorkspaceTracker from "../WorkspaceTracker"
 import { TheaProvider } from "../../../core/webview/TheaProvider" // Renamed import
 import { listFiles } from "../../../services/glob/list-files"
-import { getWorkspacePath } from "../../../utils/path"
+import { getWorkspacePath } from "../../../utils/path-vscode"
 
 // Mock functions - must be defined before module mocking
 const mockOnDidCreate = sinon.stub()

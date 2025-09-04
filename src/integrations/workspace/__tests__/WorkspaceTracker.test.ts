@@ -3,7 +3,7 @@ import * as vscode from "vscode"
 import WorkspaceTracker from "../WorkspaceTracker"
 import { TheaProvider } from "../../../core/webview/TheaProvider" // Renamed import
 import { listFiles } from "../../../services/glob/list-files"
-import { getWorkspacePath } from "../../../utils/path"
+import { getWorkspacePath } from "../../../utils/path-vscode"
 
 // Mock functions - must be defined before jest.mock calls
 const mockOnDidCreate = jest.fn()
@@ -14,7 +14,7 @@ const mockDispose = jest.fn()
 let registeredTabChangeCallback: (() => Promise<void>) | null = null
 
 // Mock workspace path
-jest.mock("../../../utils/path", () => ({
+jest.mock("../../../utils/path-vscode", () => ({
 	getWorkspacePath: jest.fn().mockReturnValue("/test/workspace"),
 	toRelativePath: jest.fn((p: string, cwd: string) => {
 		// Simple mock that preserves the original behavior for tests

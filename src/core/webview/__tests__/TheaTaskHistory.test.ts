@@ -8,7 +8,7 @@ import { ContextProxy } from "../../config/ContextProxy"
 import { fileExistsAtPath } from "../../../utils/fs"
 import { ShadowCheckpointService } from "../../../services/checkpoints/ShadowCheckpointService"
 import { downloadTask } from "../../../integrations/misc/export-markdown"
-import { getWorkspacePath } from "../../../utils/path"
+import { getWorkspacePath } from "../../../utils/path-vscode"
 import { GlobalFileNames } from "../../../shared/globalFileNames"
 import { HistoryItem } from "../../../shared/HistoryItem"
 

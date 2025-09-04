@@ -39,7 +39,7 @@ import { getBedrockModels, getGeminiModels, getVertexModels, getMistralModels, g
 import { openMention } from "../mentions"
 import { telemetryService } from "../../services/telemetry/TelemetryService"
 import { TelemetrySetting } from "../../shared/TelemetrySetting"
-import { getWorkspacePath } from "../../utils/path"
+import { getWorkspacePath } from "../../utils/path-vscode"
 import { Mode, defaultModeSlug, getModeBySlug, getGroupName } from "../../shared/modes"
 import { getDiffStrategy } from "../diff/DiffStrategy"
 import { SYSTEM_PROMPT } from "../prompts/system"
