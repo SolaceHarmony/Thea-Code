@@ -1,7 +1,10 @@
 // Support prompts
-import * as vscode from "vscode" // Import vscode for Diagnostic type
+export interface DiagnosticLike {
+  source?: string
+  message: string
+  code?: string | number | { [key: string]: unknown }
+}
 
-// Support prompts
 export type PromptParams = {
 	userInput?: string
 	filePath?: string
@@ -9,11 +12,11 @@ export type PromptParams = {
 	endLine?: string
 	selectedText?: string
 	terminalContent?: string
-	diagnostics?: vscode.Diagnostic[]
-	[key: string]: string | vscode.Diagnostic[] | undefined
+	diagnostics?: DiagnosticLike[]
+	[key: string]: string | DiagnosticLike[] | undefined
 }
 
-const generateDiagnosticText = (diagnostics?: vscode.Diagnostic[]): string => {
+const generateDiagnosticText = (diagnostics?: DiagnosticLike[]): string => {
 	if (!diagnostics?.length) return ""
 	return `Current problems detected:\n${diagnostics
 		.map(

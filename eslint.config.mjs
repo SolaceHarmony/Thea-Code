@@ -91,7 +91,7 @@ export default [
 		"scripts/",
 		"test/",
 		"benchmark/", // Re-enabled ignore to fix ESLint parsing issues
-		"src/e2e/src/suite/**",
+		"src/e2e/src/**",
 		"src/e2e/.vscode-test/**",
 		"**/*.md",
 		"**/*.json",
@@ -145,10 +145,11 @@ export default [
 			"src/**/*.{ts,tsx}",
 			"!src/**/*.js",
 			"!src/__mocks__/**/*",
-			"!src/**/*.test.ts",
-			"!src/**/*.test.tsx",
-			"!src/**/__tests__/**/*.ts",
-			"!src/**/__tests__/**/*.tsx",
+		],
+		ignores: [
+			"src/**/__tests__/**",
+			"src/**/*.test.ts",
+			"src/**/*.test.tsx",
 		],
 		...commonTsConfig,
 		languageOptions: {
@@ -165,7 +166,11 @@ export default [
 	},
   {
     files: [
-      "src/shared/__tests__/{array,formatPath,language,vsCodeSelectorUtils,experiments,support-prompts}.test.ts",
+      "src/shared/__tests__/array.test.ts",
+      "src/shared/__tests__/formatPath.test.ts",
+      "src/shared/__tests__/language.test.ts",
+      "src/shared/__tests__/vsCodeSelectorUtils.test.ts",
+      "src/shared/__tests__/experiments.test.ts",
     ],
 		...commonTsConfig,
 		languageOptions: {
@@ -179,7 +184,7 @@ export default [
 				tsconfigRootDir,
 			},
 		},
-	},
+  },
 	{
 		files: [
 			"src/e2e/src/launch.ts",

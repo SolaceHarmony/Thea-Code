@@ -70,7 +70,7 @@ export async function writeToFileTool(
 
 	// Determine if the path is outside the workspace
 	const fullPath = relPath ? path.resolve(theaTask.cwd, removeClosingTag("path", relPath)) : ""
-	const isOutsideWorkspace = isPathOutsideWorkspace(fullPath)
+	const isOutsideWorkspace = isPathOutsideWorkspace(fullPath, vscode.workspace.workspaceFolders)
 
 	const sharedMessageProps: TheaSayTool = {
 		// Renamed type

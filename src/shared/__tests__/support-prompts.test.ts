@@ -1,5 +1,5 @@
+import { strict as assert } from "node:assert"
 import { supportPrompt } from "../support-prompt"
-import * as vscode from "vscode"
 
 describe("Code Action Prompts", () => {
 	const testFilePath = "test/file.ts"
@@ -11,11 +11,11 @@ describe("Code Action Prompts", () => {
 				filePath: testFilePath,
 				selectedText: testCode,
 			})
-			expect(prompt).toContain(testFilePath)
-			expect(prompt).toContain(testCode)
-			expect(prompt).toContain("purpose and functionality")
-			expect(prompt).toContain("Key components")
-			expect(prompt).toContain("Important patterns")
+			assert.ok(prompt.includes(testFilePath))
+			assert.ok(prompt.includes(testCode))
+			assert.ok(prompt.includes("purpose and functionality"))
+			assert.ok(prompt.includes("Key components"))
+			assert.ok(prompt.includes("Important patterns"))
 		})
 	})
 
@@ -25,26 +25,22 @@ describe("Code Action Prompts", () => {
 				filePath: testFilePath,
 				selectedText: testCode,
 			})
-			expect(prompt).toContain(testFilePath)
-			expect(prompt).toContain(testCode)
-			expect(prompt).toContain("Address all detected problems")
-			expect(prompt).not.toContain("Current problems detected")
+			assert.ok(prompt.includes(testFilePath))
+			assert.ok(prompt.includes(testCode))
+			assert.ok(prompt.includes("Address all detected problems"))
+			assert.ok(!prompt.includes("Current problems detected"))
 		})
 
 		it("should format fix prompt with diagnostics", () => {
-			const diagnostics: vscode.Diagnostic[] = [
+			const diagnostics = [
 				{
 					source: "eslint",
 					message: "Missing semicolon",
 					code: "semi",
-					range: new vscode.Range(0, 0, 0, 0), // Add a dummy range
-					severity: vscode.DiagnosticSeverity.Error, // Add a dummy severity
-				} as vscode.Diagnostic,
+				},
 				{
 					message: "Unused variable",
-					severity: vscode.DiagnosticSeverity.Warning, // Use vscode.DiagnosticSeverity
-					range: new vscode.Range(0, 0, 0, 0), // Add a dummy range
-				} as vscode.Diagnostic,
+				},
 			]
 
 			const prompt = supportPrompt.create("FIX", {
@@ -53,10 +49,10 @@ describe("Code Action Prompts", () => {
 				diagnostics,
 			})
 
-			expect(prompt).toContain("Current problems detected:")
-			expect(prompt).toContain("[eslint] Missing semicolon (semi)")
-			expect(prompt).toContain("[Error] Unused variable")
-			expect(prompt).toContain(testCode)
+			assert.ok(prompt.includes("Current problems detected:"))
+			assert.ok(prompt.includes("[eslint] Missing semicolon (semi)"))
+			assert.ok(prompt.includes("[Error] Unused variable"))
+			assert.ok(prompt.includes(testCode))
 		})
 	})
 
@@ -66,12 +62,12 @@ describe("Code Action Prompts", () => {
 				filePath: testFilePath,
 				selectedText: testCode,
 			})
-			expect(prompt).toContain(testFilePath)
-			expect(prompt).toContain(testCode)
-			expect(prompt).toContain("Code readability")
-			expect(prompt).toContain("Performance optimization")
-			expect(prompt).toContain("Best practices")
-			expect(prompt).toContain("Error handling")
+			assert.ok(prompt.includes(testFilePath))
+			assert.ok(prompt.includes(testCode))
+			assert.ok(prompt.includes("Code readability"))
+			assert.ok(prompt.includes("Performance optimization"))
+			assert.ok(prompt.includes("Best practices"))
+			assert.ok(prompt.includes("Error handling"))
 		})
 	})
 
@@ -81,19 +77,20 @@ describe("Code Action Prompts", () => {
 				userInput: "test",
 			})
 
-			expect(prompt).toBe(
-				"Generate an enhanced version of this prompt (reply with only the enhanced prompt - no conversation, explanations, lead-in, bullet points, placeholders, or surrounding quotes):\n\ntest",
-			)
+				assert.equal(
+					prompt,
+					"Generate an enhanced version of this prompt (reply with only the enhanced prompt - no conversation, explanations, lead-in, bullet points, placeholders, or surrounding quotes):\n\ntest",
+				)
 			// Verify it ignores parameters since ENHANCE template doesn't use any
-			expect(prompt).not.toContain(testFilePath)
-			expect(prompt).not.toContain(testCode)
+			assert.ok(!prompt.includes(testFilePath))
+			assert.ok(!prompt.includes(testCode))
 		})
 	})
 
 	describe("get template", () => {
 		it("should return default template when no custom prompts provided", () => {
 			const template = supportPrompt.get(undefined, "EXPLAIN")
-			expect(template).toBe(supportPrompt.default.EXPLAIN)
+			assert.equal(template, supportPrompt.default.EXPLAIN)
 		})
 
 		it("should return custom template when provided", () => {
@@ -102,7 +99,7 @@ describe("Code Action Prompts", () => {
 				EXPLAIN: customTemplate,
 			}
 			const template = supportPrompt.get(customSupportPrompts, "EXPLAIN")
-			expect(template).toBe(customTemplate)
+			assert.equal(template, customTemplate)
 		})
 
 		it("should return default template when custom prompts does not include type", () => {
@@ -110,7 +107,7 @@ describe("Code Action Prompts", () => {
 				SOMETHING_ELSE: "Other template",
 			}
 			const template = supportPrompt.get(customSupportPrompts, "EXPLAIN")
-			expect(template).toBe(supportPrompt.default.EXPLAIN)
+			assert.equal(template, supportPrompt.default.EXPLAIN)
 		})
 	})
 
@@ -130,8 +127,8 @@ describe("Code Action Prompts", () => {
 				customSupportPrompts,
 			)
 
-			expect(prompt).toContain(`Custom template for ${testFilePath}`)
-			expect(prompt).not.toContain("purpose and functionality")
+			assert.ok(prompt.includes(`Custom template for ${testFilePath}`))
+			assert.ok(!prompt.includes("purpose and functionality"))
 		})
 
 		it("should use default template when custom prompts does not include type", () => {
@@ -148,7 +145,7 @@ describe("Code Action Prompts", () => {
 				customSupportPrompts,
 			)
 
-			expect(prompt).toContain("Other template")
+			assert.ok(prompt.includes("Other template"))
 		})
 	})
 })

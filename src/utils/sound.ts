@@ -4,7 +4,7 @@ import soundPlay from "sound-play"
 
 type SoundPlayFunction = (filepath: string, volume?: number) => Promise<void>
 
-const sound: SoundPlayFunction = soundPlay
+const sound: SoundPlayFunction = ((fp, vol) => (soundPlay as unknown as SoundPlayFunction)(fp, vol))
 
 /**
  * Minimum interval (in milliseconds) to prevent continuous playback

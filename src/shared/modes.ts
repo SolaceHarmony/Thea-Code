@@ -1,4 +1,3 @@
-import * as vscode from "vscode"
 
 import { GroupOptions, GroupEntry, ModeConfig, PromptComponent, CustomModePrompts } from "../schemas"
 import { TOOL_GROUPS, ToolGroup, ALWAYS_AVAILABLE_TOOLS } from "./tool-groups"
@@ -319,3 +318,4 @@ export function getCustomInstructions(modeSlug: string, customModes?: ModeConfig
 	}
 	return mode.customInstructions ?? ""
 }
+import type * as vscode from "vscode"

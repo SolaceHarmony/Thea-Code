@@ -5,6 +5,7 @@ import type { ToolUse } from "../assistant-message"
 import { formatResponse } from "../prompts/responses"
 import { t } from "../../i18n"
 import { AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "./types"
+import * as vscode from "vscode"
 import { isPathOutsideWorkspace } from "../../utils/pathUtils"
 import { getReadablePath } from "../../utils/path"
 import { countFileLines } from "../../integrations/misc/line-counter"
@@ -27,7 +28,7 @@ export async function readFileTool(
 
 	// Get the full path and determine if it's outside the workspace
 	const fullPath = relPath ? path.resolve(theaTask.cwd, removeClosingTag("path", relPath)) : ""
-	const isOutsideWorkspace = isPathOutsideWorkspace(fullPath)
+	const isOutsideWorkspace = isPathOutsideWorkspace(fullPath, vscode.workspace.workspaceFolders)
 
 	const sharedMessageProps: TheaSayTool = {
 		tool: "readFile",

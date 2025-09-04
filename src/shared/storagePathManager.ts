@@ -1,4 +1,14 @@
-import * as vscode from "vscode"
+// Avoid importing vscode at module load to keep Node tests happy.
+// Resolve it lazily within functions when running in an extension host.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getVscode(): any | undefined {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    return require('vscode')
+  } catch {
+    return undefined
+  }
+}
 import * as path from "path"
 import * as fs from "fs/promises"
 import { t } from "../i18n"
@@ -14,9 +24,11 @@ export async function getStorageBasePath(defaultPath: string): Promise<string> {
 	let customStoragePath = ""
 
 	try {
-		const section = (configSection as () => string)()
-		const config = vscode.workspace.getConfiguration(section)
-		customStoragePath = config.get<string>("customStoragePath", "")
+    const vscode = getVscode()
+    if (!vscode) return defaultPath
+    const section = (configSection as () => string)()
+    const config = vscode.workspace.getConfiguration(section)
+    customStoragePath = config.get<string>("customStoragePath", "")
 	} catch {
 		console.warn("Could not access VSCode configuration - using default path")
 		return defaultPath
@@ -40,12 +52,13 @@ export async function getStorageBasePath(defaultPath: string): Promise<string> {
 	} catch (error) {
 		// If path is unusable, report error and fall back to default path
 		const errorMessage = error instanceof Error ? error.message : String(error)
-		console.error(
-			t("common:errors.custom_storage_path_unusable_log", { path: customStoragePath, error: errorMessage }),
-		)
-		vscode.window.showErrorMessage(t("common:errors.custom_storage_path_unusable", { path: customStoragePath }))
-		return defaultPath
-	}
+    console.error(
+        t("common:errors.custom_storage_path_unusable_log", { path: customStoragePath, error: errorMessage }),
+    )
+    const vscode = getVscode()
+    vscode?.window?.showErrorMessage?.(t("common:errors.custom_storage_path_unusable", { path: customStoragePath }))
+    return defaultPath
+  }
 }
 
 /**
@@ -86,7 +99,12 @@ export async function promptForCustomStoragePath(): Promise<void> {
 	// VS Code API is expected to be available in an extension context
 	// No need for explicit checks for vscode.window or vscode.workspace
 
-	let currentPath = ""
+  const vscode = getVscode()
+  if (!vscode) {
+    console.error("promptForCustomStoragePath called outside of VS Code host")
+    return
+  }
+  let currentPath = ""
 	try {
 		const section = (configSection as () => string)()
 		const currentConfig = vscode.workspace.getConfiguration(section)
@@ -96,7 +114,7 @@ export async function promptForCustomStoragePath(): Promise<void> {
 		return
 	}
 
-	const result = await vscode.window.showInputBox({
+  const result = await vscode.window.showInputBox({
 		value: currentPath,
 		placeHolder: t("common:storage.path_placeholder"),
 		prompt: t("common:storage.prompt_custom_path"),
@@ -122,28 +140,28 @@ export async function promptForCustomStoragePath(): Promise<void> {
 	})
 
 	// If user canceled the operation, result will be undefined
-	if (result !== undefined) {
+  if (result !== undefined) {
 		try {
-			const section = (configSection as () => string)()
-			const currentConfig = vscode.workspace.getConfiguration(section)
+      const section = (configSection as () => string)()
+      const currentConfig = vscode.workspace.getConfiguration(section)
 			await currentConfig.update("customStoragePath", result, vscode.ConfigurationTarget.Global)
 
 			if (result) {
 				try {
 					// Test if path is accessible
 					await fs.mkdir(result, { recursive: true })
-					vscode.window.showInformationMessage(t("common:info.custom_storage_path_set", { path: result }))
+          vscode.window.showInformationMessage(t("common:info.custom_storage_path_set", { path: result }))
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : String(error)
-					vscode.window.showErrorMessage(
-						t("common:errors.cannot_access_path", {
-							path: result,
-							error: errorMessage,
-						}),
-					)
+          vscode.window.showErrorMessage(
+            t("common:errors.cannot_access_path", {
+              path: result,
+              error: errorMessage,
+            }),
+          )
 				}
 			} else {
-				vscode.window.showInformationMessage(t("common:info.default_storage_path"))
+        vscode.window.showInformationMessage(t("common:info.default_storage_path"))
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error)

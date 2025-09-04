@@ -1,10 +1,10 @@
-import { stringifyVsCodeLmModelSelector } from "../vsCodeSelectorUtils"
-import { LanguageModelChatSelector } from "vscode"
+import { strict as assert } from "node:assert"
+import { stringifyVsCodeLmModelSelector, type LanguageModelChatSelectorLike } from "../vsCodeSelectorUtils"
 
 describe("vsCodeSelectorUtils", () => {
 	describe("stringifyVsCodeLmModelSelector", () => {
 		it("should join all defined selector properties with separator", () => {
-			const selector: LanguageModelChatSelector = {
+			const selector: LanguageModelChatSelectorLike = {
 				vendor: "test-vendor",
 				family: "test-family",
 				version: "v1",
@@ -12,33 +12,33 @@ describe("vsCodeSelectorUtils", () => {
 			}
 
 			const result = stringifyVsCodeLmModelSelector(selector)
-			expect(result).toBe("test-vendor/test-family/v1/test-id")
+			assert.equal(result, "test-vendor/test-family/v1/test-id")
 		})
 
 		it("should skip undefined properties", () => {
-			const selector: LanguageModelChatSelector = {
+			const selector: LanguageModelChatSelectorLike = {
 				vendor: "test-vendor",
 				family: "test-family",
 			}
 
 			const result = stringifyVsCodeLmModelSelector(selector)
-			expect(result).toBe("test-vendor/test-family")
+			assert.equal(result, "test-vendor/test-family")
 		})
 
 		it("should handle empty selector", () => {
-			const selector: LanguageModelChatSelector = {}
+			const selector: LanguageModelChatSelectorLike = {}
 
 			const result = stringifyVsCodeLmModelSelector(selector)
-			expect(result).toBe("")
+			assert.equal(result, "")
 		})
 
 		it("should handle selector with only one property", () => {
-			const selector: LanguageModelChatSelector = {
+			const selector: LanguageModelChatSelectorLike = {
 				vendor: "test-vendor",
 			}
 
 			const result = stringifyVsCodeLmModelSelector(selector)
-			expect(result).toBe("test-vendor")
-		})
+			assert.equal(result, "test-vendor")
 	})
+})
 })
