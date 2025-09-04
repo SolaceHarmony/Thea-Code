@@ -5,6 +5,28 @@ import { runTests, downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePat
 
 async function main() {
   try {
+    // Preflight: kill lingering test/mock processes to avoid port conflicts or duplicate mocks
+    // Can be disabled via THEA_AUTO_KILL=0
+    const autoKill = (process.env.THEA_AUTO_KILL ?? "1") === "1"
+    if (autoKill) {
+      try {
+        console.log("[e2e/launch] Preflight cleanup: killing lingering test/mock processes")
+        if (process.platform === "win32") {
+          // Best-effort on Windows. Silently ignore errors.
+          const winKill = (pattern: string) => {
+            try { execSync(`wmic process where \"CommandLine like '%${pattern.replace(/"/g, "\\\"")}%'\" call terminate`, { stdio: "ignore" }) } catch {}
+          }
+          ;["mocha -r tsx", "uv tool uvx", "codex mcp", "markitdown-mcp", "imagesorcery-mcp"].forEach(winKill)
+        } else {
+          // POSIX/macOS
+          const pkill = (p: string) => { try { execSync(`pkill -f "${p}"`, { stdio: "ignore" }) } catch {} }
+          ;["mocha -r tsx", "uv tool uvx", "codex mcp", "markitdown-mcp", "imagesorcery-mcp"].forEach(pkill)
+        }
+      } catch {
+        // Ignore any cleanup errors
+      }
+    }
+
     // This file is compiled to e2e/out/suite/launch.js
   const compiledDir = __dirname // e2e/out/suite
   const repoRoot = path.resolve(compiledDir, "..", "..", "..") // -> repo root
@@ -62,6 +84,9 @@ async function main() {
       THEA_E2E: process.env.THEA_E2E ?? "1",
       // Prefer sandboxed, workspace-local config during tests
       THEA_PREFER_LOCAL_CONFIG: process.env.THEA_PREFER_LOCAL_CONFIG ?? "1",
+      // Silence MCP port wait logs and skip confirmation checks during tests
+      THEA_SKIP_MCP_PORT_WAIT: process.env.THEA_SKIP_MCP_PORT_WAIT ?? "1",
+      THEA_SILENT_MCP_LOGS: process.env.THEA_SILENT_MCP_LOGS ?? "1",
       NODE_ENV: process.env.NODE_ENV ?? "test",
       E2E_SMOKE_ONLY: process.env.E2E_SMOKE_ONLY ?? "0",
       // Default to full test discovery; can override to 1 for targeted runs

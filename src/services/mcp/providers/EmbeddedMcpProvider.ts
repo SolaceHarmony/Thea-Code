@@ -14,7 +14,12 @@ import {
 import { StdioTransportConfig, IMcpTransport } from "../types/McpTransportTypes"
 import { findAvailablePort, waitForPortInUse } from "../../../utils/port-utils"
 
-const isTestEnv = process.env.JEST_WORKER_ID !== undefined
+const isTestEnv =
+  process.env.JEST_WORKER_ID !== undefined ||
+  process.env.THEA_E2E === "1" ||
+  process.env.NODE_ENV === "test"
+const skipPortWait = process.env.THEA_SKIP_MCP_PORT_WAIT === "1"
+const silentMcpLogs = process.env.THEA_SILENT_MCP_LOGS === "1"
 
 // Define a more specific type for the MCP server instance from the SDK
 // This needs to align with the actual SDK's McpServer class structure
@@ -338,14 +343,14 @@ export class EmbeddedMcpProvider extends EventEmitter implements IMcpProvider {
 								[8000, 8100],
 								[9000, 9100],
 							]
-							if (!isTestEnv) console.log("Finding available port for MCP server...")
+                if (!isTestEnv && !silentMcpLogs) console.log("Finding available port for MCP server...")
 							actualPort = await findAvailablePort(3000, "127.0.0.1", preferredRanges, isTestEnv ? 20 : 150, isTestEnv)
 							if (isTestEnv && this.lastPort && this.lastPort === actualPort) {
 								// Try to select a different port to satisfy restart tests
 								const startFrom = this.lastPort + 1
 								actualPort = await findAvailablePort(startFrom, "127.0.0.1", preferredRanges, isTestEnv ? 20 : 150, isTestEnv)
 							}
-							if (!isTestEnv) console.log(`Found available port for MCP server: ${actualPort}`)
+                    if (!isTestEnv && !silentMcpLogs) console.log(`Found available port for MCP server: ${actualPort}`)
 							this.sseConfig.port = actualPort
 							if (isTestEnv) {
 								if (this.transport?.close) await this.transport.close()
@@ -385,9 +390,7 @@ export class EmbeddedMcpProvider extends EventEmitter implements IMcpProvider {
 								const rawAddress: AddressInfo | string | null = sdkSseTransportInstance.httpServer.address()
 								if (rawAddress && typeof rawAddress === "object" && "port" in rawAddress) {
 									port = rawAddress.port;
-									if (!isTestEnv) {
-										console.log(`Retrieved port from httpServer.address(): ${port}`);
-									}
+                        if (!isTestEnv && !silentMcpLogs) console.log(`Retrieved port from httpServer.address(): ${port}`);
 									return port;
 								}
 							}
@@ -398,18 +401,14 @@ export class EmbeddedMcpProvider extends EventEmitter implements IMcpProvider {
 								sdkSseTransportInstance.port !== 0
 							) {
 								port = sdkSseTransportInstance.port;
-								if (!isTestEnv) {
-									console.warn("Retrieved port from sdkSseTransportInstance.port");
-								}
+                        if (!isTestEnv && !silentMcpLogs) console.warn("Retrieved port from sdkSseTransportInstance.port");
 								return port;
 							}
 							
 							// If we couldn't get the port, wait and retry
 							retries++;
 							if (retries < maxRetries) {
-								if (!isTestEnv) {
-									console.warn(`Port determination attempt ${retries} failed, retrying in ${retryDelay}ms...`);
-								}
+                                if (!isTestEnv && !silentMcpLogs) console.warn(`Port determination attempt ${retries} failed, retrying in ${retryDelay}ms...`);
 								await new Promise(resolve => setTimeout(resolve, retryDelay));
 							}
 						}
@@ -422,25 +421,27 @@ export class EmbeddedMcpProvider extends EventEmitter implements IMcpProvider {
 				}
 				
 				// Wait for the port to be in use (server ready)
-				try {
-					if (!isTestEnv) {
-						const hostRaw = this.sseConfig.hostname || "localhost"
-						await waitForPortInUse(actualPort, hostRaw, 200, 30000, "MCP Server", 15)
-						console.log(`Confirmed MCP server is listening on port ${actualPort}`)
-					}
-				} catch (error) {
-					const errorMessage = error instanceof Error ? error.message : String(error)
-					if (!isTestEnv) console.warn(`Warning: Could not confirm MCP server is listening: ${errorMessage}`)
-				}
+                if (!skipPortWait) {
+                    try {
+                        if (!isTestEnv) {
+                            const hostRaw = this.sseConfig.hostname || "localhost"
+                            await waitForPortInUse(actualPort, hostRaw, 200, 30000, "MCP Server", 15)
+                            if (!silentMcpLogs) console.log(`Confirmed MCP server is listening on port ${actualPort}`)
+                        }
+                    } catch (error) {
+                        const errorMessage = error instanceof Error ? error.message : String(error)
+                        if (!isTestEnv && !silentMcpLogs) console.warn(`Warning: Could not confirm MCP server is listening: ${errorMessage}`)
+                    }
+                }
 				// In tests, honor provided hostname when set; default to 'localhost'
 				const finalHost = this.sseConfig.hostname || (isTestEnv ? "localhost" : "localhost")
 				this.serverUrl = new URL(`http://${finalHost}:${actualPort}`)
 				this.lastPort = actualPort
-				if (isTestEnv) {
-					g.__MCP_SERVER_URL__ = this.serverUrl.toString()
-				} else {
-					console.log(`MCP server (SSE) started at ${this.serverUrl.toString()}`)
-				}
+                if (isTestEnv || silentMcpLogs) {
+                    g.__MCP_SERVER_URL__ = this.serverUrl.toString()
+                } else {
+                    console.log(`MCP server (SSE) started at ${this.serverUrl.toString()}`)
+                }
 			} else {
 				if (!isTestEnv) console.log(`MCP server started with ${this.transportType} transport`)
 			}

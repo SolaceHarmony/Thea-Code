@@ -6,7 +6,8 @@ import type { McpServer } from "../../../shared/mcp"
 
 import { McpHub } from "../../../services/mcp/management/McpHub" // Adjusted path
 // Assuming McpServerManager is not directly needed here, but constants are
-import { EXTENSION_DISPLAY_NAME, EXTENSION_CONFIG_DIR } from "../../../shared/config/thea-config"
+import { EXTENSION_DISPLAY_NAME } from "../../../shared/config/thea-config"
+import { getPreferredMcpServersDir, preferLocalConfig } from "../../../shared/config/paths"
 
 /**
  * Manages interactions with the McpHub for Model Control Protocol services.
@@ -41,7 +42,15 @@ export class TheaMcpManager {
 	 * Creates the directory if it doesn't exist.
 	 */
 	async ensureMcpServersDirectoryExists(): Promise<string> {
-		// Logic copied from TheaProvider
+		// Prefer sandboxed local config in tests or when explicitly requested
+		if (preferLocalConfig()) {
+			const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
+			const localDir = getPreferredMcpServersDir({ context: this.context, workspaceRoot })
+			await fs.mkdir(localDir, { recursive: true })
+			return localDir
+		}
+
+		// Legacy home-directory locations outside tests
 		let mcpServersDir: string
 		if (process.platform === "win32") {
 			mcpServersDir = path.join(os.homedir(), "AppData", "Roaming", String(EXTENSION_DISPLAY_NAME), "MCP")
@@ -50,14 +59,7 @@ export class TheaMcpManager {
 		} else {
 			mcpServersDir = path.join(os.homedir(), ".local", "share", String(EXTENSION_DISPLAY_NAME), "MCP")
 		}
-
-		try {
-			await fs.mkdir(mcpServersDir, { recursive: true })
-		} catch (error: unknown) {
-			console.error(`Failed to create MCP directory ${mcpServersDir}, falling back:`, error)
-			// Fallback logic copied from TheaProvider
-			return path.join(os.homedir(), String(EXTENSION_CONFIG_DIR), "mcp")
-		}
+		await fs.mkdir(mcpServersDir, { recursive: true })
 		return mcpServersDir
 	}
 
