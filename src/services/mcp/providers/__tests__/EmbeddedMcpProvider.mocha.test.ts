@@ -16,7 +16,7 @@ describe("EmbeddedMcpProvider (Mocha)", () => {
   it("registers and executes a tool", async () => {
     provider = global.__MCP_PROVIDER__ as EmbeddedMcpProvider
 
-    provider.registerTool("echo_tool", "Echo tool", async (args: Record<string, unknown>) => {
+    provider.registerTool("echo_tool", "Echo tool", {}, async (args: Record<string, unknown>) => {
       return { content: [{ type: "text", text: JSON.stringify(args) }], isError: false }
     })
 

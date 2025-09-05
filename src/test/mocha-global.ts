@@ -25,3 +25,14 @@ export const mochaHooks = {
     }
   },
 }
+
+// Extra safety: stop provider on process signals to avoid hanging handles
+const stopProvider = async () => {
+  if (global.__MCP_PROVIDER__) {
+    try { await global.__MCP_PROVIDER__.stop() } catch {}
+    global.__MCP_PROVIDER__ = undefined
+  }
+}
+process.once('SIGINT', () => { void stopProvider().finally(() => process.exit(130)) })
+process.once('SIGTERM', () => { void stopProvider().finally(() => process.exit(143)) })
+process.once('beforeExit', () => { void stopProvider() })

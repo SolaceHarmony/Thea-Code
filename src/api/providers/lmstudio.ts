@@ -79,7 +79,7 @@ export async function getLmStudioModels(baseUrl = "http://localhost:1234") {
 			return []
 		}
 
-		const response = await axios.get(`${baseUrl}/v1/models`)
+		const response = await axios.get(`${baseUrl}/v1/models`, { timeout: 2000 })
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
 		const modelsArray = response.data?.data?.map((model: { id: string }) => model.id) || [] // Type 'model'
 		return [...new Set<string>(modelsArray as string[])] // Assert modelsArray is string[]
