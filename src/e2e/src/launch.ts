@@ -16,11 +16,11 @@ async function main() {
           const winKill = (pattern: string) => {
             try { execSync(`wmic process where \"CommandLine like '%${pattern.replace(/"/g, "\\\"")}%'\" call terminate`, { stdio: "ignore" }) } catch {}
           }
-          ;["mocha -r tsx", "uv tool uvx", "codex mcp", "markitdown-mcp", "imagesorcery-mcp"].forEach(winKill)
+          ;["mocha -r tsx", "uv tool uvx", "markitdown-mcp", "imagesorcery-mcp"].forEach(winKill)
         } else {
           // POSIX/macOS
           const pkill = (p: string) => { try { execSync(`pkill -f "${p}"`, { stdio: "ignore" }) } catch {} }
-          ;["mocha -r tsx", "uv tool uvx", "codex mcp", "markitdown-mcp", "imagesorcery-mcp"].forEach(pkill)
+          ;["mocha -r tsx", "uv tool uvx", "markitdown-mcp", "imagesorcery-mcp"].forEach(pkill)
         }
       } catch {
         // Ignore any cleanup errors

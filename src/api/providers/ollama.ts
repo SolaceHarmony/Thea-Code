@@ -168,7 +168,7 @@ export async function getOllamaModels(baseUrl = "http://localhost:10000") {
 			return []
 		}
 
-		const response = await axios.get(`${baseUrl}/api/tags`)
+		const response = await axios.get(`${baseUrl}/api/tags`, { timeout: 2000 })
 		const responseData = response.data as { models: { name: string; [key: string]: unknown }[] } | undefined
 		const modelsArray = responseData?.models?.map((model: { name: string }) => model.name) || []
 		return [...new Set<string>(modelsArray)] // Assert modelsArray is string[] for Set
