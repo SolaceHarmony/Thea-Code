@@ -94,16 +94,17 @@ export async function scanNetworkForChrome(baseIP: string, port: number): Promis
 
 	console.log(`Scanning priority IPs in network ${networkPrefix}*`)
 
-	// Check priority IPs first
-	for (const ip of priorityIPs) {
-		const isOpen = await isPortOpen(ip, port)
-		if (isOpen) {
-			console.log(`Found Chrome debugging port open on ${ip}`)
-			return ip
-		}
-	}
+        // Check priority IPs first concurrently
+        const openIp = await Promise.all(
+                priorityIPs.map(async (ip) => ({ ip, open: await isPortOpen(ip, port) })),
+        ).then((results) => results.find((r) => r.open)?.ip || null)
 
-	return null
+        if (openIp) {
+                console.log(`Found Chrome debugging port open on ${openIp}`)
+                return openIp
+        }
+
+        return null
 }
 
 // Function to discover Chrome instances on the network
@@ -122,21 +123,21 @@ const discoverChromeHosts = async (port: number): Promise<string | null> => {
 	const uniqueIPs = [...new Set(ipAddresses)]
 	console.log("IP Addresses to try:", uniqueIPs)
 
-	// Try connecting to each IP address
-	for (const ip of uniqueIPs) {
-		const hostEndpoint = `http://${ip}:${port}`
+        // Try connecting to each IP address concurrently
+        const found = await Promise.all(
+                uniqueIPs.map(async (ip) => {
+                        const hostEndpoint = `http://${ip}:${port}`
+                        const hostIsValid = await tryChromeHostUrl(hostEndpoint)
+                        return hostIsValid ? hostEndpoint : null
+                }),
+        ).then((results) => results.find((r) => r) || null)
 
-		const hostIsValid = await tryChromeHostUrl(hostEndpoint)
-		if (hostIsValid) {
-			// Store the successful IP for future use
-			console.log(`✅ Found Chrome at ${hostEndpoint}`)
+        if (found) {
+                console.log(`✅ Found Chrome at ${found}`)
+                return found
+        }
 
-			// Return the host URL and endpoint
-			return hostEndpoint
-		}
-	}
-
-	return null
+        return null
 }
 
 /**
@@ -150,25 +151,30 @@ export async function discoverChromeHostUrl(port: number = 9222): Promise<string
 	// First try specific hosts
 	const hostsToTry = [`http://localhost:${port}`, `http://127.0.0.1:${port}`]
 
-	// Try each host directly first
-	for (const hostUrl of hostsToTry) {
-		console.log(`Trying to connect to: ${hostUrl}`)
-		try {
-			const hostIsValid = await tryChromeHostUrl(hostUrl)
-			if (hostIsValid) return hostUrl
-		} catch (error) {
-			console.log(`Failed to connect to ${hostUrl}: ${error instanceof Error ? error.message : error}`)
-		}
-	}
+        // Try each host directly first in parallel
+        const direct = await Promise.all(
+                hostsToTry.map(async (hostUrl) => {
+                        console.log(`Trying to connect to: ${hostUrl}`)
+                        try {
+                                const hostIsValid = await tryChromeHostUrl(hostUrl)
+                                return hostIsValid ? hostUrl : null
+                        } catch (error) {
+                                console.log(`Failed to connect to ${hostUrl}: ${error instanceof Error ? error.message : error}`)
+                                return null
+                        }
+                }),
+        ).then((results) => results.find((r) => r) || null)
 
-	// If direct connections failed, attempt auto-discovery
-	console.log("Direct connections failed. Attempting auto-discovery...")
+        if (direct) return direct
 
-	const discoveredHostUrl = await discoverChromeHosts(port)
-	if (discoveredHostUrl) {
-		console.log(`Trying to connect to discovered host: ${discoveredHostUrl}`)
-		try {
-			const hostIsValid = await tryChromeHostUrl(discoveredHostUrl)
+        // If direct connections failed, attempt auto-discovery
+        console.log("Direct connections failed. Attempting auto-discovery...")
+
+        const discoveredHostUrl = await discoverChromeHosts(port)
+        if (discoveredHostUrl) {
+                console.log(`Trying to connect to discovered host: ${discoveredHostUrl}`)
+                try {
+                        const hostIsValid = await tryChromeHostUrl(discoveredHostUrl)
 			if (hostIsValid) return discoveredHostUrl
 			console.log(`Failed to connect to discovered host ${discoveredHostUrl}`)
 		} catch (error) {

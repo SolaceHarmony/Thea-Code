@@ -86,16 +86,18 @@ export async function parseSourceCodeForDefinitionsTopLevel(
 	// Filter filepaths for access if controller is provided
 	const allowedFilesToParse = theaIgnoreController ? theaIgnoreController.filterPaths(filesToParse) : filesToParse
 
-	// Parse specific files we have language parsers for
-	// const filesWithoutDefinitions: string[] = []
-	for (const file of allowedFilesToParse) {
-		const definitions = await parseFile(file, languageParsers, theaIgnoreController)
+	// Parse specific files we have language parsers for concurrently
+	const parsed = await Promise.all(
+		allowedFilesToParse.map(async (file) => {
+			const definitions = await parseFile(file, languageParsers, theaIgnoreController)
+			return { file, definitions }
+		}),
+	)
+
+	for (const { file, definitions } of parsed) {
 		if (definitions) {
 			result += `# ${path.relative(dirPath, file).toPosix()}\n${definitions}\n`
 		}
-		// else {
-		// 	filesWithoutDefinitions.push(file)
-		// }
 	}
 
 	// List remaining files' paths
