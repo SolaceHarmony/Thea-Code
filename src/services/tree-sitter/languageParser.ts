@@ -60,78 +60,86 @@ Sources:
 */
 export async function loadRequiredLanguageParsers(filesToParse: string[]): Promise<LanguageParser> {
 	initializeParser()
-	const extensionsToLoad = new Set(filesToParse.map((file) => path.extname(file).toLowerCase().slice(1)))
-	const parsers: LanguageParser = {}
-	for (const ext of extensionsToLoad) {
-		let language: Parser.Language
-		let query: Parser.Query
-		switch (ext) {
-			case "js":
-			case "jsx":
-				language = await loadLanguage("javascript")
-				query = language.query(javascriptQuery)
-				break
-			case "ts":
-				language = await loadLanguage("typescript")
-				query = language.query(typescriptQuery)
-				break
-			case "tsx":
-				language = await loadLanguage("tsx")
-				query = language.query(typescriptQuery)
-				break
-			case "py":
-				language = await loadLanguage("python")
-				query = language.query(pythonQuery)
-				break
-			case "rs":
-				language = await loadLanguage("rust")
-				query = language.query(rustQuery)
-				break
-			case "go":
-				language = await loadLanguage("go")
-				query = language.query(goQuery)
-				break
-			case "cpp":
-			case "hpp":
-				language = await loadLanguage("cpp")
-				query = language.query(cppQuery)
-				break
-			case "c":
-			case "h":
-				language = await loadLanguage("c")
-				query = language.query(cQuery)
-				break
-			case "cs":
-				language = await loadLanguage("c_sharp")
-				query = language.query(csharpQuery)
-				break
-			case "rb":
-				language = await loadLanguage("ruby")
-				query = language.query(rubyQuery)
-				break
-			case "java":
-				language = await loadLanguage("java")
-				query = language.query(javaQuery)
-				break
-			case "php":
-				language = await loadLanguage("php")
-				query = language.query(phpQuery)
-				break
-			case "swift":
-				language = await loadLanguage("swift")
-				query = language.query(swiftQuery)
-				break
-			case "kt":
-			case "kts":
-				language = await loadLanguage("kotlin")
-				query = language.query(kotlinQuery)
-				break
-			default:
-				throw new Error(`Unsupported language: ${ext}`)
-		}
-		const parser = new Parser.Parser()
-		parser.setLanguage(language)
-		parsers[ext] = { parser, query }
-	}
-	return parsers
+        const extensionsToLoad = new Set(filesToParse.map((file) => path.extname(file).toLowerCase().slice(1)))
+        const parsers: LanguageParser = {}
+
+        const entries = await Promise.all(
+                Array.from(extensionsToLoad).map(async (ext) => {
+                        let language: Parser.Language
+                        let query: Parser.Query
+                        switch (ext) {
+                                case "js":
+                                case "jsx":
+                                        language = await loadLanguage("javascript")
+                                        query = language.query(javascriptQuery)
+                                        break
+                                case "ts":
+                                        language = await loadLanguage("typescript")
+                                        query = language.query(typescriptQuery)
+                                        break
+                                case "tsx":
+                                        language = await loadLanguage("tsx")
+                                        query = language.query(typescriptQuery)
+                                        break
+                                case "py":
+                                        language = await loadLanguage("python")
+                                        query = language.query(pythonQuery)
+                                        break
+                                case "rs":
+                                        language = await loadLanguage("rust")
+                                        query = language.query(rustQuery)
+                                        break
+                                case "go":
+                                        language = await loadLanguage("go")
+                                        query = language.query(goQuery)
+                                        break
+                                case "cpp":
+                                case "hpp":
+                                        language = await loadLanguage("cpp")
+                                        query = language.query(cppQuery)
+                                        break
+                                case "c":
+                                case "h":
+                                        language = await loadLanguage("c")
+                                        query = language.query(cQuery)
+                                        break
+                                case "cs":
+                                        language = await loadLanguage("c_sharp")
+                                        query = language.query(csharpQuery)
+                                        break
+                                case "rb":
+                                        language = await loadLanguage("ruby")
+                                        query = language.query(rubyQuery)
+                                        break
+                                case "java":
+                                        language = await loadLanguage("java")
+                                        query = language.query(javaQuery)
+                                        break
+                                case "php":
+                                        language = await loadLanguage("php")
+                                        query = language.query(phpQuery)
+                                        break
+                                case "swift":
+                                        language = await loadLanguage("swift")
+                                        query = language.query(swiftQuery)
+                                        break
+                                case "kt":
+                                case "kts":
+                                        language = await loadLanguage("kotlin")
+                                        query = language.query(kotlinQuery)
+                                        break
+                                default:
+                                        throw new Error(`Unsupported language: ${ext}`)
+                        }
+                        const parser = new Parser.Parser()
+                        parser.setLanguage(language)
+                        return [ext, { parser, query }] as const
+                }),
+        )
+
+        for (const [ext, parserInfo] of entries) {
+                parsers[ext] = parserInfo
+        }
+
+        return parsers
 }
