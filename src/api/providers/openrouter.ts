@@ -164,33 +164,33 @@ export class OpenRouterHandler extends BaseProvider implements ApiHandler, Singl
 				// Check for tool calls using the OpenAI handler's method
 				const toolCalls = this.openAiHandler.extractToolCalls(delta)
 
-				if (toolCalls.length > 0) {
-					// Process tool calls using the OpenAI handler's logic
-					for (const toolCall of toolCalls) {
-						if (toolCall.function) {
-							// Process tool use using MCP integration
-							const toolResult = await this.processToolUse({
-								id: toolCall.id,
-								name: toolCall.function.name,
-								input: JSON.parse(toolCall.function.arguments || "{}"),
-							})
-
-							// Ensure the tool result content is a string
-							const toolResultString =
-								typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult)
-
-							// Yield tool result
-							yield {
-								type: "tool_result",
-								id: toolCall.id,
-								content: toolResultString,
-							}
-						}
-					}
-				} else {
-					// Regular content handling
-					yield { type: "text", text: delta.content } as ApiStreamChunk
-				}
+                                if (toolCalls.length > 0) {
+                                        const results = await Promise.all(
+                                                toolCalls.map(async (toolCall) => {
+                                                        if (!toolCall.function) return null
+                                                        const toolResult = await this.processToolUse({
+                                                                id: toolCall.id,
+                                                                name: toolCall.function.name,
+                                                                input: JSON.parse(toolCall.function.arguments || "{}"),
+                                                        })
+                                                        const toolResultString =
+                                                                typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult)
+                                                        return { toolCall, toolResultString }
+                                                }),
+                                        )
+                                        for (const r of results) {
+                                                if (r) {
+                                                        yield {
+                                                                type: "tool_result",
+                                                                id: r.toolCall.id,
+                                                                content: r.toolResultString,
+                                                        }
+                                                }
+                                        }
+                                } else {
+                                        // Regular content handling
+                                        yield { type: "text", text: delta.content } as ApiStreamChunk
+                                }
 			}
 
 			if (chunk.usage) {

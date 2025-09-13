@@ -295,33 +295,37 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 
 		const result = []
 
-		if (!from) {
-			from = (await this.git.raw(["rev-list", "--max-parents=0", "HEAD"])).trim()
+		let base = from
+		if (!base) {
+			base = (await this.git.raw(["rev-list", "--max-parents=0", "HEAD"])).trim()
 		}
 
 		// Stage all changes so that untracked files appear in diff summary.
 		await this.stageAll(this.git)
 
-		this.log(`[${this.constructor.name}#getDiff] diffing ${to ? `${from}..${to}` : `${from}..HEAD`}`)
-		const { files } = to ? await this.git.diffSummary([`${from}..${to}`]) : await this.git.diffSummary([from])
+		this.log(`[${this.constructor.name}#getDiff] diffing ${to ? `${base}..${to}` : `${base}..HEAD`}`)
+		const { files } = to ? await this.git.diffSummary([`${base}..${to}`]) : await this.git.diffSummary([base])
 
 		const cwdPath = (await this.getShadowGitConfigWorktree(this.git)) || this.workspaceDir || ""
 
-		for (const file of files) {
-			const relPath = file.file
-			const absPath = path.join(cwdPath, relPath)
-			const before = await this.git.show([`${from}:${relPath}`]).catch(() => "")
+		const fileDiffs = await Promise.all(
+			files.map(async (file) => {
+				const relPath = file.file
+				const absPath = path.join(cwdPath, relPath)
+				const [before, after] = await Promise.all([
+					this.git.show([`${base}:${relPath}`]).catch(() => ""),
+					to
+						? this.git.show([`${to}:${relPath}`]).catch(() => "")
+						: fs.readFile(absPath, "utf8").catch(() => ""),
+				])
+				return { paths: { relative: relPath, absolute: absPath }, content: { before, after } }
+			}),
+		)
 
-			const after = to
-				? await this.git.show([`${to}:${relPath}`]).catch(() => "")
-				: await fs.readFile(absPath, "utf8").catch(() => "")
-
-			result.push({ paths: { relative: relPath, absolute: absPath }, content: { before, after } })
-		}
+		result.push(...fileDiffs)
 
 		return result
 	}
-
 	/**
 	 * EventEmitter
 	 */
