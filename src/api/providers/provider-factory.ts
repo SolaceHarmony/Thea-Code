@@ -187,16 +187,16 @@ export async function findModelAcrossProviders(modelId: string): Promise<{
 	const factory = ProviderFactory.getInstance()
 	factory.initialize()
 	
-	const providers = modelRegistry.getProviderNames()
-	
-	for (const provider of providers) {
-		const info = await modelRegistry.getModelInfo(provider, modelId)
-		if (info) {
-			return { provider, info }
-		}
-	}
-	
-	return null
+        const providers = modelRegistry.getProviderNames()
+
+        const infos = await Promise.all(
+                providers.map(async (provider) => ({
+                        provider,
+                        info: await modelRegistry.getModelInfo(provider, modelId),
+                })),
+        )
+
+        return infos.find(({ info }) => info) || null
 }
 
 /**

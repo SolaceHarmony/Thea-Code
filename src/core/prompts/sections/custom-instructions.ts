@@ -35,34 +35,29 @@ export async function loadRuleFiles(cwd: string): Promise<string> {
 		cwd = "."
 	}
 
-	const ruleFiles = [".Thearules", ".cursorrules", ".windsurfrules"]
-	let combinedRules = ""
+        const ruleFiles = [".Thearules", ".cursorrules", ".windsurfrules"]
 
-	for (const file of ruleFiles) {
-		try {
-			// Safely join paths
-			const filePath = path.join(cwd, file)
-			const content = await safeReadFile(filePath)
-			if (content) {
-				combinedRules += `\n# Rules from ${file}:\n${content}\n`
-			}
-		} catch (err) {
-			// Check if this is an expected error type that we should handle
-			const error = err as Error & { code?: string }
-			const errorCode = error.code
-			
-			// For ENOENT and EISDIR, just log and continue
-			if (errorCode && ["ENOENT", "EISDIR"].includes(errorCode)) {
-				console.warn(`Error reading rule file ${file}: ${error.message}`)
-				// Continue with other files
-			} else {
-				// For unexpected errors, rethrow
-				throw err
-			}
-		}
-	}
-	
-	return combinedRules
+        const ruleContents = await Promise.all(
+                ruleFiles.map(async (file) => {
+                        try {
+                                const filePath = path.join(cwd, file)
+                                const content = await safeReadFile(filePath)
+                                return content ? `\n# Rules from ${file}:\n${content}\n` : ""
+                        } catch (err) {
+                                const error = err as Error & { code?: string }
+                                const errorCode = error.code
+
+                                if (errorCode && ["ENOENT", "EISDIR"].includes(errorCode)) {
+                                        console.warn(`Error reading rule file ${file}: ${error.message}`)
+                                        return ""
+                                }
+
+                                throw err
+                        }
+                }),
+        )
+
+        return ruleContents.join("")
 }
 
 export async function addCustomInstructions(

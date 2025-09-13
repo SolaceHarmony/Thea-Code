@@ -65,34 +65,34 @@ export class OllamaHandler extends BaseProvider implements SingleCompletionHandl
 				// Use OpenAI handler for all tool use detection (including XML and JSON patterns)
 				const toolCalls = this.openAiHandler.extractToolCalls(delta)
 
-				if (toolCalls.length > 0) {
-					// Process tool calls using OpenAI handler's logic
-					for (const toolCall of toolCalls) {
-						if (toolCall.function) {
-							// Process tool use using MCP integration
-							const toolResult = await this.processToolUse({
-								id: toolCall.id,
-								name: toolCall.function.name,
-								input: JSON.parse(toolCall.function.arguments || "{}"),
-							})
-
-							// Ensure the tool result content is a string
-							const toolResultString =
-								typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult)
-
-							// Yield tool result
-							yield {
-								type: "tool_result",
-								id: toolCall.id,
-								content: toolResultString,
-							}
-						}
-					}
-				} else {
-					// If no tool use was detected, use the matcher for regular content
-					for (const matchedChunk of matcher.update(delta.content)) {
-						yield {
-							type: matchedChunk.matched ? "reasoning" : "text",
+                                if (toolCalls.length > 0) {
+                                        const results = await Promise.all(
+                                                toolCalls.map(async (toolCall) => {
+                                                        if (!toolCall.function) return null
+                                                        const toolResult = await this.processToolUse({
+                                                                id: toolCall.id,
+                                                                name: toolCall.function.name,
+                                                                input: JSON.parse(toolCall.function.arguments || "{}"),
+                                                        })
+                                                        const toolResultString =
+                                                                typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult)
+                                                        return { toolCall, toolResultString }
+                                                }),
+                                        )
+                                        for (const r of results) {
+                                                if (r) {
+                                                        yield {
+                                                                type: "tool_result",
+                                                                id: r.toolCall.id,
+                                                                content: r.toolResultString,
+                                                        }
+                                                }
+                                        }
+                                } else {
+                                        // If no tool use was detected, use the matcher for regular content
+                                        for (const matchedChunk of matcher.update(delta.content)) {
+                                                yield {
+                                                        type: matchedChunk.matched ? "reasoning" : "text",
 							text:
 								typeof matchedChunk.data === "string"
 									? matchedChunk.data
