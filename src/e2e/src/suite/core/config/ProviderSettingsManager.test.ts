@@ -1,7 +1,7 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 import { EXTENSION_SECRETS_PREFIX } from "../../../shared/config/thea-config"
-import { ExtensionContext } from "vscode"
+import type { ExtensionContext } from "vscode"
 
 import { ProviderSettingsManager, ProviderProfiles } from "../ProviderSettingsManager"
 import { ProviderSettings } from "../../../schemas"

@@ -1,8 +1,7 @@
 import { stringifyVsCodeLmModelSelector } from "../vsCodeSelectorUtils"
-import { LanguageModelChatSelector } from "vscode"
+import type { LanguageModelChatSelector } from "vscode"
 
 import * as assert from 'assert'
-import * as vscode from 'vscode'
 suite("vsCodeSelectorUtils", () => {
 	suite("stringifyVsCodeLmModelSelector", () => {
 		test("should join all defined selector properties with separator", () => {
