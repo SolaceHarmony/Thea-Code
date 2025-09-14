@@ -1,4 +1,4 @@
-import * as vscode from "vscode"
+import type * as vscode from "vscode"
 import { ApiHandlerOptions } from "../../../shared/api"
 import { VsCodeLmHandler } from "../vscode-lm"
 import * as assert from 'assert'
