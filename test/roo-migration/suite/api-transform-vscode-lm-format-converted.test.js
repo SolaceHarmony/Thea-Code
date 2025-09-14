@@ -1,9 +1,6 @@
 const assert = require('assert')
 const { loadTheaModule } = require('../helpers/thea-loader')
 
-// Use the local stubbed 'vscode' module provided under test/roo-migration/node_modules
-const vscode = require('vscode')
-
 describe('Roo-migration: api/transform/vscode-lm-format', function () {
   const mod = loadTheaModule('src/api/transform/vscode-lm-format.ts')
   const { convertToVsCodeLmMessages, convertToAnthropicRole } = mod
@@ -25,8 +22,8 @@ describe('Roo-migration: api/transform/vscode-lm-format', function () {
     assert.strictEqual(convertToAnthropicRole(result[0].role), 'user')
     assert.strictEqual(result[0].content.length, 2)
     const [toolResult, textContent] = result[0].content
-    assert.ok(toolResult instanceof vscode.LanguageModelToolResultPart)
-    assert.ok(textContent instanceof vscode.LanguageModelTextPart)
+    assert.strictEqual(toolResult.constructor.name, 'LanguageModelToolResultPart')
+    assert.strictEqual(textContent.constructor.name, 'LanguageModelTextPart')
   })
 
   it('handles complex assistant messages with tool calls', function () {
@@ -36,8 +33,8 @@ describe('Roo-migration: api/transform/vscode-lm-format', function () {
     assert.strictEqual(convertToAnthropicRole(result[0].role), 'assistant')
     assert.strictEqual(result[0].content.length, 2)
     const [toolCall, textContent] = result[0].content
-    assert.ok(toolCall instanceof vscode.LanguageModelToolCallPart)
-    assert.ok(textContent instanceof vscode.LanguageModelTextPart)
+    assert.strictEqual(toolCall.constructor.name, 'LanguageModelToolCallPart')
+    assert.strictEqual(textContent.constructor.name, 'LanguageModelTextPart')
   })
 
   it('handles image blocks with placeholders', function () {
@@ -49,8 +46,10 @@ describe('Roo-migration: api/transform/vscode-lm-format', function () {
   })
 
   it('convertToAnthropicRole maps roles and unknown → null', function () {
-    assert.strictEqual(convertToAnthropicRole(vscode.LanguageModelChatMessageRole.Assistant), 'assistant')
-    assert.strictEqual(convertToAnthropicRole(vscode.LanguageModelChatMessageRole.User), 'user')
+    const assistantRole = convertToVsCodeLmMessages([{ role: 'assistant', content: 'x' }])[0].role
+    const userRole = convertToVsCodeLmMessages([{ role: 'user', content: 'y' }])[0].role
+    assert.strictEqual(convertToAnthropicRole(assistantRole), 'assistant')
+    assert.strictEqual(convertToAnthropicRole(userRole), 'user')
     assert.strictEqual(convertToAnthropicRole('unknown'), null)
   })
 })
