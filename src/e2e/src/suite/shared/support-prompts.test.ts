@@ -1,8 +1,20 @@
 import { supportPrompt } from "../support-prompt"
-import * as vscode from "vscode"
+import type * as vscode from "vscode"
 
 import * as assert from 'assert'
-import * as vscode from 'vscode'
+
+// Minimal runtime mock for VS Code types used in these tests
+const vscode = {
+  Range: class Range {
+    constructor(
+      public startLine: number,
+      public startChar: number,
+      public endLine: number,
+      public endChar: number,
+    ) {}
+  },
+  DiagnosticSeverity: { Error: 0, Warning: 1 },
+} as unknown as typeof import('vscode');
 suite("Code Action Prompts", () => {
 	const testFilePath = "test/file.ts"
 	const testCode = "function test() { return true; }"
