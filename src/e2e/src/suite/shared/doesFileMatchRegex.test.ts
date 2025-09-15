@@ -1,16 +1,20 @@
-import { doesFileMatchRegex } from "../modes"
+import { doesFileMatchRegex } from "../../../../shared/modes"
+import { strict as assert } from "node:assert"
+import * as sinon from "sinon"
 
-import * as assert from 'assert'
-import * as sinon from 'sinon'
-suite("doesFileMatchRegex", () => {
-	test("returns true when pattern matches", () => {
-		expect(doesFileMatchRegex("src/file.ts", "\\.ts$")).toBe(true)
+describe("doesFileMatchRegex", () => {
+	it("returns true when pattern matches", () => {
+		assert.equal(doesFileMatchRegex("src/file.ts", "\\.ts$"), true)
+	})
 
-	test("returns false when pattern does not match", () => {
-		expect(doesFileMatchRegex("src/file.ts", "\\.js$")).toBe(false)
+	it("returns false when pattern does not match", () => {
+		assert.equal(doesFileMatchRegex("src/file.ts", "\\.js$"), false)
+	})
 
-	test("handles invalid regex gracefully", () => {
-		const errSpy = sinon.spy(console, "error").callsFake(() => {})
-		expect(doesFileMatchRegex("src/file.ts", "[")).toBe(false)
+	it("handles invalid regex gracefully", () => {
+		const errSpy = sinon.stub(console, "error")
+		assert.equal(doesFileMatchRegex("src/file.ts", "["), false)
 		assert.ok(errSpy.called)
 		errSpy.restore()
+	})
+})
