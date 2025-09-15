@@ -1,3 +1,4 @@
+import { strict as assert } from "node:assert"
 import {
 	JsonMatcher,
 	FormatDetector,
@@ -27,8 +28,8 @@ describe("json-xml-bridge", () => {
 			const jsonBlock = '{"type":"thinking","content":"This is a reasoning block"}'
 			const results = matcher.update(jsonBlock)
 
-			expect(results).toHaveLength(1)
-			expect(results[0]).toEqual({
+			assert.equal(results.length, 1)
+			assert.deepEqual(results[0], {
 				matched: true,
 				data: "This is a reasoning block",
 				type: "thinking",
@@ -42,10 +43,10 @@ describe("json-xml-bridge", () => {
 			const content = 'Text before {"type":"thinking","content":"Reasoning"} text after'
 			const results = matcher.update(content)
 
-			expect(results).toHaveLength(3)
-			expect(results[0]).toEqual({ matched: false, data: "Text before " })
-			expect(results[1]).toEqual({ matched: true, data: "Reasoning", type: "thinking" })
-			expect(results[2]).toEqual({ matched: false, data: " text after" })
+			assert.equal(results).toHaveLength(3)
+			assert.deepEqual(results[0], { matched: false, data: "Text before " })
+			assert.deepEqual(results[1], { matched: true, data: "Reasoning", type: "thinking" })
+			assert.deepEqual(results[2], { matched: false, data: " text after" })
 		})
 
 		it("should handle streaming JSON in multiple chunks", () => {
@@ -56,8 +57,8 @@ describe("json-xml-bridge", () => {
 			const results1 = matcher.update(chunk1)
 
 			// Should only process the text before the JSON
-			expect(results1).toHaveLength(1)
-			expect(results1[0]).toEqual({ matched: false, data: "Text before " })
+			assert.equal(results1).toHaveLength(1)
+			assert.deepEqual(results1[0], { matched: false, data: "Text before " })
 
 			// Second chunk completing the JSON
 			const chunk2 = '"} text after'
@@ -66,15 +67,15 @@ describe("json-xml-bridge", () => {
 			// Should process the complete JSON and text after
 			// The implementation actually returns 3 items: the text before (already processed),
 			// the reasoning content, and the text after
-			expect(results2.length).toBeGreaterThan(0)
+			assert.equal(results2.length).toBeGreaterThan(0)
 
 			// Find the reasoning item
 			const reasoningItem = results2.find((item) => item.matched && item.type === "thinking")
-			expect(reasoningItem).toEqual({ matched: true, data: "Reasoning", type: "thinking" })
+			assert.deepEqual(reasoningItem, { matched: true, data: "Reasoning", type: "thinking" })
 
 			// Find the text after item
 			const textAfterItem = results2.find((item) => !item.matched && item.data === " text after")
-			expect(textAfterItem).toEqual({ matched: false, data: " text after" })
+			assert.deepEqual(textAfterItem, { matched: false, data: " text after" })
 		})
 
 		it("should handle nested JSON objects", () => {
@@ -84,8 +85,8 @@ describe("json-xml-bridge", () => {
 			const nestedJson = '{"type":"thinking","content":"Reasoning with nested object: { \\"nested\\": true }"}'
 			const results = matcher.update(nestedJson)
 
-			expect(results).toHaveLength(1)
-			expect(results[0]).toEqual({
+			assert.equal(results).toHaveLength(1)
+			assert.deepEqual(results[0], {
 				matched: true,
 				data: 'Reasoning with nested object: { "nested": true }',
 				type: "thinking",
@@ -102,17 +103,17 @@ describe("json-xml-bridge", () => {
 			const finalResults = matcher.final('"} text after')
 
 			// The implementation may return different number of items
-			expect(finalResults.length).toBeGreaterThan(0)
+			assert.equal(finalResults.length).toBeGreaterThan(0)
 
 			// Find the reasoning item
 			const reasoningItem = finalResults.find((item) => item.matched && item.type === "thinking")
-			expect(reasoningItem).toEqual({ matched: true, data: "Reasoning", type: "thinking" })
+			assert.deepEqual(reasoningItem, { matched: true, data: "Reasoning", type: "thinking" })
 
 			// Find the text after item
 			const textAfterItem = finalResults.find(
 				(item) => !item.matched && typeof item.data === "string" && item.data.includes("text after"),
 			)
-			expect(textAfterItem).toBeDefined()
+			assert.equal(textAfterItem).toBeDefined()
 		})
 
 		it("should handle non-matching JSON objects", () => {
@@ -122,8 +123,8 @@ describe("json-xml-bridge", () => {
 			const nonMatchingJson = '{"type":"other","content":"Not a thinking block"}'
 			const results = matcher.update(nonMatchingJson)
 
-			expect(results).toHaveLength(1)
-			expect(results[0]).toEqual({
+			assert.equal(results).toHaveLength(1)
+			assert.deepEqual(results[0], {
 				matched: false,
 				data: '{"type":"other","content":"Not a thinking block"}',
 			})
@@ -134,43 +135,43 @@ describe("json-xml-bridge", () => {
 		const detector = new FormatDetector()
 
 		it("should detect XML format", () => {
-			expect(detector.detectFormat("<think>This is XML</think>")).toBe("xml")
-			expect(detector.detectFormat("Text with <tag>XML</tag> tags")).toBe("xml")
+			assert.equal(detector.detectFormat("<think>This is XML</think>")).toBe("xml")
+			assert.equal(detector.detectFormat("Text with <tag>XML</tag> tags")).toBe("xml")
 		})
 
 		it("should detect JSON format", () => {
-			expect(detector.detectFormat('{"type":"thinking","content":"This is JSON"}')).toBe("json")
-			expect(detector.detectFormat('Text with {"type":"json"} object')).toBe("json")
+			assert.equal(detector.detectFormat('{"type":"thinking","content":"This is JSON"}')).toBe("json")
+			assert.equal(detector.detectFormat('Text with {"type":"json"} object')).toBe("json")
 		})
 
 		it("should return unknown for ambiguous or plain text", () => {
-			expect(detector.detectFormat("Plain text")).toBe("unknown")
-			expect(detector.detectFormat("Text with { incomplete JSON")).toBe("unknown")
-			expect(detector.detectFormat("Text with < incomplete XML")).toBe("unknown")
+			assert.equal(detector.detectFormat("Plain text")).toBe("unknown")
+			assert.equal(detector.detectFormat("Text with { incomplete JSON")).toBe("unknown")
+			assert.equal(detector.detectFormat("Text with < incomplete XML")).toBe("unknown")
 		})
 	})
 
 	describe("jsonThinkingToXml", () => {
 		it("should convert JSON thinking to XML format", () => {
 			const jsonObj = { type: "thinking", content: "This is reasoning" }
-			expect(jsonThinkingToXml(jsonObj)).toBe("<think>This is reasoning</think>")
+			assert.equal(jsonThinkingToXml(jsonObj)).toBe("<think>This is reasoning</think>")
 		})
 
 		it("should handle non-thinking JSON objects", () => {
 			const jsonObj = { type: "other", content: "Not thinking" }
-			expect(jsonThinkingToXml(jsonObj)).toBe('{"type":"other","content":"Not thinking"}')
+			assert.equal(jsonThinkingToXml(jsonObj)).toBe('{"type":"other","content":"Not thinking"}')
 		})
 	})
 
 	describe("xmlThinkingToJson", () => {
 		it("should convert XML thinking to JSON format", () => {
 			const xmlContent = "<think>This is reasoning</think>"
-			expect(xmlThinkingToJson(xmlContent)).toBe('{"type":"thinking","content":"This is reasoning"}')
+			assert.equal(xmlThinkingToJson(xmlContent)).toBe('{"type":"thinking","content":"This is reasoning"}')
 		})
 
 		it("should handle content without thinking tags", () => {
 			const content = "Plain text"
-			expect(xmlThinkingToJson(content)).toBe("Plain text")
+			assert.equal(xmlThinkingToJson(content)).toBe("Plain text")
 		})
 	})
 
@@ -193,10 +194,10 @@ describe("json-xml-bridge", () => {
 			const results = matcher.update(xmlContent)
 
 			// Verify the results match what we expect from the mocked XmlMatcher
-			expect(results).toHaveLength(3)
-			expect(results[0]).toEqual({ matched: false, data: "Text before " })
-			expect(results[1]).toEqual({ matched: true, data: "This is reasoning", type: "thinking" })
-			expect(results[2]).toEqual({ matched: false, data: " text after" })
+			assert.equal(results).toHaveLength(3)
+			assert.deepEqual(results[0], { matched: false, data: "Text before " })
+			assert.deepEqual(results[1], { matched: true, data: "This is reasoning", type: "thinking" })
+			assert.deepEqual(results[2], { matched: false, data: " text after" })
 		})
 
 		it("should handle JSON content", () => {
@@ -205,10 +206,10 @@ describe("json-xml-bridge", () => {
 			const jsonContent = 'Text before {"type":"thinking","content":"This is reasoning"} text after'
 			const results = matcher.update(jsonContent)
 
-			expect(results).toHaveLength(3)
-			expect(results[0]).toEqual({ matched: false, data: "Text before " })
-			expect(results[1]).toEqual({ matched: true, data: "This is reasoning", type: "thinking" })
-			expect(results[2]).toEqual({ matched: false, data: " text after" })
+			assert.equal(results).toHaveLength(3)
+			assert.deepEqual(results[0], { matched: false, data: "Text before " })
+			assert.deepEqual(results[1], { matched: true, data: "This is reasoning", type: "thinking" })
+			assert.deepEqual(results[2], { matched: false, data: " text after" })
 		})
 
 		it("should handle format detection with multiple chunks", () => {
@@ -222,9 +223,9 @@ describe("json-xml-bridge", () => {
 			const chunk2 = '{"type":"thinking","content":"This is reasoning"} text after'
 			const results = matcher.update(chunk2)
 
-			expect(results).toHaveLength(2)
-			expect(results[0]).toEqual({ matched: true, data: "This is reasoning", type: "thinking" })
-			expect(results[1]).toEqual({ matched: false, data: " text after" })
+			assert.equal(results).toHaveLength(2)
+			assert.deepEqual(results[0], { matched: true, data: "This is reasoning", type: "thinking" })
+			assert.deepEqual(results[1], { matched: false, data: " text after" })
 		})
 
 		it("should handle final method with remaining content", () => {
@@ -250,12 +251,12 @@ describe("json-xml-bridge", () => {
 			const finalResults = customMatcher.final('"} text after')
 
 			// Verify the mock was called
-			expect(mockJsonFinal).toHaveBeenCalled()
+			assert.equal(mockJsonFinal).toHaveBeenCalled()
 
 			// Since we're using a mock that returns exactly 2 items, we can assert on that
-			expect(finalResults).toHaveLength(2)
-			expect(finalResults[0]).toEqual({ matched: true, data: "Reasoning", type: "thinking" })
-			expect(finalResults[1]).toEqual({ matched: false, data: " text after" })
+			assert.equal(finalResults).toHaveLength(2)
+			assert.deepEqual(finalResults[0], { matched: true, data: "Reasoning", type: "thinking" })
+			assert.deepEqual(finalResults[1], { matched: false, data: " text after" })
 		})
 
 		describe("HybridMatcher with Tool Use and Tool Result", () => {
@@ -272,12 +273,12 @@ describe("json-xml-bridge", () => {
 				const xmlBlock = "<read_file>\n<path>src/main.js</path>\n</read_file>"
 				const results = matcher.update(xmlBlock)
 
-				expect(results.length).toBeGreaterThan(0)
+				assert.equal(results.length).toBeGreaterThan(0)
 
 				// Check that tool use IDs are stored
 				const toolUseIds = matcher.getToolUseIds()
-				expect(toolUseIds.size).toBeGreaterThan(0)
-				expect(toolUseIds.has("read_file")).toBeTruthy()
+				assert.equal(toolUseIds.size).toBeGreaterThan(0)
+				assert.equal(toolUseIds.has("read_file")).toBeTruthy()
 			})
 
 			it("should handle JSON tool use with the matchToolUse option", () => {
@@ -294,13 +295,13 @@ describe("json-xml-bridge", () => {
 					'{"type":"tool_use","name":"read_file","id":"read_file-123","input":{"path":"src/main.js"}}'
 				const results = matcher.update(jsonBlock)
 
-				expect(results.length).toBeGreaterThan(0)
+				assert.equal(results.length).toBeGreaterThan(0)
 
 				// Check that tool use IDs are stored
 				const toolUseIds = matcher.getToolUseIds()
-				expect(toolUseIds.size).toBeGreaterThan(0)
-				expect(toolUseIds.has("read_file")).toBeTruthy()
-				expect(toolUseIds.get("read_file")).toBe("read_file-123")
+				assert.equal(toolUseIds.size).toBeGreaterThan(0)
+				assert.equal(toolUseIds.has("read_file")).toBeTruthy()
+				assert.equal(toolUseIds.get("read_file")).toBe("read_file-123")
 			})
 
 			it("should handle both tool use and tool result with both options enabled", () => {
@@ -323,7 +324,7 @@ describe("json-xml-bridge", () => {
 					'{"type":"tool_result","tool_use_id":"read_file-123","content":[{"type":"text","text":"File content here"}],"status":"success"}'
 				const results = matcher.update(toolResultBlock)
 
-				expect(results.length).toBeGreaterThan(0)
+				assert.equal(results.length).toBeGreaterThan(0)
 			})
 
 			it("should still handle regular thinking blocks when tool use matching is enabled", () => {
@@ -339,12 +340,12 @@ describe("json-xml-bridge", () => {
 				const thinkingBlock = "<think>This is reasoning</think>"
 				const results = matcher.update(thinkingBlock)
 
-				expect(results.length).toBeGreaterThan(0)
+				assert.equal(results.length).toBeGreaterThan(0)
 				const reasoningItem = results.find(
 					(item) => item.matched && (item as JsonMatcherResult).type === "thinking",
 				)
-				expect(reasoningItem).toBeDefined()
-				expect(reasoningItem?.data).toBe("This is reasoning")
+				assert.equal(reasoningItem).toBeDefined()
+				assert.equal(reasoningItem?.data, "This is reasoning")
 			})
 		})
 	})
@@ -361,7 +362,7 @@ describe("json-xml-bridge", () => {
 			}
 
 			const expected = "<read_file>\n<path>src/main.js</path>\n<start_line>10</start_line>\n</read_file>"
-			expect(jsonToolUseToXml(jsonObj)).toBe(expected)
+			assert.equal(jsonToolUseToXml(jsonObj)).toBe(expected)
 		})
 
 		it("should handle complex parameter values", () => {
@@ -377,12 +378,12 @@ describe("json-xml-bridge", () => {
 
 			const expected =
 				'<write_to_file>\n<path>src/data.json</path>\n<content>{"key":"value","nested":{"prop":true}}</content>\n</write_to_file>'
-			expect(jsonToolUseToXml(jsonObj)).toBe(expected)
+			assert.equal(jsonToolUseToXml(jsonObj)).toBe(expected)
 		})
 
 		it("should handle non-tool-use JSON objects", () => {
 			const jsonObj = { type: "other", content: "Not a tool use" }
-			expect(jsonToolUseToXml(jsonObj)).toBe('{"type":"other","content":"Not a tool use"}')
+			assert.equal(jsonToolUseToXml(jsonObj)).toBe('{"type":"other","content":"Not a tool use"}')
 		})
 	})
 
@@ -392,11 +393,11 @@ describe("json-xml-bridge", () => {
 			const result = xmlToolUseToJson(xmlContent)
 			const parsed = JSON.parse(result)
 
-			expect(parsed.type).toBe("tool_use")
-			expect(parsed.name).toBe("read_file")
-			expect(parsed.input.path).toBe("src/main.js")
-			expect(parsed.input.start_line).toBe("10") // Note: XML values are strings
-			expect(parsed.id).toBeDefined()
+			assert.equal(parsed.type, "tool_use")
+			assert.equal(parsed.name, "read_file")
+			assert.equal(parsed.input.path, "src/main.js")
+			assert.equal(parsed.input.start_line, "10") // Note: XML values are strings
+			assert.equal(parsed.id).toBeDefined()
 		})
 
 		it("should handle nested XML content", () => {
@@ -404,15 +405,15 @@ describe("json-xml-bridge", () => {
 			const result = xmlToolUseToJson(xmlContent)
 			const parsed = JSON.parse(result)
 
-			expect(parsed.type).toBe("tool_use")
-			expect(parsed.name).toBe("execute_command")
-			expect(parsed.input.command).toBe("npm install")
-			expect(parsed.id).toBeDefined()
+			assert.equal(parsed.type, "tool_use")
+			assert.equal(parsed.name, "execute_command")
+			assert.equal(parsed.input.command, "npm install")
+			assert.equal(parsed.id).toBeDefined()
 		})
 
 		it("should handle content without tool use tags", () => {
 			const content = "Plain text"
-			expect(xmlToolUseToJson(content)).toBe("Plain text")
+			assert.equal(xmlToolUseToJson(content)).toBe("Plain text")
 		})
 	})
 
@@ -427,7 +428,7 @@ describe("json-xml-bridge", () => {
 
 			const expected =
 				'<tool_result tool_use_id="read_file-123" status="success">\nFile content here\n</tool_result>'
-			expect(jsonToolResultToXml(jsonObj)).toBe(expected)
+			assert.equal(jsonToolResultToXml(jsonObj)).toBe(expected)
 		})
 
 		it("should handle error results", () => {
@@ -444,7 +445,7 @@ describe("json-xml-bridge", () => {
 
 			const expected =
 				'<tool_result tool_use_id="read_file-123" status="error">\nError occurred\n<error message="File not found" details="{&quot;code&quot;:&quot;ENOENT&quot;}" />\n</tool_result>'
-			expect(jsonToolResultToXml(jsonObj)).toBe(expected)
+			assert.equal(jsonToolResultToXml(jsonObj)).toBe(expected)
 		})
 
 		it("should handle image content", () => {
@@ -467,7 +468,7 @@ describe("json-xml-bridge", () => {
 
 			const expected =
 				'<tool_result tool_use_id="generate_image-123" status="success">\nGenerated image:\n<image type="image/png" data="base64data" />\n</tool_result>'
-			expect(jsonToolResultToXml(jsonObj)).toBe(expected)
+			assert.equal(jsonToolResultToXml(jsonObj)).toBe(expected)
 		})
 	})
 
@@ -478,12 +479,12 @@ describe("json-xml-bridge", () => {
 			const result = xmlToolResultToJson(xmlContent)
 			const parsed = JSON.parse(result)
 
-			expect(parsed.type).toBe("tool_result")
-			expect(parsed.tool_use_id).toBe("read_file-123")
-			expect(parsed.status).toBe("success")
-			expect(parsed.content).toHaveLength(1)
-			expect(parsed.content[0].type).toBe("text")
-			expect(parsed.content[0].text).toBe("File content here")
+			assert.equal(parsed.type, "tool_result")
+			assert.equal(parsed.tool_use_id, "read_file-123")
+			assert.equal(parsed.status, "success")
+			assert.equal(parsed.content).toHaveLength(1)
+			assert.equal(parsed.content[0].type, "text")
+			assert.equal(parsed.content[0].text, "File content here")
 		})
 
 		it("should handle error results", () => {
@@ -492,20 +493,20 @@ describe("json-xml-bridge", () => {
 			const result = xmlToolResultToJson(xmlContent)
 			const parsed = JSON.parse(result)
 
-			expect(parsed.type).toBe("tool_result")
-			expect(parsed.tool_use_id).toBe("read_file-123")
-			expect(parsed.status).toBe("error")
-			expect(parsed.content).toHaveLength(1)
-			expect(parsed.content[0].type).toBe("text")
-			expect(parsed.content[0].text).toBe("Error occurred")
-			expect(parsed.error).toBeDefined()
-			expect(parsed.error.message).toBe("File not found")
-			expect(parsed.error.details).toEqual({ code: "ENOENT" })
+			assert.equal(parsed.type, "tool_result")
+			assert.equal(parsed.tool_use_id, "read_file-123")
+			assert.equal(parsed.status, "error")
+			assert.equal(parsed.content).toHaveLength(1)
+			assert.equal(parsed.content[0].type, "text")
+			assert.equal(parsed.content[0].text, "Error occurred")
+			assert.equal(parsed.error).toBeDefined()
+			assert.equal(parsed.error.message, "File not found")
+			assert.deepEqual(parsed.error.details, { code: "ENOENT" })
 		})
 
 		it("should handle content without tool result tags", () => {
 			const content = "Plain text"
-			expect(xmlToolResultToJson(content)).toBe("Plain text")
+			assert.equal(xmlToolResultToJson(content)).toBe("Plain text")
 		})
 	})
 
@@ -521,11 +522,11 @@ describe("json-xml-bridge", () => {
 
 			const result = openAiFunctionCallToNeutralToolUse(openAiFunctionCall)
 
-			expect(result?.type).toBe("tool_use")
-			expect(result?.name).toBe("read_file")
-			expect(result?.id).toBe("call_abc123")
-			expect(result?.input.path).toBe("src/main.js")
-			expect(result?.input.start_line).toBe(10)
+			assert.equal(result?.type, "tool_use")
+			assert.equal(result?.name, "read_file")
+			assert.equal(result?.id, "call_abc123")
+			assert.equal(result?.input.path, "src/main.js")
+			assert.equal(result?.input.start_line, 10)
 		})
 
 		it("should handle OpenAI tool calls array", () => {
@@ -544,11 +545,11 @@ describe("json-xml-bridge", () => {
 
 			const result = openAiFunctionCallToNeutralToolUse(openAiFunctionCall)
 
-			expect(result?.type).toBe("tool_use")
-			expect(result?.name).toBe("read_file")
-			expect(result?.id).toBe("call_abc123")
-			expect(result?.input.path).toBe("src/main.js")
-			expect(result?.input.start_line).toBe(10)
+			assert.equal(result?.type, "tool_use")
+			assert.equal(result?.name, "read_file")
+			assert.equal(result?.id, "call_abc123")
+			assert.equal(result?.input.path, "src/main.js")
+			assert.equal(result?.input.start_line, 10)
 		})
 
 		it("should handle invalid JSON arguments", () => {
@@ -562,10 +563,10 @@ describe("json-xml-bridge", () => {
 
 			const result = openAiFunctionCallToNeutralToolUse(openAiFunctionCall)
 
-			expect(result?.type).toBe("tool_use")
-			expect(result?.name).toBe("read_file")
-			expect(result?.id).toBe("call_abc123")
-			expect(result?.input.raw).toBe("invalid json")
+			assert.equal(result?.type, "tool_use")
+			assert.equal(result?.name, "read_file")
+			assert.equal(result?.id, "call_abc123")
+			assert.equal(result?.input.raw, "invalid json")
 		})
 	})
 
@@ -583,9 +584,9 @@ describe("json-xml-bridge", () => {
 
 			const result = neutralToolUseToOpenAiFunctionCall(neutralToolUse)
 
-			expect(result?.function_call?.id).toBe("read_file-123")
-			expect(result?.function_call?.name).toBe("read_file")
-			expect(JSON.parse(result?.function_call?.arguments || "{}")).toEqual({
+			assert.equal(result?.function_call?.id, "read_file-123")
+			assert.equal(result?.function_call?.name, "read_file")
+			assert.equal(JSON.parse(result?.function_call?.arguments || "{}")).toEqual({
 				path: "src/main.js",
 				start_line: 10,
 			})
@@ -597,7 +598,7 @@ describe("json-xml-bridge", () => {
 				content: "Not a tool use",
 			}
 
-			expect(neutralToolUseToOpenAiFunctionCall(nonToolUse as unknown as ToolUseJsonObject)).toBeNull()
+			assert.equal(neutralToolUseToOpenAiFunctionCall(nonToolUse as unknown as ToolUseJsonObject)).toBeNull()
 		})
 	})
 
@@ -609,17 +610,17 @@ describe("json-xml-bridge", () => {
 			const xmlBlock = "<read_file>\n<path>src/main.js</path>\n</read_file>"
 			const results = matcher.update(xmlBlock)
 
-			expect(results.length).toBeGreaterThan(0)
+			assert.equal(results.length).toBeGreaterThan(0)
 			const toolUseItem = results.find((item) => item.matched && (item as JsonMatcherResult).type === "tool_use")
-			expect(toolUseItem).toBeDefined()
-			expect(toolUseItem?.data).toBeInstanceOf(Object)
-			expect((toolUseItem?.data as ToolUseJsonObject).name).toBe("read_file")
-			expect((toolUseItem?.data as ToolUseJsonObject).input.path).toBe("src/main.js")
+			assert.equal(toolUseItem).toBeDefined()
+			assert.equal(toolUseItem?.data).toBeInstanceOf(Object)
+			assert.equal((toolUseItem?.data as ToolUseJsonObject).name).toBe("read_file")
+			assert.equal((toolUseItem?.data as ToolUseJsonObject).input.path).toBe("src/main.js")
 
 			// Check that tool use IDs are stored
 			const toolUseIds = matcher.getToolUseIds()
-			expect(toolUseIds.size).toBeGreaterThan(0)
-			expect(toolUseIds.has("read_file")).toBeTruthy()
+			assert.equal(toolUseIds.size).toBeGreaterThan(0)
+			assert.equal(toolUseIds.has("read_file")).toBeTruthy()
 		})
 
 		it("should detect and extract JSON tool use blocks", () => {
@@ -630,17 +631,17 @@ describe("json-xml-bridge", () => {
 				'{"type":"tool_use","name":"read_file","id":"read_file-123","input":{"path":"src/main.js"}}'
 			const results = matcher.update(jsonBlock)
 
-			expect(results.length).toBeGreaterThan(0)
+			assert.equal(results.length).toBeGreaterThan(0)
 			const toolUseItem = results.find((item) => item.matched && (item as JsonMatcherResult).type === "tool_use")
-			expect(toolUseItem).toBeDefined()
-			expect((toolUseItem?.data as ToolUseJsonObject).name).toBe("read_file")
-			expect((toolUseItem?.data as ToolUseJsonObject).input.path).toBe("src/main.js")
+			assert.equal(toolUseItem).toBeDefined()
+			assert.equal((toolUseItem?.data as ToolUseJsonObject).name).toBe("read_file")
+			assert.equal((toolUseItem?.data as ToolUseJsonObject).input.path).toBe("src/main.js")
 
 			// Check that tool use IDs are stored
 			const toolUseIds = matcher.getToolUseIds()
-			expect(toolUseIds.size).toBeGreaterThan(0)
-			expect(toolUseIds.has("read_file")).toBeTruthy()
-			expect(toolUseIds.get("read_file")).toBe("read_file-123")
+			assert.equal(toolUseIds.size).toBeGreaterThan(0)
+			assert.equal(toolUseIds.has("read_file")).toBeTruthy()
+			assert.equal(toolUseIds.get("read_file")).toBe("read_file-123")
 		})
 	})
 
@@ -657,13 +658,13 @@ describe("json-xml-bridge", () => {
 				'<tool_result tool_use_id="read_file-123" status="success">\nFile content here\n</tool_result>'
 			const results = matcher.update(xmlBlock)
 
-			expect(results.length).toBeGreaterThan(0)
+			assert.equal(results.length).toBeGreaterThan(0)
 			const toolResultItem = results.find(
 				(item) => item.matched && (item as JsonMatcherResult).type === "tool_result",
 			)
-			expect(toolResultItem).toBeDefined()
-			expect((toolResultItem?.data as ToolResultJsonObject).tool_use_id).toBe("read_file-123")
-			expect((toolResultItem?.data as ToolResultJsonObject).content[0].text).toBe("File content here")
+			assert.equal(toolResultItem).toBeDefined()
+			assert.equal((toolResultItem?.data as ToolResultJsonObject).tool_use_id).toBe("read_file-123")
+			assert.equal((toolResultItem?.data as ToolResultJsonObject).content[0].text).toBe("File content here")
 		})
 
 		it("should detect and extract JSON tool result blocks", () => {
@@ -678,13 +679,13 @@ describe("json-xml-bridge", () => {
 				'{"type":"tool_result","tool_use_id":"read_file-123","content":[{"type":"text","text":"File content here"}],"status":"success"}'
 			const results = matcher.update(jsonBlock)
 
-			expect(results.length).toBeGreaterThan(0)
+			assert.equal(results.length).toBeGreaterThan(0)
 			const toolResultItem = results.find(
 				(item) => item.matched && (item as JsonMatcherResult).type === "tool_result",
 			)
-			expect(toolResultItem).toBeDefined()
-			expect((toolResultItem?.data as ToolResultJsonObject).tool_use_id).toBe("read_file-123")
-			expect((toolResultItem?.data as ToolResultJsonObject).content[0].text).toBe("File content here")
+			assert.equal(toolResultItem).toBeDefined()
+			assert.equal((toolResultItem?.data as ToolResultJsonObject).tool_use_id).toBe("read_file-123")
+			assert.equal((toolResultItem?.data as ToolResultJsonObject).content[0].text).toBe("File content here")
 		})
 	})
 })
