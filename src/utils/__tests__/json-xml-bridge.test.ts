@@ -85,7 +85,7 @@ describe("json-xml-bridge", () => {
 			const nestedJson = '{"type":"thinking","content":"Reasoning with nested object: { \\"nested\\": true }"}'
 			const results = matcher.update(nestedJson)
 
-			assert.equal(results).toHaveLength(1)
+			assert.equal(results.length, 1)
 			assert.deepEqual(results[0], {
 				matched: true,
 				data: 'Reasoning with nested object: { "nested": true }',
