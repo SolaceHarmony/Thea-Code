@@ -154,7 +154,7 @@ describe("json-xml-bridge", () => {
 	describe("jsonThinkingToXml", () => {
 		it("should convert JSON thinking to XML format", () => {
 			const jsonObj = { type: "thinking", content: "This is reasoning" }
-			assert.equal(jsonThinkingToXml(jsonObj)).toBe("<think>This is reasoning</think>")
+			assert.equal(jsonThinkingToXml(jsonObj), "<think>This is reasoning</think>")
 		})
 
 		it("should handle non-thinking JSON objects", () => {
