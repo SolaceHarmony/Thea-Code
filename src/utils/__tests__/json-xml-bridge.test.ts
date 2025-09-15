@@ -67,7 +67,7 @@ describe("json-xml-bridge", () => {
 			// Should process the complete JSON and text after
 			// The implementation actually returns 3 items: the text before (already processed),
 			// the reasoning content, and the text after
-			assert.equal(results2.length).toBeGreaterThan(0)
+			assert.ok(results2.length > 0)
 
 			// Find the reasoning item
 			const reasoningItem = results2.find((item) => item.matched && item.type === "thinking")
