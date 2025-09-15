@@ -43,7 +43,7 @@ describe("json-xml-bridge", () => {
 			const content = 'Text before {"type":"thinking","content":"Reasoning"} text after'
 			const results = matcher.update(content)
 
-			assert.equal(results).toHaveLength(3)
+			assert.equal(results.length, 3)
 			assert.deepEqual(results[0], { matched: false, data: "Text before " })
 			assert.deepEqual(results[1], { matched: true, data: "Reasoning", type: "thinking" })
 			assert.deepEqual(results[2], { matched: false, data: " text after" })
