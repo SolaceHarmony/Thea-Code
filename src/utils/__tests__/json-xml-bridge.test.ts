@@ -57,7 +57,7 @@ describe("json-xml-bridge", () => {
 			const results1 = matcher.update(chunk1)
 
 			// Should only process the text before the JSON
-			assert.equal(results1).toHaveLength(1)
+			assert.equal(results1.length, 1)
 			assert.deepEqual(results1[0], { matched: false, data: "Text before " })
 
 			// Second chunk completing the JSON
