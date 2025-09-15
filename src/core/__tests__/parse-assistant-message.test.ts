@@ -1,3 +1,4 @@
+import { strict as assert } from "node:assert"
 import { parseAssistantMessage } from "../assistant-message/parse-assistant-message"
 import type { AccessMcpResourceToolUse } from "../assistant-message"
 
@@ -7,7 +8,7 @@ describe("parseAssistantMessage - access_mcp_resource", () => {
 			"Hello <access_mcp_resource><server_name>srv</server_name><uri>/path</uri></access_mcp_resource> World"
 		const result = parseAssistantMessage(msg)
 
-		expect(result).toEqual([
+		const expected = [
 			{ type: "text", content: "Hello", partial: false },
 			{
 				type: "tool_use",
@@ -16,6 +17,8 @@ describe("parseAssistantMessage - access_mcp_resource", () => {
 				partial: false,
 			} as AccessMcpResourceToolUse,
 			{ type: "text", content: "World", partial: false },
-		])
+		]
+
+		assert.deepEqual(result, expected)
 	})
 })
