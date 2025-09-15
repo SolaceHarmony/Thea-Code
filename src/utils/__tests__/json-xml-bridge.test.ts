@@ -113,7 +113,7 @@ describe("json-xml-bridge", () => {
 			const textAfterItem = finalResults.find(
 				(item) => !item.matched && typeof item.data === "string" && item.data.includes("text after"),
 			)
-			assert.equal(textAfterItem).toBeDefined()
+			assert.ok(textAfterItem)
 		})
 
 		it("should handle non-matching JSON objects", () => {
