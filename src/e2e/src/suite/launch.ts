@@ -8,7 +8,8 @@ async function main() {
   try {
     // This file compiles to e2e/out/suite/launch.js
     const compiledDir = __dirname // e2e/out/suite
-    const repoRoot = path.resolve(compiledDir, "..", "..", "..") // -> repo root
+    // Go up 4 levels: suite -> out -> e2e -> src -> repo root
+    const repoRoot = path.resolve(compiledDir, "..", "..", "..", "..") // -> repo root
 
     const extensionDevelopmentPath = repoRoot
     // Tests compile under out/suite/suite/** based on tsconfig rootDir/outDir
@@ -27,7 +28,6 @@ async function main() {
     await fs.promises.mkdir(extensionsDir, { recursive: true })
 
     const launchArgs = [
-      "--disable-extensions",
       `--user-data-dir=${userDataDir}`,
       `--extensions-dir=${extensionsDir}`,
       `--enable-proposed-api=SolaceHarmony.thea-code`,
