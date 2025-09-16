@@ -29,7 +29,8 @@ async function main() {
 
     // This file is compiled to e2e/out/suite/launch.js
   const compiledDir = __dirname // e2e/out/suite
-  const repoRoot = path.resolve(compiledDir, "..", "..", "..") // -> repo root
+  // Go up 4 levels: suite -> out -> e2e -> src -> repo root
+  const repoRoot = path.resolve(compiledDir, "..", "..", "..", "..") // -> repo root
 
   const extensionDevelopmentPath = repoRoot
   const extensionTestsPath = path.resolve(compiledDir, "suite", "index.js")
@@ -97,7 +98,7 @@ async function main() {
     try {
       // Prefer invoking the VS Code CLI shim to avoid Insiders app binary rejecting args on macOS
       const vscodeExecutablePath = await downloadAndUnzipVSCode({ version: "insiders", extensionDevelopmentPath })
-      const [cli] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath)
+      const [cli, ...cliBaseArgs] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath)
 
       const args = [
         ...launchArgs,
@@ -114,8 +115,7 @@ async function main() {
       console.log(`[e2e/launch] Spawning VS Code CLI: ${cli}`)
       const shell = process.platform === "win32"
       await new Promise<void>((resolve, reject) => {
-        // Pass only our args to avoid duplicate options becoming arrays in yargs
-        const child = spawn(shell ? `"${cli}"` : cli, [...args], {
+        const child = spawn(shell ? `"${cli}"` : cli, [...cliBaseArgs, ...args], {
           env,
           stdio: "inherit",
           shell,
