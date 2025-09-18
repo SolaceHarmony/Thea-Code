@@ -205,7 +205,7 @@ describe("ContextProxy", () => {
 			expect(mockSecrets.store).toHaveBeenCalledWith("apiKey", "new-secret")
 
 			// Should have stored the value in cache
-			const storedValue = await proxy.getSecret("apiKey")
+			const storedValue = proxy.getSecret("apiKey")
 			expect(storedValue).toBe("new-secret")
 		})
 
@@ -216,7 +216,7 @@ describe("ContextProxy", () => {
 			expect(mockSecrets.delete).toHaveBeenCalledWith("apiKey")
 
 			// Should have stored undefined in cache
-			const storedValue = await proxy.getSecret("apiKey")
+			const storedValue = proxy.getSecret("apiKey")
 			expect(storedValue).toBeUndefined()
 		})
 	})

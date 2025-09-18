@@ -1119,7 +1119,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 				handlePrimaryButtonClick()
 			}
 		}
-		autoApprove()
+		autoApprove().then(r => )
 	}, [
 		theaAsk, // Use renamed state variable
 		enableButtons,

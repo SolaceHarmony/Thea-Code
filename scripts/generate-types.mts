@@ -24,4 +24,4 @@ async function main() {
 	await $`npx prettier --write src/exports/types.ts src/exports/thea-code.d.ts`
 }
 
-main()
+main().then(r => )

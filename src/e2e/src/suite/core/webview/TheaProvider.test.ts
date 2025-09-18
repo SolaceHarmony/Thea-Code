@@ -430,7 +430,7 @@ suite("TheaProvider", () => {
 		})
 		
 		test("resets state", async () => {
-			await theaProvider.resetState()
+			theaProvider.resetState()
 			
 			assert.ok(mockTheaTaskHistory.updateTaskHistory.called)
 			assert.ok(mockTheaStateManager.updateGlobalState.called)

@@ -15,7 +15,7 @@ jest.mock("openai", () => {
 						void _functions
 						void _functionCall
 						await Promise.resolve()
-						const stream = {
+						return {
 							[Symbol.asyncIterator]: () => {
 								let count = 0
 								const messages = [
@@ -46,7 +46,6 @@ jest.mock("openai", () => {
 								}
 							},
 						}
-						return stream
 					}),
 			},
 		},
@@ -191,7 +190,7 @@ describe("Ollama MCP Integration with SSE Transport", () => {
 
 		try {
 			// Call the tool from each client
-			const promiseAll = await Promise.all([
+			const promiseAll = (await Promise.all([
 				client.callTool({
 					name: "test_tool",
 					arguments: { param: "client 1" },
@@ -204,7 +203,7 @@ describe("Ollama MCP Integration with SSE Transport", () => {
 					name: "test_tool",
 					arguments: { param: "client 3" },
 				}) as Promise<{ content: Array<{ type: string; text: string }> }>,
-			]) as Promise<
+			])) as unknown as Promise<
 				[
 					{ content: Array<{ type: string; text: string }> },
 					{ content: Array<{ type: string; text: string }> },

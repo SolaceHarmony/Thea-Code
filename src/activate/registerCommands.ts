@@ -74,7 +74,7 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 			void provider.postMessageToWebview({ type: "action", action: "historyButtonClicked" })
 		},
 		[COMMANDS.HELP_BUTTON]: () => {
-			vscode.env.openExternal(vscode.Uri.parse(HOMEPAGE_URL))
+			vscode.env.openExternal(vscode.Uri.parse(HOMEPAGE_URL)).then(r => )
 		},
 		[COMMANDS.NEW_TASK]: handleNewTask,
 		// Assuming this command ID uses EXTENSION_NAME prefix convention implicitly

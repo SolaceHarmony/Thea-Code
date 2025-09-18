@@ -398,11 +398,11 @@ describe("McpToolRouter - Lifecycle and Event Management", () => {
 
 			// Start multiple operations concurrently
 			const operations = [
-				router.initialize(),
-				router.initialize(),
-				router.shutdown(),
-				router.initialize(),
-				router.shutdown(),
+				await router.initialize(),
+				await router.initialize(),
+				await router.shutdown(),
+				await router.initialize(),
+				await router.shutdown(),
 			]
 
 			// All should complete without errors

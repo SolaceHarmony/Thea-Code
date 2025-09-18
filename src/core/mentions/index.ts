@@ -68,7 +68,7 @@ const toError = (error: unknown): Error => {
 export const handleError = (error: Error, message: string): string => {
 	const errorMsg = `Error ${message}: ${error.message}`
 	if (error instanceof Error) {
-		vscode.window.showErrorMessage(errorMsg)
+		vscode.window.showErrorMessage(errorMsg).then(r => )
 	}
 	return errorMsg
 }

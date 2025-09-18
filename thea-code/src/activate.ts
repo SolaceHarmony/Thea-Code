@@ -37,7 +37,7 @@ export function registerCommands(options: CommandRegistrationOptions): void {
   // Here we'll register a simple command as an example
   context.subscriptions.push(
     vscode.commands.registerCommand('thea-code.helloWorld', () => {
-      vscode.window.showInformationMessage('Hello World from Thea Code!');
+      vscode.window.showInformationMessage('Hello World from Thea Code!').then(r => );
     })
   );
 }

@@ -79,9 +79,9 @@ export const playSound = (filepath: string): void => {
 		lastPlayedTime = currentTime
 	} catch (error: unknown) {
 		if (error instanceof Error) {
-			vscode.window.showErrorMessage(error.message)
+			vscode.window.showErrorMessage(error.message).then(r => )
 		} else {
-			vscode.window.showErrorMessage("An unknown error occurred while playing sound.")
+			vscode.window.showErrorMessage("An unknown error occurred while playing sound.").then(r => )
 		}
 	}
 }
