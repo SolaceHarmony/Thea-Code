@@ -115,7 +115,7 @@ describe("SSE Transport", () => {
 
 		try {
 			// Call the tool from each client
-			const promiseAll = await Promise.all([
+			const promiseAll = (await Promise.all([
 				client1.callTool({
 					name: "test_tool",
 					arguments: { message: "Client 1" },
@@ -128,7 +128,7 @@ describe("SSE Transport", () => {
 					name: "test_tool",
 					arguments: { message: "Client 3" },
 				}) as Promise<{ content: Array<{ type: string; text: string }> }>,
-			]) as Promise<
+			])) as unknown as Promise<
 				[
 					{ content: Array<{ type: string; text: string }> },
 					{ content: Array<{ type: string; text: string }> },

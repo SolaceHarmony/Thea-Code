@@ -31,7 +31,7 @@ export const setupI18nForTests = () => {
 				},
 			},
 		},
-	})
+	}).then(r => )
 
 	return i18next
 }

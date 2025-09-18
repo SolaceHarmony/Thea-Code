@@ -21,6 +21,7 @@ import {
 	GroupEntry,
 } from "../../../../src/shared/modes"
 import { modeConfigSchema } from "../../../../src/schemas"
+import type { ZodIssue } from "zod"
 import { supportPrompt, SupportPromptType } from "../../../../src/shared/support-prompt"
 
 import { TOOL_GROUPS, ToolGroup } from "../../../../src/shared/tool-groups"

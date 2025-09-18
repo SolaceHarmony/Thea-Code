@@ -58,4 +58,4 @@ const runCommandsSequentially = async () => {
   console.log(`All lint checks finished. Check ${logFilePath} for details.`)
 }
 
-runCommandsSequentially()
+runCommandsSequentially().then(r => )

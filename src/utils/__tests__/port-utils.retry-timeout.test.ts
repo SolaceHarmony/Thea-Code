@@ -515,8 +515,8 @@ describe("port-utils - Retry and Timeout Tests", () => {
 			
 			// Start two concurrent wait operations
 			const promises = [
-				waitForPortInUse(3000, 'localhost', 100, 5000, 'server1', 3),
-				waitForPortInUse(3001, 'localhost', 100, 5000, 'server2', 3)
+				await waitForPortInUse(3000, 'localhost', 100, 5000, 'server1', 3),
+				await waitForPortInUse(3001, 'localhost', 100, 5000, 'server2', 3)
 			]
 			
 			await Promise.all(promises)
