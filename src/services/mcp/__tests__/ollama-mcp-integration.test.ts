@@ -191,7 +191,7 @@ describe("Ollama MCP Integration with SSE Transport", () => {
 
 		try {
 			// Call the tool from each client
-			const promiseAll = Promise.all([
+			const promiseAll = await Promise.all([
 				client.callTool({
 					name: "test_tool",
 					arguments: { param: "client 1" },

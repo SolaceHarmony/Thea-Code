@@ -174,12 +174,12 @@ suite("Ollama MCP Integration with SSE Transport", () => {
 
 		try {
 			// Call the tool from each client
-			const promiseAll = Promise.all([
+			const promiseAll = await Promise.all([
 				client.callTool({
 					name: "test_tool",
-					arguments: { param: "client 1" } catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		},
+					arguments: { param: "client 1" } catch(error) {
+						assert.fail('Unexpected error: ' + error.message)
+					},
 				}) as Promise<{ content: Array<{ type: string; text: string }> }>,
 				client2.callTool({
 					name: "test_tool",

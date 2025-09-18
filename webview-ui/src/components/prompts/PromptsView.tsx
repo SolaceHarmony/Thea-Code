@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react"
-import type { ZodIssue } from "zod"
 import { GLOBAL_FILENAMES, CONFIG_DIR_NAME } from "../../../../src/shared/config/thea-config"
 import {
 	VSCodeButton,
