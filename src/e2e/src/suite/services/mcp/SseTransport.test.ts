@@ -116,12 +116,12 @@ suite("SSE Transport", () => {
 
 		try {
 			// Call the tool from each client
-			const promiseAll = Promise.all([
+			const promiseAll = await Promise.all([
 				client1.callTool({
 					name: "test_tool",
-					arguments: { message: "Client 1" } catch (error) {
-			assert.fail('Unexpected error: ' + error.message)
-		},
+					arguments: { message: "Client 1" } catch(error) {
+						assert.fail('Unexpected error: ' + error.message)
+					},
 				}) as Promise<{ content: Array<{ type: string; text: string }> }>,
 				client2.callTool({
 					name: "test_tool",

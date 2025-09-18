@@ -1,6 +1,7 @@
 import { EmbeddedMcpProvider } from "../providers/EmbeddedMcpProvider"
 import { SseClientFactory } from "../client/SseClientFactory"
 import { SseTransportConfig } from "../transport/config/SseTransportConfig"
+import { expect } from "chai"
 
 describe("SSE Transport", () => {
 	let server: EmbeddedMcpProvider
@@ -114,7 +115,7 @@ describe("SSE Transport", () => {
 
 		try {
 			// Call the tool from each client
-			const promiseAll = Promise.all([
+			const promiseAll = await Promise.all([
 				client1.callTool({
 					name: "test_tool",
 					arguments: { message: "Client 1" },
