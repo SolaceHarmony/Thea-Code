@@ -62,7 +62,7 @@ async function main() {
       THEA_E2E: "1",
       NODE_ENV: process.env.NODE_ENV ?? "test",
       E2E_SMOKE_ONLY: process.env.E2E_SMOKE_ONLY ?? "0",
-      E2E_DIRECT_TEST: process.env.E2E_DIRECT_TEST ?? "1",
+      E2E_DIRECT_TEST: process.env.E2E_DIRECT_TEST ?? "0",
       // index.ts expects a glob relative to out/suite
       E2E_TEST_GLOB: process.env.E2E_TEST_GLOB ?? "selected/**/*.test.js",
     }
@@ -71,7 +71,7 @@ async function main() {
     // of the Electron binary returned by runTests(), which rejects product args.
     try {
       const vscodeExecutablePath = await downloadAndUnzipVSCode({ version: "insiders", extensionDevelopmentPath })
-      const [cli, ...cliBaseArgs] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath)
+      const [cli] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath)
 
       const args = [
         ...launchArgs,
@@ -88,13 +88,39 @@ async function main() {
       console.log(`[e2e/launch] Spawning VS Code CLI: ${cli}`)
       const shell = process.platform === "win32"
       await new Promise<void>((resolve, reject) => {
-        const child = spawn(shell ? `"${cli}"` : cli, [...cliBaseArgs, ...args], {
+        const child = spawn(shell ? `"${cli}"` : cli, [...args], {
           env,
           stdio: "inherit",
           shell,
         })
-        child.on("error", reject)
+
+        const killChild = () => {
+          try {
+            if (!child.killed) {
+              if (process.platform === "win32") {
+                // Best-effort terminate on Windows
+                try { spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"], { stdio: "ignore" }) } catch {}
+              } else {
+                child.kill("SIGKILL")
+              }
+            }
+          } catch {}
+        }
+        const onParentExit = () => killChild()
+        process.on("exit", onParentExit)
+        process.on("SIGINT", onParentExit)
+        process.on("SIGTERM", onParentExit)
+
+        child.on("error", (err) => {
+          process.off("exit", onParentExit)
+          process.off("SIGINT", onParentExit)
+          process.off("SIGTERM", onParentExit)
+          reject(err)
+        })
         child.on("exit", (code, signal) => {
+          process.off("exit", onParentExit)
+          process.off("SIGINT", onParentExit)
+          process.off("SIGTERM", onParentExit)
           console.log(`[e2e/launch] VS Code exited with ${code ?? signal}`)
           code === 0 ? resolve() : reject(new Error(`VS Code exited with ${code ?? signal}`))
         })
