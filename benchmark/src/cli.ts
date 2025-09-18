@@ -2,7 +2,8 @@ import * as fs from "node:fs/promises"
 import * as path from "path"
 
 import { build, filesystem, GluegunPrompt } from "gluegun"
-import { runTests } from "@vscode/test-electron"
+import { downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePath, runTests } from "@vscode/test-electron"
+import { spawn } from "child_process"
 
 interface BenchmarkConfig {
 	language?: string
@@ -87,12 +88,97 @@ async function runExercise({
 
 	console.log(`Running ${language} / ${exercise}`)
 
-	await runTests({
-		extensionDevelopmentPath,
-		extensionTestsPath,
-		launchArgs: [workspacePath, "--disable-extensions"],
-		extensionTestsEnv,
-	})
+ // Prefer running tests via the VS Code CLI to ensure the host exits cleanly
+  try {
+    const vscodeExecutablePath = await downloadAndUnzipVSCode({ version: "insiders", extensionDevelopmentPath })
+    const [cli] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath)
+
+    const testRoot = path.resolve(extensionDevelopmentPath, ".vscode-test-benchmark")
+    const userDataDir = path.join(testRoot, "user-data")
+    const extensionsDir = path.join(testRoot, "extensions")
+    try { await fs.mkdir(userDataDir, { recursive: true }) } catch {}
+    try { await fs.mkdir(extensionsDir, { recursive: true }) } catch {}
+
+    const args = [
+      workspacePath,
+      `--user-data-dir=${userDataDir}`,
+      `--extensions-dir=${extensionsDir}`,
+      "--disable-workspace-trust",
+      "--skip-release-notes",
+      "--skip-welcome",
+      "--disable-updates",
+      "--no-sandbox",
+      "--disable-gpu-sandbox",
+      "--disable-extensions",
+      `--extensionDevelopmentPath=${extensionDevelopmentPath}`,
+      `--extensionTestsPath=${extensionTestsPath}`,
+    ]
+
+    console.log(`[benchmark] Spawning VS Code CLI: ${cli}`)
+    const shell = process.platform === "win32"
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn(shell ? `"${cli}"` : cli, [...args], {
+        env: { ...process.env, ...extensionTestsEnv },
+        stdio: "inherit",
+        shell,
+      })
+
+      const killChild = () => {
+        try {
+          if (!child.killed) {
+            if (process.platform === "win32") {
+              try { spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"], { stdio: "ignore" }) } catch {}
+            } else {
+              child.kill("SIGKILL")
+            }
+          }
+        } catch {}
+      }
+      const onParentExit = () => killChild()
+      process.on("exit", onParentExit)
+      process.on("SIGINT", onParentExit)
+      process.on("SIGTERM", onParentExit)
+
+      child.on("error", (err) => {
+        process.off("exit", onParentExit)
+        process.off("SIGINT", onParentExit)
+        process.off("SIGTERM", onParentExit)
+        reject(err)
+      })
+      child.on("exit", (code, signal) => {
+        process.off("exit", onParentExit)
+        process.off("SIGINT", onParentExit)
+        process.off("SIGTERM", onParentExit)
+        console.log(`[benchmark] VS Code exited with ${code ?? signal}`)
+        code === 0 ? resolve() : reject(new Error(`VS Code exited with ${code ?? signal}`))
+      })
+    })
+  } catch (cliErr) {
+    console.warn(`[benchmark] CLI spawn failed (${cliErr instanceof Error ? cliErr.message : String(cliErr)}); falling back to test-electron`)
+    const testRoot = path.resolve(extensionDevelopmentPath, ".vscode-test-benchmark")
+    const userDataDir = path.join(testRoot, "user-data")
+    const extensionsDir = path.join(testRoot, "extensions")
+    try { await fs.mkdir(userDataDir, { recursive: true }) } catch {}
+    try { await fs.mkdir(extensionsDir, { recursive: true }) } catch {}
+
+    await runTests({
+      extensionDevelopmentPath,
+      extensionTestsPath,
+      launchArgs: [
+        workspacePath,
+        `--user-data-dir=${userDataDir}`,
+        `--extensions-dir=${extensionsDir}`,
+        "--disable-workspace-trust",
+        "--skip-release-notes",
+        "--skip-welcome",
+        "--disable-updates",
+        "--no-sandbox",
+        "--disable-gpu-sandbox",
+        "--disable-extensions",
+      ],
+      extensionTestsEnv,
+    })
+  }
 }
 
 async function askLanguage(prompt: GluegunPrompt) {

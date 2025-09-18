@@ -118,7 +118,17 @@ export async function run() {
 				return
 			} else {
 			// Add setup first to activate extension and expose global.api
-				const suiteOutDir = __dirname
+				// Resolve compiled suite output directory robustly
+				const defaultSuiteOutDir = __dirname
+				const candidates = [
+					defaultSuiteOutDir,
+					path.resolve(repoRoot, "src", "e2e", "out", "suite", "suite"),
+					path.resolve(repoRoot, "e2e", "out", "suite", "suite"),
+				]
+				const suiteOutDir = candidates.find((dir) => {
+					try { return fs.existsSync(path.resolve(dir, "setup.test.js")) } catch { return false }
+				}) ?? defaultSuiteOutDir
+				writeDebug(`[index] suiteOutDir=${suiteOutDir}`)
 				const setupFile = path.resolve(suiteOutDir, "setup.test.js")
 			if (process.env.E2E_SKIP_SETUP !== "1") {
 				mocha.addFile(setupFile)
