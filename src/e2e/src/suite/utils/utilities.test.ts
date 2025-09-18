@@ -1,6 +1,5 @@
 import * as assert from "assert"
 import * as path from "path"
-import * as vscode from "vscode"
 
 /* TEMP DISABLED: Jest-style broken tests pending migration
 	
@@ -367,5 +366,5 @@ function detectFileType(filename: string): string {
 
 function isValidFileName(name: string): boolean {
   // Forbid characters that are problematic across platforms
-  return !/[\*:/<>?|\\]/.test(name)
+  return !/[*:/<>?|\\]/.test(name)
 }
