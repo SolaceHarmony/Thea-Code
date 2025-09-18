@@ -340,3 +340,6 @@ suite("Shell Detection Tests", () => {
 		})
 	})
 // Mock cleanup
+
+
+})

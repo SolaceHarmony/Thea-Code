@@ -1,5 +1,3 @@
-import * as assert from 'assert'
-import * as sinon from 'sinon'
 /**
  * port-utils retry and timeout tests
  * Tests retry logic, exponential backoff, timeout handling, and abort signals
