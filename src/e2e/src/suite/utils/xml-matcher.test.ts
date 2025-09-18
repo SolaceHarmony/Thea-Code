@@ -1,6 +1,25 @@
 import * as assert from 'assert'
-import { XmlMatcher } from "../xml-matcher"
+import * as path from 'path'
+import * as fs from 'fs'
 import * as sinon from 'sinon'
+
+function findRepoRoot(startDir: string): string {
+  let dir = startDir
+  for (let i = 0; i < 10; i++) {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(path.join(dir, 'package.json'), 'utf8'))
+      if (pkg && pkg.name === 'thea-code') return dir
+    } catch {}
+    const parent = path.dirname(dir)
+    if (parent === dir) break
+    dir = parent
+  }
+  return path.resolve(startDir, '../../../../..')
+}
+
+const repoRoot = findRepoRoot(__dirname)
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { XmlMatcher } = require(path.join(repoRoot, 'out', 'utils', 'xml-matcher.js'))
 
 suite("XmlMatcher", () => {
 	let sandbox: sinon.SinonSandbox
@@ -133,3 +152,5 @@ suite("XmlMatcher", () => {
 		])
 	})
 // Mock cleanup
+
+})
