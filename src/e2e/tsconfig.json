@@ -10,7 +10,7 @@
     "strict": true,
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
-  "outDir": "./out/suite",
+    "outDir": "./out/suite",
     "rootDir": "./src",
     "types": ["node", "mocha"]
   },
@@ -19,13 +19,15 @@
     "src/runTest.ts",
     "src/suite/index.ts",
     "src/suite/setup.test.ts",
-    "src/suite/selected/**/*.ts",
-  "src/exports/**/*.d.ts",
+    "src/suite/**/*.ts",
+    "src/exports/**/*.d.ts",
     "src/thea-constants.ts"
   ],
   "exclude": [
     "node_modules",
     "out",
-    "dist"
+    "dist",
+    // Exclude legacy selected tests to avoid duplicate discovery after migration
+    "src/suite/selected/**"
   ]
 }

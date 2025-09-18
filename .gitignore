@@ -89,3 +89,4 @@ pretrained_models/
 
 # Experimental nested repo removed
 mbrl-lib/
+/.idea/

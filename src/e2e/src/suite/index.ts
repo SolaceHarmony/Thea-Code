@@ -141,7 +141,7 @@ export async function run() {
 
 			// Direct test mode: add a single known test without glob to avoid ESM issues/hangs
 			if (process.env.E2E_DIRECT_TEST === "1") {
-				const activation = path.resolve(suiteOutDir, "selected", "activation.test.js")
+				const activation = path.resolve(suiteOutDir, "activation.test.js")
 				console.log(`[e2e] Direct test mode: adding ${activation}`)
 				mocha.addFile(activation)
 			} else {
@@ -162,7 +162,8 @@ export async function run() {
 						"**/*.converted.test.js",
 						"**/*.node.test.js",
 						"**/*.unit.test.js",
-						"**/__tests__/**"
+						"**/__tests__/**",
+						"**/selected/**",
 					],
 				})
 

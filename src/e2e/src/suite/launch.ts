@@ -64,7 +64,7 @@ async function main() {
       E2E_SMOKE_ONLY: process.env.E2E_SMOKE_ONLY ?? "0",
       E2E_DIRECT_TEST: process.env.E2E_DIRECT_TEST ?? "0",
       // index.ts expects a glob relative to out/suite
-      E2E_TEST_GLOB: process.env.E2E_TEST_GLOB ?? "selected/**/*.test.js",
+      E2E_TEST_GLOB: process.env.E2E_TEST_GLOB ?? "**/*.test.js",
     }
 
     // Workaround Insiders macOS binary arg parsing: invoke the CLI shim instead
