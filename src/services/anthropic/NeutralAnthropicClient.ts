@@ -203,7 +203,7 @@ export class NeutralAnthropicClient {
 	}
 
 	/** Count tokens for the given neutral content */
-	public async countTokens(model: string, content: NeutralMessageContent): Promise<number> {
+	public async countTokens(model: string, content: string | NeutralMessageContent): Promise<number> {
 		// Convert neutral content to Anthropic format
 		const anthropicBlocks = convertToAnthropicContentBlocks(content)
 		
@@ -233,13 +233,11 @@ export class NeutralAnthropicClient {
 			}
 			
 			const result = await response.json() as TokenCountResponse
-			
 			// Return the token count from the result
 			return result.input_tokens
-		} catch (error) {
-			logger.error(error instanceof Error ? error : new Error(String(error)), { ctx: 'anthropic:countTokens' })
-			// Convert to a more descriptive error before throwing
-			throw new Error(`Failed to count tokens: ${error instanceof Error ? error.message : String(error)}`)
-		}
+        } catch (error) {
+            logger.error(error instanceof Error ? error : new Error(String(error)), { ctx: 'anthropic:countTokens' })
+            throw error // Let the error propagate naturally
+        }
 	}
 }

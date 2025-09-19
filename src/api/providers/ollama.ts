@@ -65,34 +65,34 @@ export class OllamaHandler extends BaseProvider implements SingleCompletionHandl
 				// Use OpenAI handler for all tool use detection (including XML and JSON patterns)
 				const toolCalls = this.openAiHandler.extractToolCalls(delta)
 
-                                if (toolCalls.length > 0) {
-                                        const results = await Promise.all(
-                                                toolCalls.map(async (toolCall) => {
-                                                        if (!toolCall.function) return null
-                                                        const toolResult = await this.processToolUse({
-                                                                id: toolCall.id,
-                                                                name: toolCall.function.name,
-                                                                input: JSON.parse(toolCall.function.arguments || "{}"),
-                                                        })
-                                                        const toolResultString =
-                                                                typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult)
-                                                        return { toolCall, toolResultString }
-                                                }),
-                                        )
-                                        for (const r of results) {
-                                                if (r) {
-                                                        yield {
-                                                                type: "tool_result",
-                                                                id: r.toolCall.id,
-                                                                content: r.toolResultString,
-                                                        }
-                                                }
-                                        }
-                                } else {
-                                        // If no tool use was detected, use the matcher for regular content
-                                        for (const matchedChunk of matcher.update(delta.content)) {
-                                                yield {
-                                                        type: matchedChunk.matched ? "reasoning" : "text",
+				if (toolCalls.length > 0) {
+					const results = await Promise.all(
+						toolCalls.map(async (toolCall) => {
+							if (!toolCall.function) return null
+							const toolResult = await this.processToolUse({
+								id: toolCall.id,
+								name: toolCall.function.name,
+								input: JSON.parse(toolCall.function.arguments || "{}"),
+							})
+							const toolResultString =
+								typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult)
+							return { toolCall, toolResultString }
+						}),
+					)
+					for (const r of results) {
+						if (r) {
+							yield {
+								type: "tool_result",
+								id: r.toolCall.id,
+								content: r.toolResultString,
+							}
+						}
+					}
+				} else {
+					// If no tool use was detected, use the matcher for regular content
+					for (const matchedChunk of matcher.update(delta.content)) {
+						yield {
+							type: matchedChunk.matched ? "reasoning" : "text",
 							text:
 								typeof matchedChunk.data === "string"
 									? matchedChunk.data
@@ -112,7 +112,7 @@ export class OllamaHandler extends BaseProvider implements SingleCompletionHandl
 	}
 
 	// Implement countTokens method for NeutralMessageContent
-	override async countTokens(content: NeutralMessageContent): Promise<number> {
+	override async countTokens(content: string | NeutralMessageContent): Promise<number> {
 		try {
 			// Convert neutral content to Ollama format (string)
 			const ollamaContent = convertToOllamaContentBlocks(content)

@@ -213,7 +213,7 @@ export class VertexHandler extends BaseProvider implements SingleCompletionHandl
 	 * @param content The content blocks to count tokens for
 	 * @returns A promise resolving to the token count
 	 */
-	override async countTokens(content: NeutralMessageContent): Promise<number> {
+	override async countTokens(content: string | NeutralMessageContent): Promise<number> {
 		try {
 			// Use the base provider's token counting for all model types
 			// Vertex AI doesn't have a native token counting API that works consistently

@@ -1,4 +1,3 @@
-import * as vscode from "vscode"
 import * as path from "path"
 import soundPlay from "sound-play"
 
@@ -38,7 +37,7 @@ export const setSoundEnabled = (enabled: boolean): void => {
 
 /**
  * Set sound volume
- * @param volume number
+ * @param newVolume number
  */
 export const setSoundVolume = (newVolume: number): void => {
 	volume = newVolume
@@ -60,7 +59,8 @@ export const playSound = (filepath: string): void => {
 		}
 
 		if (!isWAV(filepath)) {
-			throw new Error("Only wav files are supported.")
+			console.error("Only wav files are supported.")
+			return
 		}
 
 		const currentTime = Date.now()
@@ -69,19 +69,10 @@ export const playSound = (filepath: string): void => {
 		}
 
 		sound(filepath, volume).catch((error: unknown) => {
-			if (error instanceof Error) {
-				throw new Error(`Failed to play sound effect: ${error.message}`)
-			} else {
-				throw new Error("Failed to play sound effect: An unknown error occurred")
-			}
+			console.error('Failed to play sound:', error)
 		})
-
 		lastPlayedTime = currentTime
-	} catch (error: unknown) {
-		if (error instanceof Error) {
-			vscode.window.showErrorMessage(error.message).then(r => )
-		} else {
-			vscode.window.showErrorMessage("An unknown error occurred while playing sound.").then(r => )
-		}
+	} catch (error) {
+		console.error('Unexpected error in playSound:', error)
 	}
 }

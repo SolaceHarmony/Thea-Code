@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
-import { Browser, Page, chromium } from "playwright" // Changed to playwright
+import { Browser, chromium, Page } from "playwright" // Changed to playwright
 import * as cheerio from "cheerio"
-import TurndownService from "turndown"
+import { NodeHtmlMarkdown } from "node-html-markdown"
 
 export class UrlContentFetcher {
 	private context: vscode.ExtensionContext
@@ -62,10 +62,9 @@ export class UrlContentFetcher {
 		const $ = cheerio.load(content)
 		$("script, style, nav, footer, header").remove()
 
-		// convert cleaned HTML to markdown
-		const turndownService = new TurndownService()
-		const markdown = turndownService.turndown($.html())
+		// convert cleaned HTML to markdown using node-html-markdown
+		
 
-		return markdown
+		return NodeHtmlMarkdown.translate($.html())
 	}
 }

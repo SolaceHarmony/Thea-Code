@@ -43,7 +43,7 @@ export interface ApiHandler {
 	 * @returns A promise resolving to the token count
 	 */
 	// Updated to use NeutralMessageContent
-	countTokens(content: NeutralMessageContent): Promise<number>
+	countTokens(content: string | NeutralMessageContent): Promise<number>
 }
 
 export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
