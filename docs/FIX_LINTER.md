@@ -256,3 +256,145 @@ grep -R --line-number "\bany\b" src | wc -l
 - Prefer getErrorMessage(err) and getErrorCode(err) from src/shared/errors.ts when logging.
 - When rethrowing unknown, wrap with toError(err) to preserve stack/message safely.
 - Avoid accessing err.message/err.code directly on unknown; add narrow guards or use helpers.
+
+# Lint Hardening & Suppression Remediation Plan
+
+_Last updated: 2025-09-19_
+
+## 1. Executive Summary
+The codebase currently relies on broad, global ESLint rule disablements and large directory ignore patterns rather than targeted, contextual suppressions. This eliminates meaningful static feedback for core safety, correctness, and hygiene concerns (e.g. unsafe argument/return usage, unhandled promises, unused variables). There are **no inline suppressions** (good), but that is only because rules are disabled globally. This document defines a structured, low‑risk path to progressively restore lint signal while avoiding PR noise or team disruption.
+
+## 2. Current State Snapshot
+| Aspect | Status | Notes |
+|--------|--------|-------|
+| Inline `eslint-disable` / `@ts-ignore` / `@ts-nocheck` | None found | Clean of ad‑hoc silencing. |
+| Global rule disables | Extensive | Many core TypeScript safety rules set to `off`. |
+| Directory ignores | Very broad | Tests, scripts, e2e, benchmarks, locales, assets ignored. |
+| Partial re‑enabling attempt | Present (comments about re-adding `webview-ui` / `e2e`) | But still re‑suppressed by other patterns. |
+| Type safety posture | Degraded | `no-unsafe-*`, `no-explicit-any`, `no-misused-promises` all off. |
+| Technical risk | Elevated | Silent logic / async issues may slip through review. |
+
+## 3. Key Global Suppressions (From `eslint.config.mjs`)
+Disabled (all set to `off`):
+- `@typescript-eslint/no-unsafe-argument`
+- `@typescript-eslint/no-unsafe-return`
+- `@typescript-eslint/restrict-plus-operands`
+- `@typescript-eslint/restrict-template-expressions`
+- `@typescript-eslint/unbound-method`
+- `@typescript-eslint/no-misused-promises`
+- `@typescript-eslint/require-await`
+- `@typescript-eslint/no-unused-vars`
+- `@typescript-eslint/no-explicit-any`
+- `@typescript-eslint/no-require-imports`
+- `no-undef`
+- `no-import-assign`
+
+## 4. Major Ignore Patterns
+Ignored directories/files (selected examples):
+- `scripts/`, `benchmark/`, `test/`, `src/e2e/src/**`
+- All tests via glob: `src/**/__tests__/**`, `src/**/*.test.ts(x)`
+- Non-code formats: `**/*.md`, `**/*.json`, `**/*.yaml` (could host config logic)
+- Assets, locales, mocks — understandable, but a few TS utility files sometimes creep into these.
+
+### Impact
+1. **Tests not linted** → flaky / dead helpers accumulate.
+2. **Automation (scripts) unreviewed** → deployment / release logic risk.
+3. **Benchmarks & e2e** → drift, outdated API usage undetected.
+
+## 5. Risks of Maintaining Status Quo
+| Risk | Description | Potential Consequence |
+|------|-------------|-----------------------|
+| Silent unsafe usage | `no-unsafe-return/argument` disabled | Runtime type mismatch / subtle logic errors. |
+| Async footguns | `no-misused-promises`, `require-await` off | Lost promise rejections, race conditions, swallowed failures. |
+| Hidden dead code | `no-unused-vars` off | Cognitive load + missed refactor opportunities. |
+| Weak typing discipline | `no-explicit-any` off w/ other disables | Erodes reliability of TS as a design tool. |
+| Config / test drift | Entire categories un-linted | Slower onboarding, brittle CI. |
+
+## 6. Guiding Principles for Remediation
+1. **Progressive Activation** – Introduce rules in `warn` mode first; escalate once warning counts decline.
+2. **Differential Enforcement** – Apply stricter rules to *new or recently touched* files (git diff basis).
+3. **Stable Baseline** – Record current warning counts; CI blocks only if they *increase*.
+4. **No Surprise PR Noise** – Avoid mass auto-fix commits until after consensus; batch strategically.
+5. **Visibility First** – Prefer “warn” over silence; devs learn patterns before enforcement.
+6. **Document Justification** – Any permanent disable must include rationale + expiry review date.
+
+## 7. Phased Rollout Plan
+| Phase | Duration | Focus | Exit Criteria |
+|-------|----------|-------|---------------|
+| 0 – Baseline | Day 0 | Add reporting only | Baseline JSON snapshot stored. |
+| 1 – Visibility | Week 1–2 | Turn critical safety rules to `warn` | < 5% increase in build time; devs acknowledge. |
+| 2 – Containment | Week 3–4 | Enforce (error) on changed files only | Pre-commit hook passes for 95% of touches. |
+| 3 – Expansion | Week 5–6 | Include tests & scripts (warn) | Test dirs yield < X warnings per KLoC. |
+| 4 – Hardening | Week 7+ | Escalate key rules to `error` | Warning trend negative for 3 successive weeks. |
+| 5 – Tighten Typing | Continuous | Address `any`, unsafe ops | `any` usage reduced by 30% vs baseline. |
+
+## 8. Initial Rule Reintroduction (Phase 1: warn)
+Safety / correctness (highest leverage):
+- `@typescript-eslint/no-misused-promises`
+- `@typescript-eslint/no-unsafe-return`
+- `@typescript-eslint/no-unsafe-argument`
+- `@typescript-eslint/restrict-plus-operands`
+- `@typescript-eslint/restrict-template-expressions` (allow number)
+- `@typescript-eslint/unbound-method`
+- `@typescript-eslint/no-unused-vars` (configure ignore patterns)
+- `@typescript-eslint/require-await`
+- `@typescript-eslint/no-explicit-any` (warn only)
+- Add (new): `@typescript-eslint/no-floating-promises` (warn)
+
+## 9. Example ESLint Config Patch (Conceptual)
+```diff
+ // In eslint.config.mjs (add BEFORE broad override)
++{
++  files: ["src/**/*.{ts,tsx}"],
++  rules: {
++    "@typescript-eslint/no-misused-promises": ["warn", { checksVoidReturn: { attributes: false }}],
++    "@typescript-eslint/no-unsafe-return": "warn",
++    "@typescript-eslint/no-unsafe-argument": "warn",
++    "@typescript-eslint/restrict-plus-operands": "warn",
++    "@typescript-eslint/restrict-template-expressions": ["warn", { allowNumber: true }],
++    "@typescript-eslint/unbound-method": "warn",
++    "@typescript-eslint/no-floating-promises": "warn",
++    "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
++    "@typescript-eslint/require-await": "warn",
++    "@typescript-eslint/no-explicit-any": "warn"
++  }
++},
++{
++  files: ["scripts/**/*.{ts,js}"],
++  rules: {
++    "@typescript-eslint/no-require-imports": "off"
++  }
++},
++{
++  files: ["src/**/__tests__/**", "src/**/*.test.{ts,tsx}"],
++  env: { node: true, mocha: true },
+```
+
+---
+
+## 10. Local Lint Baseline (no CI enforcement)
+Per project policy, we do not run GitHub Actions or other CI guards that incur cost. Use local/build-time checks instead:
+
+- npm run lint — full lint; errors fail the build (used by npm run build).
+- Optional baseline workflow for your branch:
+  - npm run lint:baseline — capture baseline JSON at lint-output/eslint-baseline.json.
+  - npm run lint:compare-baseline — compare current vs baseline and exit non-zero on regression.
+
+Notes:
+- Do not commit the baseline unless you are intentionally updating it; if you do, explain the rationale in your PR description.
+- Maintainers and contributors can run these locally; there is no CI enforcement.
+
+## 11. Developer Quick Start
+- npm run lint — full lint, errors fail build.
+- npm run lint:json — produce JSON at lint-output/current.json.
+- npm run lint:baseline — capture baseline JSON at lint-output/eslint-baseline.json.
+- npm run lint:compare-baseline — compare current vs baseline and exit non-zero on regression.
+
+## 12. Posture Notes
+- JS files are linted under a JS-only profile; TypeScript type-aware rules are disabled for JS to avoid false signal.
+- TS files across src, tests, and webview-ui use type-aware rules with two subtle safety rules in warn-only mode:
+  - @typescript-eslint/no-duplicate-type-constituents
+  - @typescript-eslint/no-confusing-void-expression (arrow shorthand and void operator ignored)
+
+## 13. Progress Log (rolling)
+- 2025-09-19: Re-enabled strict linting with pruned ignores; provided baseline compare script for local use; updated docs and contributor guidance; disabled CI workflows per cost policy.

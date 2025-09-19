@@ -11,13 +11,9 @@
 #
 name: "CodeQL"
 
-"on":
-    push:
-        branches: ["main"]
-    pull_request:
-        branches: ["main"]
-    schedule:
-        - cron: "30 18 * * 2"
+# Disabled automatic triggers per project policy (no GitHub Actions spending).
+on:
+  workflow_dispatch: {}
 
 jobs:
     analyze:

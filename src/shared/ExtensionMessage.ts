@@ -259,6 +259,12 @@ export type BrowserActionResult = {
 	logs?: string
 	currentUrl?: string
 	currentMousePosition?: string
+	// Diagnostics and session metadata (optional)
+	captureTimestamp?: number
+	createdNewTab?: boolean
+	reusedTab?: boolean
+	reloaded?: boolean
+	pageCount?: number
 }
 
 export interface TheaAskUseMcpServer {
