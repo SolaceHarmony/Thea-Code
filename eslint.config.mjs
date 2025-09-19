@@ -61,7 +61,6 @@ const commonTsConfig = {
 		"webview-ui/build/**",
 		"webview-ui/dist/**",
 		"test/**/.cache/**", // Ignore test cache artifacts
-		"test/**/*.js", // TEMP: avoid TS rule loader conflict on legacy JS test helpers
 		"src/e2e/.vscode-test.mjs", // Ignore e2e harness file that triggers TS rules under espree
 		"**/.vscode-test.mjs", // TEMP: ignore VSCode test harness ESM files outside src/e2e
 		"node_modules/",
@@ -79,9 +78,6 @@ const commonTsConfig = {
 		"temp_similarity_check.js",
 		"benchmark/", // Re-enabled ignore to fix ESLint parsing issues
 		"src/**/*.js", // Ignore stray compiled JS under src to avoid espree+TS rule conflicts
-		"esbuild.js", // TEMP: avoid TS rule loader conflict on plain JS build script
-		"scripts/**/*.js", // TEMP: avoid TS rule loader conflict on JS scripts
-		"scripts/**/*.mjs", // TEMP: avoid TS rule loader conflict on ESM scripts
 		"src/e2e/src/**",
 		"src/e2e/.vscode-test/**",
 		"**/*.md",
