@@ -1,4 +1,4 @@
-import { expect } from "chai"
+import assert from "node:assert/strict"
 import sinon from "sinon"
 import * as fsp from "fs/promises"
 import path from "path"
@@ -27,24 +27,24 @@ describe("custom-instructions", () => {
     const files = [".Thearules", ".cursorrules", ".windsurfrules"]
 
     // Simulate: first exists, second ENOENT (by message), third EISDIR (by code)
-    readStub.callsFake(async (p: string | Buffer | URL) => {
+    readStub.callsFake((p: string | Buffer | URL) => {
       const fp = String(p)
-      if (fp === path.join(cwd, files[0])) return "first"
-      if (fp === path.join(cwd, files[1])) throw errWith(undefined, "ENOENT: not found")
-      if (fp === path.join(cwd, files[2])) throw errWith("EISDIR")
-      throw new Error("unexpected path " + fp)
+      if (fp === path.join(cwd, files[0])) return Promise.resolve("first")
+      if (fp === path.join(cwd, files[1])) return Promise.reject(errWith(undefined, "ENOENT: not found"))
+      if (fp === path.join(cwd, files[2])) return Promise.reject(errWith("EISDIR"))
+      return Promise.reject(new Error("unexpected path " + fp))
     })
 
     const rules = await loadRuleFiles(cwd)
-    expect(rules).to.contain("# Rules from .Thearules:")
-    expect(rules).to.contain("first")
+    assert.ok(rules.includes("# Rules from .Thearules:"))
+    assert.ok(rules.includes("first"))
     // Non-existing or directory should be omitted silently
-    expect(rules).to.not.contain(".cursorrules")
-    expect(rules).to.not.contain(".windsurfrules")
+    assert.ok(!rules.includes(".cursorrules"))
+    assert.ok(!rules.includes(".windsurfrules"))
 
     // Ensure ordering (first-only)
     const firstIndex = rules.indexOf("# Rules from .Thearules:")
-    expect(firstIndex).to.be.greaterThan(-1)
+    assert.ok(firstIndex > -1)
   })
 
   it("addCustomInstructions: composes language, global, mode, and rules with correct sections and priority", async () => {
@@ -52,13 +52,13 @@ describe("custom-instructions", () => {
     const mode = "architect"
 
     // Stub mode-specific file and generic rules
-    readStub.callsFake(async (p: string | Buffer | URL) => {
+    readStub.callsFake((p: string | Buffer | URL) => {
       const fp = String(p)
-      if (fp.endsWith(`.Thearules-${mode}`)) return "mode-rule-1\nmode-rule-2"
-      if (fp.endsWith(".Thearules")) return "generic-A"
-      if (fp.endsWith(".cursorrules")) return "generic-B"
-      if (fp.endsWith(".windsurfrules")) throw errWith("ENOENT")
-      throw errWith("ENOENT") // any other path
+      if (fp.endsWith(`.Thearules-${mode}`)) return Promise.resolve("mode-rule-1\nmode-rule-2")
+      if (fp.endsWith(".Thearules")) return Promise.resolve("generic-A")
+      if (fp.endsWith(".cursorrules")) return Promise.resolve("generic-B")
+      if (fp.endsWith(".windsurfrules")) return Promise.reject(errWith("ENOENT"))
+      return Promise.reject(errWith("ENOENT")) // any other path
     })
 
     const result = await addCustomInstructions(
@@ -70,37 +70,37 @@ describe("custom-instructions", () => {
     )
 
     // Ensure presence of top scaffold
-    expect(result).to.contain("USER'S CUSTOM INSTRUCTIONS")
+    assert.ok(result.includes("USER'S CUSTOM INSTRUCTIONS"))
 
     // Language section
-    expect(result).to.contain('Language Preference:')
-    expect(result).to.contain('"English" (en)')
+    assert.ok(result.includes("Language Preference:"))
+    assert.ok(result.includes("\"English\" (en)"))
 
     // Global then mode-specific ordering
     const gi = result.indexOf("Global Instructions:")
     const mi = result.indexOf("Mode-specific Instructions:")
-    expect(gi).to.be.lessThan(mi)
+    assert.ok(gi < mi)
 
     // Rules section includes mode-specific rules, then theaIgnore, then generic rules
     const ri = result.indexOf("Rules:")
-    expect(ri).to.be.greaterThan(-1)
+    assert.ok(ri > -1)
     const mri = result.indexOf(`# Rules from .Thearules-${mode}:`)
     const ti = result.indexOf("# .thea_ignore: ignore node_modules")
     const gri = result.indexOf("# Rules from .Thearules:")
-    expect(mri).to.be.greaterThan(ri)
-    expect(ti).to.be.greaterThan(mri)
-    expect(gri).to.be.greaterThan(ti)
+    assert.ok(mri > ri)
+    assert.ok(ti > mri)
+    assert.ok(gri > ti)
 
     // Content checks
-    expect(result).to.contain("mode-rule-1")
-    expect(result).to.contain("generic-A")
-    expect(result).to.contain("generic-B")
+    assert.ok(result.includes("mode-rule-1"))
+    assert.ok(result.includes("generic-A"))
+    assert.ok(result.includes("generic-B"))
   })
 
   it("addCustomInstructions: handles empty cwd by falling back to '.' and warning (non-throwing)", async () => {
     // nothing must throw if cwd is empty; our implementation logs a warning and uses '.'
     readStub.rejects(errWith("ENOENT"))
     const result = await addCustomInstructions("", "", "", "", { language: "en" })
-    expect(result).to.equal("")
+    assert.strictEqual(result, "")
   })
 })
