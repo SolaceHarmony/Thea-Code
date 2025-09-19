@@ -1,6 +1,6 @@
 import * as assert from "assert"
 import * as vscode from "vscode"
-import { CMD } from "../thea-constants"
+import { CMD } from "../e2e/src/thea-constants"
 
 suite("Commands", () => {
   test("core commands are registered", async () => {

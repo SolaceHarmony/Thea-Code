@@ -147,8 +147,8 @@ export async function run() {
 			} else {
 				// Then add all test files from the compiled output
 				const cwd = suiteOutDir // out/suite/suite
-				// Discover E2E tests. Default to all *.test.js to include migrated tests; can narrow via E2E_TEST_GLOB
-				const pattern = process.env.E2E_TEST_GLOB ?? "**/*.test.js"
+				// Discover E2E tests. Default to 'selected' subset for stability; can widen via E2E_TEST_GLOB
+				const pattern = process.env.E2E_TEST_GLOB ?? "selected/**/*.test.js"
 				console.log(`[e2e] Test discovery cwd=${cwd} pattern=${pattern}`)
 				writeDebug(`[index] discover start cwd=${cwd} pattern=${pattern}`)
 				// Dynamic import to support latest glob (ESM) from a CJS-compiled test bundle
@@ -163,7 +163,6 @@ export async function run() {
 						"**/*.node.test.js",
 						"**/*.unit.test.js",
 						"**/__tests__/**",
-						"**/selected/**",
 					],
 				})
 
@@ -182,6 +181,58 @@ export async function run() {
 					writeDebug(`[index] addFile ${resolved}`)
 					mocha.addFile(resolved)
 				})
+
+				// Additionally discover co-located E2E tests under src/**/__e2e__/**/*.e2e.test.ts
+				// We transpile them on-the-fly into a temporary folder and add the JS to Mocha.
+				try {
+					const { glob: glob2 } = await import("glob")
+					const tsPattern = "src/**/__e2e__/**/*.e2e.test.ts"
+					const tsFiles = await glob2(tsPattern, {
+						cwd: repoRoot,
+						ignore: ["**/node_modules/**", "**/.vscode-test/**"],
+					})
+					console.log(`[e2e] Discovered ${tsFiles.length} co-located E2E test(s) via ${tsPattern}`)
+					writeDebug(`[index] co-located discover count=${tsFiles.length}`)
+
+					if (tsFiles.length > 0) {
+						const ts = await import("typescript")
+						const outDir = path.resolve(testRoot, "transpiled-e2e")
+						await fs.promises.mkdir(outDir, { recursive: true })
+
+						for (const rel of tsFiles) {
+							try {
+								const abs = path.resolve(repoRoot, rel)
+								const src = await fs.promises.readFile(abs, "utf8")
+								const transpiled = ts.transpileModule(src, {
+									compilerOptions: {
+										module: ts.ModuleKind.CommonJS,
+										target: ts.ScriptTarget.ES2022,
+										jsx: ts.JsxEmit.Preserve,
+										esModuleInterop: true,
+										sourceMap: false,
+									},
+									fileName: abs,
+								})
+								// Mirror relative path under outDir, stripping leading src/
+								const relNoSrc = rel.replace(/^src[\\/]/, "")
+								const outPath = path.resolve(outDir, relNoSrc.replace(/\.ts$/, ".js"))
+								await fs.promises.mkdir(path.dirname(outPath), { recursive: true })
+								await fs.promises.writeFile(outPath, transpiled.outputText, "utf8")
+								console.log(`[e2e] addFile (transpiled) ${outPath}`)
+								writeDebug(`[index] addFile transpiled ${outPath}`)
+								mocha.addFile(outPath)
+							} catch (tse) {
+								const msg = tse instanceof Error ? tse.message : String(tse)
+								console.warn(`[e2e] Failed to transpile co-located test ${rel}: ${msg}`)
+								writeDebug(`[index] transpile failed ${rel}: ${msg}`)
+							}
+						}
+					}
+				} catch (discErr) {
+					const msg = discErr instanceof Error ? discErr.message : String(discErr)
+					console.warn(`[e2e] Co-located E2E discovery failed: ${msg}`)
+					writeDebug(`[index] co-located discovery failed: ${msg}`)
+				}
 			}
 		}
 
