@@ -1,4 +1,4 @@
-import { type Language, isLanguage } from "../schemas"
+import { type Language, isLanguage } from "../schemas/index.ts"
 
 export { type Language, isLanguage }
 

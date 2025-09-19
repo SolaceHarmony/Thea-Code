@@ -1,8 +1,9 @@
 
-import { GroupOptions, GroupEntry, ModeConfig, PromptComponent, CustomModePrompts } from "../schemas"
-import { TOOL_GROUPS, ToolGroup, ALWAYS_AVAILABLE_TOOLS } from "./tool-groups"
-import { addCustomInstructions } from "../core/prompts/sections/custom-instructions"
-import { AI_IDENTITY_NAME } from "./config/thea-config"
+import { GroupOptions, GroupEntry, ModeConfig, PromptComponent, CustomModePrompts } from "../schemas/index.ts"
+import { TOOL_GROUPS, ALWAYS_AVAILABLE_TOOLS } from "./tool-groups.ts"
+import type { ToolGroup } from "../schemas/index.ts"
+import { addCustomInstructions } from "../core/prompts/sections/custom-instructions.ts"
+import { AI_IDENTITY_NAME } from "./config/thea-config.ts"
 
 export type Mode = string
 

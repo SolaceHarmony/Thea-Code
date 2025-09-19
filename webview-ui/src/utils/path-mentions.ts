@@ -2,7 +2,7 @@
  * Utilities for handling path-related operations in mentions
  */
 
-import { formatPath } from "../../../src/shared/formatPath"
+import { formatPath } from "../../../src/shared/formatPath.ts"
 
 /**
  * Converts an absolute path to a mention-friendly path

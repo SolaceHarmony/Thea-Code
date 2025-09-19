@@ -178,7 +178,9 @@ const copyLocalesFiles = {
 	name: "copy-locales-files",
 	setup(build) {
 		build.onEnd(() => {
-			copyLocaleFiles().then(r => )
+			copyLocaleFiles().catch((e) => {
+				console.error("Error copying locale files:", e)
+			})
 		})
 	},
 }

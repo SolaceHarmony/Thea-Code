@@ -1,4 +1,4 @@
-import { SECRET_STATE_KEYS, ProviderSettings } from "../schemas"
+import { SECRET_STATE_KEYS, ProviderSettings } from "../schemas/index.ts"
 
 export function checkExistKey(config: ProviderSettings | undefined) {
 	if (!config) {
