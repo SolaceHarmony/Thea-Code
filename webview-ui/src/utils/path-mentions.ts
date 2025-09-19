@@ -11,6 +11,7 @@ import { formatPath } from "../../../src/shared/formatPath.ts"
  *
  * @param path The path to convert
  * @param cwd The current working directory
+ * @param os The operating system identifier (e.g., 'win32', 'darwin', 'linux')
  * @returns A mention-friendly path
  */
 export function convertToMentionPath(path: string, cwd?: string, os?: string): string {

@@ -1,8 +1,7 @@
 import fs from "fs/promises"
 import path from "path"
 
-import { LANGUAGES } from "../../../shared/language.ts"
-import { isLanguage } from "../../../schemas/index.ts"
+import { LANGUAGES, isLanguage } from "../../../shared/language"
 
 async function safeReadFile(filePath: string): Promise<string> {
 	try {
@@ -108,12 +107,12 @@ export async function addCustomInstructions(
 	}
 
 	// Add global instructions first
-	if (typeof globalCustomInstructions === "string" && globalCustomInstructions.trim()) {
+	if (globalCustomInstructions.trim()) {
 		sections.push(`Global Instructions:\n${globalCustomInstructions.trim()}`)
 	}
 
 	// Add mode-specific instructions after
-	if (typeof modeCustomInstructions === "string" && modeCustomInstructions.trim()) {
+	if (modeCustomInstructions.trim()) {
 		sections.push(`Mode-specific Instructions:\n${modeCustomInstructions.trim()}`)
 	}
 

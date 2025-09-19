@@ -448,8 +448,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 				if (showMenu) {
 					if (newValue.startsWith("/")) {
 						// Handle slash command
-						const query = newValue
-						setSearchQuery(query)
+						setSearchQuery(newValue)
 						setSelectedMenuIndex(0)
 					} else {
 						// Existing @ mention handling
