@@ -141,6 +141,8 @@ export class VertexModelProvider implements ModelProvider {
     }
   }
 
+  async listModels(forceRefresh = false): Promise<ModelListing[]> { return this.getModels(forceRefresh) }
+
   async getModels(forceRefresh = false): Promise<ModelListing[]> {
     const cacheKey = `vertex_models_${this.projectId}_${this.region}`
     

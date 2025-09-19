@@ -7,7 +7,7 @@ import * as path from "path"
  */
 export interface WorkspaceFolderLike { uri: { fsPath: string } }
 
-export function isPathOutsideWorkspace(filePath: string, workspaceFolders?: WorkspaceFolderLike[]): boolean {
+export function isPathOutsideWorkspace(filePath: string, workspaceFolders?: readonly WorkspaceFolderLike[]): boolean {
 	// If there are no workspace folders, consider everything outside workspace for safety
 	const folders = workspaceFolders ?? []
 	if (folders.length === 0) {

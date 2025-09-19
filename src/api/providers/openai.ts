@@ -249,46 +249,25 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 
 	override async countTokens(content: string | NeutralMessageContent): Promise<number> {
 		try {
-			// Convert neutral content to OpenAI content blocks for API call
-			const openAiContentBlocks = convertToOpenAiContentBlocks(content)
-
-			// Use the current model
+			// Normalize to NeutralMessageContent if string provided
+			const normalized: NeutralMessageContent = typeof content === "string" ? [{ type: "text", text: content }] : content
+			const openAiContentBlocks = convertToOpenAiContentBlocks(normalized)
 			const actualModelId = this.getModel().id
-
-			// Create a dummy message with the content for the token counting API
 			const dummyMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-				role: "user", // Token counting is typically done on user input
-				content: "", // Initialize with empty string
+				role: "user",
+				content: openAiContentBlocks as OpenAI.Chat.ChatCompletionContentPart[]
 			}
-
-			// Set the content based on its type
-			if (typeof content === "string") {
-				// If it's a simple string, use it directly
-				dummyMessage.content = content
-			} else {
-				// Otherwise use the array of content blocks
-				// Cast to OpenAI.Chat.ChatCompletionContentPart[] which is the expected type
-				dummyMessage.content = openAiContentBlocks as OpenAI.Chat.ChatCompletionContentPart[]
-			}
-
 			const response = await this.client.chat.completions.create({
 				model: actualModelId,
 				messages: [dummyMessage],
 				stream: false,
 			})
-
-			// If usage information is available, return the prompt tokens
 			if (response.usage) {
 				return response.usage.prompt_tokens
 			}
-
-			// Fallback to base implementation if no usage information
 			return super.countTokens(content)
 		} catch (error) {
-			// Log error but fallback to tiktoken estimation
 			console.warn("OpenAI token counting failed, using fallback", error)
-
-			// Use the base provider's implementation as fallback
 			return super.countTokens(content)
 		}
 	}
