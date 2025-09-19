@@ -1,8 +1,8 @@
-import { mentionRegex } from "../../../src/shared/context-mentions"
+import { mentionRegex } from "../../../src/shared/context-mentions.ts"
 import { Fzf } from "fzf"
-import { ModeConfig } from "../../../src/shared/modes"
+import { ModeConfig } from "../../../src/shared/modes.ts"
 // Removed: import * as path from "path"
-import { formatPath } from "../../../src/shared/formatPath"
+import { formatPath } from "../../../src/shared/formatPath.ts"
 
 export interface SearchResult {
 	path: string

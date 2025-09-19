@@ -5,16 +5,16 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useDeepCompareEffect, useEvent, useMount } from "react-use"
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso"
 import styled from "styled-components"
-import { SPECIFIC_STRINGS } from "../../../../src/shared/config/thea-config"
+import { SPECIFIC_STRINGS } from "../../../../src/shared/config/thea-config.ts"
 import {
 	TheaAsk, // Corrected import
 	TheaMessage, // Corrected import
 	TheaSayBrowserAction, // Corrected import
 	TheaSayTool,
 	ExtensionMessage,
-} from "../../../../src/shared/ExtensionMessage" // Corrected imports
-import { McpServer, McpTool } from "../../../../src/shared/mcp"
-import { findLast } from "../../../../src/shared/array"
+} from "../../../../src/shared/ExtensionMessage.ts" // Corrected imports
+import { McpServer, McpTool } from "../../../../src/shared/mcp.ts"
+import { findLast } from "../../../../src/shared/array.ts"
 import { combineApiRequests } from "../../../../src/shared/combineApiRequests"
 import { combineCommandSequences } from "../../../../src/shared/combineCommandSequences"
 import { getApiMetrics } from "../../../../src/shared/getApiMetrics"

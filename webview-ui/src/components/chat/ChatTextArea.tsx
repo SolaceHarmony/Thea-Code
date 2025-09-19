@@ -2,10 +2,10 @@ import React, { forwardRef, useCallback, useEffect, useLayoutEffect, useMemo, us
 import { useEvent } from "react-use"
 import DynamicTextArea from "react-textarea-autosize"
 
-import { mentionRegex, mentionRegexGlobal } from "../../../../src/shared/context-mentions"
-import { WebviewMessage } from "../../../../src/shared/WebviewMessage"
-import { Mode, getAllModes } from "../../../../src/shared/modes"
-import { ExtensionMessage } from "../../../../src/shared/ExtensionMessage"
+import { mentionRegex, mentionRegexGlobal } from "../../../../src/shared/context-mentions.ts"
+import { WebviewMessage } from "../../../../src/shared/WebviewMessage.ts"
+import { Mode, getAllModes } from "../../../../src/shared/modes.ts"
+import { ExtensionMessage } from "../../../../src/shared/ExtensionMessage.ts"
 
 import { vscode } from "@/utils/vscode"
 import { useExtensionState } from "@/context/ExtensionStateContext"
