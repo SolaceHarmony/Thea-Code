@@ -260,8 +260,8 @@ export class BrowserSession {
 			screenshotBase64 = (await this.page.screenshot({
 				...options,
 				type: screenshotPrefs.format,
-				...(screenshotPrefs.format === "webp" && { quality: screenshotPrefs.quality })
-			})) as string
+				...(screenshotPrefs.format === "webp" && { quality: screenshotPrefs.quality }),
+			})) as unknown as string
 
 			if (!screenshotBase64) {
 				throw new Error("Empty base64 string returned from screenshot")

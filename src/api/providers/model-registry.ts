@@ -39,7 +39,7 @@ export interface ModelProvider {
 	 * Get the default model ID for this provider
 	 * @returns The default model ID
 	 */
-	getDefaultModelId(): string
+	getDefaultModelId(): string | Promise<string>
 
 	/** Optional: configure provider with API options */
 	configure?(options: ApiHandlerOptions): void

@@ -98,8 +98,7 @@ export class AnthropicModelProvider implements ModelProvider {
 			contextWindow: 200_000, // Default for Claude 3+
 			supportsImages: true,
 			supportsPromptCache: true,
-			supportsComputerUse: false,
-			supportsAssistantTool: false
+			supportsComputerUse: false
 		}
 		
 		// Detect model family and tier
@@ -142,7 +141,6 @@ export class AnthropicModelProvider implements ModelProvider {
 				supportsImages: false,
 				supportsPromptCache: false,
 				supportsComputerUse: false,
-				supportsAssistantTool: false,
 				inputPrice: 8,
 				outputPrice: 24
 			}

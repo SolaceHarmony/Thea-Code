@@ -133,6 +133,7 @@ export class MistralModelProvider implements ModelProvider {
     this.apiKey = options.mistralApiKey || ""
   }
 
+  async listModels(forceRefresh = false): Promise<ModelListing[]> { return this.getModels(forceRefresh) }
   async getModels(forceRefresh = false): Promise<ModelListing[]> {
     const cacheKey = "mistral_models"
     

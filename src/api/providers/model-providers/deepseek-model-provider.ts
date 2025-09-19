@@ -79,6 +79,10 @@ export class DeepSeekModelProvider implements ModelProvider {
     this.apiKey = options.deepSeekApiKey || ""
   }
 
+  async listModels(forceRefresh = false): Promise<ModelListing[]> {
+    return this.getModels(forceRefresh)
+  }
+
   async getModels(forceRefresh = false): Promise<ModelListing[]> {
     const cacheKey = "deepseek_models"
     
@@ -133,12 +137,9 @@ export class DeepSeekModelProvider implements ModelProvider {
     
     for (const model of data.data || []) {
       const modelId = model.id
-      
-      // Get capabilities from known models or derive them
       const capabilities = this.getModelCapabilities(modelId)
-      
       models.push({
-        modelId,
+        id: modelId,
         info: capabilities,
       })
     }

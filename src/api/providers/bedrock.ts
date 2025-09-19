@@ -606,8 +606,7 @@ Please check:
 						modelId,
 						errorMessage: validation.errorMessage,
 					})
-					yield { type: "text", text: `Error: ${validation.errorMessage || "Invalid ARN format. ARN should follow the pattern: arn:aws:bedrock:region:account-id:resource-type/resource-name"}` }
-					return
+					return `Error: ${validation.errorMessage || "Invalid ARN format. ARN should follow the pattern: arn:aws:bedrock:region:account-id:resource-type/resource-name"}`
 				}
 
 				// Extract region from ARN

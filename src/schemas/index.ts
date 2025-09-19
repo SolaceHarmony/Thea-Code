@@ -107,6 +107,15 @@ export const modelInfoSchema = z.object({
 	supportsComputerUse: z.boolean().optional(),
 	supportsPromptCache: z.boolean(),
 	supportsTemperature: z.boolean().optional(),
+	// Additional capability flags (added to match provider implementations)
+	supportsTopP: z.boolean().optional(),
+	supportsSystemInstructions: z.boolean().optional(),
+	supportsAssistantTool: z.boolean().optional(),
+	reasoningTokens: z.boolean().optional(),
+	// Optional sampling parameter defaults / limits
+	temperature: z.number().optional(),
+	topP: z.number().optional(),
+	topK: z.number().optional(),
 	inputPrice: z.number().optional(),
 	outputPrice: z.number().optional(),
 	cacheWritesPrice: z.number().optional(),
@@ -314,6 +323,8 @@ export const providerSettingsSchema = z.object({
 	apiModelId: z.string().optional(),
 	apiKey: z.string().optional(),
 	anthropicBaseUrl: z.string().optional(),
+	anthropicModelId: z.string().optional(), // added for backward compatibility
+	anthropicModelInfo: modelInfoSchema.nullish(),
 	// Glama
 	glamaModelId: z.string().optional(),
 	glamaModelInfo: modelInfoSchema.nullish(),
@@ -406,6 +417,8 @@ const providerSettingsRecord: ProviderSettingsRecord = {
 	apiModelId: undefined,
 	apiKey: undefined,
 	anthropicBaseUrl: undefined,
+	anthropicModelId: undefined,
+	anthropicModelInfo: undefined,
 	// Glama
 	glamaModelId: undefined,
 	glamaModelInfo: undefined,
