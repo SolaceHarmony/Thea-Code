@@ -37,7 +37,7 @@ i18next.use(initReactI18next).init({
 	interpolation: {
 		escapeValue: false, // React already escapes by default
 	},
-}).then(r => )
+})
 
 export function loadTranslations() {
 	Object.entries(translations).forEach(([lang, namespaces]) => {
