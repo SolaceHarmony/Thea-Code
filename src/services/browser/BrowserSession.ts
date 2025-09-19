@@ -148,10 +148,9 @@ export class BrowserSession {
 			// Remote browser connection is enabled
 			const remoteConnected = await this.connectToRemoteBrowser()
 
-			// If all remote connection attempts fail, fall back to local browser
+			// If all remote connection attempts fail, fail loudly (no implicit local fallback)
 			if (!remoteConnected) {
-				console.log("Falling back to local browser")
-				await this.launchLocalBrowser()
+				throw new Error("Failed to connect to remote browser; no fallback to local is performed")
 			}
 		}
 	}
@@ -214,44 +213,44 @@ export class BrowserSession {
 		this.page.on("pageerror", errorListener)
 
 		try {
-			await action(this.page)
-		} catch (err) {
-			if (!(err instanceof TimeoutError)) {
-				const msg = err instanceof Error ? err.message : String(err)
-				logs.push(`[Error] ${msg}`)
-			}
-		}
-
-		// Wait for console inactivity, with a timeout
-		await pWaitFor(() => Date.now() - lastLogTs >= 500, {
-			timeout: 3_000,
-			interval: 100,
-		}).catch(() => {})
-
-		// Get viewport dimensions and user preferences
-		const viewport = this.getViewport()
-		const screenshotPrefs = this.getScreenshotPreferences()
-
-		let options: ScreenshotOptions = {
-			encoding: "base64",
-			fullPage: screenshotPrefs.fullPage,
-			
-			// Enable clipping if the user has enabled it in settings
-			...(this.context.globalState.get<boolean>("useClipping") && {
-				clip: {
-					x: 0,
-					y: 0,
-					width: viewport.width,
-					height: viewport.height,
+			try {
+				await action(this.page)
+			} catch (err) {
+				if (!(err instanceof TimeoutError)) {
+					const msg = getErrorMessage(err)
+					logs.push(`[Error] ${msg}`)
 				}
-			}),
-		}
+			}
 
-		let screenshotBase64: string
-		let screenshot: string | undefined
+			// Wait for console inactivity, with a timeout
+			await pWaitFor(() => Date.now() - lastLogTs >= 500, {
+				timeout: 3_000,
+				interval: 100,
+			}).catch(() => {})
 
-		// Try preferred format first without relying on throw/catch for control flow
-		try {
+			// Get viewport dimensions and user preferences
+			const viewport = this.getViewport()
+			const screenshotPrefs = this.getScreenshotPreferences()
+
+			let options: ScreenshotOptions = {
+				encoding: "base64",
+				fullPage: screenshotPrefs.fullPage,
+				
+				// Enable clipping if the user has enabled it in settings
+				...(this.context.globalState.get<boolean>("useClipping") && {
+					clip: {
+						x: 0,
+						y: 0,
+						width: viewport.width,
+						height: viewport.height,
+					}
+				}),
+			}
+
+			let screenshotBase64: string
+			let screenshot: string | undefined
+
+			// Capture screenshot using the configured format; no implicit fallbacks
 			const result = (await this.page.screenshot({
 				...options,
 				type: screenshotPrefs.format,
@@ -262,40 +261,27 @@ export class BrowserSession {
 				screenshotBase64 = base
 				screenshot = `data:image/${screenshotPrefs.format};base64,${screenshotBase64}`
 			}
-		} catch (error) {
-			console.log(`${screenshotPrefs.format} screenshot failed: ${getErrorMessage(error)}, falling back to PNG format`)
-		}
 
-		// Fallback to PNG if preferred format was not captured
-		if (!screenshot) {
-			try {
-				const result = (await this.page.screenshot({
-					...options,
-					type: "png",
-				})) as unknown
-				const base = typeof result === "string" ? result : (result as string)
-				if (base && base.length > 0) {
-					screenshotBase64 = base
-					screenshot = `data:image/png;base64,${screenshotBase64}`
-				}
-			} catch (pngError) {
-				console.error(`PNG screenshot also failed: ${getErrorMessage(pngError)}`)
+			if (!screenshot) {
+				throw new Error("Failed to capture screenshot")
 			}
-		}
 
-		if (!screenshot) {
-			throw new Error("Failed to capture screenshot")
-		}
+			// Cap logs length to avoid oversized IPC payloads (100 KB)
+			const joined = logs.join("\n")
+			const maxLen = 100_000
+			const finalLogs = joined.length > maxLen ? `${joined.slice(0, maxLen)}\n[logs truncated at ${maxLen} chars]` : joined
 
-		// this.page.removeAllListeners() <- causes the page to crash!
-		this.page.off("console", consoleListener)
-		this.page.off("pageerror", errorListener)
-
-		return {
-			screenshot,
-			logs: logs.join("\n"),
-			currentUrl: this.page.url(),
-			currentMousePosition: this.currentMousePosition,
+			return {
+				screenshot,
+				logs: finalLogs,
+				currentUrl: this.page.url(),
+				currentMousePosition: this.currentMousePosition,
+				captureTimestamp: Date.now(),
+			}
+		} finally {
+			// Ensure listeners are always removed even on error
+			this.page.off("console", consoleListener)
+			this.page.off("pageerror", errorListener)
 		}
 	}
 
@@ -319,8 +305,10 @@ export class BrowserSession {
 	 * Navigate to a URL with standard loading options
 	 */
 	private async navigatePageToUrl(page: Page, url: string): Promise<void> {
-		await page.goto(url, { timeout: 7_000, waitUntil: ["domcontentloaded", "networkidle2"] })
-		await this.waitTillHTMLStable(page)
+		const navTimeout = this.context.globalState.get<number>("pageGotoTimeoutMs") ?? 7_000
+		const htmlStableTimeout = this.context.globalState.get<number>("htmlStableTimeoutMs") ?? 5_000
+		await page.goto(url, { timeout: navTimeout, waitUntil: ["domcontentloaded", "networkidle2"] })
+		await this.waitTillHTMLStable(page, htmlStableTimeout)
 	}
 
 	/**
@@ -335,9 +323,11 @@ export class BrowserSession {
 		this.page = await this.browser.newPage()
 		
 		// Navigate to the URL
-		return this.doAction(async (page) => {
+		const res = await this.doAction(async (page) => {
 			await this.navigatePageToUrl(page, url)
 		})
+		const pageCount = (await this.browser.pages()).length
+		return { ...res, createdNewTab: true, pageCount }
 	}
 
 	async navigateToUrl(url: string): Promise<BrowserActionResult> {
@@ -385,9 +375,11 @@ export class BrowserSession {
 				console.log(`Root domain: ${this.getRootDomain(currentUrl)}`)
 				console.log(`New URL: ${normalizedNewUrl}`)
 				// Navigate to the new URL
-				return this.doAction(async (page) => {
+				const res = await this.doAction(async (page) => {
 					await this.navigatePageToUrl(page, normalizedNewUrl)
 				})
+				const pageCount = (await this.browser.pages()).length
+				return { ...res, reusedTab: true, pageCount }
 			} else {
 				console.log(`Tab with domain ${rootDomain} already exists, and URL is the same: ${normalizedNewUrl}`)
 				// URL is the same, just reload the page to ensure it's up to date
@@ -395,10 +387,14 @@ export class BrowserSession {
 				console.log(`Current URL: ${currentUrl}`)
 				console.log(`Root domain: ${this.getRootDomain(currentUrl)}`)
 				console.log(`New URL: ${normalizedNewUrl}`)
-				return this.doAction(async (page) => {
-					await page.reload({ timeout: 7_000, waitUntil: ["domcontentloaded", "networkidle2"] })
-					await this.waitTillHTMLStable(page)
+				const res = await this.doAction(async (page) => {
+					const navTimeout = this.context.globalState.get<number>("pageGotoTimeoutMs") ?? 7_000
+					const htmlStableTimeout = this.context.globalState.get<number>("htmlStableTimeoutMs") ?? 5_000
+					await page.reload({ timeout: navTimeout, waitUntil: ["domcontentloaded", "networkidle2"] })
+					await this.waitTillHTMLStable(page, htmlStableTimeout)
 				})
+				const pageCount = (await this.browser.pages()).length
+				return { ...res, reloaded: true, reusedTab: true, pageCount }
 			}
 		} else {
 			// No tab with this root domain exists, create a new one

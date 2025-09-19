@@ -323,6 +323,7 @@
     "lint:baseline": "mkdirp lint-output && eslint -c eslint.config.mjs . -f json -o lint-output/eslint-baseline.json",
     "lint:compare-baseline": "npm run lint:json && node scripts/compare-lint-baseline.mjs",
     "lint:changed": "git diff --name-only --diff-filter=ACMRT origin/main...HEAD | xargs -r eslint -c eslint.config.mjs --max-warnings=0",
+    "metrics:any": "node scripts/analyze-any-usage.mjs",
     "version": "npm run package && npm run verify",
     "generateChatCommandsClass": "node -e \"require('./scripts/generate-types.mjs').generateChatCommandsClass();\"",
     "dev": "npm run webview:dev",
@@ -348,7 +349,7 @@
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "pretest:unit": "npm run kill:tests",
-    "test:unit": "NODE_ENV=test THEA_DISABLE_MCP_SDK=1 THEA_SKIP_MCP_PORT_WAIT=1 THEA_SILENT_MCP_LOGS=1 mocha --exit -r tsx -r src/test/mocha-global.ts -t 20000 src/shared/__tests__/array.test.ts src/shared/__tests__/formatPath.test.ts src/shared/__tests__/language.test.ts src/shared/__tests__/vsCodeSelectorUtils.test.ts src/shared/__tests__/experiments.test.ts src/shared/__tests__/doesFileMatchRegex.test.ts src/shared/__tests__/context-mentions.test.ts src/shared/__tests__/support-prompts.test.ts src/services/mcp/providers/__tests__/EmbeddedMcpProvider.mocha.test.ts src/api/providers/__mocha__/openai.mocha.test.ts src/api/providers/__mocha__/lmstudio.mocha.test.ts src/api/providers/__mocha__/ollama.mocha.test.ts src/api/transform/__tests__/neutral-ollama-format.test.ts src/core/prompts/sections/__tests__/custom-instructions.mocha.test.ts src/shared/__tests__/checkExistApiConfig.test.ts",
+    "test:unit": "NODE_ENV=test THEA_DISABLE_MCP_SDK=1 THEA_SKIP_MCP_PORT_WAIT=1 THEA_SILENT_MCP_LOGS=1 mocha --exit -r tsx -r src/test/mocha-global.ts -t 20000 src/shared/__tests__/array.test.ts src/shared/__tests__/formatPath.test.ts src/shared/__tests__/language.test.ts src/shared/__tests__/vsCodeSelectorUtils.test.ts src/shared/__tests__/experiments.test.ts src/shared/__tests__/doesFileMatchRegex.test.ts src/shared/__tests__/context-mentions.test.ts src/shared/__tests__/support-prompts.test.ts src/services/mcp/providers/__tests__/EmbeddedMcpProvider.mocha.test.ts src/api/providers/__mocha__/openai.mocha.test.ts src/api/providers/__mocha__/lmstudio.mocha.test.ts src/api/providers/__mocha__/ollama.mocha.test.ts src/api/transform/__tests__/neutral-ollama-format.test.ts src/core/prompts/sections/__tests__/custom-instructions.mocha.test.ts src/shared/__tests__/checkExistApiConfig.test.ts src/shared/__tests__/getToolsForMode.test.ts src/services/browser/__tests__/BrowserSession.internals.mocha.test.ts",
     "kill:tests": "pkill -f 'mocha -r tsx' || true; pkill -f 'node .*mocha' || true; pkill -f 'uv tool uvx' || true; pkill -f 'markitdown-mcp' || true; pkill -f 'imagesorcery-mcp' || true"
   },
   "dependencies": {

@@ -179,3 +179,9 @@ By submitting a pull request, you agree that your contributions will be licensed
 - Avoid chai/expect-style assertion chains; prefer straightforward assertions.
 - Always restore stubs/spies in afterEach using sinon.restore().
 - Do not suppress unsafe TypeScript rules; address violations or justify with narrowly-scoped inline comments including rationale and expiry.
+
+## Lint Policy
+
+- We do not use GitHub Actions for enforcement. Lint runs locally and during builds; ensure your changes pass `npm run lint`.
+- Aim not to introduce new warnings. You can optionally run `npm run lint:compare-baseline` locally to check against your own baseline.
+- If you intentionally update the baseline, include the rationale in your PR description; do not rely on CI artifacts.

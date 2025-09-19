@@ -63,28 +63,51 @@ export async function activate(context: vscode.ExtensionContext) {
 
 		// Register a hidden E2E command to drive a real browser session using BrowserSession
 		context.subscriptions.push(
-			vscode.commands.registerCommand(`${EXTENSION_NAME}.test.browserCapture`, async (payload: { url: string }) => {
-				try {
-					if (!payload || typeof payload.url !== "string" || payload.url.length === 0) {
-						throw new Error("Invalid payload: { url: string } required")
+			vscode.commands.registerCommand(
+				`${EXTENSION_NAME}.test.browserCapture`,
+				async (payload: {
+					url?: string
+					urls?: string[]
+					format?: "webp" | "png"
+					fullPage?: boolean
+					clipping?: boolean
+					viewport?: string
+				}) => {
+					try {
+						if (!payload || ((!payload.url || payload.url.length === 0) && (!Array.isArray(payload.urls) || payload.urls.length === 0))) {
+							throw new Error("Invalid payload: { url: string } or { urls: string[] } required")
+						}
+						// Force local browser for deterministic tests
+						await context.globalState.update("remoteBrowserEnabled", false)
+						// Stable viewport and clipping/fullPage from payload if provided
+						await context.globalState.update("browserViewportSize", payload.viewport || "900x600")
+						await context.globalState.update("useClipping", payload.clipping ?? false)
+						await context.globalState.update("captureFullPage", payload.fullPage ?? false)
+						// Screenshot preferences
+						if (payload.format) {
+							await context.globalState.update("screenshotFormat", payload.format)
+						}
+						const { BrowserSession } = await import("./services/browser/BrowserSession")
+						const session = new BrowserSession(context)
+						await session.launchBrowser()
+						if (Array.isArray(payload.urls) && payload.urls.length > 0) {
+							const steps = [] as any[]
+							for (const u of payload.urls) {
+								steps.push(await session.navigateToUrl(u))
+							}
+							await session.closeBrowser()
+							return { steps }
+						} else {
+							const result = await session.navigateToUrl(payload.url!)
+							await session.closeBrowser()
+							return result
+						}
+					} catch (err) {
+						outputChannel.appendLine(`[E2E] browserCapture error: ${String(err)}`)
+						throw err
 					}
-					// Force local browser for deterministic tests
-					await context.globalState.update("remoteBrowserEnabled", false)
-					// Default viewport for stable screenshots
-					await context.globalState.update("browserViewportSize", "900x600")
-					// Ensure clipping off for full-page capture in tests unless set elsewhere
-					await context.globalState.update("useClipping", false)
-					const { BrowserSession } = await import("./services/browser/BrowserSession")
-					const session = new BrowserSession(context)
-					await session.launchBrowser()
-					const result = await session.navigateToUrl(payload.url)
-					await session.closeBrowser()
-					return result
-				} catch (err) {
-					outputChannel.appendLine(`[E2E] browserCapture error: ${String(err)}`)
-					throw err
 				}
-			})
+			)
 		)
 
 			// Return a minimal API for tests (avoid unsafe packageJSON access)
