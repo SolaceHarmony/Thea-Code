@@ -29,6 +29,11 @@ const commonTsConfig = {
 		...tseslintPlugin.configs["recommended-type-checked"].rules,
 		"@typescript-eslint/no-base-to-string": "off",
 		"@typescript-eslint/no-explicit-any": "warn",
+		"@typescript-eslint/no-duplicate-type-constituents": "warn",
+		"@typescript-eslint/no-confusing-void-expression": [
+			"warn",
+			{ "ignoreArrowShorthand": true, "ignoreVoidOperator": true }
+		],
 	},
 }
 
@@ -58,74 +63,19 @@ const commonTsConfig = {
 		rules: {},
 	},
 	globalIgnores([
-		"webview-ui/build/**",
-		"webview-ui/dist/**",
-		"test/**/.cache/**", // Ignore test cache artifacts
-		"src/e2e/.vscode-test.mjs", // Ignore e2e harness file that triggers TS rules under espree
-		"**/.vscode-test.mjs", // TEMP: ignore VSCode test harness ESM files outside src/e2e
+		// Generated or vendor outputs only. Keep lint signal in source trees.
 		"node_modules/",
 		"dist/",
 		"build/",
 		"coverage/",
 		"coverage-report/",
-		"*.cjs",
-		"src/__mocks__/**/*",
-		// "webview-ui/", // Removed from ignores so subproject linting works
-		// "e2e/", // Removed from ignores so subproject linting works
-		"jest.config.js",
-		"eslint.config.mjs",
-		".eslintrc.js",
-		"temp_similarity_check.js",
-		"benchmark/", // Re-enabled ignore to fix ESLint parsing issues
-		"src/**/*.js", // Ignore stray compiled JS under src to avoid espree+TS rule conflicts
-		"src/e2e/src/**",
-		"src/e2e/.vscode-test/**",
-		"**/*.md",
-		"**/*.json",
-		"**/*.yaml",
-		"**/*.mmd",
-		"**/*.log",
-		"**/*.bak",
-		".clinerules",
-		".clinerules-code",
-		".dockerignore",
-		".env.sample",
-		".git-blame-ignore-revs",
-		".gitattributes",
-		".gitconfig",
-		"LICENSE",
-		"assets/",
-		"audio/",
-		"cline_docs/",
-		"locales/",
-		"mock/",
-		"package.json",
-		"package-lock.json",
-		// branding.json removed; branding is now static in src/shared/config/thea-config.ts
-		"knip.json",
-		"tsconfig.json",
-		"transformer_architecture.md",
-		"xlstm_vs_transformers_comparison.md",
-		"PRIVACY.md",
-		"README.md",
-		"CHANGELOG.md",
-		"CODE_OF_CONDUCT.md",
-		"CONTRIBUTING.md",
-		"ellipsis.yaml",
-		".idea/",
-		".changeset/",
-		".gitignore",
-		".idx/",
-		".npmrc",
-		".nvmrc",
-		".prettierignore",
-		".rooignore",
-		".roomodes",
-		".vscodeignore",
-		"flake.lock",
-		"flake.nix",
-		"**/*.gitkeep",
-		"**/*.snap",
+		"webview-ui/build/**",
+		"webview-ui/dist/**",
+		"test/**/.cache/**",
+		"benchmark/",
+		// VS Code test harness shims that confuse parsers
+		"src/e2e/.vscode-test.mjs",
+		"**/.vscode-test.mjs",
 	]),
 	{
 		files: [

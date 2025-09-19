@@ -171,3 +171,11 @@ Anyone can contribute code to Thea Code, but we ask that you follow these guidel
 ## Contribution Agreement
 
 By submitting a pull request, you agree that your contributions will be licensed under the same license as the project ([Apache 2.0](LICENSE)).
+
+
+## Testing Conventions
+
+- Use Node's built-in assert/strict and sinon for unit tests.
+- Avoid chai/expect-style assertion chains; prefer straightforward assertions.
+- Always restore stubs/spies in afterEach using sinon.restore().
+- Do not suppress unsafe TypeScript rules; address violations or justify with narrowly-scoped inline comments including rationale and expiry.
