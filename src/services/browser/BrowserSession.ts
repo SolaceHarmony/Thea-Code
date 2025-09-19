@@ -6,6 +6,7 @@ import { BrowserActionResult } from "../../shared/ExtensionMessage"
 import { discoverChromeHostUrl, tryChromeHostUrl } from "./browserDiscovery"
 import { UrlContentFetcher } from "./UrlContentFetcher" // adjust path as needed
 import { ConsoleMessage } from "puppeteer-core"
+import { getErrorMessage } from "../../shared/errors"
 
 export class BrowserSession {
 	private context: vscode.ExtensionContext
@@ -64,8 +65,8 @@ export class BrowserSession {
 			this.lastConnectionAttempt = Date.now()
 
 			return true
-		} catch (error) {
-			console.log(`Failed to connect using WebSocket endpoint: ${error}`)
+  } catch (error) {
+			console.log(`Failed to connect using WebSocket endpoint: ${getErrorMessage(error)}`)
 			return false
 		}
 	}
@@ -76,7 +77,6 @@ export class BrowserSession {
 	 */
 	private async connectToRemoteBrowser(): Promise<boolean> {
 		const remoteBrowserHost = this.context.globalState.get<string>("remoteBrowserHost")
-		let reconnectionAttempted = false
 
 		// Try to connect with cached endpoint first if it exists and is recent (less than 1 hour old)
 		const cachedChromeHostUrl = this.context.globalState.get<string>("cachedChromeHostUrl")
@@ -90,29 +90,24 @@ export class BrowserSession {
 			// Clear the cached endpoint since it's no longer valid
 			this.context.globalState.update("cachedChromeHostUrl", undefined)
 
-			// User wants to give up after one reconnection attempt
-			if (remoteBrowserHost) {
-				reconnectionAttempted = true
-			}
 		}
 
 		// If user provided a remote browser host, try to connect to it
-		else if (remoteBrowserHost && !reconnectionAttempted) {
+		else if (remoteBrowserHost) {
 			console.log(`Attempting to connect to remote browser at ${remoteBrowserHost}`)
 			try {
 				const hostIsValid = await tryChromeHostUrl(remoteBrowserHost)
-
-				if (!hostIsValid) {
-					throw new Error("Could not find chromeHostUrl in the response")
+				
+				if (hostIsValid) {
+					console.log(`Found WebSocket endpoint: ${remoteBrowserHost}`)
+					if (await this.connectWithChromeHostUrl(remoteBrowserHost)) {
+						return true
+					}
+				} else {
+					console.warn("Could not validate remote browser host response; skipping direct connect attempt")
 				}
-
-				console.log(`Found WebSocket endpoint: ${remoteBrowserHost}`)
-
-				if (await this.connectWithChromeHostUrl(remoteBrowserHost)) {
-					return true
-				}
-			} catch (error) {
-				console.error(`Failed to connect to remote browser: ${error}`)
+		   } catch (error) {
+				console.error(`Failed to connect to remote browser: ${getErrorMessage(error)}`)
 				// Fall back to auto-discovery if remote connection fails
 			}
 		}
@@ -124,8 +119,8 @@ export class BrowserSession {
 			if (chromeHostUrl && (await this.connectWithChromeHostUrl(chromeHostUrl))) {
 				return true
 			}
-		} catch (error) {
-			console.error(`Auto-discovery failed: ${error}`)
+  } catch (error) {
+			console.error(`Auto-discovery failed: ${getErrorMessage(error)}`)
 			// Fall back to local browser if auto-discovery fails
 		}
 
@@ -253,40 +248,43 @@ export class BrowserSession {
 		}
 
 		let screenshotBase64: string
-		let screenshot: string
+		let screenshot: string | undefined
 
+		// Try preferred format first without relying on throw/catch for control flow
 		try {
-			// Try preferred format first
-			screenshotBase64 = (await this.page.screenshot({
+			const result = (await this.page.screenshot({
 				...options,
 				type: screenshotPrefs.format,
 				...(screenshotPrefs.format === "webp" && { quality: screenshotPrefs.quality }),
-			})) as unknown as string
-
-			if (!screenshotBase64) {
-				throw new Error("Empty base64 string returned from screenshot")
+			})) as unknown
+			const base = typeof result === "string" ? result : (result as unknown as string)
+			if (base && base.length > 0) {
+				screenshotBase64 = base
+				screenshot = `data:image/${screenshotPrefs.format};base64,${screenshotBase64}`
 			}
-
-			screenshot = `data:image/${screenshotPrefs.format};base64,${screenshotBase64}`
 		} catch (error) {
-			console.log(`${screenshotPrefs.format} screenshot failed: ${error}, falling back to PNG format`)
-			
+			console.log(`${screenshotPrefs.format} screenshot failed: ${getErrorMessage(error)}, falling back to PNG format`)
+		}
+
+		// Fallback to PNG if preferred format was not captured
+		if (!screenshot) {
 			try {
-				// Try PNG as fallback
-				screenshotBase64 = (await this.page.screenshot({
+				const result = (await this.page.screenshot({
 					...options,
-					type: "png"
-				})) as string
-
-				if (!screenshotBase64) {
-					throw new Error("Empty base64 string returned from PNG screenshot")
+					type: "png",
+				})) as unknown
+				const base = typeof result === "string" ? result : (result as unknown as string)
+				if (base && base.length > 0) {
+					screenshotBase64 = base
+					screenshot = `data:image/png;base64,${screenshotBase64}`
 				}
-
-				screenshot = `data:image/png;base64,${screenshotBase64}`
 			} catch (pngError) {
-				console.error(`PNG screenshot also failed: ${pngError}`)
-				throw new Error(`Failed to capture screenshot: ${pngError}`)
+				console.error(`PNG screenshot also failed: ${getErrorMessage(pngError)}`)
 			}
+		}
+
+		if (!screenshot) {
+			throw new Error("Failed to capture screenshot")
 		}
 
 		// this.page.removeAllListeners() <- causes the page to crash!
@@ -333,18 +331,13 @@ export class BrowserSession {
 			throw new Error("Browser is not launched")
 		}
 
-		// Create a new page
-		const newPage = await this.browser.newPage()
-
-		// Set the new page as the active page
-		this.page = newPage
-
+		// Create a new page and set as the active page
+		this.page = await this.browser.newPage()
+		
 		// Navigate to the URL
-		const result = await this.doAction(async (page) => {
+		return this.doAction(async (page) => {
 			await this.navigatePageToUrl(page, url)
 		})
-
-		return result
 	}
 
 	async navigateToUrl(url: string): Promise<BrowserActionResult> {
