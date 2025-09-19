@@ -198,7 +198,7 @@ const extensionConfig = {
 		{
 			name: "alias-plugin",
 			setup(build) {
-				build.onResolve({ filter: /^pkce-challenge$/ }, (args) => {
+    build.onResolve({ filter: /^pkce-challenge$/ }, () => {
 					// Use the browser export path
 					return { path: require.resolve("pkce-challenge") }
 				})
