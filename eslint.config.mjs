@@ -33,9 +33,7 @@ const commonTsConfig = {
 	},
 }
 
-export default [
-	// Temporary: exclude plain JS scripts from lint due to TS type-aware rule collisions; re-enable after config hardening
-	{ ignores: ["scripts/**/*.{js,mjs,cjs}"] },
+	export default [
 	{
 		files: ["src/__mocks__/**/*.{ts,tsx,js,jsx}"],
 		languageOptions: {
@@ -74,7 +72,6 @@ export default [
 		"src/__mocks__/**/*",
 		// "webview-ui/", // Removed from ignores so subproject linting works
 		// "e2e/", // Removed from ignores so subproject linting works
-		"esbuild.js",
 		"jest.config.js",
 		"eslint.config.mjs",
 		".eslintrc.js",
@@ -151,26 +148,26 @@ export default [
 		rules: {
 			...commonTsConfig.rules,
 			"@typescript-eslint/no-misused-promises": [
-				"warn",
+				"error",
 				{ checksVoidReturn: { attributes: false } }
 			],
-			"@typescript-eslint/no-unsafe-return": "warn",
-			"@typescript-eslint/no-unsafe-argument": "warn",
-			"@typescript-eslint/no-unsafe-assignment": "warn",
-			"@typescript-eslint/no-unsafe-call": "warn",
-			"@typescript-eslint/no-unsafe-member-access": "warn",
-			"@typescript-eslint/restrict-plus-operands": "warn",
+			"@typescript-eslint/no-unsafe-return": "error",
+			"@typescript-eslint/no-unsafe-argument": "error",
+			"@typescript-eslint/no-unsafe-assignment": "error",
+			"@typescript-eslint/no-unsafe-call": "error",
+			"@typescript-eslint/no-unsafe-member-access": "error",
+			"@typescript-eslint/restrict-plus-operands": "error",
 			"@typescript-eslint/restrict-template-expressions": [
-				"warn",
+				"error",
 				{ allowNumber: true }
 			],
-			"@typescript-eslint/unbound-method": "warn",
-			"@typescript-eslint/no-floating-promises": "warn",
+			"@typescript-eslint/unbound-method": "error",
+			"@typescript-eslint/no-floating-promises": "error",
 			"@typescript-eslint/no-unused-vars": [
-				"warn",
+				"error",
 				{ argsIgnorePattern: "^_", varsIgnorePattern: "^_" }
 			],
-			"@typescript-eslint/require-await": "warn",
+			"@typescript-eslint/require-await": "error",
 			"@typescript-eslint/no-explicit-any": "warn",
 		},
 	},
@@ -258,26 +255,26 @@ export default [
 		rules: {
 			...commonTsConfig.rules,
 			"@typescript-eslint/no-misused-promises": [
-				"warn",
+				"error",
 				{ checksVoidReturn: { attributes: false } }
 			],
-			"@typescript-eslint/no-unsafe-return": "warn",
-			"@typescript-eslint/no-unsafe-argument": "warn",
-			"@typescript-eslint/no-unsafe-assignment": "warn",
-			"@typescript-eslint/no-unsafe-call": "warn",
-			"@typescript-eslint/no-unsafe-member-access": "warn",
-			"@typescript-eslint/restrict-plus-operands": "warn",
+			"@typescript-eslint/no-unsafe-return": "error",
+			"@typescript-eslint/no-unsafe-argument": "error",
+			"@typescript-eslint/no-unsafe-assignment": "error",
+			"@typescript-eslint/no-unsafe-call": "error",
+			"@typescript-eslint/no-unsafe-member-access": "error",
+			"@typescript-eslint/restrict-plus-operands": "error",
 			"@typescript-eslint/restrict-template-expressions": [
-				"warn",
+				"error",
 				{ allowNumber: true }
 			],
-			"@typescript-eslint/unbound-method": "warn",
-			"@typescript-eslint/no-floating-promises": "warn",
+			"@typescript-eslint/unbound-method": "error",
+			"@typescript-eslint/no-floating-promises": "error",
 			"@typescript-eslint/no-unused-vars": [
-				"warn",
+				"error",
 				{ argsIgnorePattern: "^_", varsIgnorePattern: "^_" }
 			],
-			"@typescript-eslint/require-await": "warn",
+			"@typescript-eslint/require-await": "error",
 			"@typescript-eslint/no-explicit-any": "warn",
 		},
 	},
@@ -289,10 +286,7 @@ export default [
 			sourceType: "module",
 			globals: { ...globals.node },
 		},
-		rules: {
-			"@typescript-eslint/no-require-imports": "off",
-			"@typescript-eslint/await-thenable": "off",
-		},
+		rules: {},
 	},
 	{
 		files: ["**/*.{js,mjs,cjs,jsx}"],
@@ -311,36 +305,12 @@ export default [
 			react: reactPlugin,
 			"react-hooks": reactHooksPlugin,
 		},
-			rules: {
+ 		rules: {
 				...pluginJs.configs.recommended.rules,
 				...reactPlugin.configs.recommended.rules,
 				...reactHooksPlugin.configs.recommended.rules,
 				"no-undef": "error",
 				"no-import-assign": "error",
-				"@typescript-eslint/await-thenable": "off",
-				"@typescript-eslint/no-array-delete": "off",
-				"@typescript-eslint/no-floating-promises": "off",
-				"@typescript-eslint/no-misused-promises": "off",
-				"@typescript-eslint/require-await": "off",
-				"@typescript-eslint/unbound-method": "off",
-				"@typescript-eslint/no-unsafe-argument": "off",
-				"@typescript-eslint/no-unsafe-assignment": "off",
-				"@typescript-eslint/no-unsafe-call": "off",
-				"@typescript-eslint/no-unsafe-member-access": "off",
-				"@typescript-eslint/no-unsafe-return": "off",
-				"@typescript-eslint/restrict-plus-operands": "off",
-				"@typescript-eslint/restrict-template-expressions": "off",
-				"@typescript-eslint/no-duplicate-type-constituents": "off",
-				"@typescript-eslint/no-implied-eval": "off",
-				"@typescript-eslint/no-redundant-type-constituents": "off",
-				"@typescript-eslint/no-unnecessary-type-assertion": "off",
-				"@typescript-eslint/no-confusing-void-expression": "off",
-				"@typescript-eslint/prefer-reduce-type-parameter": "off",
-				"@typescript-eslint/no-meaningless-void-operator": "off",
-				"@typescript-eslint/no-unsafe-enum-comparison": "off",
-				"@typescript-eslint/only-throw-error": "off",
-				"@typescript-eslint/prefer-promise-reject-errors": "off",
-				"@typescript-eslint/no-unsafe-unary-minus": "off",
 			}
 		},
 	// Webview UI: use its own tsconfig for type-aware TS rules
@@ -359,26 +329,26 @@ export default [
 		rules: {
 			...commonTsConfig.rules,
 			"@typescript-eslint/no-misused-promises": [
-				"warn",
+				"error",
 				{ checksVoidReturn: { attributes: false } }
 			],
-			"@typescript-eslint/no-unsafe-return": "warn",
-			"@typescript-eslint/no-unsafe-argument": "warn",
-			"@typescript-eslint/no-unsafe-assignment": "warn",
-			"@typescript-eslint/no-unsafe-call": "warn",
-			"@typescript-eslint/no-unsafe-member-access": "warn",
-			"@typescript-eslint/restrict-plus-operands": "warn",
+			"@typescript-eslint/no-unsafe-return": "error",
+			"@typescript-eslint/no-unsafe-argument": "error",
+			"@typescript-eslint/no-unsafe-assignment": "error",
+			"@typescript-eslint/no-unsafe-call": "error",
+			"@typescript-eslint/no-unsafe-member-access": "error",
+			"@typescript-eslint/restrict-plus-operands": "error",
 			"@typescript-eslint/restrict-template-expressions": [
-				"warn",
+				"error",
 				{ allowNumber: true }
 			],
-			"@typescript-eslint/unbound-method": "warn",
-			"@typescript-eslint/no-floating-promises": "warn",
+			"@typescript-eslint/unbound-method": "error",
+			"@typescript-eslint/no-floating-promises": "error",
 			"@typescript-eslint/no-unused-vars": [
-				"warn",
+				"error",
 				{ argsIgnorePattern: "^_", varsIgnorePattern: "^_" }
 			],
-			"@typescript-eslint/require-await": "warn",
+			"@typescript-eslint/require-await": "error",
 			"@typescript-eslint/no-explicit-any": "warn",
 		},
 	},
