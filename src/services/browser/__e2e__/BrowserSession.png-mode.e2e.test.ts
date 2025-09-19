@@ -1,6 +1,6 @@
 import * as assert from "assert"
 import * as vscode from "vscode"
-import { EXTENSION_ID } from "../../thea-constants"
+import { EXTENSION_ID } from "../../../e2e/src/thea-constants"
 
 suite("BrowserSession PNG screenshot (primary path)", function () {
   // Real browser launch + navigation can take time locally
@@ -9,11 +9,11 @@ suite("BrowserSession PNG screenshot (primary path)", function () {
   test("captures PNG screenshot successfully", async () => {
     const ext = vscode.extensions.getExtension(EXTENSION_ID)
     assert.ok(ext, `Extension ${EXTENSION_ID} not found`)
-    if (!ext!.isActive) {
-      await ext!.activate()
+    if (!ext.isActive) {
+      await ext.activate()
     }
 
-    const result = (await vscode.commands.executeCommand(
+    const result = await vscode.commands.executeCommand(
       "thea-code.test.browserCapture",
       {
         url: "https://example.com",
@@ -22,7 +22,7 @@ suite("BrowserSession PNG screenshot (primary path)", function () {
         clipping: false,
         viewport: "900x600",
       }
-    )) as unknown
+    )
 
     assert.ok(result, "No result returned from browserCapture command")
     assert.strictEqual(typeof result, "object")

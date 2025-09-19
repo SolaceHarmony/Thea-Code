@@ -1,6 +1,6 @@
 import * as assert from "assert"
 import * as vscode from "vscode"
-import { EXTENSION_ID } from "../../thea-constants"
+import { EXTENSION_ID } from "../../../e2e/src/thea-constants"
 
 suite("BrowserSession navigation reuse (same root domain)", function () {
   // Real browser launch + navigation can take time locally
@@ -9,11 +9,11 @@ suite("BrowserSession navigation reuse (same root domain)", function () {
   test("reuses the same tab when navigating within example.com", async () => {
     const ext = vscode.extensions.getExtension(EXTENSION_ID)
     assert.ok(ext, `Extension ${EXTENSION_ID} not found`)
-    if (!ext!.isActive) {
-      await ext!.activate()
+    if (!ext.isActive) {
+      await ext.activate()
     }
 
-    const result = (await vscode.commands.executeCommand(
+    const result = await vscode.commands.executeCommand(
       "thea-code.test.browserCapture",
       {
         urls: [
@@ -24,17 +24,35 @@ suite("BrowserSession navigation reuse (same root domain)", function () {
         fullPage: false,
         clipping: false,
       }
-    )) as unknown
+    )
 
     assert.ok(result, "No result returned from browserCapture command")
     assert.strictEqual(typeof result, "object")
 
-    const r = result as { steps?: Array<Record<string, any>> }
-    assert.ok(Array.isArray(r.steps), "Expected steps array in result")
-    assert.strictEqual(r.steps!.length, 2, "Expected two navigation steps")
+    type Step = {
+      screenshot?: string
+      logs?: string
+      currentUrl?: string
+      createdNewTab?: boolean
+      reusedTab?: boolean
+      reloaded?: boolean
+      pageCount?: number
+      captureTimestamp?: number
+    }
 
-    const first = r.steps![0]!
-    const second = r.steps![1]!
+    const r = result as { steps?: Step[] }
+
+    // Narrow steps without non-null assertions
+    const stepsMaybe = r.steps
+    assert.ok(Array.isArray(stepsMaybe), "Expected steps array in result")
+    if (!Array.isArray(stepsMaybe)) {
+      throw new Error("Expected steps array in result")
+    }
+    const steps = stepsMaybe
+    assert.strictEqual(steps.length, 2, "Expected two navigation steps")
+
+    const first = steps[0]
+    const second = steps[1]
 
     // Basic payload checks
     assert.ok(typeof first.screenshot === "string" && first.screenshot.startsWith("data:image/"), "Step 1 should include screenshot")
