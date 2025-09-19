@@ -9,7 +9,7 @@ import { globby } from "globby"
 import pWaitFor from "p-wait-for"
 
 import { fileExistsAtPath } from "../../utils/fs"
-import { CheckpointStorage } from "../../shared/checkpoints"
+import type { CheckpointStorage } from "../../schemas"
 
 import { GIT_DISABLED_SUFFIX } from "./constants"
 import { CheckpointDiff, CheckpointResult, CheckpointEventMap } from "./types"
@@ -74,16 +74,16 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 
 			// Create the checkpoints directory
 			await fs.mkdir(this.checkpointsDir, { recursive: true })
-
-			// Instead of using fs.access, we'll check if the directory exists using fileExistsAtPath
-			if (!(await fileExistsAtPath(this.checkpointsDir))) {
-				throw new Error(`Checkpoint directory does not exist after creation attempt: ${this.checkpointsDir}`)
-			}
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error)
 			throw new Error(
 				`Cannot initialize git: failed to create checkpoint directory: ${this.checkpointsDir}: ${message}`,
 			)
+		}
+
+		// Post-condition: verify directory actually exists after creation attempt
+		if (!(await fileExistsAtPath(this.checkpointsDir))) {
+			throw new Error(`Checkpoint directory does not exist after creation attempt: ${this.checkpointsDir}`)
 		}
 
 		const git = simpleGit(this.checkpointsDir)
@@ -221,12 +221,13 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 	}
 
 	public async saveCheckpoint(message: string): Promise<CheckpointResult | undefined> {
+		if (!this.git) {
+			const error = new Error("Shadow git repo not initialized")
+			this.emit("error", { type: "error", error })
+			throw error
+		}
 		try {
 			this.log(`[${this.constructor.name}#saveCheckpoint] starting checkpoint save`)
-
-			if (!this.git) {
-				throw new Error("Shadow git repo not initialized")
-			}
 
 			const startTime = Date.now()
 			await this.stageAll(this.git)
@@ -259,12 +260,13 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 	}
 
 	public async restoreCheckpoint(commitHash: string) {
+		if (!this.git) {
+			const error = new Error("Shadow git repo not initialized")
+			this.emit("error", { type: "error", error })
+			throw error
+		}
 		try {
 			this.log(`[${this.constructor.name}#restoreCheckpoint] starting checkpoint restore`)
-
-			if (!this.git) {
-				throw new Error("Shadow git repo not initialized")
-			}
 
 			const start = Date.now()
 			await this.git.clean("f", ["-d", "-f"])
@@ -314,9 +316,9 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 				const absPath = path.join(cwdPath, relPath)
 				const [before, after] = await Promise.all([
 					this.git.show([`${base}:${relPath}`]).catch(() => ""),
-					to
-						? this.git.show([`${to}:${relPath}`]).catch(() => "")
-						: fs.readFile(absPath, "utf8").catch(() => ""),
+					!to
+						? fs.readFile(absPath, "utf8").catch(() => "")
+						: this.git.show([`${to}:${relPath}`]).catch(() => ""),
 				])
 				return { paths: { relative: relPath, absolute: absPath }, content: { before, after } }
 			}),
