@@ -65,7 +65,7 @@ const createServerTypeSchema = () => {
 			type: z.enum(["stdio"]).optional(),
 			command: z.string().min(1, "Command cannot be empty"),
 			args: z.array(z.string()).optional(),
-			env: z.record(z.string()).optional(),
+			env: z.record(z.string(), z.string()).optional(),
 			// Ensure no SSE fields are present
 			url: z.undefined().optional(),
 			headers: z.undefined().optional(),
@@ -79,7 +79,7 @@ const createServerTypeSchema = () => {
 		BaseConfigSchema.extend({
 			type: z.enum(["sse"]).optional(),
 			url: z.string().url("URL must be a valid URL format"),
-			headers: z.record(z.string()).optional(),
+			headers: z.record(z.string(), z.string()).optional(),
 			// Ensure no stdio fields are present
 			command: z.undefined().optional(),
 			args: z.undefined().optional(),
@@ -98,7 +98,7 @@ export const ServerConfigSchema = createServerTypeSchema()
 
 // Settings schema
 const McpSettingsSchema = z.object({
-	mcpServers: z.record(ServerConfigSchema),
+	mcpServers: z.record(z.string(), ServerConfigSchema),
 })
 
 // Type definitions for configuration objects  
@@ -221,8 +221,7 @@ export class McpHub {
 			return ServerConfigSchema.parse(configCopy)
 		} catch (validationError) {
 			if (validationError instanceof z.ZodError) {
-				// Extract and format validation errors
-				const errorMessages = validationError.errors
+				const errorMessages = validationError.issues
 					.map((err) => `${err.path.join(".")}: ${err.message}`)
 					.join("; ")
 				throw new Error(
@@ -268,7 +267,7 @@ export class McpHub {
 			const result = McpSettingsSchema.safeParse(normalized)
 
 			if (!result.success) {
-				const errorMessages = result.error.errors
+				const errorMessages = result.error.issues
 					.map((err) => `${err.path.join(".")}: ${err.message}`)
 					.join("\n")
 				vscode.window.showErrorMessage(t("common:errors.invalid_mcp_settings_validation", { errorMessages }))
@@ -329,8 +328,7 @@ export class McpHub {
 			if (result.success) {
 				await this.updateServerConnections(result.data.mcpServers || {}, "project")
 			} else {
-				// Format validation errors for better user feedback
-				const errorMessages = result.error.errors
+				const errorMessages = result.error.issues
 					.map((err) => `${err.path.join(".")}: ${err.message}`)
 					.join("\n")
 				console.error("Invalid project MCP settings format:", errorMessages)
@@ -444,7 +442,7 @@ export class McpHub {
 			if (result.success) {
 				await this.updateServerConnections(result.data.mcpServers || {}, source)
 			} else {
-				const errorMessages = result.error.errors
+				const errorMessages = result.error.issues
 					.map((err) => `${err.path.join(".")}: ${err.message}`)
 					.join("\n")
 				console.error(`Invalid ${source} MCP settings format:`, errorMessages)

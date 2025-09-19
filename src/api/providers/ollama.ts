@@ -114,11 +114,8 @@ export class OllamaHandler extends BaseProvider implements SingleCompletionHandl
 	// Implement countTokens method for NeutralMessageContent
 	override async countTokens(content: string | NeutralMessageContent): Promise<number> {
 		try {
-			// Convert neutral content to Ollama format (string)
-			const ollamaContent = convertToOllamaContentBlocks(content)
-
-			// Use the base provider's implementation for token counting
-			// This will use tiktoken to count tokens in the string
+			const normalized: NeutralMessageContent = typeof content === "string" ? [{ type: "text", text: content }] : content
+			const ollamaContent = convertToOllamaContentBlocks(normalized)
 			return super.countTokens([{ type: "text", text: ollamaContent }])
 		} catch (error) {
 			console.warn("Ollama token counting error, using fallback", error)
