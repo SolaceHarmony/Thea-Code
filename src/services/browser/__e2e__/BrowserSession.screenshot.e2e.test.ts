@@ -1,6 +1,6 @@
 import * as assert from "assert"
 import * as vscode from "vscode"
-import { EXTENSION_ID } from "../../thea-constants"
+import { EXTENSION_ID } from "../../../e2e/src/thea-constants"
 
 suite("BrowserSession real browser screenshot", function () {
   // Real browser launch + navigation can take time in CI
@@ -9,15 +9,15 @@ suite("BrowserSession real browser screenshot", function () {
   test("captures screenshot and logs for example.com", async () => {
     const ext = vscode.extensions.getExtension(EXTENSION_ID)
     assert.ok(ext, `Extension ${EXTENSION_ID} not found`)
-    if (!ext!.isActive) {
-      await ext!.activate()
+    if (!ext.isActive) {
+      await ext.activate()
     }
 
     // Execute hidden E2E command that drives a real BrowserSession instance
-    const result = (await vscode.commands.executeCommand(
+    const result = await vscode.commands.executeCommand(
       "thea-code.test.browserCapture",
       { url: "https://example.com" }
-    )) as unknown
+    )
 
     assert.ok(result, "No result returned from browserCapture command")
     assert.strictEqual(typeof result, "object")
