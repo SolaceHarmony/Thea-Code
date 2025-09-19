@@ -61,6 +61,32 @@ export async function activate(context: vscode.ExtensionContext) {
 			)
 		}
 
+		// Register a hidden E2E command to drive a real browser session using BrowserSession
+		context.subscriptions.push(
+			vscode.commands.registerCommand(`${EXTENSION_NAME}.test.browserCapture`, async (payload: { url: string }) => {
+				try {
+					if (!payload || typeof payload.url !== "string" || payload.url.length === 0) {
+						throw new Error("Invalid payload: { url: string } required")
+					}
+					// Force local browser for deterministic tests
+					await context.globalState.update("remoteBrowserEnabled", false)
+					// Default viewport for stable screenshots
+					await context.globalState.update("browserViewportSize", "900x600")
+					// Ensure clipping off for full-page capture in tests unless set elsewhere
+					await context.globalState.update("useClipping", false)
+					const { BrowserSession } = await import("./services/browser/BrowserSession")
+					const session = new BrowserSession(context)
+					await session.launchBrowser()
+					const result = await session.navigateToUrl(payload.url)
+					await session.closeBrowser()
+					return result
+				} catch (err) {
+					outputChannel.appendLine(`[E2E] browserCapture error: ${String(err)}`)
+					throw err
+				}
+			})
+		)
+
 			// Return a minimal API for tests (avoid unsafe packageJSON access)
 			const pkg = context.extension?.packageJSON as { version?: string } | undefined
 			const minimalApi = {

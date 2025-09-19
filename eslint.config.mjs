@@ -58,7 +58,6 @@ const commonTsConfig = {
 		rules: {},
 	},
 	globalIgnores([
-		"**/*.{js,mjs,cjs,jsx}", // TEMP: limit lint to TS/TSX while resolving type-aware config conflicts for JS
 		"webview-ui/build/**",
 		"webview-ui/dist/**",
 		"test/**/.cache/**", // Ignore test cache artifacts
