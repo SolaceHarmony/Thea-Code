@@ -20,7 +20,7 @@ import { combineCommandSequences } from "../../../../src/shared/combineCommandSe
 import { getApiMetrics } from "../../../../src/shared/getApiMetrics"
 import { convertTheaMessagesToNeutralForMetrics } from "../../../../src/shared/convertTheaMessagesToNeutral"
 import { useExtensionState } from "../../context/ExtensionStateContext"
-import { vscode } from "../../utils/vscode"
+import { vscode } from "@/utils/vscode.ts"
 import HistoryPreview from "../history/HistoryPreview"
 import { normalizeApiConfiguration } from "../settings/ApiOptions"
 import Announcement from "./Announcement"
@@ -30,7 +30,7 @@ import ChatTextArea from "./ChatTextArea"
 import TaskHeader from "./TaskHeader"
 import AutoApproveMenu from "./AutoApproveMenu"
 import { AudioType } from "../../../../src/shared/WebviewMessage"
-import { validateCommand } from "../../utils/command-validation"
+import { validateCommand } from "@/utils/command-validation.ts"
 import { getAllModes } from "../../../../src/shared/modes"
 import TelemetryBanner from "../common/TelemetryBanner"
 import { useAppTranslation } from "../../i18n/TranslationContext"
@@ -1395,7 +1395,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 }
 
 const ScrollToBottomButton = styled.div`
-	background-color: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 55%, transparent);
+	background-color: color-mix(in srgb, var(--color-vscode-toolbar-hoverBackground, rgba(127,127,127,0.2)) 55%, transparent);
 	border-radius: 3px;
 	overflow: hidden;
 	cursor: pointer;
@@ -1406,11 +1406,11 @@ const ScrollToBottomButton = styled.div`
 	height: 25px;
 
 	&:hover {
-		background-color: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 90%, transparent);
+		background-color: color-mix(in srgb, var(--color-vscode-toolbar-hoverBackground, rgba(127,127,127,0.2)) 90%, transparent);
 	}
 
 	&:active {
-		background-color: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 70%, transparent);
+		background-color: color-mix(in srgb, var(--color-vscode-toolbar-hoverBackground, rgba(127,127,127,0.2)) 70%, transparent);
 	}
 `
 
