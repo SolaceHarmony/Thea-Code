@@ -257,7 +257,7 @@ export class BrowserSession {
 				type: screenshotPrefs.format,
 				...(screenshotPrefs.format === "webp" && { quality: screenshotPrefs.quality }),
 			})) as unknown
-			const base = typeof result === "string" ? result : (result as unknown as string)
+			const base = typeof result === "string" ? result : (result as string)
 			if (base && base.length > 0) {
 				screenshotBase64 = base
 				screenshot = `data:image/${screenshotPrefs.format};base64,${screenshotBase64}`
@@ -273,7 +273,7 @@ export class BrowserSession {
 					...options,
 					type: "png",
 				})) as unknown
-				const base = typeof result === "string" ? result : (result as unknown as string)
+				const base = typeof result === "string" ? result : (result as string)
 				if (base && base.length > 0) {
 					screenshotBase64 = base
 					screenshot = `data:image/png;base64,${screenshotBase64}`
