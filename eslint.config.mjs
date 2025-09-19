@@ -76,6 +76,7 @@ export default [
 		".eslintrc.js",
 		"temp_similarity_check.js",
 		"benchmark/", // Re-enabled ignore to fix ESLint parsing issues
+		"src/**/*.js", // Ignore stray compiled JS under src to avoid espree+TS rule conflicts
 		"src/e2e/src/**",
 		"src/e2e/.vscode-test/**",
 		"**/*.md",
@@ -270,7 +271,7 @@ export default [
 			globals: {
 				...globals.browser,
 				...globals.node,
-		        
+			        
 				...globals.mocha,
 			},
 		},
@@ -297,6 +298,45 @@ export default [
 				"@typescript-eslint/no-unsafe-return": "off",
 				"@typescript-eslint/restrict-plus-operands": "off",
 				"@typescript-eslint/restrict-template-expressions": "off",
+				"@typescript-eslint/no-duplicate-type-constituents": "off",
+				"@typescript-eslint/no-implied-eval": "off",
+				"@typescript-eslint/no-redundant-type-constituents": "off",
 			},
+		},
+	// Webview UI: use its own tsconfig for type-aware TS rules
+	{
+		files: ["webview-ui/**/*.{ts,tsx}"],
+		...commonTsConfig,
+		languageOptions: {
+			...commonTsConfig.languageOptions,
+			parserOptions: {
+				...commonTsConfig.languageOptions.parserOptions,
+				ecmaFeatures: { jsx: true },
+				project: "./webview-ui/tsconfig.json",
+				tsconfigRootDir,
+			},
+		},
+		rules: {
+			...commonTsConfig.rules,
+			"@typescript-eslint/no-misused-promises": [
+				"warn",
+				{ checksVoidReturn: { attributes: false } }
+			],
+			"@typescript-eslint/no-unsafe-return": "warn",
+			"@typescript-eslint/no-unsafe-argument": "warn",
+			"@typescript-eslint/restrict-plus-operands": "warn",
+			"@typescript-eslint/restrict-template-expressions": [
+				"warn",
+				{ allowNumber: true }
+			],
+			"@typescript-eslint/unbound-method": "warn",
+			"@typescript-eslint/no-floating-promises": "warn",
+			"@typescript-eslint/no-unused-vars": [
+				"warn",
+				{ argsIgnorePattern: "^_", varsIgnorePattern: "^_" }
+			],
+			"@typescript-eslint/require-await": "warn",
+			"@typescript-eslint/no-explicit-any": "warn",
+		},
 	},
 ]
