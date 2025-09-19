@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { useAppTranslation } from "@/i18n/TranslationContext"
 import { Trans } from "react-i18next"
-import { getRequestyAuthUrl, getOpenRouterAuthUrl, getGlamaAuthUrl } from "../../oauth/urls"
+import { getRequestyAuthUrl, getOpenRouterAuthUrl, getGlamaAuthUrl } from "@/oauth/urls.ts"
 import { useDebounce, useEvent } from "react-use"
 import { LanguageModelChatSelector } from "vscode"
 import { Checkbox } from "vscrui"
@@ -1732,11 +1732,11 @@ export function normalizeApiConfiguration(
 	switch (provider) {
 		case "anthropic":
 			// Use dynamic models if available, otherwise fall back to static
-			const anthropicModelsToUse = dynamicModels?.anthropicModels || anthropicModels
-			return getProviderData(anthropicModelsToUse, anthropicDefaultModelId)
+			{ const anthropicModelsToUse = dynamicModels?.anthropicModels || anthropicModels
+			return getProviderData(anthropicModelsToUse, anthropicDefaultModelId) }
 		case "bedrock":
 			// Special case for custom ARN
-			if (modelId === "custom-arn") {
+			{ if (modelId === "custom-arn") {
 				return {
 					selectedProvider: provider,
 					selectedModelId: "custom-arn",
@@ -1749,19 +1749,19 @@ export function normalizeApiConfiguration(
 				}
 			}
 			const bedrockModelsToUse = dynamicModels?.bedrockModels || bedrockModels
-			return getProviderData(bedrockModelsToUse, bedrockDefaultModelId)
+			return getProviderData(bedrockModelsToUse, bedrockDefaultModelId) }
 		case "vertex":
-			const vertexModelsToUse = dynamicModels?.vertexModels || vertexModels
-			return getProviderData(vertexModelsToUse, vertexDefaultModelId)
+			{ const vertexModelsToUse = dynamicModels?.vertexModels || vertexModels
+			return getProviderData(vertexModelsToUse, vertexDefaultModelId) }
 		case "gemini":
-			const geminiModelsToUse = dynamicModels?.geminiModels || geminiModels
-			return getProviderData(geminiModelsToUse, geminiDefaultModelId)
+			{ const geminiModelsToUse = dynamicModels?.geminiModels || geminiModels
+			return getProviderData(geminiModelsToUse, geminiDefaultModelId) }
 		case "mistral":
-			const mistralModelsToUse = dynamicModels?.mistralModels || mistralModels
-			return getProviderData(mistralModelsToUse, mistralDefaultModelId)
+			{ const mistralModelsToUse = dynamicModels?.mistralModels || mistralModels
+			return getProviderData(mistralModelsToUse, mistralDefaultModelId) }
 		case "deepseek":
-			const deepseekModelsToUse = dynamicModels?.deepseekModels || deepSeekModels
-			return getProviderData(deepseekModelsToUse, deepSeekDefaultModelId)
+			{ const deepseekModelsToUse = dynamicModels?.deepseekModels || deepSeekModels
+			return getProviderData(deepseekModelsToUse, deepSeekDefaultModelId) }
 		case "openai-native":
 			return getProviderData(openAiNativeModels, openAiNativeDefaultModelId)
 		case "openrouter":
