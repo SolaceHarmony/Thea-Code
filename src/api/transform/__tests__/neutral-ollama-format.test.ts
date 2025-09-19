@@ -246,7 +246,7 @@ describe("neutral-ollama-format", () => {
 		// Test case 4: Empty array
 		it("should handle empty array", () => {
 			const content: NeutralMessageContent = []
-			expect(convertToOllamaContentBlocks(content)).to.equal("")
+			assert.strictEqual(convertToOllamaContentBlocks(content), "")
 		})
 	})
 
@@ -264,7 +264,7 @@ describe("neutral-ollama-format", () => {
 				},
 			]
 
-			expect(convertToNeutralHistoryFromOllama(ollamaHistory)).to.deep.equal(expected)
+			assert.deepStrictEqual(convertToNeutralHistoryFromOllama(ollamaHistory), expected)
 		})
 
 		// Test case 2: System + User messages
@@ -285,7 +285,7 @@ describe("neutral-ollama-format", () => {
 				},
 			]
 
-			expect(convertToNeutralHistoryFromOllama(ollamaHistory)).to.deep.equal(expected)
+			assert.deepStrictEqual(convertToNeutralHistoryFromOllama(ollamaHistory), expected)
 		})
 
 		// Test case 3: User + Assistant + User messages
@@ -311,7 +311,7 @@ describe("neutral-ollama-format", () => {
 				},
 			]
 
-			expect(convertToNeutralHistoryFromOllama(ollamaHistory)).to.deep.equal(expected)
+			assert.deepStrictEqual(convertToNeutralHistoryFromOllama(ollamaHistory), expected)
 		})
 
 		// Test case 4: Array content (unlikely but should be handled)
@@ -327,15 +327,15 @@ describe("neutral-ollama-format", () => {
 			const result = convertToNeutralHistoryFromOllama(ollamaHistory)
 
 			// Should convert each string to a text block
-			expect(result[0].role).to.equal("user")
-			expect(Array.isArray(result[0].content)).to.equal(true)
+			assert.strictEqual(result[0].role, "user")
+			assert.strictEqual(Array.isArray(result[0].content), true)
 
 			const content = result[0].content as NeutralTextContentBlock[]
-			expect(content.length).to.equal(2)
-			expect(content[0].type).to.equal("text")
-			expect(content[0].text).to.equal("Hello")
-			expect(content[1].type).to.equal("text")
-			expect(content[1].text).to.equal("World")
+			assert.strictEqual(content.length, 2)
+			assert.strictEqual(content[0].type, "text")
+			assert.strictEqual(content[0].text, "Hello")
+			assert.strictEqual(content[1].type, "text")
+			assert.strictEqual(content[1].text, "World")
 		})
 
 		// Test case 5: Unknown role
@@ -353,8 +353,8 @@ describe("neutral-ollama-format", () => {
 			const result = convertToNeutralHistoryFromOllama(ollamaHistory)
 
 			// Should default to user role
-			expect(result[0].role).to.equal("user")
-			expect(warnStub.called).to.be.true
+			assert.strictEqual(result[0].role, "user")
+			assert.ok(warnStub.called)
 
 			warnStub.restore()
 		})
@@ -370,7 +370,7 @@ describe("neutral-ollama-format", () => {
 				},
 			]
 
-			expect(convertToNeutralHistoryFromOllama(ollamaHistory)).to.deep.equal(expected)
+			assert.deepStrictEqual(convertToNeutralHistoryFromOllama(ollamaHistory), expected)
 		})
 
 		// Test case 7: Non-string, non-array content (should be stringified)
@@ -386,13 +386,13 @@ describe("neutral-ollama-format", () => {
 			const result = convertToNeutralHistoryFromOllama(ollamaHistory)
 
 			// Should stringify the object
-			expect(result[0].role).to.equal("user")
-			expect(Array.isArray(result[0].content)).to.equal(true)
+			assert.strictEqual(result[0].role, "user")
+			assert.strictEqual(Array.isArray(result[0].content), true)
 
 			const content = result[0].content as NeutralTextContentBlock[]
-			expect(content.length).to.equal(1)
-			expect(content[0].type).to.equal("text")
-			expect(content[0].text).to.equal(JSON.stringify({ foo: "bar" }))
+			assert.strictEqual(content.length, 1)
+			assert.strictEqual(content[0].type, "text")
+			assert.strictEqual(content[0].text, JSON.stringify({ foo: "bar" }))
 		})
 	})
 })
