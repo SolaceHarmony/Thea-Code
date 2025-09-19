@@ -129,8 +129,6 @@ export class VsCodeLmHandler extends BaseProvider implements SingleCompletionHan
 	/**
 	 * Creates and streams a message using the VS Code Language Model API.
 	 *
-	 * @param systemPrompt - The system prompt to initialize the conversation context
-	 * @param messages - An array of message parameters following the Anthropic message format
 	 *
 	 * @yields {ApiStream} An async generator that yields either text chunks or tool calls from the model response
 	 *
@@ -159,7 +157,7 @@ export class VsCodeLmHandler extends BaseProvider implements SingleCompletionHan
 	 * @param content The content blocks to count tokens for
 	 * @returns A promise resolving to the token count
 	 */
-	override async countTokens(content: NeutralMessageContent): Promise<number> {
+	override async countTokens(content: string | NeutralMessageContent): Promise<number> {
 		// Convert neutral content blocks to a string for VSCode LM token counting
 		let textContent = ""
 
@@ -212,24 +210,20 @@ export class VsCodeLmHandler extends BaseProvider implements SingleCompletionHan
 
 			if (typeof text === "string") {
 				tokenCount = await this.client.countTokens(text, this.currentRequestCancellation.token)
-			} else if (text instanceof vscode.LanguageModelChatMessage) {
+			} else {
 				// For chat messages, ensure we have content
 				if (!text.content || (Array.isArray(text.content) && text.content.length === 0)) {
 					console.debug(`${TEXT_PATTERNS.logPrefix()} Empty chat message content`)
 					return 0
 				}
 				tokenCount = await this.client.countTokens(text, this.currentRequestCancellation.token)
-			} else {
-				console.warn(`${TEXT_PATTERNS.logPrefix()} Invalid input type for token counting`)
-				return 0
 			}
 
 			// Validate the result
-			if (typeof tokenCount !== "number") {
+			if (!Number.isFinite(tokenCount)) {
 				console.warn(`${TEXT_PATTERNS.logPrefix()} Non-numeric token count received:`, tokenCount)
 				return 0
 			}
-
 			if (tokenCount < 0) {
 				console.warn(`${TEXT_PATTERNS.logPrefix()} Negative token count received:`, tokenCount)
 				return 0
@@ -338,32 +332,6 @@ export class VsCodeLmHandler extends BaseProvider implements SingleCompletionHan
 		)
 	}
 
-	private cleanMessageContent<T>(content: T): T {
-		if (!content) {
-			return content
-		}
-
-		if (typeof content === "string") {
-			return this.cleanTerminalOutput(content) as unknown as T
-		}
-
-		if (Array.isArray(content)) {
-			// Use type assertion to ensure type safety
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-			return content.map((item) => this.cleanMessageContent(item)) as unknown as T
-		}
-
-		if (typeof content === "object" && content !== null) {
-			const cleaned: Record<string, unknown> = {}
-			for (const [key, value] of Object.entries(content as Record<string, unknown>)) {
-				cleaned[key] = this.cleanMessageContent(value)
-			}
-			return cleaned as unknown as T
-		}
-
-		return content
-	}
-
 	override async *createMessage(systemPrompt: string, messages: NeutralConversationHistory): ApiStream {
 		// Ensure clean state before starting a new request
 		this.ensureCleanState()
@@ -443,12 +411,12 @@ export class VsCodeLmHandler extends BaseProvider implements SingleCompletionHan
 				} else if (chunk instanceof vscode.LanguageModelToolCallPart) {
 					try {
 						// Validate tool call parameters
-						if (!chunk.name || typeof chunk.name !== "string") {
+						if (!chunk.name) {
 							console.warn(`${TEXT_PATTERNS.logPrefix()} Invalid tool name received:`, chunk.name)
 							continue
 						}
 
-						if (!chunk.callId || typeof chunk.callId !== "string") {
+						if (!chunk.callId) {
 							console.warn(`${TEXT_PATTERNS.logPrefix()} Invalid tool callId received:`, chunk.callId)
 							continue
 						}
@@ -484,7 +452,6 @@ export class VsCodeLmHandler extends BaseProvider implements SingleCompletionHan
 					} catch (error) {
 						console.error(`${TEXT_PATTERNS.logPrefix()} Failed to process tool call:`, error)
 						// Continue processing other chunks even if one fails
-						continue
 					}
 				} else {
 					console.warn(`${TEXT_PATTERNS.logPrefix()} Unknown chunk type received:`, chunk)
@@ -579,10 +546,7 @@ export class VsCodeLmHandler extends BaseProvider implements SingleCompletionHan
 			// Build model info with conservative defaults for missing values
 			const modelInfo: ModelInfo = {
 				maxTokens: -1, // Unlimited tokens by default
-				contextWindow:
-					typeof this.client.maxInputTokens === "number"
-						? Math.max(0, this.client.maxInputTokens)
-						: openAiModelInfoSaneDefaults.contextWindow,
+				contextWindow: Math.max(0, this.client.maxInputTokens),
 				supportsImages: false, // VSCode Language Model API currently doesn't support image inputs
 				supportsPromptCache: true,
 				inputPrice: 0,

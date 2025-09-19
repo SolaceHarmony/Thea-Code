@@ -144,7 +144,7 @@ export class AnthropicHandler extends BaseProvider implements SingleCompletionHa
 	 * @param content The content blocks to count tokens for
 	 * @returns A promise resolving to the token count
 	 */
-	override async countTokens(content: NeutralMessageContent): Promise<number> {
+	override async countTokens(content: string | NeutralMessageContent): Promise<number> {
 		try {
 			const actualModelId = this.getModel().id
 			return await this.client.countTokens(actualModelId, content)

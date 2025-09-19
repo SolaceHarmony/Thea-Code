@@ -67,9 +67,7 @@ const toError = (error: unknown): Error => {
 
 export const handleError = (error: Error, message: string): string => {
 	const errorMsg = `Error ${message}: ${error.message}`
-	if (error instanceof Error) {
-		vscode.window.showErrorMessage(errorMsg).then(r => )
-	}
+	void vscode.window.showErrorMessage(errorMsg)
 	return errorMsg
 }
 
@@ -82,8 +80,7 @@ export async function getFileOrFolderContent(mentionPath: string, cwd: string): 
 
 		if (stats.isFile()) {
 			try {
-				const content = await extractTextFromFile(absPath)
-				return content
+				return await extractTextFromFile(absPath)
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : String(error)
 				return `(Failed to read contents of ${mentionPath}): ${errorMessage}`

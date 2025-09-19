@@ -21,32 +21,29 @@ export class DynamicAnthropicHandler extends BaseProvider implements SingleCompl
 	private options: ApiHandlerOptions
 	private client: NeutralAnthropicClient
 	private modelProvider: AnthropicModelProvider
-	
+
 	constructor(options: ApiHandlerOptions) {
 		super()
 		this.options = options
-		
+
 		// Create client
 		this.client = new NeutralAnthropicClient({
 			apiKey: this.options.apiKey || "",
-			baseURL: this.options.anthropicBaseUrl
+			baseURL: this.options.anthropicBaseUrl,
 		})
-		
+
 		// Create model provider
-		this.modelProvider = new AnthropicModelProvider(
-			this.options.apiKey,
-			this.options.anthropicBaseUrl
-		)
-		
+		this.modelProvider = new AnthropicModelProvider(this.options.apiKey, this.options.anthropicBaseUrl)
+
 		// Register with the model registry if not already registered
 		if (!modelRegistry.hasProvider("anthropic")) {
 			modelRegistry.registerProvider("anthropic", this.modelProvider)
 		}
 	}
-	
+
 	override async *createMessage(systemPrompt: string, messages: NeutralConversationHistory): ApiStream {
 		const model = await this.getModelAsync()
-		
+
 		const stream = this.client.createMessage({
 			model: model.id,
 			systemPrompt,
@@ -55,7 +52,7 @@ export class DynamicAnthropicHandler extends BaseProvider implements SingleCompl
 			temperature: model.temperature,
 			thinking: model.thinking,
 		})
-		
+
 		for await (const chunk of stream) {
 			if (chunk.type === "tool_use") {
 				const toolResult = await this.processToolUse({
@@ -63,9 +60,9 @@ export class DynamicAnthropicHandler extends BaseProvider implements SingleCompl
 					name: chunk.name,
 					input: chunk.input,
 				})
-				
+
 				const toolResultString = typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult)
-				
+
 				yield {
 					type: "tool_result",
 					id: chunk.id,
@@ -76,25 +73,25 @@ export class DynamicAnthropicHandler extends BaseProvider implements SingleCompl
 			}
 		}
 	}
-	
+
 	/**
 	 * Get model information asynchronously from the registry
 	 */
 	async getModelAsync() {
-		const modelId = this.options.apiModelId || await modelRegistry.getDefaultModelId("anthropic")
-		
+		const modelId = this.options.apiModelId || (await modelRegistry.getDefaultModelId("anthropic"))
+
 		// Get model info from registry
 		let info = await modelRegistry.getModelInfo("anthropic", modelId)
-		
+
 		// If model not found, try to detect capabilities
 		if (!info) {
 			info = await this.modelProvider.getModelInfo(modelId)
-			
+
 			// If still not found, use a default
 			if (!info) {
 				const defaultId = await modelRegistry.getDefaultModelId("anthropic")
 				info = await modelRegistry.getModelInfo("anthropic", defaultId)
-				
+
 				if (!info) {
 					// Ultimate fallback
 					info = {
@@ -103,33 +100,33 @@ export class DynamicAnthropicHandler extends BaseProvider implements SingleCompl
 						supportsImages: true,
 						supportsPromptCache: true,
 						inputPrice: 3,
-						outputPrice: 15
+						outputPrice: 15,
 					} as ModelInfo
 				}
 			}
 		}
-		
+
 		// Track the original model ID for special variant handling
 		const virtualId = modelId
 		let actualId = modelId
-		
+
 		// Special handling for thinking variants
 		if (isThinkingModel(modelId)) {
 			actualId = getBaseModelId(modelId)
 		}
-		
+
 		// Get base model parameters
 		const baseParams = getModelParams({
 			options: this.options,
 			model: info,
 			defaultMaxTokens: ANTHROPIC_DEFAULT_MAX_TOKENS,
 		})
-		
+
 		// Model-specific thinking adjustments
 		if (supportsThinking(info)) {
 			const customMaxTokens = this.options.modelMaxTokens
 			const customMaxThinkingTokens = this.options.modelMaxThinkingTokens
-			
+
 			if (isThinkingModel(virtualId) || supportsThinking(info)) {
 				// Clamp the thinking budget
 				const effectiveMaxTokens = customMaxTokens ?? baseParams.maxTokens ?? ANTHROPIC_DEFAULT_MAX_TOKENS
@@ -138,14 +135,14 @@ export class DynamicAnthropicHandler extends BaseProvider implements SingleCompl
 					Math.min(customMaxThinkingTokens ?? maxBudgetTokens, maxBudgetTokens),
 					1024,
 				)
-				
+
 				baseParams.thinking = {
 					type: "enabled",
 					budget_tokens: budgetTokens,
 				}
 			}
 		}
-		
+
 		return {
 			id: actualId,
 			info,
@@ -153,14 +150,14 @@ export class DynamicAnthropicHandler extends BaseProvider implements SingleCompl
 			...baseParams,
 		}
 	}
-	
+
 	/**
 	 * Synchronous getModel for compatibility
 	 * Note: This uses cached model info and may not be as accurate as getModelAsync
 	 */
 	getModel() {
 		const modelId = this.options.apiModelId || "claude-3-7-sonnet-20250219"
-		
+
 		// Use a simplified synchronous approach for compatibility
 		// In production, we should migrate all callers to use getModelAsync
 		const info: ModelInfo = {
@@ -170,38 +167,35 @@ export class DynamicAnthropicHandler extends BaseProvider implements SingleCompl
 			supportsPromptCache: true,
 			inputPrice: 3,
 			outputPrice: 15,
-			thinking: modelId.includes("thinking")
+			thinking: modelId.includes("thinking"),
 		} as ModelInfo
-		
+
 		const virtualId = modelId
 		let actualId = modelId
-		
+
 		if (isThinkingModel(modelId)) {
 			actualId = getBaseModelId(modelId)
 		}
-		
+
 		const baseParams = getModelParams({
 			options: this.options,
 			model: info,
 			defaultMaxTokens: ANTHROPIC_DEFAULT_MAX_TOKENS,
 		})
-		
+
 		if (supportsThinking(info) && (isThinkingModel(virtualId) || supportsThinking(info))) {
 			const customMaxTokens = this.options.modelMaxTokens
 			const customMaxThinkingTokens = this.options.modelMaxThinkingTokens
 			const effectiveMaxTokens = customMaxTokens ?? baseParams.maxTokens ?? ANTHROPIC_DEFAULT_MAX_TOKENS
 			const maxBudgetTokens = Math.floor(effectiveMaxTokens * 0.8)
-			const budgetTokens = Math.max(
-				Math.min(customMaxThinkingTokens ?? maxBudgetTokens, maxBudgetTokens),
-				1024,
-			)
-			
+			const budgetTokens = Math.max(Math.min(customMaxThinkingTokens ?? maxBudgetTokens, maxBudgetTokens), 1024)
+
 			baseParams.thinking = {
 				type: "enabled",
 				budget_tokens: budgetTokens,
 			}
 		}
-		
+
 		return {
 			id: actualId,
 			info,
@@ -209,10 +203,10 @@ export class DynamicAnthropicHandler extends BaseProvider implements SingleCompl
 			...baseParams,
 		}
 	}
-	
+
 	async completePrompt(prompt: string) {
 		const model = await this.getModelAsync()
-		
+
 		let text = ""
 		const stream = this.client.createMessage({
 			model: model.id,
@@ -221,16 +215,16 @@ export class DynamicAnthropicHandler extends BaseProvider implements SingleCompl
 			maxTokens: ANTHROPIC_DEFAULT_MAX_TOKENS,
 			temperature: model.temperature,
 		})
-		
+
 		for await (const chunk of stream) {
 			if (chunk.type === "text") {
 				text += chunk.text
 			}
 		}
-		
+
 		return text
 	}
-	
+
 	override async countTokens(content: string | NeutralMessageContent): Promise<number> {
 		try {
 			const model = await this.getModelAsync()
@@ -240,14 +234,14 @@ export class DynamicAnthropicHandler extends BaseProvider implements SingleCompl
 			return super.countTokens(content)
 		}
 	}
-	
+
 	/**
 	 * Refresh model list from provider
 	 */
 	async refreshModels(): Promise<void> {
 		await modelRegistry.getModels("anthropic", true)
 	}
-	
+
 	/**
 	 * Get available models
 	 */

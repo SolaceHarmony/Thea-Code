@@ -126,7 +126,7 @@ export class GeminiHandler extends BaseProvider implements SingleCompletionHandl
 	 * @param content The content blocks to count tokens for
 	 * @returns A promise resolving to the token count
 	 */
-	override async countTokens(content: NeutralMessageContent): Promise<number> {
+	override async countTokens(content: string | NeutralMessageContent): Promise<number> {
 		try {
 			// For simple text content, use the base provider's implementation
 			if (Array.isArray(content) && content.every((block) => block.type === "text")) {

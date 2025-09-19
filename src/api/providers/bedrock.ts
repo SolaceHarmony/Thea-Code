@@ -188,7 +188,7 @@ export class AwsBedrockHandler extends BaseProvider implements SingleCompletionH
 					text: `Error: ${validation.errorMessage}`,
 				}
 				yield { type: "usage", inputTokens: 0, outputTokens: 0 }
-				throw new Error("Invalid ARN format")
+				return
 			}
 
 			// Extract region from ARN
@@ -259,7 +259,8 @@ export class AwsBedrockHandler extends BaseProvider implements SingleCompletionH
 			const response = await this.client.send(command)
 
 			if (!response.stream) {
-				throw new Error("No stream available in the response")
+				yield { type: "text", text: "Error: No stream available in the response" }
+				return
 			}
 
 			for await (const chunk of response.stream) {
@@ -267,14 +268,12 @@ export class AwsBedrockHandler extends BaseProvider implements SingleCompletionH
 				let streamEvent: StreamEvent
 				try {
 					streamEvent =
-						typeof chunk === "string"
-							? (JSON.parse(chunk) as StreamEvent)
-							: (chunk as unknown as StreamEvent)
+						(chunk as unknown as StreamEvent)
 				} catch (e) {
 					logger.error("Failed to parse stream event", {
 						ctx: "bedrock",
 						error: e instanceof Error ? e : String(e),
-						chunk: typeof chunk === "string" ? chunk : "binary data",
+						chunk: "binary data",
 					})
 					continue
 				}
@@ -344,7 +343,7 @@ export class AwsBedrockHandler extends BaseProvider implements SingleCompletionH
 				}
 				// Handle message stop
 				if (streamEvent.messageStop) {
-					continue
+
 				}
 			}
 		} catch (error: unknown) {
@@ -575,7 +574,7 @@ Please check:
 	 * @param content The content blocks to count tokens for
 	 * @returns A promise resolving to the token count
 	 */
-	override async countTokens(content: NeutralMessageContent): Promise<number> {
+	override async countTokens(content: string | NeutralMessageContent): Promise<number> {
 		try {
 			// Bedrock doesn't have a native token counting API
 			// Use the base provider's implementation
@@ -607,10 +606,8 @@ Please check:
 						modelId,
 						errorMessage: validation.errorMessage,
 					})
-					throw new Error(
-						validation.errorMessage ||
-							"Invalid ARN format. ARN should follow the pattern: arn:aws:bedrock:region:account-id:resource-type/resource-name",
-					)
+					yield { type: "text", text: `Error: ${validation.errorMessage || "Invalid ARN format. ARN should follow the pattern: arn:aws:bedrock:region:account-id:resource-type/resource-name"}` }
+					return
 				}
 
 				// Extract region from ARN

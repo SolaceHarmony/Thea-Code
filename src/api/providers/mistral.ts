@@ -128,7 +128,7 @@ export class MistralHandler extends BaseProvider implements SingleCompletionHand
 	 * @param content The content blocks to count tokens for
 	 * @returns A promise resolving to the token count
 	 */
-	override async countTokens(content: NeutralMessageContent): Promise<number> {
+	override async countTokens(content: string | NeutralMessageContent): Promise<number> {
 		try {
 			// For now, use the base provider's implementation
 			// Mistral doesn't have a native token counting API

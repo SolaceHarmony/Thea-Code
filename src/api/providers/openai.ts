@@ -247,7 +247,7 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 		}
 	}
 
-	override async countTokens(content: NeutralMessageContent): Promise<number> {
+	override async countTokens(content: string | NeutralMessageContent): Promise<number> {
 		try {
 			// Convert neutral content to OpenAI content blocks for API call
 			const openAiContentBlocks = convertToOpenAiContentBlocks(content)
@@ -340,7 +340,7 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 
 		// If no standard tool calls found, check for content that might contain XML or JSON tool calls
 		const content = delta?.content as string
-		if (!content || typeof content !== "string") {
+		if (!content) {
 			return []
 		}
 

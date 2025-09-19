@@ -1,6 +1,6 @@
 import { McpIntegration } from "../../services/mcp/integration/McpIntegration"
 import { ApiHandler } from ".."
-import type { ModelInfo } from "../../shared/api"
+import type { ModelInfo } from "../../schemas"
 import type { NeutralConversationHistory, NeutralMessageContent } from "../../shared/neutral-history" // Import neutral history types
 import { ApiStream } from "../transform/stream"
 import { Tiktoken } from "js-tiktoken/lite"
@@ -79,7 +79,7 @@ export abstract class BaseProvider implements ApiHandler {
 	 * @returns A promise resolving to the token count
 	 */
 	// Updated to accept NeutralMessageContent
-	countTokens(content: NeutralMessageContent): Promise<number> {
+	countTokens(content: string | NeutralMessageContent): Promise<number> {
 		// Note: This default implementation only handles text content for simplicity.
 		// Providers that support image or other block types should override this method.
 		if (typeof content === "string") {

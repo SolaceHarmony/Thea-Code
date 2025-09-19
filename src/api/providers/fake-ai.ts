@@ -29,7 +29,7 @@ export class FakeAIHandler implements ApiHandler, SingleCompletionHandler {
 		return this.ai.getModel()
 	}
 
-	countTokens(content: NeutralMessageContent): Promise<number> {
+	countTokens(content: string | NeutralMessageContent): Promise<number> {
 		return this.ai.countTokens(content)
 	}
 
