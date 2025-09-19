@@ -50,7 +50,7 @@ i18next
 		(err) => {
 			if (err) console.error(err)
 		},
-	).then(r => )
+	)
 
 export function loadTranslations() {
 	// Translations are already loaded in the mock

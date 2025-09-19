@@ -43,14 +43,14 @@ export const CodeBlock: FC<CodeBlockProps> = memo(({ language, value, className,
 					],
 				})
 
-				const htmlResult = html
+				const htmlResult = await html
 				setHighlightedCode(htmlResult)
 			} catch {
 				setHighlightedCode(value)
 			}
 		}
 
-		highlight().then(r => )
+		highlight().then(() => {})
 	}, [language, value, className])
 
 	return (
