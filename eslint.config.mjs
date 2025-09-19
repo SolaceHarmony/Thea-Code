@@ -61,6 +61,10 @@ export default [
 		rules: {},
 	},
 	globalIgnores([
+		"webview-ui/build/**",
+		"webview-ui/dist/**",
+		"test/**/.cache/**", // Ignore test cache artifacts
+		"src/e2e/.vscode-test.mjs", // Ignore e2e harness file that triggers TS rules under espree
 		"node_modules/",
 		"dist/",
 		"build/",
@@ -152,6 +156,9 @@ export default [
 			],
 			"@typescript-eslint/no-unsafe-return": "warn",
 			"@typescript-eslint/no-unsafe-argument": "warn",
+			"@typescript-eslint/no-unsafe-assignment": "warn",
+			"@typescript-eslint/no-unsafe-call": "warn",
+			"@typescript-eslint/no-unsafe-member-access": "warn",
 			"@typescript-eslint/restrict-plus-operands": "warn",
 			"@typescript-eslint/restrict-template-expressions": [
 				"warn",
@@ -248,6 +255,31 @@ export default [
 				tsconfigRootDir,
 			},
 		},
+		rules: {
+			...commonTsConfig.rules,
+			"@typescript-eslint/no-misused-promises": [
+				"warn",
+				{ checksVoidReturn: { attributes: false } }
+			],
+			"@typescript-eslint/no-unsafe-return": "warn",
+			"@typescript-eslint/no-unsafe-argument": "warn",
+			"@typescript-eslint/no-unsafe-assignment": "warn",
+			"@typescript-eslint/no-unsafe-call": "warn",
+			"@typescript-eslint/no-unsafe-member-access": "warn",
+			"@typescript-eslint/restrict-plus-operands": "warn",
+			"@typescript-eslint/restrict-template-expressions": [
+				"warn",
+				{ allowNumber: true }
+			],
+			"@typescript-eslint/unbound-method": "warn",
+			"@typescript-eslint/no-floating-promises": "warn",
+			"@typescript-eslint/no-unused-vars": [
+				"warn",
+				{ argsIgnorePattern: "^_", varsIgnorePattern: "^_" }
+			],
+			"@typescript-eslint/require-await": "warn",
+			"@typescript-eslint/no-explicit-any": "warn",
+		},
 	},
 	{
 		files: ["scripts/**/*.{ts,js}", "*.{cjs,mjs,js}"],
@@ -301,7 +333,15 @@ export default [
 				"@typescript-eslint/no-duplicate-type-constituents": "off",
 				"@typescript-eslint/no-implied-eval": "off",
 				"@typescript-eslint/no-redundant-type-constituents": "off",
-			},
+				"@typescript-eslint/no-unnecessary-type-assertion": "off",
+				"@typescript-eslint/no-confusing-void-expression": "off",
+				"@typescript-eslint/prefer-reduce-type-parameter": "off",
+				"@typescript-eslint/no-meaningless-void-operator": "off",
+				"@typescript-eslint/no-unsafe-enum-comparison": "off",
+				"@typescript-eslint/only-throw-error": "off",
+				"@typescript-eslint/prefer-promise-reject-errors": "off",
+				"@typescript-eslint/no-unsafe-unary-minus": "off",
+			}
 		},
 	// Webview UI: use its own tsconfig for type-aware TS rules
 	{
@@ -324,6 +364,9 @@ export default [
 			],
 			"@typescript-eslint/no-unsafe-return": "warn",
 			"@typescript-eslint/no-unsafe-argument": "warn",
+			"@typescript-eslint/no-unsafe-assignment": "warn",
+			"@typescript-eslint/no-unsafe-call": "warn",
+			"@typescript-eslint/no-unsafe-member-access": "warn",
 			"@typescript-eslint/restrict-plus-operands": "warn",
 			"@typescript-eslint/restrict-template-expressions": [
 				"warn",
