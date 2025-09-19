@@ -68,6 +68,7 @@ export class GeminiModelProvider implements ModelProvider {
     this.apiKey = options.geminiApiKey || ""
   }
 
+  async listModels(forceRefresh = false): Promise<ModelListing[]> { return this.getModels(forceRefresh) }
   async getModels(forceRefresh = false): Promise<ModelListing[]> {
     const cacheKey = "gemini_models"
     
@@ -137,22 +138,22 @@ export class GeminiModelProvider implements ModelProvider {
       const thinking = modelId.includes("thinking")
       
       models.push({
-        modelId,
-        info: {
-          maxTokens: model.outputTokenLimit || 8192,
-          contextWindow: model.inputTokenLimit || 32768,
-          supportsImages,
-          supportsPromptCache: false, // Gemini doesn't support prompt caching yet
-          supportsSystemInstructions,
-          inputPrice: pricing.input,
-          outputPrice: pricing.output,
-          description: model.description || model.displayName,
-          thinking,
-          temperature: model.temperature,
-          topP: model.topP,
-          topK: model.topK,
-        },
-      })
+            id: modelId,
+            info: {
+                maxTokens: model.outputTokenLimit || 8192,
+                contextWindow: model.inputTokenLimit || 32768,
+                supportsImages,
+                supportsPromptCache: false,
+                supportsSystemInstructions: supportsSystemInstructions,
+                inputPrice: pricing.input,
+                outputPrice: pricing.output,
+                description: model.description || model.displayName,
+                thinking,
+                temperature: model.temperature,
+                topP: model.topP,
+                topK: model.topK,
+            },
+        })
     }
     
     return models

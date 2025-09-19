@@ -5,7 +5,8 @@
  * instead of relying on hardcoded model definitions.
  */
 
-import { ApiHandlerOptions, ProviderName } from "../../shared/api"
+import { ApiHandlerOptions } from "../../shared/api"
+import type { ProviderName } from "../../schemas"
 import { SingleCompletionHandler } from "../index"
 import { modelRegistry } from "./model-registry"
 
@@ -17,7 +18,7 @@ import { OpenAIModelProvider } from "./openai-model-provider"
 // Legacy providers (to be migrated)
 import { OpenAiHandler } from "./openai"
 import { VertexHandler } from "./vertex"
-import { BedrockHandler } from "./bedrock"
+import { AwsBedrockHandler } from "./bedrock"
 import { OllamaHandler } from "./ollama"
 
 /**
@@ -110,7 +111,7 @@ createHandler(
 			
 			case "bedrock":
             // TODO: Create DynamicBedrockHandler
-            const BedrockCtor = BedrockHandler as unknown as new (o: ApiHandlerOptions) => SingleCompletionHandler
+            const BedrockCtor = AwsBedrockHandler as unknown as new (o: ApiHandlerOptions) => SingleCompletionHandler
             return new BedrockCtor(options)
 			
 			case "ollama":
@@ -180,23 +181,14 @@ export const providerFactory = ProviderFactory.getInstance()
 /**
  * Helper function to get model info across all providers
  */
-export async function findModelAcrossProviders(modelId: string): Promise<{
-	provider: string
-	info: import("../../schemas").ModelInfo
-} | null> {
+export async function findModelAcrossProviders(modelId: string): Promise<{ provider: string; info: import("../../schemas").ModelInfo } | null> {
 	const factory = ProviderFactory.getInstance()
 	factory.initialize()
-	
-        const providers = modelRegistry.getProviderNames()
-
-        const infos = await Promise.all(
-                providers.map(async (provider) => ({
-                        provider,
-                        info: await modelRegistry.getModelInfo(provider, modelId),
-                })),
-        )
-
-        return infos.find(({ info }) => info) || null
+	for (const provider of modelRegistry.getProviderNames()) {
+		const info = await modelRegistry.getModelInfo(provider, modelId)
+		if (info) return { provider, info }
+	}
+	return null
 }
 
 /**

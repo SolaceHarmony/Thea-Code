@@ -6,7 +6,7 @@ import { NeutralConversationHistory, NeutralMessageContent } from "../../shared/
 interface FakeAI {
 	createMessage(systemPrompt: string, messages: NeutralConversationHistory): ApiStream
 	getModel(): { id: string; info: ModelInfo }
-	countTokens(content: NeutralMessageContent): Promise<number>
+	countTokens(content: string | NeutralMessageContent): Promise<number>
 	completePrompt(prompt: string): Promise<string>
 }
 
