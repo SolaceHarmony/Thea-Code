@@ -1,60 +1,38 @@
+import { expect } from "chai"
 import { checkExistKey } from "../checkExistApiConfig"
-import { ApiConfiguration } from "../api"
+import type { ProviderSettings } from "../../schemas"
 
-describe("checkExistKey", () => {
-	it("should return false for undefined config", () => {
-		expect(checkExistKey(undefined)).toBe(false)
-	})
+describe("checkExistApiConfig", () => {
+  it("returns false when config is undefined", () => {
+    expect(checkExistKey(undefined)).to.equal(false)
+  })
 
-	it("should return false for empty config", () => {
-		const config: ApiConfiguration = {}
-		expect(checkExistKey(config)).toBe(false)
-	})
+  it("returns true for human-relay and fake-ai regardless of keys", () => {
+    expect(checkExistKey({ apiProvider: "human-relay" } as ProviderSettings)).to.equal(true)
+    expect(checkExistKey({ apiProvider: "fake-ai" } as ProviderSettings)).to.equal(true)
+  })
 
-	it("should return true when one key is defined", () => {
-		const config: ApiConfiguration = {
-			apiKey: "test-key",
-		}
-		expect(checkExistKey(config)).toBe(true)
-	})
+  it("returns true if any secret key exists", () => {
+    const config = { apiProvider: "openrouter", openRouterApiKey: "sk-123" } as ProviderSettings
+    expect(checkExistKey(config)).to.equal(true)
+  })
 
-	it("should return true when multiple keys are defined", () => {
-		const config: ApiConfiguration = {
-			apiKey: "test-key",
-			glamaApiKey: "glama-key",
-			openRouterApiKey: "openrouter-key",
-		}
-		expect(checkExistKey(config)).toBe(true)
-	})
+  it("returns true if any non-secret config exists (awsRegion, vertexProjectId, etc.)", () => {
+    const a: ProviderSettings = { apiProvider: "bedrock", awsRegion: "us-east-1" }
+    const b: ProviderSettings = { apiProvider: "vertex", vertexProjectId: "proj" }
+    const c: ProviderSettings = { apiProvider: "ollama", ollamaModelId: "llama3" }
+    const d: ProviderSettings = { apiProvider: "lmstudio", lmStudioModelId: "foo" }
+    const e: ProviderSettings = { apiProvider: "vscode-lm", vsCodeLmModelSelector: { vendor: "copilot" } }
 
-	it("should return true when only non-key fields are undefined", () => {
-		const config: ApiConfiguration = {
-			apiKey: "test-key",
-			apiProvider: undefined,
-			anthropicBaseUrl: undefined,
-			modelMaxThinkingTokens: undefined,
-		}
-		expect(checkExistKey(config)).toBe(true)
-	})
+    expect(checkExistKey(a)).to.equal(true)
+    expect(checkExistKey(b)).to.equal(true)
+    expect(checkExistKey(c)).to.equal(true)
+    expect(checkExistKey(d)).to.equal(true)
+    expect(checkExistKey(e)).to.equal(true)
+  })
 
-	it("should return false when all key fields are undefined", () => {
-		const config: ApiConfiguration = {
-			apiKey: undefined,
-			glamaApiKey: undefined,
-			openRouterApiKey: undefined,
-			awsRegion: undefined,
-			vertexProjectId: undefined,
-			openAiApiKey: undefined,
-			ollamaModelId: undefined,
-			lmStudioModelId: undefined,
-			geminiApiKey: undefined,
-			openAiNativeApiKey: undefined,
-			deepSeekApiKey: undefined,
-			mistralApiKey: undefined,
-			vsCodeLmModelSelector: undefined,
-			requestyApiKey: undefined,
-			unboundApiKey: undefined,
-		}
-		expect(checkExistKey(config)).toBe(false)
-	})
+  it("returns false when no secret or non-secret config is set", () => {
+    const config = { apiProvider: "openai" } as ProviderSettings
+    expect(checkExistKey(config)).to.equal(false)
+  })
 })

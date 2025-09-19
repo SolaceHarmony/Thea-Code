@@ -9,6 +9,8 @@ import type {
 	NeutralTextContentBlock,
 } from "../../../shared/neutral-history"
 import OpenAI from "openai"
+import assert from "node:assert/strict"
+import sinon from "sinon"
 
 describe("neutral-ollama-format", () => {
 	describe("convertToOllamaHistory", () => {
@@ -25,7 +27,7 @@ describe("neutral-ollama-format", () => {
 				{ role: "user", content: "What is the capital of France?" },
 			]
 
-			expect(convertToOllamaHistory(neutralHistory)).toEqual(expected)
+			assert.deepEqual(convertToOllamaHistory(neutralHistory), expected)
 		})
 
 		// Test case 2: System + User messages
@@ -46,7 +48,7 @@ describe("neutral-ollama-format", () => {
 				{ role: "user", content: "What is the capital of France?" },
 			]
 
-			expect(convertToOllamaHistory(neutralHistory)).toEqual(expected)
+			assert.deepStrictEqual(convertToOllamaHistory(neutralHistory), expected)
 		})
 
 		// Test case 3: User + Assistant + User messages
@@ -72,7 +74,7 @@ describe("neutral-ollama-format", () => {
 				{ role: "user", content: "What is its population?" },
 			]
 
-			expect(convertToOllamaHistory(neutralHistory)).toEqual(expected)
+			assert.deepStrictEqual(convertToOllamaHistory(neutralHistory), expected)
 		})
 
 		// Test case 4: System + User + Assistant + User messages
@@ -103,7 +105,7 @@ describe("neutral-ollama-format", () => {
 				{ role: "user", content: "What is its population?" },
 			]
 
-			expect(convertToOllamaHistory(neutralHistory)).toEqual(expected)
+			assert.deepStrictEqual(convertToOllamaHistory(neutralHistory), expected)
 		})
 
 		// Test case 5: Multiple content blocks in a message
@@ -120,7 +122,7 @@ describe("neutral-ollama-format", () => {
 
 			const expected: OpenAI.Chat.ChatCompletionMessageParam[] = [{ role: "user", content: "Hello\n\nWorld" }]
 
-			expect(convertToOllamaHistory(neutralHistory)).toEqual(expected)
+			assert.deepStrictEqual(convertToOllamaHistory(neutralHistory), expected)
 		})
 
 		// Test case 6: String content instead of array
@@ -136,14 +138,13 @@ describe("neutral-ollama-format", () => {
 				{ role: "user", content: "What is the capital of France?" },
 			]
 
-			expect(convertToOllamaHistory(neutralHistory)).toEqual(expected)
+			assert.deepStrictEqual(convertToOllamaHistory(neutralHistory), expected)
 		})
 
 		// Test case 7: Non-text content blocks (should be ignored with warning)
 		it("should ignore non-text content blocks with a warning", () => {
-			// Mock console.warn
-			const originalWarn = console.warn
-			console.warn = jest.fn()
+			// Spy on console.warn
+			const warnSpy = sinon.spy(console, "warn")
 
 			const neutralHistory: NeutralConversationHistory = [
 				{
@@ -166,11 +167,11 @@ describe("neutral-ollama-format", () => {
 				{ role: "user", content: "Look at this image:" },
 			]
 
-			expect(convertToOllamaHistory(neutralHistory)).toEqual(expected)
-			expect(console.warn).toHaveBeenCalled()
+			assert.deepStrictEqual(convertToOllamaHistory(neutralHistory), expected)
+			assert.ok(warnSpy.called)
 
 			// Restore console.warn
-			console.warn = originalWarn
+			warnSpy.restore()
 		})
 
 		// Test case 8: Empty content array
@@ -184,14 +185,12 @@ describe("neutral-ollama-format", () => {
 
 			const expected: OpenAI.Chat.ChatCompletionMessageParam[] = [{ role: "user", content: "" }]
 
-			expect(convertToOllamaHistory(neutralHistory)).toEqual(expected)
+			assert.deepStrictEqual(convertToOllamaHistory(neutralHistory), expected)
 		})
 
 		// Test case 9: Unknown role
 		it("should handle unknown roles", () => {
-			// Mock console.warn
-			const originalWarn = console.warn
-			console.warn = jest.fn()
+			const warnSpy = sinon.spy(console, "warn")
 
 			const neutralHistory: NeutralConversationHistory = [
 				{
@@ -203,12 +202,11 @@ describe("neutral-ollama-format", () => {
 			const result = convertToOllamaHistory(neutralHistory)
 
 			// Should default to user role
-			expect(result[0].role).toBe("user")
-			expect(result[0].content).toBe("Tool result")
-			expect(console.warn).toHaveBeenCalled()
+			assert.strictEqual(result[0].role, "user")
+			assert.strictEqual(result[0].content, "Tool result")
+			assert.ok(warnSpy.called)
 
-			// Restore console.warn
-			console.warn = originalWarn
+			warnSpy.restore()
 		})
 	})
 
@@ -216,7 +214,7 @@ describe("neutral-ollama-format", () => {
 		// Test case 1: Array with a single text block
 		it("should convert a single text block to string", () => {
 			const content: NeutralMessageContent = [{ type: "text", text: "Hello, world!" }]
-			expect(convertToOllamaContentBlocks(content)).toBe("Hello, world!")
+			assert.strictEqual(convertToOllamaContentBlocks(content), "Hello, world!")
 		})
 
 		// Test case 2: Multiple text blocks
@@ -225,7 +223,7 @@ describe("neutral-ollama-format", () => {
 				{ type: "text", text: "Hello" },
 				{ type: "text", text: "World" },
 			]
-			expect(convertToOllamaContentBlocks(content)).toBe("Hello\n\nWorld")
+			assert.strictEqual(convertToOllamaContentBlocks(content), "Hello\n\nWorld")
 		})
 
 		// Test case 3: Mixed content blocks (should ignore non-text)
@@ -242,13 +240,13 @@ describe("neutral-ollama-format", () => {
 				},
 				{ type: "text", text: "What do you think?" },
 			]
-			expect(convertToOllamaContentBlocks(content)).toBe("Look at this image:\n\nWhat do you think?")
+			assert.strictEqual(convertToOllamaContentBlocks(content), "Look at this image:\n\nWhat do you think?")
 		})
 
 		// Test case 4: Empty array
 		it("should handle empty array", () => {
 			const content: NeutralMessageContent = []
-			expect(convertToOllamaContentBlocks(content)).toBe("")
+			expect(convertToOllamaContentBlocks(content)).to.equal("")
 		})
 	})
 
@@ -266,7 +264,7 @@ describe("neutral-ollama-format", () => {
 				},
 			]
 
-			expect(convertToNeutralHistoryFromOllama(ollamaHistory)).toEqual(expected)
+			expect(convertToNeutralHistoryFromOllama(ollamaHistory)).to.deep.equal(expected)
 		})
 
 		// Test case 2: System + User messages
@@ -287,7 +285,7 @@ describe("neutral-ollama-format", () => {
 				},
 			]
 
-			expect(convertToNeutralHistoryFromOllama(ollamaHistory)).toEqual(expected)
+			expect(convertToNeutralHistoryFromOllama(ollamaHistory)).to.deep.equal(expected)
 		})
 
 		// Test case 3: User + Assistant + User messages
@@ -313,7 +311,7 @@ describe("neutral-ollama-format", () => {
 				},
 			]
 
-			expect(convertToNeutralHistoryFromOllama(ollamaHistory)).toEqual(expected)
+			expect(convertToNeutralHistoryFromOllama(ollamaHistory)).to.deep.equal(expected)
 		})
 
 		// Test case 4: Array content (unlikely but should be handled)
@@ -329,22 +327,20 @@ describe("neutral-ollama-format", () => {
 			const result = convertToNeutralHistoryFromOllama(ollamaHistory)
 
 			// Should convert each string to a text block
-			expect(result[0].role).toBe("user")
-			expect(Array.isArray(result[0].content)).toBe(true)
+			expect(result[0].role).to.equal("user")
+			expect(Array.isArray(result[0].content)).to.equal(true)
 
 			const content = result[0].content as NeutralTextContentBlock[]
-			expect(content.length).toBe(2)
-			expect(content[0].type).toBe("text")
-			expect(content[0].text).toBe("Hello")
-			expect(content[1].type).toBe("text")
-			expect(content[1].text).toBe("World")
+			expect(content.length).to.equal(2)
+			expect(content[0].type).to.equal("text")
+			expect(content[0].text).to.equal("Hello")
+			expect(content[1].type).to.equal("text")
+			expect(content[1].text).to.equal("World")
 		})
 
 		// Test case 5: Unknown role
 		it("should handle unknown roles", () => {
-			// Mock console.warn
-			const originalWarn = console.warn
-			console.warn = jest.fn()
+			const warnStub = sinon.stub(console, "warn")
 
 			const ollamaHistory: OpenAI.Chat.ChatCompletionMessageParam[] = [
 				// @ts-expect-error Testing invalid function message - missing name property
@@ -357,11 +353,10 @@ describe("neutral-ollama-format", () => {
 			const result = convertToNeutralHistoryFromOllama(ollamaHistory)
 
 			// Should default to user role
-			expect(result[0].role).toBe("user")
-			expect(console.warn).toHaveBeenCalled()
+			expect(result[0].role).to.equal("user")
+			expect(warnStub.called).to.be.true
 
-			// Restore console.warn
-			console.warn = originalWarn
+			warnStub.restore()
 		})
 
 		// Test case 6: Empty content
@@ -375,7 +370,7 @@ describe("neutral-ollama-format", () => {
 				},
 			]
 
-			expect(convertToNeutralHistoryFromOllama(ollamaHistory)).toEqual(expected)
+			expect(convertToNeutralHistoryFromOllama(ollamaHistory)).to.deep.equal(expected)
 		})
 
 		// Test case 7: Non-string, non-array content (should be stringified)
@@ -391,13 +386,13 @@ describe("neutral-ollama-format", () => {
 			const result = convertToNeutralHistoryFromOllama(ollamaHistory)
 
 			// Should stringify the object
-			expect(result[0].role).toBe("user")
-			expect(Array.isArray(result[0].content)).toBe(true)
+			expect(result[0].role).to.equal("user")
+			expect(Array.isArray(result[0].content)).to.equal(true)
 
 			const content = result[0].content as NeutralTextContentBlock[]
-			expect(content.length).toBe(1)
-			expect(content[0].type).toBe("text")
-			expect(content[0].text).toBe(JSON.stringify({ foo: "bar" }))
+			expect(content.length).to.equal(1)
+			expect(content[0].type).to.equal("text")
+			expect(content[0].text).to.equal(JSON.stringify({ foo: "bar" }))
 		})
 	})
 })
