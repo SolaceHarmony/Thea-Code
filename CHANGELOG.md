@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Thea Code is a community-driven fork that evolved from the original Cline project. The project was initially forked as "Roo Code" and later rebranded to "Thea Code" in April 2025 to establish its own identity and development direction.
 
+## September 2025
+
+### Added
+
+- Enforce strict, type-aware ESLint gating across src, tests, and webview-ui; re-enabled critical safety rules (no-unsafe-*, no-floating-promises, no-misused-promises, require-await, restrict-*) and brought tests/scripts back under linting with targeted overrides.
+- Unit tests covering prompts custom-instructions (rule loading, ENOENT/EISDIR handling, composition) and checkExistApiConfig (special providers, secret/non-secret paths).
+- Real-browser E2E test for BrowserSession.screenshot via hidden command `thea-code.test.browserCapture`, exercising Chromium launch, navigation, screenshot, and logs without stubs.
+
+### Changed
+
+- Converted high-noise Jest/Chai tests to node:assert/strict with sinon to avoid unsafe assertion chains and satisfy strict ESLint rules.
+- Tightened eslint.config.mjs: escalated safety rules to error for src/test/webview-ui; kept only no-unused-expressions off for BDD ergonomics in tests.
+- Refactored BrowserSession screenshot flow to remove throw-caught-locally patterns and use shared error helpers (getErrorMessage), preserving fallback to PNG.
+- Build now gates on ESLint (`npm run lint` with `--max-warnings=0`).
+
+### Fixed
+
+- Resolved unsafe member access/call patterns in tests by adding real types and using assert/strict; eliminated unused locals/imports and redundant checks in various modules.
+- Addressed import/path warnings in UI components and scripts; improved esbuild logging and watcher robustness.
+
 ## June 2025
 
 ### Added
