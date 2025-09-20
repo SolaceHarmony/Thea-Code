@@ -112,3 +112,23 @@ Notes
   - src/e2e/src/suite/utils/shell.test.ts
   - src/e2e/src/suite/utils/port-utils.retry-timeout.test.ts
 - Rationale: Roo-era artifacts with invalid syntax and brittle/incomplete mocks. Coverage is preserved by modern, co-located __e2e__ specs (BrowserSession, Vertex client) and by existing unit tests; any remaining valuable scenarios will be rebuilt as focused unit tests under __tests__.
+
+
+## Progress update (2025-09-19 — Batch E)
+- Removed remaining central duplicates that now exist as co-located specs under src/__e2e__/:
+  - src/e2e/src/suite/workspace-edit-insert.test.ts
+  - src/e2e/src/suite/fs-write-read-node.test.ts
+  - src/e2e/src/suite/fs-write-read-vscodefs.test.ts
+  - src/e2e/src/suite/uri-joinpath.test.ts
+  - src/e2e/src/suite/version.test.ts
+  - src/e2e/src/suite/workspace-folder-present.test.ts
+  - src/e2e/src/suite/utils/path-toposix.test.ts
+  - src/e2e/src/suite/utils/workspace-path.test.ts
+- Rationale: co-located __e2e__ counterparts are green; removing central copies avoids double execution and discovery confusion. Runner defaults unchanged; co-located discovery via on-the-fly transpilation remains active.
+
+
+## Progress update (2025-09-19 — Batch F)
+- Migrated additional simple central specs to co-located __e2e__ and removed legacy duplicates:
+  - src/e2e/src/suite/sanity.test.ts → src/__e2e__/sanity.e2e.test.ts
+  - src/e2e/src/suite/api.test.ts removed (covered by src/__e2e__/api.e2e.test.ts)
+- Rationale: preserve activation/API smoke coverage while avoiding duplicate discovery and keeping specs near the code they verify. Runner and runtime unchanged; co-located discovery via on-the-fly TS transpilation remains active.
