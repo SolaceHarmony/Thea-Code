@@ -11,7 +11,7 @@ suite("WorkspaceEdit Insert", () => {
     // Ensure file exists
     await vscode.workspace.fs.writeFile(uri, new TextEncoder().encode(""))
 
-    const doc = await vscode.workspace.openTextDocument(uri)
+    const _doc = await vscode.workspace.openTextDocument(uri)
     const edit = new vscode.WorkspaceEdit()
     edit.insert(uri, new vscode.Position(0, 0), "hello world")
     const applied = await vscode.workspace.applyEdit(edit)

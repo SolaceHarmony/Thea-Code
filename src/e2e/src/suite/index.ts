@@ -28,16 +28,10 @@ export async function run() {
 
 		writeDebug("[index] mocha created")
 		// Ensure TDD globals (suite/test) are registered for subsequently loaded test files
-		try {
-			// Register TDD globals for subsequent requires
-			const suiteRef: Mocha.Suite = (mocha as unknown as { suite: Mocha.Suite }).suite
-			suiteRef.emit("pre-require", global, "global", mocha)
-			writeDebug("[index] pre-require emitted")
-		} catch (e) {
-			const msg = e instanceof Error ? e.stack ?? String(e) : String(e)
-			writeDebug(`[index] pre-require failed: ${msg}`)
-			throw e
-		}
+		// Register TDD globals for subsequent requires. If this throws, the outer catch will handle it.
+		const suiteRef: Mocha.Suite = (mocha as unknown as { suite: Mocha.Suite }).suite
+		suiteRef.emit("pre-require", global, "global", mocha)
+		writeDebug("[index] pre-require emitted")
 
 		writeDebug("[index] mapping globals start")
 		// Support both BDD (describe/it) and TDD (suite/test) style tests

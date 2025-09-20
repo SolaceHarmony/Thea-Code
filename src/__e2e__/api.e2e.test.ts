@@ -1,5 +1,5 @@
 import * as assert from "assert"
-import type { TheaCodeAPI } from "../../exports/thea-code"
+import type { TheaCodeAPI } from "../exports/thea-code"
 
 suite("API exposure", () => {
   test("global.api is set by setup", () => {
