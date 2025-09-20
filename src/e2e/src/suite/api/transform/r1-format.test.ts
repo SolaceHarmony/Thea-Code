@@ -1,4 +1,5 @@
 import { convertToR1Format } from "../r1-format"
+import { expect } from 'chai'
 import type { NeutralConversationHistory } from "../../../shared/neutral-history"
 import OpenAI from "openai"
 import * as assert from 'assert'

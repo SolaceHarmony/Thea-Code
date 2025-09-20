@@ -1,5 +1,6 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
+import { expect } from 'chai'
 
 /**
  * Test suite for all dynamic model provider mock servers

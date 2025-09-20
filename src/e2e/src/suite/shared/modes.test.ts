@@ -1,4 +1,5 @@
 // Mock setup must come before imports
+import { expect } from 'chai'
 // TODO: Mock setup needs manual migration
 import * as assert from 'assert'
 import * as sinon from 'sinon'

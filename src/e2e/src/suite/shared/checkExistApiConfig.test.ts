@@ -1,4 +1,5 @@
 import { checkExistKey } from "../checkExistApiConfig"
+import { expect } from 'chai'
 import { ApiConfiguration } from "../api"
 
 import * as assert from 'assert'

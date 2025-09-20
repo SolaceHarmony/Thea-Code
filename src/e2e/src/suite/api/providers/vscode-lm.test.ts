@@ -1,4 +1,5 @@
 import type * as vscode from "vscode"
+import { expect } from 'chai'
 import { ApiHandlerOptions } from "../../../shared/api"
 import { VsCodeLmHandler } from "../vscode-lm"
 import * as assert from 'assert'

@@ -1,4 +1,5 @@
 import * as assert from 'assert'
+import { expect } from 'chai'
 import * as sinon from 'sinon'
 /* eslint-disable @typescript-eslint/unbound-method */
 import { loadRequiredLanguageParsers } from "../languageParser"

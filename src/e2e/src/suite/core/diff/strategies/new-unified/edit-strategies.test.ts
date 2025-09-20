@@ -1,4 +1,5 @@
 import { Hunk } from "../types"
+import { expect } from 'chai'
 import { applyContextMatching, applyDMP, applyGitFallback } from "../edit-strategies"
 
 import * as assert from 'assert'

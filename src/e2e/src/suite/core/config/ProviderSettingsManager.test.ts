@@ -1,4 +1,5 @@
 import * as assert from 'assert'
+import { expect } from 'chai'
 import * as sinon from 'sinon'
 import { EXTENSION_SECRETS_PREFIX } from "../../../shared/config/thea-config"
 import type { ExtensionContext } from "vscode"

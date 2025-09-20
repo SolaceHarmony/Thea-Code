@@ -1,4 +1,5 @@
 import { TOOL_GROUPS } from "../../shared/tool-groups"
+import { expect } from 'chai'
 import { isToolAllowedForMode, modes, ModeConfig } from "../../shared/modes"
 import * as assert from 'assert'
 import { validateToolUse } from "../mode-validator"

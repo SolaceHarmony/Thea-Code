@@ -1,4 +1,5 @@
 import { ToolCallAggregator, extractToolCallsFromDelta } from "../tool-use"
+import { expect } from 'chai'
 import type OpenAI from "openai"
 
 import * as assert from 'assert'

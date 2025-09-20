@@ -1,4 +1,5 @@
 import fs from "fs"
+import { expect } from 'chai'
 import * as readline from "readline"
 import { countFileLines } from "../line-counter"
 import * as assert from 'assert'

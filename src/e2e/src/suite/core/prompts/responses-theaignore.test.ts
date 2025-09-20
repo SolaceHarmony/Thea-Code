@@ -1,4 +1,5 @@
 import * as assert from 'assert'
+import { expect } from 'chai'
 import * as sinon from 'sinon'
 import { TheaIgnoreController, LOCK_TEXT_SYMBOL } from "../../ignore/TheaIgnoreController" // Keep original path, use renamed class
 import { formatResponse } from "../responses"

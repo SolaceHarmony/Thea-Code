@@ -1,4 +1,5 @@
 /*
+import { expect } from 'chai'
 suite("Ollama MCP Integration with SSE Transport", () => {
 	let mcpIntegration: McpIntegration
 	let client: McpClient

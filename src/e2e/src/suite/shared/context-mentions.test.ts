@@ -1,4 +1,5 @@
 import { mentionRegex, mentionRegexGlobal } from "../context-mentions"
+import { expect } from 'chai'
 
 import * as assert from 'assert'
 interface TestResult {

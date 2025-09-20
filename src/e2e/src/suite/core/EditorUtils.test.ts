@@ -1,4 +1,5 @@
 import * as vscode from "vscode"
+import { expect } from 'chai'
 import * as assert from 'assert'
 import { EditorUtils } from "../EditorUtils"
 import * as sinon from 'sinon'

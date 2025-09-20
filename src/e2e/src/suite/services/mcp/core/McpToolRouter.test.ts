@@ -1,4 +1,5 @@
 import { McpToolRouter } from "../McpToolRouter"
+import { expect } from 'chai'
 import { EventEmitter } from "events"
 import { McpConverters } from "../McpConverters"
 import { McpToolExecutor } from "../McpToolExecutor"

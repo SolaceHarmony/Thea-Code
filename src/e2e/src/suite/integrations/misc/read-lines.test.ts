@@ -1,4 +1,5 @@
 import { promises as fs } from "fs"
+import { expect } from 'chai'
 import path from "path"
 import { readLines } from "../read-lines"
 import * as assert from 'assert'

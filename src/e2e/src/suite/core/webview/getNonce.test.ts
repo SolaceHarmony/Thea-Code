@@ -1,4 +1,5 @@
 import * as assert from 'assert'
+import { expect } from 'chai'
 import { getNonce } from "../getNonce"
 import * as sinon from 'sinon'
 
