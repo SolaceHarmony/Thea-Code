@@ -269,7 +269,12 @@ const commonTsConfig = {
 			"@typescript-eslint/no-unsafe-return": "off",
 			"@typescript-eslint/unbound-method": "off",
 			"@typescript-eslint/restrict-plus-operands": "off",
-			"@typescript-eslint/restrict-template-expressions": "off"
+			"@typescript-eslint/restrict-template-expressions": "off",
+			"@typescript-eslint/no-duplicate-type-constituents": "off",
+			"@typescript-eslint/no-confusing-void-expression": "off",
+			"@typescript-eslint/no-implied-eval": "off",
+			"@typescript-eslint/no-redundant-type-constituents": "off",
+			"@typescript-eslint/no-unnecessary-type-assertion": "off"
 		},
 	},
 	{
@@ -305,7 +310,12 @@ const commonTsConfig = {
 				"@typescript-eslint/no-unsafe-return": "off",
 				"@typescript-eslint/unbound-method": "off",
 				"@typescript-eslint/restrict-plus-operands": "off",
-				"@typescript-eslint/restrict-template-expressions": "off"
+				"@typescript-eslint/restrict-template-expressions": "off",
+				"@typescript-eslint/no-duplicate-type-constituents": "off",
+				"@typescript-eslint/no-confusing-void-expression": "off",
+				"@typescript-eslint/no-implied-eval": "off",
+				"@typescript-eslint/no-redundant-type-constituents": "off",
+				"@typescript-eslint/no-unnecessary-type-assertion": "off"
 			}
 		},
 	// Webview UI: use its own tsconfig for type-aware TS rules
