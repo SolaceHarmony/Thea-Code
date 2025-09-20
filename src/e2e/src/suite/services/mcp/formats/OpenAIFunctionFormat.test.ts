@@ -1,4 +1,5 @@
 import * as assert from 'assert'
+import { expect } from 'chai'
 /**
  * Tests for OpenAI function format handling in MCP system
  * Validates conversion between OpenAI function calls and MCP neutral format

@@ -1,4 +1,5 @@
 import { ToolDefinition } from "../types/McpProviderTypes"
+import { expect } from 'chai'
 import { McpToolRegistry } from "../core/McpToolRegistry"
 import * as assert from 'assert'
 import * as sinon from 'sinon'

@@ -1,4 +1,5 @@
 import { ApiHandlerOptions } from "../../../shared/api"
+import { expect } from 'chai'
 import { OpenAiNativeHandler } from "../openai-native"
 import * as assert from 'assert'
 import { NeutralMessage } from "../../../shared/neutral-history"

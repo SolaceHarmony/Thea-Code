@@ -1,4 +1,5 @@
 import { detectCodeOmission } from "../detect-omission"
+import { expect } from 'chai'
 
 import * as assert from 'assert'
 suite("detectCodeOmission", () => {

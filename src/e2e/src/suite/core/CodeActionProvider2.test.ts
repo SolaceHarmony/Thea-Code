@@ -1,4 +1,5 @@
 import * as vscode from "vscode"
+import { expect } from 'chai'
 import { EditorUtils } from "../EditorUtils"
 import { CodeActionProvider, ACTION_NAMES } from "../CodeActionProvider"
 import * as assert from 'assert'

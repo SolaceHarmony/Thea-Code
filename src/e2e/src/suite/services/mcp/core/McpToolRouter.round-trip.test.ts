@@ -1,4 +1,5 @@
 import * as assert from 'assert'
+import { expect } from 'chai'
 import * as sinon from 'sinon'
 /**
  * Round-trip tests for McpToolRouter as recommended by architect

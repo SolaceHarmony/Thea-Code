@@ -1,4 +1,5 @@
 import * as vscode from "vscode"
+import { expect } from 'chai'
 import * as os from "os"
 import fs from "fs/promises"
 import { McpHub } from "../../../services/mcp/management/McpHub"

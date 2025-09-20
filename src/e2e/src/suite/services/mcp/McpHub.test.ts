@@ -1,4 +1,5 @@
 import type { McpHub as McpHubType } from "../management/McpHub"
+import { expect } from 'chai'
 import type { TheaProvider } from "../../../core/webview/TheaProvider" // Renamed import
 import type { ExtensionContext, Uri, Extension, Memento, SecretStorage, EnvironmentVariableCollection } from "vscode"
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js"

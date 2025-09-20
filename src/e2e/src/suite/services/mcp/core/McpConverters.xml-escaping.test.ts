@@ -1,4 +1,5 @@
 import * as assert from 'assert'
+import { expect } from 'chai'
 import * as sinon from 'sinon'
 /**
  * Comprehensive XML escaping and mixed content tests for McpConverters

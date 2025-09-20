@@ -1,4 +1,5 @@
 import { EXPERIMENT_IDS, experimentConfigsMap, experiments as Experiments, ExperimentId } from "../experiments"
+import { expect } from 'chai'
 
 import * as assert from 'assert'
 suite("experiments", () => {

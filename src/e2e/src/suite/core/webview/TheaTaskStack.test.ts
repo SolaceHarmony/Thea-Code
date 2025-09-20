@@ -1,4 +1,5 @@
 import * as assert from 'assert'
+import { expect } from 'chai'
 import * as sinon from 'sinon'// filepath: /Volumes/stuff/Projects/Thea-Code/src/core/webview/__tests__/TheaTaskStack.test.ts
 /* eslint-disable @typescript-eslint/unbound-method */
 import { TheaTask } from "../../TheaTask" // Renamed import

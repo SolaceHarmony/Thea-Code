@@ -1,4 +1,5 @@
 import * as assert from 'assert'
+import { expect } from 'chai'
 import * as sinon from 'sinon'// import type { Anthropic } from "@anthropic-ai/sdk" // Unused
 import type { NeutralConversationHistory } from "../../../shared/neutral-history" // NeutralMessageContent was unused
 import type { ApiStreamChunk } from "../../transform/stream"

@@ -1,4 +1,5 @@
 import { ApiHandlerOptions } from "../../../shared/api"
+import { expect } from 'chai'
 import { UnboundHandler } from "../unbound"
 import type { NeutralConversationHistory } from "../../../shared/neutral-history"
 import type OpenAI from "openai" // Added for types

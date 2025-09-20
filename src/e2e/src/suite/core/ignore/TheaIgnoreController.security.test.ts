@@ -1,4 +1,5 @@
 import * as assert from 'assert'
+import { expect } from 'chai'
 import * as sinon from 'sinon'
 import * as path from "path"
 import { TheaIgnoreController } from "../TheaIgnoreController"
