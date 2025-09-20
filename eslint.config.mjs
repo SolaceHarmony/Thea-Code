@@ -168,6 +168,25 @@ const commonTsConfig = {
 			"@typescript-eslint/no-unused-expressions": "off",
 		},
 	},
+	// E2E co-located tests: relax a couple of rules for pragmatic test code
+	{
+		files: [
+			"src/**/__e2e__/**/*.{ts,tsx}",
+		],
+		...commonTsConfig,
+		languageOptions: {
+			...commonTsConfig.languageOptions,
+			parserOptions: {
+				...commonTsConfig.languageOptions.parserOptions,
+				project: "./tsconfig.eslint.json",
+				tsconfigRootDir,
+			},
+		},
+		rules: {
+			"@typescript-eslint/no-unnecessary-type-assertion": "off",
+			"@typescript-eslint/no-explicit-any": "off",
+		},
+	},
 	{
 		files: [
 			"src/e2e/src/launch.ts",

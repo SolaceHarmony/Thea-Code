@@ -55,7 +55,7 @@ async function main() {
   console.log(`[e2e/launch] Building extension`)
   execSync("npm run build:extension", { cwd: repoRoot, stdio: "inherit" })
 
-    const env = {
+    const env: NodeJS.ProcessEnv = {
       ...process.env,
       ELECTRON_ENABLE_LOGGING: "1",
       ELECTRON_ENABLE_STACK_DUMPING: "1",
@@ -63,8 +63,9 @@ async function main() {
       NODE_ENV: process.env.NODE_ENV ?? "test",
       E2E_SMOKE_ONLY: process.env.E2E_SMOKE_ONLY ?? "0",
       E2E_DIRECT_TEST: process.env.E2E_DIRECT_TEST ?? "0",
-      // index.ts expects a glob relative to out/suite
-      E2E_TEST_GLOB: process.env.E2E_TEST_GLOB ?? "**/*.test.js",
+      // Do not set E2E_TEST_GLOB by default. Let index.ts pick its own default
+      // (selected/**/*.test.js). If the user provides E2E_TEST_GLOB, it will be
+      // inherited via process.env spread above.
     }
 
     // Workaround Insiders macOS binary arg parsing: invoke the CLI shim instead
