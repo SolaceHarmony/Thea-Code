@@ -1,12 +1,11 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 import * as proxyquire from 'proxyquire'
-import { NeutralVertexClient } from "../services/vertex/NeutralVertexClient";
 import type {
   NeutralVertexClaudeResponse,
   NeutralVertexGeminiResponse,
-} from "../services/vertex/types";
-import type { NeutralMessageContent } from "../shared/neutral-history";
+} from "../types";
+import type { NeutralMessageContent } from "../../../shared/neutral-history";
 
 // Mock google-auth-library to avoid real GCP auth, keep shapes minimal but correct
 // Mock google-auth-library
@@ -30,7 +29,7 @@ const tiktokenMock = {
   Tiktoken: class {
     static specialTokenRegex = /<\|[^|]+\|>/g;
     // Accept config arg for compatibility with real constructor
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     constructor(_config?: unknown) {}
     encode(text: string): number[] {
       return text.split(/\s+/).filter(Boolean).map((_, i) => i);
@@ -46,7 +45,7 @@ suite("NeutralVertexClient", () => {
   const projectId = "proj-123";
   const region = "us-central1";
 
-  let NeutralVertexClient: typeof import("../services/vertex/NeutralVertexClient").NeutralVertexClient;
+  let NeutralVertexClient: typeof import("../NeutralVertexClient").NeutralVertexClient;
   let fetchStub: sinon.SinonStub;
   let sandbox: sinon.SinonSandbox;
 
@@ -63,11 +62,12 @@ suite("NeutralVertexClient", () => {
     );
 
     // Load NeutralVertexClient with mocked dependencies
-    const module = proxyquire.noCallThru()('../services/vertex/NeutralVertexClient', {
-      'google-auth-library': googleAuthMock,
-      'js-tiktoken/lite': tiktokenMock,
-      'js-tiktoken/ranks/o200k_base': o200kBaseMock
-    });
+    const module = proxyquire
+      .noCallThru()('../NeutralVertexClient', {
+        'google-auth-library': googleAuthMock,
+        'js-tiktoken/lite': tiktokenMock,
+        'js-tiktoken/ranks/o200k_base': o200kBaseMock,
+      }) as unknown as typeof import('../NeutralVertexClient');
     
     NeutralVertexClient = module.NeutralVertexClient;
   });

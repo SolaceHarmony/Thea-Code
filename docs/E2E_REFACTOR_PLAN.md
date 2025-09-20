@@ -77,3 +77,13 @@ Notes
   - workspace-path.e2e.test.ts
   - api.e2e.test.ts
 - Kept changes minimal: used mv and adjusted imports/types; no behavior refactors.
+
+## Progress update (2025-09-19 — Runner and lint alignment)
+- launch.ts no longer sets E2E_TEST_GLOB by default; index.ts now controls the default discovery (selected/**/*.test.js) unless the user explicitly provides E2E_TEST_GLOB.
+- ESLint: added a targeted override for co-located E2E specs (src/**/__e2e__/**) to relax @typescript-eslint/no-unnecessary-type-assertion and no-explicit-any. This reduces friction during migration without affecting production code.
+
+## Progress update (2025-09-19 — Batch B)
+- Migrated a central suite to co-located __e2e__:
+  - src/e2e/src/suite/NeutralVertexClient.test.ts → src/services/vertex/__e2e__/NeutralVertexClient.e2e.test.ts
+- Minimal edits: adjusted relative imports to ../NeutralVertexClient and ../types; typed proxyquire return to avoid unsafe any in test; no runtime changes.
+- How to run: npm run test:e2e (the runner transpiles co-located TS e2e specs on-the-fly).
