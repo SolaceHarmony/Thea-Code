@@ -56,3 +56,24 @@ Notes
   - src/e2e/src/suite/selected/basic.test.ts → src/__e2e__/basic.e2e.test.ts (replaced prior duplicate)
 - No logic changes; imports unchanged. Co-located specs are discovered by the e2e runner via on-the-fly transpilation.
 - Next candidates to migrate: other simple VS Code API interaction specs under selected/ and small, self-contained browser or editor flows.
+
+
+## Progress update (2025-09-19 — Batch A continued)
+- Removed legacy duplicates from src/e2e/src/suite/selected:
+  - activation.test.ts
+  - extension-metadata.test.ts
+  - commands-registered.test.ts
+  - api-presence.test.ts
+  - env.test.ts
+  - env-flags.test.ts
+- Migrated to co-located src/__e2e__/ with minimal import tweaks:
+  - fs-write-read-node.e2e.test.ts
+  - fs-write-read-vscodefs.e2e.test.ts
+  - path-toposix.e2e.test.ts
+  - shared-array.e2e.test.ts
+  - uri-joinpath.e2e.test.ts
+  - version.e2e.test.ts
+  - workspace-folder-present.e2e.test.ts
+  - workspace-path.e2e.test.ts
+  - api.e2e.test.ts
+- Kept changes minimal: used mv and adjusted imports/types; no behavior refactors.

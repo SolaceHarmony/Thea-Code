@@ -7,7 +7,7 @@ declare global {
 
 // Load side-effect module from built output to install toPosix()
 const repoRoot = path.resolve(__dirname, "../../../../../..")
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require(path.join(repoRoot, "out", "utils", "path.js"))
 
 suite("String.prototype.toPosix", () => {

@@ -3,8 +3,12 @@ import * as path from "path"
 
 // Load from the built extension output to avoid TS rootDir restrictions
 const repoRoot = path.resolve(__dirname, "../../../../../..")
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { findLastIndex, findLast } = require(path.join(repoRoot, "out", "shared", "array.js"))
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const arrayMod = require(path.join(repoRoot, "out", "shared", "array.js")) as {
+  findLastIndex: <T>(arr: T[], pred: (x: T) => boolean) => number
+  findLast: <T>(arr: T[], pred: (x: T) => boolean) => T | undefined
+}
+const { findLastIndex, findLast } = arrayMod
 
 suite("shared/array", () => {
   suite("findLastIndex", () => {
