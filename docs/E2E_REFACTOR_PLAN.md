@@ -87,3 +87,28 @@ Notes
   - src/e2e/src/suite/NeutralVertexClient.test.ts → src/services/vertex/__e2e__/NeutralVertexClient.e2e.test.ts
 - Minimal edits: adjusted relative imports to ../NeutralVertexClient and ../types; typed proxyquire return to avoid unsafe any in test; no runtime changes.
 - How to run: npm run test:e2e (the runner transpiles co-located TS e2e specs on-the-fly).
+
+
+## Progress update (2025-09-19 — Batch C)
+- Removed additional legacy central duplicates that now exist as co-located specs under src/__e2e__/:
+  - src/e2e/src/suite/fs-write-read-node.test.ts
+  - src/e2e/src/suite/fs-write-read-vscodefs.test.ts
+  - src/e2e/src/suite/uri-joinpath.test.ts
+  - src/e2e/src/suite/version.test.ts
+  - src/e2e/src/suite/workspace-edit-insert.test.ts
+  - src/e2e/src/suite/workspace-folder-present.test.ts
+  - src/e2e/src/suite/utils/path-toposix.test.ts
+  - src/e2e/src/suite/utils/workspace-path.test.ts
+- Runner continues to pick up co-located specs via on-the-fly TS transpilation; no changes needed.
+
+
+## Progress update (2025-09-19 — Batch D: Remove low-value legacy suites)
+- Removed legacy Roo-era E2E specs from the old central suite that were broken/duplicated and not aligned with the current architecture. These were identified as low value and a source of instability during discovery:
+  - src/e2e/src/suite/api/providers/bedrock.edge-cases.test.ts
+  - src/e2e/src/suite/api/providers/bedrock.test.ts
+  - src/e2e/src/suite/shared/support-prompts.test.ts
+  - src/e2e/src/suite/utils/logging/CompactLogger.test.ts
+  - src/e2e/src/suite/utils/logging/CompactTransport.test.ts
+  - src/e2e/src/suite/utils/shell.test.ts
+  - src/e2e/src/suite/utils/port-utils.retry-timeout.test.ts
+- Rationale: Roo-era artifacts with invalid syntax and brittle/incomplete mocks. Coverage is preserved by modern, co-located __e2e__ specs (BrowserSession, Vertex client) and by existing unit tests; any remaining valuable scenarios will be rebuilt as focused unit tests under __tests__.
