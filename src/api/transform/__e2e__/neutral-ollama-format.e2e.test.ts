@@ -1,4 +1,3 @@
-import {
 import { expect } from 'chai'
 import * as assert from 'assert'
 import * as sinon from 'sinon'
@@ -404,3 +403,4 @@ suite("neutral-ollama-format", () => {
 		})
 	})
 // Mock cleanup
+})

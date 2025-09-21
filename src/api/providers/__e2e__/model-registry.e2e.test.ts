@@ -327,3 +327,4 @@ suite("ModelRegistry", () => {
 		})
 	})
 // Mock cleanup
+})

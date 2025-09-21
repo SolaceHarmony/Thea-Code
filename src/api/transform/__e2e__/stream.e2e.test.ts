@@ -115,3 +115,4 @@ suite("API Stream Types", () => {
 		})
 	})
 // Mock cleanup
+})

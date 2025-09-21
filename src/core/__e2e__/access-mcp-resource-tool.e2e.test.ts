@@ -54,3 +54,4 @@ suite("accessMcpResourceTool", () => {
 		assert.ok(pushToolResult.calledWith("err"))
 	})
 // Mock cleanup
+})

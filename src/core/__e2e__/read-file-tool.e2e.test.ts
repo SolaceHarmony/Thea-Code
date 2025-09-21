@@ -145,3 +145,4 @@ suite("read_file tool with maxReadFileLine setting", () => {
 		assert.ok(addLineNumbers.called)
 	})
 // Mock cleanup
+})

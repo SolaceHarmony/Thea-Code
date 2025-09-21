@@ -17,3 +17,4 @@ suite("getNonce", () => {
 		expect(second).toMatch(/^[A-Za-z0-9]{32}$/)
 	})
 // Mock cleanup
+})

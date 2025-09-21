@@ -880,3 +880,4 @@ suite("addCustomInstructions", () => {
 		sinon.restore()
 	})
 // Mock cleanup
+})

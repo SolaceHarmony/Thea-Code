@@ -196,3 +196,4 @@ suite("CodeActionProvider", () => {
 		})
 	})
 // Mock cleanup
+})

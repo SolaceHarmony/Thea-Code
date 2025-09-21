@@ -341,3 +341,4 @@ suite("convertAnthropicMessageToVertexGemini", () => {
 		)
 	})
 // Mock cleanup
+})

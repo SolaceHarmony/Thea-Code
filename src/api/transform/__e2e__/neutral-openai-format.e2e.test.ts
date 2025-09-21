@@ -135,3 +135,4 @@ suite("convertToOpenAiHistory", () => {
 		assert.strictEqual(toolMessage.content, "Current temperature in London: 20°C")
 	})
 // Mock cleanup
+})

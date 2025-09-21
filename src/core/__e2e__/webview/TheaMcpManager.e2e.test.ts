@@ -283,3 +283,4 @@ suite("TheaMcpManager", () => {
 		assert.ok(console.log.calledWith(// TODO: String contains check - "TheaMcpManager disposed")))
 	})
 // Mock cleanup
+})

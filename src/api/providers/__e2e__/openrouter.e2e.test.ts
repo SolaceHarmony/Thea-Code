@@ -413,3 +413,4 @@ suite("OpenRouterHandler", () => {
 		assert.deepStrictEqual(toolResultChunk, { type: "tool_result", id: "call1", content: { result: "ok" } })
 	})
 // Mock cleanup
+})

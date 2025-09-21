@@ -205,3 +205,4 @@ suite("LmStudioHandler", () => {
 		})
 	})
 // Mock cleanup
+})

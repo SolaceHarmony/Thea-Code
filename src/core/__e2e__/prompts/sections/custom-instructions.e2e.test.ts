@@ -208,3 +208,4 @@ suite("addCustomInstructions", () => {
 		assert.ok(!result.includes("Rules from .Thearules-test-mode"))
 	})
 // Mock cleanup
+})

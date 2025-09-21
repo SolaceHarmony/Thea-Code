@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
+import * as assert from 'assert'
+import { expect } from 'chai'
+import { Readable } from "stream"
+
 import { OpenAiHandler } from "../openai"
 import { ApiHandlerOptions } from "../../../shared/api"
 import type { NeutralConversationHistory } from "../../../shared/neutral-history"
 import { API_REFERENCES } from "../../../shared/config/thea-config"
-import { Readable } from "stream"
 import openaiSetup, { openAIMock } from "../../../../test/openai-mock/setup.ts"
 import { openaiTeardown } from "../../../../test/openai-mock/teardown.ts"
 
@@ -83,23 +86,27 @@ describe("OpenAiHandler", () => {
 
 	describe("constructor", () => {
 		it("should initialize with provided options", () => {
-			expect(handler).toBeInstanceOf(OpenAiHandler)
-			expect(handler.getModel().id).toBe(mockOptions.openAiModelId)
+			expect(handler).to.be.instanceOf(OpenAiHandler)
+			expect(handler.getModel().id).to.equal(mockOptions.openAiModelId)
 		})
 
 		it("should use custom base URL if provided", () => {
 			const customBaseUrl = "https://custom.openai.com/v1"
-			const handlerWithCustomUrl = new OpenAiHandler({
-				...mockOptions,
-				openAiBaseUrl: customBaseUrl,
-			})
-			expect(handlerWithCustomUrl).toBeInstanceOf(OpenAiHandler)
+		const handlerWithCustomUrl = new OpenAiHandler({
+			...mockOptions,
+			openAiBaseUrl: customBaseUrl,
+		})
+			expect(handlerWithCustomUrl).to.be.instanceOf(OpenAiHandler)
 		})
 
 		it("should set default headers correctly", async () => {
 			await handler.completePrompt("Hi")
-			expect(capturedHeaders["http-referer"]).toBe(API_REFERENCES.HOMEPAGE)
-			expect(capturedHeaders["x-title"]).toBe(API_REFERENCES.APP_TITLE)
+			const refererHeader = capturedHeaders["http-referer"]
+			const titleHeader = capturedHeaders["x-title"]
+			const refererValue = Array.isArray(refererHeader) ? refererHeader[0] : refererHeader
+			const titleValue = Array.isArray(titleHeader) ? titleHeader[0] : titleHeader
+			expect(refererValue).to.equal(API_REFERENCES.HOMEPAGE)
+			expect(titleValue).to.equal(API_REFERENCES.APP_TITLE)
 		})
 	})
 
@@ -129,15 +136,15 @@ describe("OpenAiHandler", () => {
 				chunks.push(chunk)
 			}
 
-			expect(chunks.length).toBeGreaterThan(0)
+			assert.ok(chunks.length > 0)
 			const textChunk = chunks.find((chunk) => chunk.type === "text")
 			const usageChunk = chunks.find((chunk) => chunk.type === "usage")
 
-			expect(textChunk).toBeDefined()
-			expect(textChunk?.text).toBe("Test response")
-			expect(usageChunk).toBeDefined()
-			expect(usageChunk?.inputTokens).toBe(10)
-			expect(usageChunk?.outputTokens).toBe(5)
+			assert.ok(textChunk)
+			assert.strictEqual(textChunk?.text, "Test response")
+			assert.ok(usageChunk)
+			assert.strictEqual(usageChunk?.inputTokens, 10)
+			assert.strictEqual(usageChunk?.outputTokens, 5)
 		})
 
 		it("should handle streaming responses", async () => {
@@ -147,10 +154,10 @@ describe("OpenAiHandler", () => {
 				chunks.push(chunk)
 			}
 
-			expect(chunks.length).toBeGreaterThan(0)
+			assert.ok(chunks.length > 0)
 			const textChunks = chunks.filter((chunk) => chunk.type === "text")
-			expect(textChunks).toHaveLength(1)
-			expect(textChunks[0].text).toBe("Test response")
+			assert.strictEqual(textChunks.length, 1)
+			expect(textChunks[0].text).to.equal("Test response")
 		})
 	})
 
@@ -177,11 +184,14 @@ describe("OpenAiHandler", () => {
 
 		const stream = handler.createMessage("system prompt", testMessages)
 
-			await expect(async () => {
-				for await (const chunk of stream) {
-					void chunk
-				}
-			}).rejects.toThrow("API Error")
+			await assert.rejects(
+				async () => {
+					for await (const chunk of stream) {
+						void chunk
+					}
+				},
+				(error: unknown) => error instanceof Error && error.message.includes("API Error"),
+			)
 		})
 
 	it("should handle rate limiting", async () => {
@@ -194,27 +204,27 @@ describe("OpenAiHandler", () => {
 
 		const stream = handler.createMessage("system prompt", testMessages)
 
-			await expect(async () => {
-				for await (const chunk of stream) {
-					void chunk
-				}
-			}).rejects.toThrow("Rate limit exceeded")
+			await assert.rejects(
+				async () => {
+					for await (const chunk of stream) {
+						void chunk
+					}
+				},
+				(error: unknown) => error instanceof Error && error.message.includes("Rate limit exceeded"),
+			)
 		})
 	})
 
 	describe("completePrompt", () => {
 		it("should complete prompt successfully", async () => {
 			const result = await handler.completePrompt("Test prompt")
-			expect(result).toBe("Test response")
-			expect(requestBody).toEqual(
-				expect.objectContaining({
-					model: mockOptions.openAiModelId,
-					messages: [{ role: "user", content: "Test prompt" }],
-					max_tokens: expect.any(Number),
-					temperature: expect.any(Number),
-					stream: false,
-				}),
-			)
+			expect(result).to.equal("Test response")
+			expect(requestBody).to.be.an("object")
+			expect(requestBody.model).to.equal(mockOptions.openAiModelId)
+			expect(requestBody.stream).to.equal(false)
+			expect(requestBody.messages).to.deep.equal([{ role: "user", content: "Test prompt" }])
+			expect(requestBody.max_tokens).to.be.a("number")
+			expect(requestBody.temperature).to.be.a("number")
 		})
 
 	it("should handle API errors", async () => {
@@ -225,7 +235,10 @@ describe("OpenAiHandler", () => {
 			{ error: { message: "API Error" } },
 		])
 
-		await expect(handler.completePrompt("Test prompt")).rejects.toThrow("OpenAI completion error: API Error")
+		await assert.rejects(
+			handler.completePrompt("Test prompt"),
+			(error: unknown) => error instanceof Error && error.message.includes("OpenAI completion error: API Error"),
+		)
 	})
 
 	it("should handle empty response", async () => {
@@ -236,17 +249,17 @@ describe("OpenAiHandler", () => {
 			{ choices: [{ message: { content: "" } }] },
 		])
 		const result = await handler.completePrompt("Test prompt")
-		expect(result).toBe("")
+			expect(result).to.equal("")
 	})
 	})
 
 	describe("getModel", () => {
 		it("should return model info with sane defaults", () => {
 			const model = handler.getModel()
-			expect(model.id).toBe(mockOptions.openAiModelId)
-			expect(model.info).toBeDefined()
-			expect(model.info.contextWindow).toBe(128_000)
-			expect(model.info.supportsImages).toBe(true)
+			expect(model.id).to.equal(mockOptions.openAiModelId)
+			assert.ok(model.info)
+			expect(model.info?.contextWindow).to.equal(128_000)
+			expect(model.info?.supportsImages).to.equal(true)
 		})
 
 		it("should handle undefined model ID", () => {
@@ -255,8 +268,8 @@ describe("OpenAiHandler", () => {
 				openAiModelId: undefined,
 			})
 			const model = handlerWithoutModel.getModel()
-			expect(model.id).toBe("")
-			expect(model.info).toBeDefined()
+			expect(model.id).to.equal("")
+			assert.ok(model.info)
 		})
 	})
 
@@ -277,7 +290,7 @@ describe("OpenAiHandler", () => {
 
 			const toolCalls = handler.extractToolCalls(delta)
 
-			expect(toolCalls).toEqual(delta.tool_calls)
+			assert.deepStrictEqual(toolCalls, delta.tool_calls)
 		})
 
 		it("should return empty array if no tool calls", () => {
@@ -287,7 +300,7 @@ describe("OpenAiHandler", () => {
 
 			const toolCalls = handler.extractToolCalls(delta)
 
-			expect(toolCalls).toEqual([])
+			assert.deepStrictEqual(toolCalls, [])
 		})
 
 		it("should detect if delta has tool calls", () => {
@@ -306,7 +319,7 @@ describe("OpenAiHandler", () => {
 
 			const hasToolCalls = handler.hasToolCalls(delta)
 
-			expect(hasToolCalls).toBe(true)
+			expect(hasToolCalls).to.equal(true)
 		})
 
 		it("should detect if delta has no tool calls", () => {
@@ -316,7 +329,7 @@ describe("OpenAiHandler", () => {
 
 			const hasToolCalls = handler.hasToolCalls(delta)
 
-			expect(hasToolCalls).toBe(false)
+			expect(hasToolCalls).to.equal(false)
 		})
 	})
 })

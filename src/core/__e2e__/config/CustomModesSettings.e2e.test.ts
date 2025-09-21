@@ -170,3 +170,4 @@ suite("CustomModesSettings", () => {
 		})
 	})
 // Mock cleanup
+})

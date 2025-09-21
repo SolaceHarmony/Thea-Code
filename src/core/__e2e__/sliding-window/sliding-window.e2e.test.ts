@@ -542,3 +542,4 @@ suite("getMaxTokens", () => {
 		assert.strictEqual(result2.length, 3) // Truncated with 0.5 fraction
 	})
 // Mock cleanup
+})

@@ -155,3 +155,4 @@ suite("mode-validator", () => {
 		})
 	})
 // Mock cleanup
+})

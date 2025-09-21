@@ -426,3 +426,4 @@ suite("ContextProxy", () => {
 		})
 	})
 // Mock cleanup
+})

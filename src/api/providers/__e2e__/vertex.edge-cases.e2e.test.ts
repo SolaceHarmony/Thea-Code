@@ -621,3 +621,4 @@ suite("Vertex Provider Edge Cases", () => {
 		})
 	})
 // Mock cleanup
+})

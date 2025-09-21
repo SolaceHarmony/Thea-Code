@@ -300,3 +300,4 @@ suite("convertToMistralMessages", () => {
 		assert.strictEqual(mistralMessages[0].content, undefined)
 	})
 // Mock cleanup
+})

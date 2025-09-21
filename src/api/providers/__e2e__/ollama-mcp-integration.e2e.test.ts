@@ -295,3 +295,4 @@ suite("Ollama MCP Integration", () => {
 		})
 	})
 // Mock cleanup
+})

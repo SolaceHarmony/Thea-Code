@@ -796,3 +796,4 @@ suite("TheaTask", () => {
 		})
 	})
 // Mock cleanup
+})

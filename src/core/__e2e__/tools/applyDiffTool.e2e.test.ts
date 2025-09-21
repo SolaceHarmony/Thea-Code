@@ -550,3 +550,4 @@ suite("applyDiffTool", () => {
 		})
 	})
 // Mock cleanup
+})

@@ -424,3 +424,4 @@ suite("Ollama System Role Handling", () => {
 		})
 	})
 // Mock cleanup
+})
