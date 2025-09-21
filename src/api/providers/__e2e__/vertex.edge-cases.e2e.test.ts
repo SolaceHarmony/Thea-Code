@@ -1,18 +1,18 @@
 import * as assert from 'assert'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
+import * as proxyquire from 'proxyquire'
 /**
  * Vertex provider edge case tests as recommended by architect
  * Tests Claude/Gemini paths, thinking variants, completePrompt helpers
  */
 
 import { ApiConfiguration } from "../../../types/api"
-import { VertexHandler } from "../vertex"
-import { NeutralVertexClient } from "../../../lib/providers/neutral-vertex-client"
-import { Message } from "../../../shared/message"
+import type { NeutralMessage } from "../../../shared/neutral-history"
 
-// Mock the NeutralVertexClient
-// TODO: Mock setup needs manual migration for "../../../lib/providers/neutral-vertex-client"
+let VertexHandler: any
+let mockClient: sinon.SinonStubbedInstance<any>
+let NeutralVertexClientStub: sinon.SinonStub
 
 suite("Vertex Provider Edge Cases", () => {
 	let handler: VertexHandler
@@ -25,11 +25,15 @@ suite("Vertex Provider Edge Cases", () => {
 			createGeminiMessage: sinon.stub(),
 			completeClaudePrompt: sinon.stub(),
 			completeGeminiPrompt: sinon.stub()
-		} as any
-		
-		// Mock the constructor to return our mock
-		(NeutralVertexClient as sinon.SinonStub).callsFake(() => mockClient)
-		
+		} as unknown as sinon.SinonStubbedInstance<any>
+
+		NeutralVertexClientStub = sinon.stub().returns(mockClient)
+		VertexHandler = proxyquire('../vertex', {
+			'../../services/vertex': {
+				NeutralVertexClient: NeutralVertexClientStub,
+			},
+		}).VertexHandler
+
 		handler = new VertexHandler({
 			vertexConfig: {
 				projectId: "test-project",
@@ -40,7 +44,7 @@ suite("Vertex Provider Edge Cases", () => {
 
 	teardown(() => {
 		sinon.restore()
-	})
+})
 
 	suite("Claude path", () => {
 		test("should route Claude models correctly", async () => {
@@ -56,7 +60,7 @@ suite("Vertex Provider Edge Cases", () => {
 					yield { type: "text", text: "Claude response" }
 				})
 				
-				const messages: Message[] = [{
+				const messages: NeutralMessage[] = [{
 					role: "user",
 					content: [{ type: "text", text: "Test" }]
 				}]
@@ -88,7 +92,7 @@ suite("Vertex Provider Edge Cases", () => {
 				yield { type: "text", text: "Here's my response" }
 			})
 			
-			const messages: Message[] = [{
+			const messages: NeutralMessage[] = [{
 				role: "user",
 				content: [{ type: "text", text: "Complex question" }]
 			}]
@@ -129,7 +133,7 @@ suite("Vertex Provider Edge Cases", () => {
 					yield variant as any
 				})
 				
-				const messages: Message[] = [{
+				const messages: NeutralMessage[] = [{
 					role: "user",
 					content: [{ type: "text", text: "Test" }]
 				}]
@@ -163,7 +167,7 @@ suite("Vertex Provider Edge Cases", () => {
 				}
 			})
 			
-			const messages: Message[] = [{
+			const messages: NeutralMessage[] = [{
 				role: "user",
 				content: [{ type: "text", text: "Calculate 2+2" }]
 			}]
@@ -205,7 +209,7 @@ suite("Vertex Provider Edge Cases", () => {
 					yield { type: "text", text: "Gemini response" }
 				})
 				
-				const messages: Message[] = [{
+				const messages: NeutralMessage[] = [{
 					role: "user",
 					content: [{ type: "text", text: "Test" }]
 				}]
@@ -237,7 +241,7 @@ suite("Vertex Provider Edge Cases", () => {
 				yield { type: "text", text: "Answer" }
 			})
 			
-			const messages: Message[] = [{
+			const messages: NeutralMessage[] = [{
 				role: "user",
 				content: [{ type: "text", text: "Question" }]
 			}]
@@ -268,7 +272,7 @@ suite("Vertex Provider Edge Cases", () => {
 				}
 			})
 			
-			const messages: Message[] = [{
+			const messages: NeutralMessage[] = [{
 				role: "user",
 				content: [{ type: "text", text: "What's the weather?" }]
 			}]
@@ -381,7 +385,7 @@ suite("Vertex Provider Edge Cases", () => {
 				yield { type: "text", text: "Default response" }
 			})
 			
-			const messages: Message[] = [{
+			const messages: NeutralMessage[] = [{
 				role: "user",
 				content: [{ type: "text", text: "Test" }]
 			}]
@@ -484,7 +488,7 @@ suite("Vertex Provider Edge Cases", () => {
 				throw new Error("Quota exceeded for model claude-3-5-sonnet")
 			})
 			
-			const messages: Message[] = [{
+			const messages: NeutralMessage[] = [{
 				role: "user",
 				content: [{ type: "text", text: "Test" }]
 			}]
@@ -507,7 +511,7 @@ suite("Vertex Provider Edge Cases", () => {
 				throw new Error("Model claude-3-opus is not available in region us-central1")
 			})
 			
-			const messages: Message[] = [{
+			const messages: NeutralMessage[] = [{
 				role: "user",
 				content: [{ type: "text", text: "Test" }]
 			}]
@@ -530,7 +534,7 @@ suite("Vertex Provider Edge Cases", () => {
 				throw new Error("Network error: ECONNREFUSED")
 			})
 			
-			const messages: Message[] = [{
+			const messages: NeutralMessage[] = [{
 				role: "user",
 				content: [{ type: "text", text: "Test" }]
 			}]
@@ -561,7 +565,7 @@ suite("Vertex Provider Edge Cases", () => {
 				}
 			})
 			
-			const messages: Message[] = [{
+			const messages: NeutralMessage[] = [{
 				role: "user",
 				content: [{ type: "text", text: "Test" }]
 			}]
@@ -594,7 +598,7 @@ suite("Vertex Provider Edge Cases", () => {
 				}
 			})
 			
-			const messages: Message[] = [{
+			const messages: NeutralMessage[] = [{
 				role: "user",
 				content: [{ type: "text", text: "Test" }]
 			}]

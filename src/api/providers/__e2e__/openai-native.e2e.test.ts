@@ -11,9 +11,9 @@ import {
 	ApiStreamToolUseChunk,
 	ApiStreamToolResultChunk,
 } from "../../transform/stream"
-import openaiSetup, { openAIMock } from "../../../../test/openai-mock/setup.ts"
+import openaiSetup, { openAIMock } from "../../../../test/openai-mock/setup"
 import { Readable } from "stream"
-import { openaiTeardown } from "../../../../test/openai-mock/teardown.ts"
+import { openaiTeardown } from "../../../../test/openai-mock/teardown"
 
 // Define types for openAI mock
 interface OpenAIMockInstance {
@@ -115,7 +115,7 @@ suite("OpenAiNativeHandler", () => {
 	suite("constructor", () => {
 		test("should initialize with provided options", () => {
 			assert.ok(handler instanceof OpenAiNativeHandler)
-			expect(handler.getModel().id).toBe(mockOptions.apiModelId)
+			expect(handler.getModel().id).to.equal(mockOptions.apiModelId)
 		})
 
 		test("should initialize with empty API key", () => {

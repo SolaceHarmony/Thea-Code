@@ -219,7 +219,7 @@ suite("neutral-ollama-format", () => {
 		// Test case 1: Array with a single text block
 		test("should convert a single text block to string", () => {
 			const content: NeutralMessageContent = [{ type: "text", text: "Hello, world!" }]
-			expect(convertToOllamaContentBlocks(content)).toBe("Hello, world!")
+			expect(convertToOllamaContentBlocks(content)).to.equal("Hello, world!")
 		})
 
 		// Test case 2: Multiple text blocks
@@ -228,7 +228,7 @@ suite("neutral-ollama-format", () => {
 				{ type: "text", text: "Hello" },
 				{ type: "text", text: "World" },
 			]
-			expect(convertToOllamaContentBlocks(content)).toBe("Hello\n\nWorld")
+			expect(convertToOllamaContentBlocks(content)).to.equal("Hello\n\nWorld")
 		})
 
 		// Test case 3: Mixed content blocks (should ignore non-text)
@@ -245,13 +245,13 @@ suite("neutral-ollama-format", () => {
 				},
 				{ type: "text", text: "What do you think?" },
 			]
-			expect(convertToOllamaContentBlocks(content)).toBe("Look at this image:\n\nWhat do you think?")
+			expect(convertToOllamaContentBlocks(content)).to.equal("Look at this image:\n\nWhat do you think?")
 		})
 
 		// Test case 4: Empty array
 		test("should handle empty array", () => {
 			const content: NeutralMessageContent = []
-			expect(convertToOllamaContentBlocks(content)).toBe("")
+			expect(convertToOllamaContentBlocks(content)).to.equal("")
 		})
 	})
 
@@ -333,7 +333,7 @@ suite("neutral-ollama-format", () => {
 
 			// Should convert each string to a text block
 			assert.strictEqual(result[0].role, "user")
-			expect(Array.isArray(result[0].content)).toBe(true)
+			expect(Array.isArray(result[0].content)).to.be.true
 
 			const content = result[0].content as NeutralTextContentBlock[]
 			assert.strictEqual(content.length, 2)
@@ -395,7 +395,7 @@ suite("neutral-ollama-format", () => {
 
 			// Should stringify the object
 			assert.strictEqual(result[0].role, "user")
-			expect(Array.isArray(result[0].content)).toBe(true)
+			expect(Array.isArray(result[0].content)).to.be.true
 
 			const content = result[0].content as NeutralTextContentBlock[]
 			assert.strictEqual(content.length, 1)

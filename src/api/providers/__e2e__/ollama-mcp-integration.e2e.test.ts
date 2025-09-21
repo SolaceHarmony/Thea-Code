@@ -41,7 +41,7 @@ suite("Ollama MCP Integration", () => {
 		}
 
 		// Use proxyquire to mock all dependencies
-		const proxyModule = proxyquire('../../../../../src/api/providers/ollama', {
+		const proxyModule = proxyquire('../ollama', {
 			'openai': {
 				__esModule: true,
 				default: sinon.stub().callsFake(() => ({
@@ -59,7 +59,7 @@ suite("Ollama MCP Integration", () => {
 					processToolUse: mockProcessToolUse,
 				})),
 			},
-			'../../services/mcp/integration/McpIntegration': {
+			'../../../services/mcp/integration/McpIntegration': {
 				McpIntegration: {
 					getInstance: sinon.stub().returns(mockMcpInstance),
 				},

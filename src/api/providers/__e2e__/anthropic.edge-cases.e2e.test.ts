@@ -7,8 +7,8 @@ import * as proxyquire from 'proxyquire'
  * Tests thinking budget clamping, tool_use to tool_result conversion, countTokens fallback
  */
 
-import type { NeutralConversationHistory, NeutralMessageContent } from "../../../../../src/shared/neutral-history"
-import { ApiHandlerOptions } from "../../../../../src/shared/api"
+import type { NeutralConversationHistory, NeutralMessageContent } from "../../../shared/neutral-history"
+import { ApiHandlerOptions } from "../../../shared/api"
 
 suite("AnthropicHandler - Edge Cases", () => {
 	let AnthropicHandler: any
@@ -85,11 +85,11 @@ suite("AnthropicHandler - Edge Cases", () => {
 		}
 
 		// Load AnthropicHandler with mocked dependencies
-		const module = proxyquire('../../../../../src/api/providers/anthropic', {
-			'../../services/anthropic': {
+		const module = proxyquire('../anthropic', {
+			'../../../services/anthropic': {
 				NeutralAnthropicClient: NeutralAnthropicClientStub
 			},
-			'../../shared/api': {
+			'../../../shared/api': {
 				anthropicDefaultModelId: "claude-3-5-sonnet-20241022",
 				anthropicModels: {
 					"claude-3-5-sonnet-20241022": {

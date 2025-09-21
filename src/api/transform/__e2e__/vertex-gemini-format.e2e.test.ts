@@ -99,7 +99,7 @@ suite("convertAnthropicMessageToVertexGemini", () => {
 
 		const result = convertAnthropicMessageToVertexGemini(anthropicMessage)
 		assert.strictEqual(result.parts.length, 1)
-		expect(result.parts[0]).toHaveProperty("text", "[Unsupported Neutral block type: image]")
+		expect(result.parts[0]).to.have.property("text", "[Unsupported Neutral block type: image]")
 	})
 
 	test("should convert a message with tool use", () => {

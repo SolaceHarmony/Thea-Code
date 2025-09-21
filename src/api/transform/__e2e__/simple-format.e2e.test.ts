@@ -14,7 +14,7 @@ suite("simple-format", () => {
 	suite("convertToSimpleContent", () => {
 		test("returns string content as-is", () => {
 			const content = "Hello world"
-			expect(convertToSimpleContent(content)).toBe("Hello world")
+			expect(convertToSimpleContent(content)).to.equal("Hello world")
 		})
 
 		test("extracts text from text blocks", () => {
@@ -22,7 +22,7 @@ suite("simple-format", () => {
 				{ type: "text", text: "Hello" },
 				{ type: "text", text: "world" },
 			] as NeutralTextContentBlock[]
-			expect(convertToSimpleContent(content)).toBe("Hello\nworld")
+			expect(convertToSimpleContent(content)).to.equal("Hello\nworld")
 		})
 
 		test("converts image blocks to descriptive text", () => {
@@ -37,7 +37,7 @@ suite("simple-format", () => {
 					},
 				},
 			] as Array<NeutralTextContentBlock | NeutralImageContentBlock>
-			expect(convertToSimpleContent(content)).toBe("Here's an image:\n[Image: image/png]")
+			expect(convertToSimpleContent(content)).to.equal("Here's an image:\n[Image: image/png]")
 		})
 
 		test("converts tool use blocks to descriptive text", () => {
@@ -50,7 +50,7 @@ suite("simple-format", () => {
 					input: { path: "test.txt" },
 				},
 			] as Array<NeutralTextContentBlock | NeutralToolUseContentBlock>
-			expect(convertToSimpleContent(content)).toBe("Using a tool:\n[Tool Use: read_file]")
+			expect(convertToSimpleContent(content)).to.equal("Using a tool:\n[Tool Use: read_file]")
 		})
 
 		test("handles string tool result content", () => {
@@ -62,7 +62,7 @@ suite("simple-format", () => {
 					content: [{ type: "text", text: "Result text" }],
 				},
 			] as Array<NeutralTextContentBlock | NeutralToolResultContentBlock>
-			expect(convertToSimpleContent(content)).toBe("Tool result:\nResult text")
+			expect(convertToSimpleContent(content)).to.equal("Tool result:\nResult text")
 		})
 
 		test("handles array tool result content with text and images", () => {
@@ -84,7 +84,7 @@ suite("simple-format", () => {
 					],
 				},
 			] as NeutralToolResultContentBlock[]
-			expect(convertToSimpleContent(content)).toBe("Result 1\n[Image: image/jpeg]\nResult 2")
+			expect(convertToSimpleContent(content)).to.equal("Result 1\n[Image: image/jpeg]\nResult 2")
 		})
 
 		test("filters out empty strings", () => {
@@ -93,7 +93,7 @@ suite("simple-format", () => {
 				{ type: "text", text: "" },
 				{ type: "text", text: "world" },
 			] as NeutralTextContentBlock[]
-			expect(convertToSimpleContent(content)).toBe("Hello\nworld")
+			expect(convertToSimpleContent(content)).to.equal("Hello\nworld")
 		})
 	})
 

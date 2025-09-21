@@ -62,7 +62,7 @@ suite("convertToOpenAiHistory", () => {
 			image_url?: { url: string }
 		}>
 
-		expect(Array.isArray(content)).toBe(true)
+		expect(Array.isArray(content)).to.be.true
 		assert.strictEqual(content.length, 2)
 		assert.deepStrictEqual(content[0], { type: "text", text: "What is in this image?" })
 		assert.deepStrictEqual(content[1], {

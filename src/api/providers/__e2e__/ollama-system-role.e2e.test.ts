@@ -37,7 +37,7 @@ suite("Ollama System Role Handling", () => {
 		mockConvertToOllamaHistory = sinon.stub()
 
 		// Mock the OllamaHandler with proxyquire to capture API calls
-		OllamaHandler = proxyquire('../../../../../src/api/providers/ollama', {
+		OllamaHandler = proxyquire('../ollama', {
 			'openai': {
 				__esModule: true,
 				default: sinon.stub().callsFake(() => ({

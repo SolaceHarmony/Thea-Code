@@ -15,7 +15,7 @@ suite("GlamaHandler", () => {
 		mockWithResponse = sinon.stub()
 
 		// Use proxyquire to mock OpenAI
-		GlamaHandler = proxyquire('../../../../../src/api/providers/glama', {
+		GlamaHandler = proxyquire('../glama', {
 			'openai': {
 				__esModule: true,
 				default: sinon.stub().callsFake(() => ({

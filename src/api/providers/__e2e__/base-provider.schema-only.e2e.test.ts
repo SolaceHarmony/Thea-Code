@@ -215,7 +215,7 @@ suite("BaseProvider - Schema-Only Tool Registration", () => {
 				
 				// Check that required fields are arrays
 				if (tool.paramSchema.required) {
-					expect(Array.isArray(tool.paramSchema.required)).toBe(true)
+					expect(Array.isArray(tool.paramSchema.required)).to.be.true
 				}
 			}
 		})
@@ -251,7 +251,7 @@ suite("BaseProvider - Schema-Only Tool Registration", () => {
 	suite("Tool Execution Delegation", () => {
 		test("should not execute tools directly through BaseProvider", async () => {
 			// BaseProvider doesn't have an executeTool method
-			expect((provider as any).executeTool).toBeUndefined()
+			expect((provider as any).executeTool).to.be.undefined
 			
 			// Execution should go through McpIntegration
 			assert.notStrictEqual(mockMcpIntegration.executeTool, undefined)

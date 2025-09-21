@@ -61,7 +61,7 @@ suite("convertToMistralMessages", () => {
 			imageUrl?: { url: string }
 		}>
 
-		expect(Array.isArray(content)).toBe(true)
+		expect(Array.isArray(content)).to.be.true
 		assert.strictEqual(content.length, 2)
 		assert.deepStrictEqual(content[0], { type: "text", text: "What is in this image?" })
 		assert.deepStrictEqual(content[1], {
@@ -128,7 +128,7 @@ suite("convertToMistralMessages", () => {
 			text?: string
 			imageUrl?: { url: string }
 		}>
-		expect(Array.isArray(userContent)).toBe(true)
+		expect(Array.isArray(userContent)).to.be.true
 		assert.strictEqual(userContent.length, 2)
 		assert.deepStrictEqual(userContent[0], { type: "text", text: "Here's the weather data and an image:" })
 		assert.deepStrictEqual(userContent[1], {
@@ -265,7 +265,7 @@ suite("convertToMistralMessages", () => {
 			text?: string
 			imageUrl?: { url: string }
 		}>
-		expect(Array.isArray(userContent)).toBe(true)
+		expect(Array.isArray(userContent)).to.be.true
 		assert.strictEqual(userContent.length, 2)
 
 		// Assistant message with text (tool_use is not included in Mistral format)

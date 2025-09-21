@@ -2,43 +2,36 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 import * as proxyquire from 'proxyquire'
 
-suite("MistralHandler", () => {
-	let MistralHandler: any
+suite("LmStudioHandler", () => {
+	let LmStudioHandler: any
 	let handler: any
 	let mockOptions: any
-	let mockStream: sinon.SinonStub
-	let mockComplete: sinon.SinonStub
-	let mockConvertToMistralMessages: sinon.SinonStub
-	let mockConvertToMistralContent: sinon.SinonStub
+	let mockCreate: sinon.SinonStub
 
 	setup(() => {
 		// Create fresh stubs for each test
-		mockStream = sinon.stub()
-		mockComplete = sinon.stub()
-		mockConvertToMistralMessages = sinon.stub()
-		mockConvertToMistralContent = sinon.stub()
+		mockCreate = sinon.stub()
 
-		// Use proxyquire to mock dependencies
-		MistralHandler = proxyquire('../../../../../src/api/providers/mistral', {
-			'@mistralai/mistralai': {
-				Mistral: sinon.stub().callsFake(() => ({
+		// Use proxyquire to mock OpenAI
+		LmStudioHandler = proxyquire('../lmstudio', {
+			'openai': {
+				__esModule: true,
+				default: sinon.stub().callsFake(() => ({
 					chat: {
-						stream: mockStream,
-						complete: mockComplete,
+						completions: {
+							create: mockCreate,
+						},
 					},
 				})),
-			},
-			'../../transform/neutral-mistral-format': {
-				convertToMistralMessages: mockConvertToMistralMessages,
-				convertToMistralContent: mockConvertToMistralContent,
 			}
-		}).MistralHandler
+		}).LmStudioHandler
 
 		mockOptions = {
-			mistralApiKey: "test-key",
-			apiModelId: "mistral-medium",
+			apiKey: "test-api-key",
+			apiModelId: "lmstudio-model",
+			lmStudioBaseUrl: "http://localhost:1234",
 		}
-		handler = new MistralHandler(mockOptions)
+		handler = new LmStudioHandler(mockOptions)
 	})
 
 	teardown(() => {
@@ -47,16 +40,25 @@ suite("MistralHandler", () => {
 
 	suite("constructor", () => {
 		test("should initialize with provided options", () => {
-			assert.ok(handler instanceof MistralHandler)
+			assert.ok(handler instanceof LmStudioHandler)
 			assert.strictEqual(handler.getModel().id, mockOptions.apiModelId)
 		})
 
 		test("should use default model if none provided", () => {
-			const handlerWithoutModel = new MistralHandler({
-				mistralApiKey: "test-key",
+			const handlerWithoutModel = new LmStudioHandler({
+				apiKey: "test-api-key",
+				lmStudioBaseUrl: "http://localhost:1234",
 			})
 			const model = handlerWithoutModel.getModel()
 			assert.notStrictEqual(model.id, undefined)
+		})
+
+		test("should use custom base URL", () => {
+			const customHandler = new LmStudioHandler({
+				...mockOptions,
+				lmStudioBaseUrl: "http://custom:8080",
+			})
+			assert.ok(customHandler instanceof LmStudioHandler)
 		})
 	})
 
@@ -64,26 +66,26 @@ suite("MistralHandler", () => {
 		const systemPrompt = "You are a helpful assistant."
 
 		setup(() => {
-			// Setup default mocks
-			mockConvertToMistralMessages.returns([{ role: "user", content: "Test message" }])
-			
-			// Setup streaming response
-			mockStream.returns({
-				[Symbol.asyncIterator]: async function* () {
-					yield {
-						data: {
-							choices: [{
-								delta: {
-									content: "Test response",
-								},
-							}],
-							usage: {
-								promptTokens: 10,
-								completionTokens: 5,
-							},
-						},
-					}
-				},
+			// Setup default mock for streaming response
+			mockCreate.callsFake(async function* () {
+				yield {
+					choices: [{
+						delta: { content: "Test response" },
+						index: 0,
+					}],
+					usage: null,
+				}
+				yield {
+					choices: [{
+						delta: {},
+						index: 0,
+					}],
+					usage: {
+						prompt_tokens: 10,
+						completion_tokens: 5,
+						total_tokens: 15,
+					},
+				}
 			})
 		})
 
@@ -102,11 +104,16 @@ suite("MistralHandler", () => {
 			}
 
 			assert.ok(chunks.length > 0)
-			assert.ok(mockStream.calledOnce)
-			assert.ok(mockConvertToMistralMessages.calledWith(systemPrompt, neutralMessages))
+			assert.ok(mockCreate.calledOnce)
+
+			// Verify the OpenAI client was called with correct parameters
+			const callArgs = mockCreate.firstCall.args[0]
+			assert.strictEqual(callArgs.model, "lmstudio-model")
+			assert.strictEqual(callArgs.stream, true)
+			assert.ok(Array.isArray(callArgs.messages))
 		})
 
-		test("should handle system prompt conversion", async () => {
+		test("should handle system prompt in messages", async () => {
 			const neutralMessages = [
 				{
 					role: "user",
@@ -120,42 +127,43 @@ suite("MistralHandler", () => {
 				chunks.push(chunk)
 			}
 
-			// Verify conversion functions were called
-			assert.ok(mockConvertToMistralMessages.calledOnce)
+			const callArgs = mockCreate.firstCall.args[0]
+			assert.ok(callArgs.messages.some((msg: any) => msg.role === "system"))
 		})
 	})
 
 	suite("completePrompt", () => {
 		test("should complete prompt successfully", async () => {
-			mockComplete.resolves({
+			mockCreate.resolves({
+				id: "test-completion",
 				choices: [{
-					message: {
-						content: "Test completion",
-					},
+					message: { role: "assistant", content: "Test response" },
+					finish_reason: "stop",
+					index: 0,
 				}],
+				usage: {
+					prompt_tokens: 10,
+					completion_tokens: 5,
+					total_tokens: 15,
+				},
 			})
 
 			const result = await handler.completePrompt("Test prompt")
-			assert.strictEqual(result, "Test completion")
-			assert.ok(mockComplete.calledOnce)
+			assert.strictEqual(result, "Test response")
+			assert.ok(mockCreate.calledOnce)
+
+			const callArgs = mockCreate.firstCall.args[0]
+			assert.strictEqual(callArgs.stream, false)
 		})
 
 		test("should handle empty response", async () => {
-			mockComplete.resolves({
+			mockCreate.resolves({
+				id: "test-completion",
 				choices: [{
-					message: {
-						content: "",
-					},
+					message: { role: "assistant", content: "" },
+					finish_reason: "stop",
+					index: 0,
 				}],
-			})
-
-			const result = await handler.completePrompt("Test prompt")
-			assert.strictEqual(result, "")
-		})
-
-		test("should handle missing choices", async () => {
-			mockComplete.resolves({
-				choices: [],
 			})
 
 			const result = await handler.completePrompt("Test prompt")
@@ -166,13 +174,13 @@ suite("MistralHandler", () => {
 	suite("getModel", () => {
 		test("should return model information", () => {
 			const model = handler.getModel()
-			assert.strictEqual(model.id, "mistral-medium")
+			assert.strictEqual(model.id, "lmstudio-model")
 			assert.notStrictEqual(model.info, undefined)
 			assert.ok(model.info.maxTokens > 0)
 			assert.ok(model.info.contextWindow > 0)
 		})
 
-		test("should return correct properties for mistral models", () => {
+		test("should return correct properties for lmstudio models", () => {
 			const model = handler.getModel()
 			assert.strictEqual(model.info.supportsImages, false)
 			assert.strictEqual(model.info.supportsPromptCache, false)
@@ -180,10 +188,6 @@ suite("MistralHandler", () => {
 	})
 
 	suite("countTokens", () => {
-		setup(() => {
-			mockConvertToMistralContent.returns("Test content")
-		})
-
 		test("should count tokens for text content", async () => {
 			const neutralContent = [{ type: "text" as const, text: "Test message with some tokens" }]
 			const result = await handler.countTokens(neutralContent)
@@ -191,11 +195,9 @@ suite("MistralHandler", () => {
 			// Should return a reasonable token count
 			assert.ok(typeof result === "number")
 			assert.ok(result > 0)
-			assert.ok(mockConvertToMistralContent.calledWith(neutralContent))
 		})
 
 		test("should handle empty content", async () => {
-			mockConvertToMistralContent.returns("")
 			const neutralContent: any[] = []
 			const result = await handler.countTokens(neutralContent)
 			

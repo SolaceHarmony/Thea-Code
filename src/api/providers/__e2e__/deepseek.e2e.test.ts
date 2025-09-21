@@ -2,8 +2,8 @@ import * as assert from 'assert'
 import * as sinon from 'sinon'
 import * as proxyquire from 'proxyquire'
 
-suite("LmStudioHandler", () => {
-	let LmStudioHandler: any
+suite("DeepSeekHandler", () => {
+	let DeepSeekHandler: any
 	let handler: any
 	let mockOptions: any
 	let mockCreate: sinon.SinonStub
@@ -13,7 +13,7 @@ suite("LmStudioHandler", () => {
 		mockCreate = sinon.stub()
 
 		// Use proxyquire to mock OpenAI
-		LmStudioHandler = proxyquire('../../../../../src/api/providers/lmstudio', {
+		DeepSeekHandler = proxyquire('../deepseek', {
 			'openai': {
 				__esModule: true,
 				default: sinon.stub().callsFake(() => ({
@@ -24,14 +24,13 @@ suite("LmStudioHandler", () => {
 					},
 				})),
 			}
-		}).LmStudioHandler
+		}).DeepSeekHandler
 
 		mockOptions = {
 			apiKey: "test-api-key",
-			apiModelId: "lmstudio-model",
-			lmStudioBaseUrl: "http://localhost:1234",
+			apiModelId: "deepseek-chat",
 		}
-		handler = new LmStudioHandler(mockOptions)
+		handler = new DeepSeekHandler(mockOptions)
 	})
 
 	teardown(() => {
@@ -40,25 +39,24 @@ suite("LmStudioHandler", () => {
 
 	suite("constructor", () => {
 		test("should initialize with provided options", () => {
-			assert.ok(handler instanceof LmStudioHandler)
+			assert.ok(handler instanceof DeepSeekHandler)
 			assert.strictEqual(handler.getModel().id, mockOptions.apiModelId)
 		})
 
 		test("should use default model if none provided", () => {
-			const handlerWithoutModel = new LmStudioHandler({
+			const handlerWithoutModel = new DeepSeekHandler({
 				apiKey: "test-api-key",
-				lmStudioBaseUrl: "http://localhost:1234",
 			})
 			const model = handlerWithoutModel.getModel()
 			assert.notStrictEqual(model.id, undefined)
 		})
 
-		test("should use custom base URL", () => {
-			const customHandler = new LmStudioHandler({
+		test("should initialize with custom base URL", () => {
+			const customHandler = new DeepSeekHandler({
 				...mockOptions,
-				lmStudioBaseUrl: "http://custom:8080",
+				openAiBaseUrl: "https://custom.deepseek.com",
 			})
-			assert.ok(customHandler instanceof LmStudioHandler)
+			assert.ok(customHandler instanceof DeepSeekHandler)
 		})
 	})
 
@@ -84,6 +82,10 @@ suite("LmStudioHandler", () => {
 						prompt_tokens: 10,
 						completion_tokens: 5,
 						total_tokens: 15,
+						prompt_tokens_details: {
+							cache_miss_tokens: 8,
+							cached_tokens: 2,
+						},
 					},
 				}
 			})
@@ -108,7 +110,7 @@ suite("LmStudioHandler", () => {
 
 			// Verify the OpenAI client was called with correct parameters
 			const callArgs = mockCreate.firstCall.args[0]
-			assert.strictEqual(callArgs.model, "lmstudio-model")
+			assert.strictEqual(callArgs.model, "deepseek-chat")
 			assert.strictEqual(callArgs.stream, true)
 			assert.ok(Array.isArray(callArgs.messages))
 		})
@@ -137,7 +139,7 @@ suite("LmStudioHandler", () => {
 			mockCreate.resolves({
 				id: "test-completion",
 				choices: [{
-					message: { role: "assistant", content: "Test response" },
+					message: { role: "assistant", content: "Test response", refusal: null },
 					finish_reason: "stop",
 					index: 0,
 				}],
@@ -160,7 +162,7 @@ suite("LmStudioHandler", () => {
 			mockCreate.resolves({
 				id: "test-completion",
 				choices: [{
-					message: { role: "assistant", content: "" },
+					message: { role: "assistant", content: "", refusal: null },
 					finish_reason: "stop",
 					index: 0,
 				}],
@@ -174,13 +176,13 @@ suite("LmStudioHandler", () => {
 	suite("getModel", () => {
 		test("should return model information", () => {
 			const model = handler.getModel()
-			assert.strictEqual(model.id, "lmstudio-model")
+			assert.strictEqual(model.id, "deepseek-chat")
 			assert.notStrictEqual(model.info, undefined)
 			assert.ok(model.info.maxTokens > 0)
 			assert.ok(model.info.contextWindow > 0)
 		})
 
-		test("should return correct properties for lmstudio models", () => {
+		test("should return correct properties for deepseek models", () => {
 			const model = handler.getModel()
 			assert.strictEqual(model.info.supportsImages, false)
 			assert.strictEqual(model.info.supportsPromptCache, false)

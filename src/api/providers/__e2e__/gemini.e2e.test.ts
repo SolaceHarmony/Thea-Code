@@ -17,7 +17,7 @@ suite("GeminiHandler", () => {
 		mockGetGenerativeModel = sinon.stub()
 
 		// Use proxyquire to mock the Google Generative AI SDK
-		GeminiHandler = proxyquire('../../../../../src/api/providers/gemini', {
+		GeminiHandler = proxyquire('../gemini', {
 			'@google/generative-ai': {
 				GoogleGenerativeAI: sinon.stub().callsFake(() => ({
 					getGenerativeModel: mockGetGenerativeModel.returns({
