@@ -37,7 +37,7 @@ const commonTsConfig = {
 	},
 }
 
-	export default [
+export default [
 	{
 		files: ["src/__mocks__/**/*.{ts,tsx,js,jsx}"],
 		languageOptions: {
@@ -71,10 +71,12 @@ const commonTsConfig = {
 		"coverage-report/",
 		"webview-ui/build/**",
 		"webview-ui/dist/**",
+		"src/e2e/out/**",
 		"test/**/.cache/**",
 		"benchmark/",
 		// VS Code test harness shims that confuse parsers
 		"src/e2e/.vscode-test.mjs",
+		"src/e2e/.vscode-test/**",
 		"**/.vscode-test.mjs",
 	]),
 	{
@@ -84,6 +86,7 @@ const commonTsConfig = {
 			"!src/__mocks__/**/*",
 		],
 		...commonTsConfig,
+		ignores: ["src/**/__e2e__/**"],
 		languageOptions: {
 			...commonTsConfig.languageOptions,
 			parserOptions: {
@@ -166,12 +169,17 @@ const commonTsConfig = {
 		rules: {
 			// Allow BDD-style assertions like `expect(foo).to.be.true`
 			"@typescript-eslint/no-unused-expressions": "off",
+			"@typescript-eslint/no-unsafe-assignment": "off",
+			"@typescript-eslint/no-unsafe-call": "off",
+			"@typescript-eslint/no-unsafe-member-access": "off",
+			"@typescript-eslint/no-unsafe-argument": "off",
+			"@typescript-eslint/no-unsafe-return": "off",
 		},
 	},
 	// E2E co-located tests: relax a couple of rules for pragmatic test code
 	{
 		files: [
-			"src/**/__e2e__/**/*.{ts,tsx}",
+			"**/__e2e__/**",
 		],
 		...commonTsConfig,
 		languageOptions: {
@@ -185,6 +193,11 @@ const commonTsConfig = {
 		rules: {
 			"@typescript-eslint/no-unnecessary-type-assertion": "off",
 			"@typescript-eslint/no-explicit-any": "off",
+			"@typescript-eslint/no-unsafe-assignment": "off",
+			"@typescript-eslint/no-unsafe-call": "off",
+			"@typescript-eslint/no-unsafe-member-access": "off",
+			"@typescript-eslint/no-unsafe-argument": "off",
+			"@typescript-eslint/no-unsafe-return": "off",
 		},
 	},
 	{
@@ -260,6 +273,7 @@ const commonTsConfig = {
 			// Ensure TS type-aware rules are not applied to plain JS scripts
 			"@typescript-eslint/await-thenable": "off",
 			"@typescript-eslint/no-array-delete": "off",
+			"@typescript-eslint/no-for-in-array": "off",
 			"@typescript-eslint/no-misused-promises": "off",
 			"@typescript-eslint/no-floating-promises": "off",
 			"@typescript-eslint/no-unsafe-assignment": "off",
@@ -267,9 +281,14 @@ const commonTsConfig = {
 			"@typescript-eslint/no-unsafe-call": "off",
 			"@typescript-eslint/no-unsafe-argument": "off",
 			"@typescript-eslint/no-unsafe-return": "off",
+			"@typescript-eslint/no-unsafe-enum-comparison": "off",
+			"@typescript-eslint/only-throw-error": "off",
 			"@typescript-eslint/unbound-method": "off",
 			"@typescript-eslint/restrict-plus-operands": "off",
 			"@typescript-eslint/restrict-template-expressions": "off",
+			"@typescript-eslint/prefer-promise-reject-errors": "off",
+			"@typescript-eslint/require-await": "off",
+			"@typescript-eslint/no-unsafe-unary-minus": "off",
 			"@typescript-eslint/no-duplicate-type-constituents": "off",
 			"@typescript-eslint/no-confusing-void-expression": "off",
 			"@typescript-eslint/no-implied-eval": "off",
@@ -294,13 +313,14 @@ const commonTsConfig = {
 			react: reactPlugin,
 			"react-hooks": reactHooksPlugin,
 		},
- 		rules: {
+		rules: {
 				// Keep JS/JSX rules minimal to avoid cross-plugin issues
 				"no-undef": "error",
 				"no-import-assign": "error",
 				// Ensure TS type-aware rules are not applied to JS files
 				"@typescript-eslint/await-thenable": "off",
 				"@typescript-eslint/no-array-delete": "off",
+				"@typescript-eslint/no-for-in-array": "off",
 				"@typescript-eslint/no-misused-promises": "off",
 				"@typescript-eslint/no-floating-promises": "off",
 				"@typescript-eslint/no-unsafe-assignment": "off",
@@ -308,6 +328,11 @@ const commonTsConfig = {
 				"@typescript-eslint/no-unsafe-call": "off",
 				"@typescript-eslint/no-unsafe-argument": "off",
 				"@typescript-eslint/no-unsafe-return": "off",
+				"@typescript-eslint/no-unsafe-enum-comparison": "off",
+				"@typescript-eslint/only-throw-error": "off",
+				"@typescript-eslint/prefer-promise-reject-errors": "off",
+				"@typescript-eslint/require-await": "off",
+				"@typescript-eslint/no-unsafe-unary-minus": "off",
 				"@typescript-eslint/unbound-method": "off",
 				"@typescript-eslint/restrict-plus-operands": "off",
 				"@typescript-eslint/restrict-template-expressions": "off",
