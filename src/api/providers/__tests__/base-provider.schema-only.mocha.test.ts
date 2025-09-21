@@ -58,7 +58,10 @@ describe('BaseProvider tool registration', () => {
     const provider = new TestProvider()
     provider.exposeRegisterTools()
 
-    const names = registerToolStub.getCalls().map((call) => call.args[0].name)
+    const names = registerToolStub.getCalls().map((call) => {
+      const tool = call.args[0] as { name: string }
+      return tool.name
+    })
     assert.deepStrictEqual(names, [
       'read_file',
       'write_to_file',
