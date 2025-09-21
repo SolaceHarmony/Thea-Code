@@ -4,11 +4,11 @@ import * as sinon from 'sinon'/* eslint-disable @typescript-eslint/no-unsafe-ass
 import * as vscode from "vscode"
 
 import { McpHub } from "../../../services/mcp/management/McpHub"
-import { SYSTEM_PROMPT } from "../system"
+import { SYSTEM_PROMPT } from "../../prompts/system"
 import "../../../utils/path" // Import path utils to get access to toPosix string extension.
 import { defaultModeSlug, modes, ModeConfig } from "../../../shared/modes"
 import { EXPERIMENT_IDS } from "../../../shared/experiments"
-import { addCustomInstructions } from "../sections/custom-instructions"
+import { addCustomInstructions } from "../../prompts/sections/custom-instructions"
 
 // Mock the sections
 // TODO: Use proxyquire for module mocking

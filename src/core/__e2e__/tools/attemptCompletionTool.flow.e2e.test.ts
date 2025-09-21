@@ -7,7 +7,7 @@ import * as sinon from 'sinon'
  */
 
 import { TheaTask } from "../../TheaTask"
-import { attemptCompletionTool } from "../attemptCompletionTool"
+import { attemptCompletionTool } from "../../tools/attemptCompletionTool"
 import type { ToolUse } from "../../assistant-message"
 import { telemetryService } from "../../../services/telemetry/TelemetryService"
 import type { 
@@ -17,7 +17,7 @@ import type {
 	RemoveClosingTag, 
 	ToolDescription,
 	AskFinishSubTaskApproval 
-} from "../types"
+} from "../../diff/types"
 
 // Mock dependencies
 // Mock needs manual implementation

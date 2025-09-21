@@ -1,4 +1,4 @@
-import { MultiSearchReplaceDiffStrategy } from "../multi-search-replace"
+import { MultiSearchReplaceDiffStrategy } from "../../../diff/strategies/multi-search-replace"
 import { expect } from 'chai'
 
 import * as assert from 'assert'

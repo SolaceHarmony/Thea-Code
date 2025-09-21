@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import * as path from "path"
 import fs from "fs/promises"
 import { fileExistsAtPath } from "../../../utils/fs"
-import { TheaCacheManager } from "../cache/TheaCacheManager" // Updated import
+import { TheaCacheManager } from "../../webview/cache/TheaCacheManager" // Updated import
 import * as assert from 'assert'
 import { ModelInfo } from "../../../shared/api"
 import * as sinon from 'sinon'

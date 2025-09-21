@@ -1,6 +1,6 @@
 import * as assert from "assert"
 import * as vscode from "vscode"
-import { EXTENSION_ID, EXTENSION_NAME } from "../../thea-constants"
+import { EXTENSION_ID, EXTENSION_NAME } from "../../../shared/config/thea-config"
 
 suite("Task Management Tests", () => {
 	let extension: vscode.Extension<any> | undefined

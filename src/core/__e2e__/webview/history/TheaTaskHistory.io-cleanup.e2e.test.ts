@@ -8,7 +8,7 @@ import * as vscode from 'vscode'
  */
 
 import * as vscode from "vscode"
-import { TheaTaskHistory } from "../TheaTaskHistory"
+import { TheaTaskHistory } from "../../../webview/history/TheaTaskHistory"
 import * as fs from "fs/promises"
 import * as path from "path"
 import { ShadowCheckpointService } from "../../../../services/checkpoints/ShadowCheckpointService"

@@ -556,7 +556,7 @@ export {
  import type { join } from "path";
 -import { Logger } from './logger';
 +import { Logger } from './utils/logger';
-+import { Config } from './types';
++import { Config } from '../../../diff/types';
  
 -const logger = new Logger();
 +const logger = new Logger('FileProcessor');
@@ -631,7 +631,7 @@ export {
  };`
 
 			const expected = `import { readFile, writeFile } from 'fs';
-import { Config } from './types';
+import { Config } from '../../../diff/types';
 import { Logger } from './utils/logger';
 
 const logger = new Logger('FileProcessor');

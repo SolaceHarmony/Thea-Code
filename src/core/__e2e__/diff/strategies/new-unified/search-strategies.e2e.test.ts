@@ -1,4 +1,4 @@
-import { findAnchorMatch, findExactMatch, findSimilarityMatch, findLevenshteinMatch } from "../search-strategies"
+import { findAnchorMatch, findExactMatch, findSimilarityMatch, findLevenshteinMatch } from "../../../../diff/strategies/new-unified/search-strategies"
 
 import * as assert from 'assert'
 const testCases = [

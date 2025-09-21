@@ -5,9 +5,9 @@ import type { NeutralConversationHistory, NeutralMessageContent } from "../../..
 
 import { BaseProvider } from "../../../api/providers/base-provider"
 import { ModelInfo } from "../../../shared/api"
-import { TOKEN_BUFFER_PERCENTAGE } from "../index"
+import { TOKEN_BUFFER_PERCENTAGE } from "../../mentions/index"
 import { ApiStream } from "../../../api/transform/stream"
-import { estimateTokenCount, truncateConversation, truncateConversationIfNeeded } from "../index"
+import { estimateTokenCount, truncateConversation, truncateConversationIfNeeded } from "../../mentions/index"
 
 // Create a mock ApiHandler for testing
 class MockApiHandler extends BaseProvider {

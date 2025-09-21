@@ -80,7 +80,7 @@ const mockVscode = {
 
 // Now import the modules that use the mocks
 import { UrlContentFetcher } from "../../../services/browser/UrlContentFetcher"
-import { parseMentions, openMention } from "../index"
+import { parseMentions, openMention } from "../../mentions/index"
 import * as git from "../../../utils/git"
 
 import { getWorkspacePath } from "../../../utils/path-vscode"

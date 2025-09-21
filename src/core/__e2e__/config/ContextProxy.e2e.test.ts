@@ -10,7 +10,7 @@ import * as sinon from 'sinon'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import * as vscode from "vscode"
-import { ContextProxy } from "../ContextProxy"
+import { ContextProxy } from "../../config/ContextProxy"
 
 import { GLOBAL_STATE_KEYS, SECRET_STATE_KEYS } from "../../../schemas"
 

@@ -1,5 +1,5 @@
-import type { AccessMcpResourceToolUse } from "../assistant-message"
-import { parseAssistantMessage } from "../assistant-message/parse-assistant-message"
+import type { AccessMcpResourceToolUse } from "../../assistant-message"
+import { parseAssistantMessage } from "../../assistant-message/parse-assistant-message"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 

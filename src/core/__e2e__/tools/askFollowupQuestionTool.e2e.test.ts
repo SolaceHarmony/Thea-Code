@@ -2,10 +2,10 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 import type { TheaTask } from "../../TheaTask"
-import { askFollowupQuestionTool } from "../askFollowupQuestionTool"
+import { askFollowupQuestionTool } from "../../tools/askFollowupQuestionTool"
 import type { ToolUse } from "../../assistant-message"
 import { formatResponse } from "../../prompts/responses"
-import { AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../types"
+import { AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../../diff/types"
 import type { TheaAskResponse } from "../../../shared/WebviewMessage"
 
 // TODO: Mock setup needs manual migration for "../../prompts/responses"

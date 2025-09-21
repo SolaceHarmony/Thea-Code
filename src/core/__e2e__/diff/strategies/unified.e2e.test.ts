@@ -1,4 +1,4 @@
-import { UnifiedDiffStrategy } from "../unified"
+import { UnifiedDiffStrategy } from "../../../diff/strategies/unified"
 
 import * as assert from 'assert'
 suite("UnifiedDiffStrategy", () => {

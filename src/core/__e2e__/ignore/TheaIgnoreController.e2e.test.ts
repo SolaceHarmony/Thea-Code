@@ -2,7 +2,7 @@ import * as assert from 'assert'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import * as vscode from "vscode"
-import { TheaIgnoreController, LOCK_TEXT_SYMBOL } from "../TheaIgnoreController" // Use renamed class, keep original path
+import { TheaIgnoreController, LOCK_TEXT_SYMBOL } from "../../ignore/TheaIgnoreController" // Use renamed class, keep original path
 import * as path from "path"
 import * as fs from "fs/promises"
 import { GLOBAL_FILENAMES, AI_IDENTITY_NAME } from "../../../shared/config/thea-config"

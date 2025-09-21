@@ -4,7 +4,7 @@ import * as sinon from 'sinon'
 import * as vscode from "vscode"
 import axios from "axios"
 import { ContextProxy } from "../../config/ContextProxy"
-import { TheaApiManager } from "../api/TheaApiManager"
+import { TheaApiManager } from "../../webview/api/TheaApiManager"
 import {
 import { ProviderSettingsManager } from "../../config/ProviderSettingsManager"
 	openRouterDefaultModelId,

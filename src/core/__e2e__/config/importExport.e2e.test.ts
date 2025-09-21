@@ -10,9 +10,9 @@ import * as vscode from "vscode"
 
 import type { ProviderName } from "../../../schemas"
 import { SPECIFIC_STRINGS } from "../../../shared/config/thea-config"
-import { ProviderSettingsManager } from "../ProviderSettingsManager"
-import { importSettings, exportSettings } from "../importExport"
-import { ContextProxy } from "../ContextProxy"
+import { ProviderSettingsManager } from "../../config/ProviderSettingsManager"
+import { importSettings, exportSettings } from "../../config/importExport"
+import { ContextProxy } from "../../config/ContextProxy"
 
 // Mock VSCode modules
 // TODO: Use proxyquire for module mocking

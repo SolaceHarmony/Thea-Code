@@ -4,7 +4,7 @@ import * as sinon from 'sinon'
 import { EXTENSION_SECRETS_PREFIX } from "../../../shared/config/thea-config"
 import type { ExtensionContext } from "vscode"
 
-import { ProviderSettingsManager, ProviderProfiles } from "../ProviderSettingsManager"
+import { ProviderSettingsManager, ProviderProfiles } from "../../config/ProviderSettingsManager"
 import { ProviderSettings } from "../../../schemas"
 
 // Mock VSCode ExtensionContext

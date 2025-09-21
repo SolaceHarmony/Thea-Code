@@ -1,11 +1,11 @@
 // filepath: /Volumes/stuff/Projects/Thea-Code/src/core/webview/__tests__/ClineStateManager.test.ts
-/* eslint-disable @typescript-eslint/unbound-method */
+ 
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 import * as vscode from "vscode"
 import * as os from "os"
 import { ContextProxy } from "../../config/ContextProxy"
-import { TheaStateManager } from "../thea/TheaStateManager" // Renamed import and path
+import { TheaStateManager } from "../../webview/thea/TheaStateManager" // Renamed import and path
 import { CustomModesManager } from "../../config/CustomModesManager"
 import { ProviderSettingsManager } from "../../config/ProviderSettingsManager"
 import { experimentDefault } from "../../../shared/experiments"
@@ -286,3 +286,4 @@ suite("TheaStateManager", () => {
 		assert.ok(mockContextProxy.setValues.calledWith(mockValues))
 	})
 // Mock cleanup
+})
