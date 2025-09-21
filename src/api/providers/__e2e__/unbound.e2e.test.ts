@@ -115,7 +115,7 @@ suite("UnboundHandler", () => {
 	suite("constructor", () => {
 		test("should initialize with provided options", () => {
 			assert.ok(handler instanceof UnboundHandler)
-			expect(handler.getModel().id).toBe(mockOptions.apiModelId)
+			expect(handler.getModel().id).to.equal(mockOptions.apiModelId)
 		})
 	})
 

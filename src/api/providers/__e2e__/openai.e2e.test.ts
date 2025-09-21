@@ -6,8 +6,8 @@ import { OpenAiHandler } from "../openai"
 import type { NeutralConversationHistory } from "../../../shared/neutral-history"
 import { Readable } from "stream"
 import { API_REFERENCES } from "../../../shared/config/thea-config"
-import openaiSetup, { openAIMock } from "../../../../test/openai-mock/setup.ts"
-import { openaiTeardown } from "../../../../test/openai-mock/teardown.ts"
+import openaiSetup, { openAIMock } from "../../../../test/openai-mock/setup"
+import { openaiTeardown } from "../../../../test/openai-mock/teardown"
 
 let requestBody: any
 let capturedHeaders: Record<string, string | string[]> = {}
@@ -84,7 +84,7 @@ suite("OpenAiHandler", () => {
 	suite("constructor", () => {
 		test("should initialize with provided options", () => {
 			assert.ok(handler instanceof OpenAiHandler)
-			expect(handler.getModel().id).toBe(mockOptions.openAiModelId)
+			expect(handler.getModel().id).to.equal(mockOptions.openAiModelId)
 		})
 
 		test("should use custom base URL if provided", () => {

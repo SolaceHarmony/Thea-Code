@@ -55,13 +55,13 @@ suite("ModelRegistry", () => {
 	suite("Provider Registration", () => {
 		test("should register a provider", () => {
 			registry.registerProvider("test", mockProvider)
-			expect(registry.hasProvider("test")).toBe(true)
+			expect(registry.hasProvider("test")).to.be.true
 		})
 		
 		test("should unregister a provider", () => {
 			registry.registerProvider("test", mockProvider)
 			registry.unregisterProvider("test")
-			expect(registry.hasProvider("test")).toBe(false)
+			expect(registry.hasProvider("test")).to.be.false
 		})
 		
 		test("should list registered providers", () => {

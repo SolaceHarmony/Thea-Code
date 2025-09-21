@@ -4,8 +4,8 @@ import { ApiHandlerOptions } from "../../../shared/api"
 import { OpenAiHandler } from "../openai"
 import { Readable } from "stream"
 import { NeutralMessage } from "../../../shared/neutral-history"
-import openaiSetup, { openAIMock } from "../../../../test/openai-mock/setup.ts"
-import { openaiTeardown } from "../../../../test/openai-mock/teardown.ts"
+import openaiSetup, { openAIMock } from "../../../../test/openai-mock/setup"
+import { openaiTeardown } from "../../../../test/openai-mock/teardown"
 
 let requestBody: any
 

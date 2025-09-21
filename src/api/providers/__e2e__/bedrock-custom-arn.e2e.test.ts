@@ -35,7 +35,7 @@ suite("AwsBedrockHandler Custom ARN Functionality", () => {
 		mockConvertToBedrockConverseMessages = sinon.stub()
 
 		// Mock the AWS SDK and dependencies using proxyquire
-		AwsBedrockHandler = proxyquire('../../../../../src/api/providers/bedrock', {
+		AwsBedrockHandler = proxyquire('../bedrock', {
 			'@aws-sdk/client-bedrock-runtime': {
 				BedrockRuntimeClient: sinon.stub().callsFake((config: any) => ({
 					send: mockSend,

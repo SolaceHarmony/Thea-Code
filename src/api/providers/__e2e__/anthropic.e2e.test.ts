@@ -15,8 +15,8 @@ suite("AnthropicHandler", () => {
 		mockCountTokens = sinon.stub()
 
 		// Use proxyquire to mock the NeutralAnthropicClient
-		AnthropicHandler = proxyquire('../../../../../src/api/providers/anthropic', {
-			'../../services/anthropic/NeutralAnthropicClient': {
+		AnthropicHandler = proxyquire('../anthropic', {
+			'../../../services/anthropic/NeutralAnthropicClient': {
 				NeutralAnthropicClient: sinon.stub().callsFake(() => ({
 					createMessage: mockCreateMessage,
 					countTokens: mockCountTokens,

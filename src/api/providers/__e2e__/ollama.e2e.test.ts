@@ -33,7 +33,7 @@ suite("OllamaHandler Core Functionality", () => {
 
 		// Mock all dependencies using proxyquire to maintain proper module boundaries
 		// This approach is cleaner than complex external mock servers
-		OllamaHandler = proxyquire('../../../../../src/api/providers/ollama', {
+		OllamaHandler = proxyquire('../ollama', {
 			// Mock OpenAI client since Ollama uses OpenAI-compatible API format
 			'openai': {
 				__esModule: true,

@@ -192,7 +192,7 @@ suite("OpenRouter Transform Functions", () => {
 			
 			// Both user messages should have cache control on their text parts
 			userMessages.forEach(msg => {
-				expect(Array.isArray(msg.content)).toBe(true)
+				expect(Array.isArray(msg.content)).to.be.true
 				const content = msg.content as { type: string; text: string; cache_control?: Record<string, unknown> }[]
 				const textPart = content.find(part => part.type === "text")
 				assert.deepStrictEqual(textPart?.cache_control, { type: "ephemeral" })
