@@ -232,3 +232,4 @@ suite("TheaTaskStack", () => {
 		expect(theaTaskStack.getSize()).toBe(0)
 	})
 // Mock cleanup
+})

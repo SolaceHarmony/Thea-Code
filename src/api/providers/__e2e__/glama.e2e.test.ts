@@ -218,3 +218,4 @@ suite("GlamaHandler", () => {
 		})
 	})
 // Mock cleanup
+})

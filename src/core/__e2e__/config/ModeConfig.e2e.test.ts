@@ -255,3 +255,4 @@ suite("CustomModeSchema", () => {
 		})
 	})
 // Mock cleanup
+})

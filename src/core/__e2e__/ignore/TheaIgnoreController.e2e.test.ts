@@ -505,3 +505,4 @@ suite(`${AI_IDENTITY_NAME}Ignore Controller`, () => {
 		})
 	})
 // Mock cleanup
+})

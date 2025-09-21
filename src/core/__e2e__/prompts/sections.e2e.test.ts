@@ -56,3 +56,4 @@ suite("getCapabilitiesSection", () => {
 		assert.ok(!result.includes("apply_diff or write_to_file"))
 	})
 // Mock cleanup
+})

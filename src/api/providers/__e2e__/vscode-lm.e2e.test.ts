@@ -298,3 +298,4 @@ suite("VsCodeLmHandler", () => {
 		})
 	})
 // Mock cleanup
+})

@@ -600,3 +600,4 @@ suite("TheaProvider", () => {
 		})
 	})
 // Mock cleanup
+})

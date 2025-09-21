@@ -383,3 +383,4 @@ suite("TheaTaskHistory", () => {
 		})
 	})
 // Mock cleanup
+})

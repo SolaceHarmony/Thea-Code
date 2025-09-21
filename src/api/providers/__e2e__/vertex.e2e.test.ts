@@ -159,3 +159,4 @@ suite("VertexHandler", () => {
 		})
 	})
 // Mock cleanup
+})

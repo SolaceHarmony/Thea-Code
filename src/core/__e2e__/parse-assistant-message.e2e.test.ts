@@ -21,3 +21,4 @@ suite("parseAssistantMessage - access_mcp_resource", () => {
 		])
 	})
 // Mock cleanup
+})

@@ -5,7 +5,6 @@ import * as vscode from "vscode"
 import axios from "axios"
 import { ContextProxy } from "../../config/ContextProxy"
 import { TheaApiManager } from "../../webview/api/TheaApiManager"
-import {
 import { ProviderSettingsManager } from "../../config/ProviderSettingsManager"
 	openRouterDefaultModelId,
 	openRouterDefaultModelInfo,
@@ -271,3 +270,4 @@ suite("ClineApiManager", () => {
 		assert.strictEqual(result, mockApiHandler)
 	})
 // Mock cleanup
+})

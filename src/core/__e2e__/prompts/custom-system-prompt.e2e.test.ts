@@ -175,3 +175,4 @@ suite("File-Based Custom System Prompt", () => {
 		assert.ok(!prompt.includes("MODES"))
 	})
 // Mock cleanup
+})

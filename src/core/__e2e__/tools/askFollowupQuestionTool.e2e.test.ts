@@ -164,3 +164,4 @@ suite("askFollowupQuestionTool", () => {
 		assert.strictEqual(mockTheaTask.consecutiveMistakeCount, 1)
 	})
 // Mock cleanup
+})

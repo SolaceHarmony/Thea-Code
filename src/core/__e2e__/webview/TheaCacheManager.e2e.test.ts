@@ -228,3 +228,4 @@ suite("TheaCacheManager", () => {
 		assert.ok(console.error.called)
 	})
 // Mock cleanup
+})

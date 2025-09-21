@@ -222,3 +222,4 @@ suite("OpenAiHandler with usage tracking fix", () => {
 		})
 	})
 // Mock cleanup
+})

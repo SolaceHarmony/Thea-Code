@@ -203,3 +203,4 @@ suite("MistralHandler", () => {
 		})
 	})
 // Mock cleanup
+})

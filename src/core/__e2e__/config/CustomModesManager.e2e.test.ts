@@ -508,3 +508,4 @@ suite("CustomModesManager", () => {
 		})
 	})
 // Mock cleanup
+})
