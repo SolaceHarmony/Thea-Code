@@ -2,11 +2,11 @@ import * as assert from 'assert'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import { TheaIgnoreController, LOCK_TEXT_SYMBOL } from "../../ignore/TheaIgnoreController" // Keep original path, use renamed class
-import { formatResponse } from "../responses"
+import { formatResponse } from "../../prompts/responses"
 import { GLOBAL_FILENAMES } from "../../../shared/config/thea-config"
 import { fileExistsAtPath } from "../../../utils/fs"
 import * as fs from "fs/promises"
-import { toPosix } from "./utils"
+import { toPosix } from "../../prompts/__tests__/utils"
 
 // Mock dependencies
 // Mock needs manual implementation

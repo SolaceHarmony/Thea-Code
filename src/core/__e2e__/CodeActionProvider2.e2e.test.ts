@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { expect } from 'chai'
-import { EditorUtils } from "../EditorUtils"
-import { CodeActionProvider, ACTION_NAMES } from "../CodeActionProvider"
+import { EditorUtils } from "../../EditorUtils"
+import { CodeActionProvider, ACTION_NAMES } from "../../CodeActionProvider"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 
@@ -69,7 +69,7 @@ interface MockCodeActionContext extends vscode.CodeActionContext {
 // Mock cleanup
 // Mock EditorUtils
 // TODO: Use proxyquire for module mocking
-		// Mock for "../EditorUtils" needed here
+		// Mock for "../../EditorUtils" needed here
 	EditorUtils: {
 		getEffectiveRange: sinon.stub(),
 		getFilePath: sinon.stub(),

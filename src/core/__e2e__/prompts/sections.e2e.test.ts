@@ -1,5 +1,5 @@
-import { getCapabilitiesSection } from "../sections/capabilities"
-import { addCustomInstructions } from "../sections/custom-instructions"
+import { getCapabilitiesSection } from "../../prompts/sections/capabilities"
+import { addCustomInstructions } from "../../prompts/sections/custom-instructions"
 import * as assert from 'assert'
 import { DiffStrategy, DiffResult } from "../../diff/types"
 import * as sinon from 'sinon'

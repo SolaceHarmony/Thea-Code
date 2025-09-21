@@ -1,6 +1,6 @@
 import fs from "fs/promises"
 import { expect } from 'chai'
-import { loadRuleFiles, addCustomInstructions } from "../custom-instructions"
+import { loadRuleFiles, addCustomInstructions } from "../../../prompts/sections/custom-instructions"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 

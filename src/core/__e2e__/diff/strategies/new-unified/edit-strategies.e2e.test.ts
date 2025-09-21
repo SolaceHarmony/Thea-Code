@@ -1,6 +1,6 @@
-import { Hunk } from "../types"
+import { Hunk } from "../../../../diff/types"
 import { expect } from 'chai'
-import { applyContextMatching, applyDMP, applyGitFallback } from "../edit-strategies"
+import { applyContextMatching, applyDMP, applyGitFallback } from "../../../../diff/strategies/new-unified/edit-strategies"
 
 import * as assert from 'assert'
 const testCases = [

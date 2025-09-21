@@ -2,7 +2,7 @@ import * as assert from 'assert'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import * as path from "path"
-import { TheaIgnoreController } from "../TheaIgnoreController"
+import { TheaIgnoreController } from "../../ignore/TheaIgnoreController"
 import * as fs from "fs/promises"
 import { fileExistsAtPath } from "../../../utils/fs"
 

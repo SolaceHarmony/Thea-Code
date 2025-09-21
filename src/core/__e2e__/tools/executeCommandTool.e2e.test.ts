@@ -2,7 +2,7 @@
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 import { TheaTask } from "../../TheaTask" // Renamed import
-import { executeCommandTool } from "../executeCommandTool"
+import { executeCommandTool } from "../../tools/executeCommandTool"
 import type { TheaIgnoreController } from "../../ignore/TheaIgnoreController"
 import type { TaskWebviewCommunicator } from "../../TaskWebviewCommunicator"
 import type { TaskStateManager } from "../../TaskStateManager"
@@ -12,7 +12,7 @@ import { TheaProvider } from "../../webview/TheaProvider"
 import { formatResponse } from "../../prompts/responses"
 import { ToolUse } from "../../assistant-message"
 import { TheaAskResponse } from "../../../shared/WebviewMessage" // Import response type
-import { AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../types"
+import { AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../../diff/types"
 
 // Mock dependencies
 // Mock needs manual implementation

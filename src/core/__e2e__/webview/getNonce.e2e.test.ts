@@ -1,6 +1,6 @@
 import * as assert from 'assert'
 import { expect } from 'chai'
-import { getNonce } from "../getNonce"
+import { getNonce } from "../../webview/getNonce"
 import * as sinon from 'sinon'
 
 suite("getNonce", () => {

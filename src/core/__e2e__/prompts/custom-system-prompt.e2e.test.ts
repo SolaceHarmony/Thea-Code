@@ -1,9 +1,9 @@
 import { defaultModeSlug, modes } from "../../../shared/modes"
-import { SYSTEM_PROMPT } from "../system"
+import { SYSTEM_PROMPT } from "../../prompts/system"
 import * as vscode from "vscode"
 import * as fs from "fs/promises"
 import { EXTENSION_CONFIG_DIR } from "../../../shared/config/thea-config"
-import { toPosix } from "./utils"
+import { toPosix } from "../../prompts/__tests__/utils"
 import * as assert from 'assert'
 import * as sinon from 'sinon'
 
