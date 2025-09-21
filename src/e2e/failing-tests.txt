@@ -139,9 +139,9 @@ src/suite/shared/modes.test.ts
 src/suite/shared/support-prompts.test.ts
 src/suite/shared/vsCodeSelectorUtils.test.ts
 src/suite/subtasks.test.ts
-src/suite/test/dynamic-providers-mock.test.ts
-src/suite/test/generic-provider-mock/all-providers-runtime.test.ts
-src/suite/test/generic-provider-mock/generic-provider-mock.test.ts
+src/test/__e2e__/dynamic-providers-mock.e2e.test.ts
+src/test/__e2e__/generic-provider-all-providers-runtime.e2e.test.ts
+src/test/__e2e__/generic-provider-mock.e2e.test.ts
 src/suite/utils/cost.test.ts
 src/suite/utils/enhance-prompt.test.ts
 src/suite/utils/git.test.ts

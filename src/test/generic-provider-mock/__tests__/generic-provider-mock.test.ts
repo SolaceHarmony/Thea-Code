@@ -1,3 +1,6 @@
+import { expect } from "chai"
+
+/* eslint-disable @typescript-eslint/no-unused-expressions, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any */
 import GenericProviderMock, { PROVIDER_CONFIGS } from "../../../../test/generic-provider-mock/server"
 import { createTestHelper, testProviderBehavior } from "../../../../test/generic-provider-mock/test-helpers"
 
@@ -12,23 +15,23 @@ describe("Generic Provider Mock", () => {
 	})
 
 	describe("Server Lifecycle", () => {
-		test("should start and stop server", async () => {
+		it("should start and stop server", async () => {
 			mock = new GenericProviderMock(PROVIDER_CONFIGS.generic)
 			port = await mock.start()
 			
-			expect(port).toBeGreaterThan(0)
-			expect(mock.getPort()).toBe(port)
+			expect(port).to.be.greaterThan(0)
+			expect(mock.getPort()).to.equal(port)
 			
 			await mock.stop()
-			expect(mock.getPort()).toBeNull()
+			expect(mock.getPort()).to.be.null
 		})
 
-		test("should handle multiple start calls", async () => {
+		it("should handle multiple start calls", async () => {
 			mock = new GenericProviderMock(PROVIDER_CONFIGS.generic)
 			const port1 = await mock.start()
 			const port2 = await mock.start() // Should return same port
 			
-			expect(port1).toBe(port2)
+			expect(port1).to.equal(port2)
 		})
 	})
 
@@ -37,22 +40,22 @@ describe("Generic Provider Mock", () => {
 			mock = new GenericProviderMock(PROVIDER_CONFIGS.openai)
 			port = await mock.start()
 			// Verify server started
-			expect(port).toBeGreaterThan(0)
-			expect(mock.getPort()).toBe(port)
+			expect(port).to.be.greaterThan(0)
+			expect(mock.getPort()).to.equal(port)
 		})
 
-		test("should list models", async () => {
+		it("should list models", async () => {
 			const response = await fetch(`http://127.0.0.1:${port}/v1/models`)
-			expect(response.status).toBe(200)
+			expect(response.status).to.equal(200)
 			
 			const data = await response.json()
-			expect(data.object).toBe("list")
-			expect(Array.isArray(data.data)).toBe(true)
-			expect(data.data.length).toBeGreaterThan(0)
-			expect(data.data[0]).toHaveProperty("id")
+			expect(data.object).to.equal("list")
+			expect(Array.isArray(data.data)).to.be.true
+			expect(data.data.length).to.be.greaterThan(0)
+			expect(data.data[0]).to.have.property("id")
 		})
 
-		test("should handle chat completion", async () => {
+		it("should handle chat completion", async () => {
 			const response = await fetch(`http://127.0.0.1:${port}/v1/chat/completions`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -63,13 +66,13 @@ describe("Generic Provider Mock", () => {
 				}),
 			})
 			
-			expect(response.status).toBe(200)
+			expect(response.status).to.equal(200)
 			const data = await response.json()
-			expect(data).toHaveProperty("choices")
-			expect(data.choices[0].message).toHaveProperty("content")
+			expect(data).to.have.property("choices")
+			expect(data.choices[0].message).to.have.property("content")
 		})
 
-		test("should handle streaming", async () => {
+		it("should handle streaming", async () => {
 			const response = await fetch(`http://127.0.0.1:${port}/v1/chat/completions`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -80,15 +83,15 @@ describe("Generic Provider Mock", () => {
 				}),
 			})
 			
-			expect(response.status).toBe(200)
-			expect(response.headers.get("content-type")).toBe("text/event-stream")
+			expect(response.status).to.equal(200)
+			expect(response.headers.get("content-type")).to.equal("text/event-stream")
 			
 			const text = await response.text()
-			expect(text).toContain("data:")
-			expect(text).toContain("[DONE]")
+			expect(text).to.contain("data:")
+			expect(text).to.contain("[DONE]")
 		})
 
-		test("should handle tool calls", async () => {
+		it("should handle tool calls", async () => {
 			const response = await fetch(`http://127.0.0.1:${port}/v1/chat/completions`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -106,10 +109,10 @@ describe("Generic Provider Mock", () => {
 				}),
 			})
 			
-			expect(response.status).toBe(200)
+			expect(response.status).to.equal(200)
 			const data = await response.json()
-			expect(data.choices[0].message.tool_calls).toBeDefined()
-			expect(data.choices[0].message.tool_calls[0].function.name).toBe("test_func")
+			expect(data.choices[0].message.tool_calls).to.not.be.undefined
+			expect(data.choices[0].message.tool_calls[0].function.name).to.equal("test_func")
 		})
 	})
 
@@ -119,7 +122,7 @@ describe("Generic Provider Mock", () => {
 			port = await mock.start()
 		})
 
-		test("should handle messages endpoint", async () => {
+		it("should handle messages endpoint", async () => {
 			const response = await fetch(`http://127.0.0.1:${port}/v1/messages`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -129,13 +132,13 @@ describe("Generic Provider Mock", () => {
 				}),
 			})
 			
-			expect(response.status).toBe(200)
+			expect(response.status).to.equal(200)
 			const data = await response.json()
-			expect(data.type).toBe("message")
-			expect(data.content[0].type).toBe("text")
+			expect(data.type).to.equal("message")
+			expect(data.content[0].type).to.equal("text")
 		})
 
-		test("should handle token counting", async () => {
+		it("should handle token counting", async () => {
 			const response = await fetch(`http://127.0.0.1:${port}/v1/messages/count_tokens`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -144,13 +147,13 @@ describe("Generic Provider Mock", () => {
 				}),
 			})
 			
-			expect(response.status).toBe(200)
+			expect(response.status).to.equal(200)
 			const data = await response.json()
-			expect(data).toHaveProperty("input_tokens")
-			expect(data.input_tokens).toBeGreaterThan(0)
+			expect(data).to.have.property("input_tokens")
+			expect(data.input_tokens).to.be.greaterThan(0)
 		})
 
-		test("should include thinking for thinking models", async () => {
+		it("should include thinking for thinking models", async () => {
 			const response = await fetch(`http://127.0.0.1:${port}/v1/messages`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -161,7 +164,7 @@ describe("Generic Provider Mock", () => {
 			})
 			
 			const data = await response.json()
-			expect(data.content[0].text).toContain("<think>")
+			expect(data.content[0].text).to.contain("<think>")
 		})
 	})
 
@@ -171,7 +174,7 @@ describe("Generic Provider Mock", () => {
 			port = await mock.start()
 		})
 
-		test("should handle generate endpoint", async () => {
+		it("should handle generate endpoint", async () => {
 			const response = await fetch(`http://127.0.0.1:${port}/api/generate`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -182,13 +185,13 @@ describe("Generic Provider Mock", () => {
 				}),
 			})
 			
-			expect(response.status).toBe(200)
+			expect(response.status).to.equal(200)
 			const data = await response.json()
-			expect(data).toHaveProperty("response")
-			expect(data.done).toBe(true)
+			expect(data).to.have.property("response")
+			expect(data.done).to.be.true
 		})
 
-		test("should handle chat endpoint", async () => {
+		it("should handle chat endpoint", async () => {
 			const response = await fetch(`http://127.0.0.1:${port}/api/chat`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -199,10 +202,10 @@ describe("Generic Provider Mock", () => {
 				}),
 			})
 			
-			expect(response.status).toBe(200)
+			expect(response.status).to.equal(200)
 			const data = await response.json()
-			expect(data.message.role).toBe("assistant")
-			expect(data.message).toHaveProperty("content")
+			expect(data.message.role).to.equal("assistant")
+			expect(data.message).to.have.property("content")
 		})
 	})
 
@@ -212,7 +215,7 @@ describe("Generic Provider Mock", () => {
 			port = await mock.start()
 		})
 
-		test("should override responses", async () => {
+		it("should override responses", async () => {
 			mock.setResponseOverride("chat_model-1", {
 				id: "override",
 				choices: [{
@@ -230,8 +233,8 @@ describe("Generic Provider Mock", () => {
 			})
 			
 			const data = await response.json()
-			expect(data.id).toBe("override")
-			expect(data.choices[0].message.content).toBe("Overridden")
+			expect(data.id).to.equal("override")
+			expect(data.choices[0].message.content).to.equal("Overridden")
 		})
 	})
 
@@ -241,7 +244,7 @@ describe("Generic Provider Mock", () => {
 			port = await mock.start()
 		})
 
-		test("should log requests", async () => {
+		it("should log requests", async () => {
 			await fetch(`http://127.0.0.1:${port}/v1/models`)
 			await fetch(`http://127.0.0.1:${port}/v1/chat/completions`, {
 				method: "POST",
@@ -253,42 +256,42 @@ describe("Generic Provider Mock", () => {
 			})
 			
 			const log = mock.getRequestLog()
-			expect(log).toHaveLength(2)
-			expect(log[0].path).toBe("/v1/models")
-			expect(log[1].body.messages[0].content).toBe("Log me")
+			expect(log).to.have.lengthOf(2)
+			expect(log[0].path).to.equal("/v1/models")
+			expect(log[1].body.messages[0].content).to.equal("Log me")
 		})
 
-		test("should clear request log", () => {
+		it("should clear request log", () => {
 			mock.clearRequestLog()
-			expect(mock.getRequestLog()).toHaveLength(0)
+			expect(mock.getRequestLog()).to.have.lengthOf(0)
 		})
 	})
 
 	describe("Test Helper Integration", () => {
-		test("should work with test helper", async () => {
+		it("should work with test helper", async () => {
 			const helper = createTestHelper("openai")
 			
 			try {
 				const url = await helper.start()
-				expect(url).toMatch(/http:\/\/127\.0\.0\.1:\d+/)
+				expect(url).to.match(/http:\/\/127\.0\.0\.1:\d+/)
 				
 				const response = await fetch(`${url}/v1/models`)
-				expect(response.status).toBe(200)
+				expect(response.status).to.equal(200)
 			} finally {
 				await helper.stop()
 			}
 		})
 
-		test("should run test scenarios", async () => {
+		it("should run test scenarios", async () => {
 			const results = await testProviderBehavior("openai", ["basic_chat"])
 			
-			expect(results.failed).toBe(0)
-			expect(results.passed).toBeGreaterThan(0)
+			expect(results.failed).to.equal(0)
+			expect(results.passed).to.be.greaterThan(0)
 		})
 	})
 
 	describe("Configuration Updates", () => {
-		test("should update configuration", async () => {
+		it("should update configuration", async () => {
 			mock = new GenericProviderMock(PROVIDER_CONFIGS.generic)
 			port = await mock.start()
 			
@@ -309,7 +312,7 @@ describe("Generic Provider Mock", () => {
 			})
 			
 			const data = await response.json()
-			expect(data.choices[0].message.content).toBe("Updated response")
+			expect(data.choices[0].message.content).to.equal("Updated response")
 		})
 	})
 })
