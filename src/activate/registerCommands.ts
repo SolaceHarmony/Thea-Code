@@ -26,7 +26,7 @@ export const registerCommands = ({ context, outputChannel, provider }: RegisterC
 			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Show prompts")
 		},
 		[COMMANDS.HISTORY_BUTTON]: async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Show history")
+			await showHistoryQuickPick(provider)
 		},
 		[COMMANDS.SETTINGS_BUTTON]: async () => {
 			await vscode.commands.executeCommand("workbench.action.openSettings", "thea-code")
@@ -87,4 +87,43 @@ export const registerCommands = ({ context, outputChannel, provider }: RegisterC
 			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Explain terminal command (current task)")
 		}),
 	)
+}
+
+async function showHistoryQuickPick(provider: TheaProvider) {
+	try {
+		const state = await provider.getStateToPostToWebview()
+		const history = state.taskHistory ?? []
+
+		if (history.length === 0) {
+			await vscode.window.showInformationMessage("No previous tasks found.")
+			return
+		}
+
+		const items = history
+			.slice()
+			.sort((a, b) => b.ts - a.ts)
+			.map((item) => {
+				const date = new Date(item.ts)
+				return {
+					label: item.title || item.task || "Untitled task",
+					description: date.toLocaleString(),
+					detail: item.task,
+					taskId: item.id,
+				}
+			})
+
+		const selection = await vscode.window.showQuickPick(items, {
+			placeHolder: "Select a task to reopen",
+		})
+
+		if (!selection?.taskId) {
+			return
+		}
+
+		await provider.showTaskWithId(selection.taskId)
+		await vscode.window.showInformationMessage(`Reopened task ${selection.label}`)
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error)
+		await vscode.window.showErrorMessage(`Unable to show task history: ${message}`)
+	}
 }
