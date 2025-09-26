@@ -25,6 +25,7 @@ import { playSound, setSoundEnabled, setSoundVolume } from "../../utils/sound"
 import { playTts, setTtsEnabled, setTtsSpeed, stopTts } from "../../utils/tts"
 import { singleCompletionHandler } from "../../utils/single-completion-handler"
 import { searchCommits } from "../../utils/git"
+import { logger } from "../../utils/logging"
 import { OpenRouterHandler } from "../../api/providers/openrouter"
 import { getUnboundModels } from "../../api/providers/unbound"
 import { getRequestyModels } from "../../api/providers/requesty"
@@ -592,35 +593,16 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				.update("allowedCommands", message.commands, vscode.ConfigurationTarget.Global)
 			break
 		}
-		case "openMcpSettings": {
-			const mcpSettingsFilePath = await provider.mcpHub?.getMcpSettingsFilePath()
-			if (mcpSettingsFilePath) {
-				await openFile(mcpSettingsFilePath)
-			}
+		case "openMcpSettings":
+		case "openProjectMcpSettings":
+		case "deleteMcpServer":
+		case "restartMcpServer":
+		case "toggleToolAlwaysAllow":
+		case "toggleMcpServer":
+		case "mcpEnabled":
+		case "enableMcpServerCreation":
+			logger.warn(`Received legacy MCP message "${message.type}" after native migration; ignoring.`)
 			break
-		}
-		case "openProjectMcpSettings": {
-			if (!vscode.workspace.workspaceFolders?.length) {
-				vscode.window.showErrorMessage(t("common:errors.no_workspace"))
-				return
-			}
-
-			const workspaceFolder = vscode.workspace.workspaceFolders[0]
-			const configDir = path.join(workspaceFolder.uri.fsPath, EXTENSION_CONFIG_DIR)
-			const mcpPath = path.join(configDir, "mcp.json") // Use renamed variable
-
-			try {
-				await fs.mkdir(configDir, { recursive: true })
-				const exists = await fileExistsAtPath(mcpPath)
-				if (!exists) {
-					await fs.writeFile(mcpPath, JSON.stringify({ mcpServers: {} }, null, 2))
-				}
-				await openFile(mcpPath)
-			} catch (error: unknown) {
-				vscode.window.showErrorMessage(t("common:errors.create_mcp_json", { error: String(error) }))
-			}
-			break
-		}
 		case "openCustomModesSettings": {
 			const customModesFilePath = await provider.customModesManager.getCustomModesFilePath()
 			if (customModesFilePath) {
@@ -628,73 +610,6 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			}
 			break
 		}
-		case "deleteMcpServer": {
-			if (!message.serverName) {
-				break
-			}
-
-			try {
-				provider.outputChannel.appendLine(`Attempting to delete MCP server: ${message.serverName}`)
-				await provider.mcpHub?.deleteServer(message.serverName, message.source as "global" | "project")
-				provider.outputChannel.appendLine(`Successfully deleted MCP server: ${message.serverName}`)
-			} catch (error: unknown) {
-				const errorMessage = error instanceof Error ? error.message : String(error)
-				provider.outputChannel.appendLine(`Failed to delete MCP server: ${errorMessage}`)
-				// Error messages are already handled by McpHub.deleteServer
-			}
-			break
-		}
-		case "restartMcpServer": {
-			try {
-				await provider.mcpHub?.restartConnection(message.text!, message.source as "global" | "project")
-			} catch (error: unknown) {
-				provider.outputChannel.appendLine(
-					`Failed to retry connection for ${message.text}: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
-				)
-			}
-			break
-		}
-		case "toggleToolAlwaysAllow": {
-			try {
-				if (provider.mcpHub) {
-					await provider.mcpHub.toggleToolAlwaysAllow(
-						message.serverName!,
-						message.source as "global" | "project",
-						message.toolName!,
-						Boolean(message.alwaysAllow),
-					)
-				}
-			} catch (error: unknown) {
-				provider.outputChannel.appendLine(
-					`Failed to toggle auto-approve for tool ${message.toolName}: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
-				)
-			}
-			break
-		}
-		case "toggleMcpServer": {
-			try {
-				await provider.mcpHub?.toggleServerDisabled(
-					message.serverName!,
-					message.disabled!,
-					message.source as "global" | "project",
-				)
-			} catch (error: unknown) {
-				provider.outputChannel.appendLine(
-					`Failed to toggle MCP server ${message.serverName}: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
-				)
-			}
-			break
-		}
-		case "mcpEnabled": {
-			const mcpEnabled = message.bool ?? true
-			await provider.updateGlobalState("mcpEnabled", mcpEnabled)
-			await provider.postStateToWebview()
-			break
-		}
-		case "enableMcpServerCreation":
-			await provider.updateGlobalState("enableMcpServerCreation", message.bool ?? true)
-			await provider.postStateToWebview()
-			break
 		case "playSound":
 			if (message.audioType) {
 				const soundPath = path.join(provider.context.extensionPath, "audio", `${message.audioType}.wav`)

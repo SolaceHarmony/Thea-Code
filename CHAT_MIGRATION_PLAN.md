@@ -70,6 +70,7 @@ This document maps the existing webview-driven functionality in Thea Code to the
 - ✅ History browsing now exposed via `showHistoryQuickPick` in `registerCommands`.
 - ✅ Prompt and MCP panels replaced with native QuickPick flows.
 - ✅ Settings button now drives a native QuickPick for approvals/import/export toggles.
+- ✅ MCP server toggles, restarts, and tool approvals now run through native QuickPick workflows.
 - Continue replacing residual `webviewMessageHandler` message types (settings updates, MCP toggles, diff previews) with chat commands or native prompts.
 - Move checkpoint previews into `ChatResponseFileTreePart`/`ChatResponseAnchorPart` outputs.
 - Delete the `webview-ui` React bundle once the chat path reaches feature parity, then remove associated build tooling from `package.json`.

@@ -1,8 +1,9 @@
 import * as vscode from "vscode"
-import delay from "delay"
+import fs from "fs/promises"
+import * as path from "path"
 
 import { TheaProvider } from "../core/webview/TheaProvider" // Renamed import
-import { EXTENSION_NAME, HOMEPAGE_URL, COMMANDS } from "../shared/config/thea-config"
+import { EXTENSION_NAME, HOMEPAGE_URL, COMMANDS, EXTENSION_CONFIG_DIR } from "../shared/config/thea-config"
 import { supportPrompt } from "../shared/support-prompt"
 import type { McpServer } from "../shared/mcp"
 import { importSettings, exportSettings } from "../core/config/importExport"
@@ -93,10 +94,12 @@ const commandHandlers: Record<string, () => Promise<unknown> | unknown> = {
 	)
 }
 
-interface SettingsQuickPickItem extends vscode.QuickPickItem {
+interface RunnableQuickPickItem extends vscode.QuickPickItem {
 	run: () => Promise<void>
 	keepOpen?: boolean
 }
+
+type SettingsQuickPickItem = RunnableQuickPickItem
 
 async function showHistoryQuickPick(provider: TheaProvider) {
 	try {
@@ -178,38 +181,73 @@ async function showPromptQuickPick(provider: TheaProvider) {
 }
 
 async function showMcpServerQuickPick(provider: TheaProvider) {
-	try {
-		const servers: McpServer[] = provider.theaMcpManagerInstance.getAllServers()
+	while (true) {
+		try {
+			const servers: McpServer[] = provider.theaMcpManagerInstance.getAllServers()
+			const items: RunnableQuickPickItem[] = []
 
-		if (servers.length === 0) {
-			await vscode.window.showInformationMessage("No MCP servers configured.")
+			items.push(
+				{
+					label: "$(gear) Open global MCP settings",
+					detail: "Open the extension-level MCP configuration file.",
+					run: async () => {
+						await openGlobalMcpSettings(provider)
+					},
+					keepOpen: true,
+				},
+				{
+					label: "$(file-code) Open workspace MCP settings",
+					detail: "Open or create .thea/mcp.json in the current workspace.",
+					run: async () => {
+						await openProjectMcpSettings(provider)
+					},
+					keepOpen: true,
+				},
+			)
+
+			if (servers.length === 0) {
+				items.push({
+					label: "No MCP servers configured",
+					detail: "Use the settings files to add new servers.",
+					run: async () => {},
+				})
+			} else {
+				const serverItems = servers.map<RunnableQuickPickItem>((server) => ({
+					label: `${server.disabled ? "$(circle-slash)" : "$(plug)"} ${server.name}`,
+					description: `${server.status}${server.disabled ? " • disabled" : ""}`,
+					detail: server.config,
+					run: async () => {
+						await showMcpServerActions(provider, server.name)
+					},
+					keepOpen: true,
+				}))
+				items.push(...serverItems)
+			}
+
+			const selection = await vscode.window.showQuickPick(items, {
+				placeHolder: "Manage MCP servers",
+				ignoreFocusOut: true,
+			})
+
+			if (!selection) {
+				return
+			}
+
+			try {
+				await selection.run()
+			} catch (error) {
+				const message = error instanceof Error ? error.message : String(error)
+				await vscode.window.showErrorMessage(`Unable to perform MCP action: ${message}`)
+			}
+
+			if (!selection.keepOpen) {
+				return
+			}
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error)
+			await vscode.window.showErrorMessage(`Unable to show MCP servers: ${message}`)
 			return
 		}
-
-		const items = servers.map((server) => ({
-			label: server.name,
-			description: server.status === "connected" ? "Connected" : server.status,
-			detail: server.config,
-			server,
-		}))
-
-		const selection = await vscode.window.showQuickPick(items, {
-			placeHolder: "Select an MCP server",
-		})
-
-		if (!selection) {
-			return
-		}
-
-		const summary = `MCP Server: ${selection.label}\nStatus: ${selection.description}\nConfig: ${selection.detail}`
-		await vscode.commands.executeCommand(
-			"thea-code.chat.respond",
-			provider.getCurrent()?.taskId || "",
-			summary,
-		)
-	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error)
-		await vscode.window.showErrorMessage(`Unable to show MCP servers: ${message}`)
 	}
 }
 
@@ -335,4 +373,242 @@ async function showSettingsQuickPick(provider: TheaProvider) {
 			return
 		}
 	}
+}
+
+async function openGlobalMcpSettings(provider: TheaProvider) {
+	const pathOrUndefined = await provider.theaMcpManagerInstance.getMcpSettingsFilePath()
+	if (!pathOrUndefined) {
+		await vscode.window.showWarningMessage("No global MCP settings file is available.")
+		return
+	}
+
+	await openFileInEditor(pathOrUndefined, JSON.stringify({ mcpServers: {} }, null, 2))
+}
+
+async function openProjectMcpSettings(provider: TheaProvider) {
+	if (!vscode.workspace.workspaceFolders?.length) {
+		await vscode.window.showErrorMessage("Open a workspace to manage project MCP settings.")
+		return
+	}
+
+	const workspaceFolder = vscode.workspace.workspaceFolders[0]
+	const configDir = path.join(workspaceFolder.uri.fsPath, EXTENSION_CONFIG_DIR)
+	const mcpPath = path.join(configDir, "mcp.json")
+
+	try {
+		await fs.mkdir(configDir, { recursive: true })
+		await openFileInEditor(mcpPath, JSON.stringify({ mcpServers: {} }, null, 2))
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error)
+		await vscode.window.showErrorMessage(`Unable to open project MCP settings: ${message}`)
+	}
+}
+
+async function showMcpServerActions(provider: TheaProvider, serverName: string) {
+	while (true) {
+		const server = provider.theaMcpManagerInstance.getAllServers().find((s) => s.name === serverName)
+		if (!server) {
+			await vscode.window.showInformationMessage(`Server ${serverName} is no longer available.`)
+			return
+		}
+
+		const items: RunnableQuickPickItem[] = []
+		const isDisabled = Boolean(server.disabled)
+
+		items.push({
+			label: isDisabled ? "$(play) Enable server" : "$(circle-slash) Disable server",
+			description: isDisabled ? "Currently disabled" : "Currently enabled",
+			run: async () => {
+				await provider.theaMcpManagerInstance.toggleServerDisabled(server.name, !isDisabled)
+				await provider.postStateToWebview()
+				await vscode.window.showInformationMessage(
+					`Server ${server.name} ${isDisabled ? "enabled" : "disabled"}.`,
+				)
+			},
+			keepOpen: true,
+		})
+
+		items.push({
+			label: "$(refresh) Restart connection",
+			description: server.status === "connecting" ? "Currently connecting" : undefined,
+			run: async () => {
+				await provider.theaMcpManagerInstance.restartConnection(server.name)
+				await vscode.window.showInformationMessage(`Restarted connection for ${server.name}.`)
+			},
+			keepOpen: true,
+		})
+
+		if (server.tools?.length) {
+			items.push({
+				label: "$(checklist) Toggle tool approvals",
+				detail: "Enable or disable always-allow for server tools.",
+				run: async () => {
+					await showMcpToolQuickPick(provider, server.name, server.source ?? "global")
+				},
+				keepOpen: true,
+			})
+		}
+
+		items.push({
+			label: "$(comment-discussion) Send summary to chat",
+			detail: "Post server details into the active Thea task.",
+			run: async () => {
+				const summary = formatMcpServerSummary(server)
+				await vscode.commands.executeCommand(
+					"thea-code.chat.respond",
+					provider.getCurrent()?.taskId || "",
+					summary,
+				)
+			},
+			keepOpen: true,
+		})
+
+		items.push({
+			label: "$(trash) Delete server",
+			detail: "Remove this server from configuration.",
+			run: async () => {
+				const choice = await vscode.window.showWarningMessage(
+					`Delete MCP server ${server.name}?`,
+					{ modal: true },
+					"Delete",
+				)
+				if (choice !== "Delete") {
+					return
+				}
+				await provider.theaMcpManagerInstance.deleteServer(server.name)
+				await provider.postStateToWebview()
+				await vscode.window.showInformationMessage(`Deleted MCP server ${server.name}.`)
+			},
+		})
+
+		items.push({
+			label: "$(arrow-left) Back",
+			run: async () => {},
+		})
+
+		const selection = await vscode.window.showQuickPick(items, {
+			placeHolder: `Manage ${server.name}`,
+			ignoreFocusOut: true,
+		})
+
+		if (!selection) {
+			return
+		}
+
+		try {
+			await selection.run()
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error)
+			await vscode.window.showErrorMessage(`Unable to update ${server.name}: ${message}`)
+		}
+
+		if (!selection.keepOpen) {
+			return
+		}
+	}
+}
+
+async function showMcpToolQuickPick(
+	provider: TheaProvider,
+	serverName: string,
+	source: "global" | "project",
+) {
+	while (true) {
+		const server = provider.theaMcpManagerInstance.getAllServers().find((s) => s.name === serverName)
+		if (!server) {
+			await vscode.window.showInformationMessage(`Server ${serverName} is no longer available.`)
+			return
+		}
+
+		const tools = server.tools ?? []
+		if (tools.length === 0) {
+			await vscode.window.showInformationMessage(`Server ${serverName} has no tools to manage.`)
+			return
+		}
+
+		const hub = provider.theaMcpManagerInstance.getMcpHub()
+		if (!hub) {
+			await vscode.window.showErrorMessage("MCP hub is not ready; cannot toggle tools.")
+			return
+		}
+
+		const items: RunnableQuickPickItem[] = tools.map((tool) => {
+			const alwaysAllow = Boolean(tool.alwaysAllow)
+			return {
+				label: `${alwaysAllow ? "$(check)" : "$(circle-large-outline)"} ${tool.name}`,
+				description: alwaysAllow ? "Always allow" : "Requires approval",
+				detail: tool.description,
+				run: async () => {
+					await hub.toggleToolAlwaysAllow(server.name, source, tool.name, !alwaysAllow)
+					await provider.postStateToWebview()
+					await vscode.window.showInformationMessage(
+						`${tool.name} is now ${!alwaysAllow ? "always allowed" : "approval required"}.`,
+					)
+				},
+				keepOpen: true,
+			}
+		})
+
+		items.push({
+			label: "$(arrow-left) Back",
+			run: async () => {},
+		})
+
+		const selection = await vscode.window.showQuickPick(items, {
+			placeHolder: `Toggle tools for ${serverName}`,
+			ignoreFocusOut: true,
+		})
+
+		if (!selection) {
+			return
+		}
+
+		try {
+			await selection.run()
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error)
+			await vscode.window.showErrorMessage(`Unable to toggle tool: ${message}`)
+		}
+
+		if (!selection.keepOpen) {
+			return
+		}
+	}
+}
+
+function formatMcpServerSummary(server: McpServer): string {
+	const lines = [
+		`MCP Server: ${server.name}`,
+		`Status: ${server.status}${server.disabled ? " (disabled)" : ""}`,
+		`Source: ${server.source ?? "global"}`,
+		`Config: ${server.config}`,
+	]
+
+	if (server.tools?.length) {
+		lines.push(`Tools: ${server.tools.length}`)
+	}
+
+	if (server.resources?.length || server.resourceTemplates?.length) {
+		const count = (server.resources?.length ?? 0) + (server.resourceTemplates?.length ?? 0)
+		lines.push(`Resources: ${count}`)
+	}
+
+	return lines.join("\n")
+}
+
+async function openFileInEditor(filePath: string, defaultContent?: string) {
+	const uri = vscode.Uri.file(filePath)
+	try {
+		await fs.mkdir(path.dirname(filePath), { recursive: true })
+	} catch {}
+
+	try {
+		await vscode.workspace.fs.stat(uri)
+	} catch {
+		const content = Buffer.from(defaultContent ?? "", "utf8")
+		await vscode.workspace.fs.writeFile(uri, content)
+	}
+
+	const document = await vscode.workspace.openTextDocument(uri)
+	await vscode.window.showTextDocument(document, { preview: false })
 }
