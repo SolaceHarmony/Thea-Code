@@ -17,7 +17,6 @@ import { ExtensionMessage, TheaMessage } from "../../shared/ExtensionMessage" //
 import { Mode, PromptComponent, defaultModeSlug } from "../../shared/modes"
 import { Terminal, TERMINAL_SHELL_INTEGRATION_TIMEOUT } from "../../integrations/terminal/Terminal"
 import { getTheme } from "../../integrations/theme/getTheme"
-import WorkspaceTracker from "../../integrations/workspace/WorkspaceTracker"
 import { McpHub } from "../../services/mcp/management/McpHub"
 import { McpServerManager } from "../../services/mcp/management/McpServerManager"
 import { ShadowCheckpointService } from "../../services/checkpoints/ShadowCheckpointService"
@@ -78,7 +77,6 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 	// callers could update to get viewLaunched() getter function
 	isViewLaunched = false
 	// not private, so it can be accessed from webviewMessageHandler
-	workspaceTracker?: WorkspaceTracker
 	// not protected, so it can be accessed from webviewMessageHandler.
 	// Could modify code to use getMcpHub() instead.
 	mcpHub?: McpHub // Change from private to protected
@@ -118,7 +116,6 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		}
 
 		// Defer WorkspaceTracker to when the webview is actually resolved (avoids heavy FS watching during activation)
-		this.workspaceTracker = undefined
 
 		this.providerSettingsManager = new ProviderSettingsManager(this.context, { enableInitialize: !isTest })
 
@@ -185,8 +182,6 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 			}
 		}
 
-		this.workspaceTracker?.dispose()
-		this.workspaceTracker = undefined
 		void this.mcpHub?.dispose()
 		this.mcpHub = undefined
 		this.customModesManager?.dispose()
@@ -339,9 +334,6 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		const isTest = process.env.THEA_E2E === "1" || process.env.NODE_ENV === "test"
 		console.log(`[TheaProvider] setupWebview (isTest=${isTest})`)
 		// Lazily initialize WorkspaceTracker unless in test mode (to avoid heavy file system watchers during e2e)
-		if (!this.workspaceTracker && !isTest) {
-			this.workspaceTracker = new WorkspaceTracker(this)
-		}
 
 		if (!this.contextProxy.isInitialized) {
 			await this.contextProxy.initialize()
@@ -736,10 +728,16 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
             <meta name="theme-color" content="#000000">
+<<<<<<< HEAD
             <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data:; script-src 'nonce-${nonce}' https://us-assets.i.posthog.com; connect-src https://openrouter.ai https://us.i.posthog.com https://us-assets.i.posthog.com;">
             <link rel="stylesheet" type="text/css" href="${vendorStylesUri.toString()}">
             <link rel="stylesheet" type="text/css" href="${mainStylesUri.toString()}">
 			<!-- <link href="codiconsUri" rel="stylesheet" /> -->
+=======
+            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data:; script-src 'nonce-${nonce}' https://us-assets.i.posthog.com; connect-src https://openrouter.ai https://api.requesty.ai https://us.i.posthog.com https://us-assets.i.posthog.com;">
+            <link rel="stylesheet" type="text/css" href="${stylesUri.toString()}">
+			<link href="${codiconsUri.toString()}" rel="stylesheet" />
+>>>>>>> 907c6f523 (chore: scaffold native chat UX and remove legacy tests)
 			<script nonce="${nonce}">
                 window.onerror = function(message, source, lineno, colno, error) {
                     try {
