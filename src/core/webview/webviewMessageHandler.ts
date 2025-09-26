@@ -17,7 +17,6 @@ import { checkExistKey } from "../../shared/checkExistApiConfig"
 import { EXPERIMENT_IDS, experimentDefault } from "../../shared/experiments"
 import { Terminal } from "../../integrations/terminal/Terminal"
 import { openFile, openImage } from "../../integrations/misc/open-file"
-import { selectImages } from "../../integrations/misc/process-images"
 import { getTheme } from "../../integrations/theme/getTheme"
 import { discoverChromeHostUrl, tryChromeHostUrl } from "../../services/browser/browserDiscovery"
 import { searchWorkspaceFiles } from "../../services/search/file-search"
@@ -308,18 +307,6 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			break
 		}
 
-		case "newTask": {
-			// Code that should run in response to the hello message command
-			//vscode.window.showInformationMessage(message.text!)
-
-			// Send a message to our webview.
-			// You can send any JSON serializable data.
-			// Could also do this in extension .ts
-			//provider.postMessageToWebview({ type: "text", text: `Extension: ${Date.now()}` })
-			// initializing new instance of Cline will make sure that any agentically running promises in old instance don't affect our new task. this essentially creates a fresh slate for the new task
-			await provider.initWithTask(message.text, message.images)
-			break
-		}
 		case "apiConfiguration": {
 			if (message.apiConfiguration) {
 				await provider.updateApiConfiguration(message.apiConfiguration)
@@ -374,85 +361,6 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 		case "alwaysAllowSubtasks":
 			await provider.updateGlobalState("alwaysAllowSubtasks", message.bool)
 			await provider.postStateToWebview()
-			break
-		case "askResponse":
-			provider
-				.getCurrent()
-				?.webviewCommunicator.handleWebviewAskResponse(message.askResponse!, message.text, message.images) // Use communicator
-			break
-		case "clearTask":
-			// clear task resets the current session and allows for a new task to be started, if this session is a subtask - it allows the parent task to be resumed
-			await provider.finishSubTask(t("common:tasks.canceled"))
-			await provider.postStateToWebview()
-			break
-		case "didShowAnnouncement":
-			await provider.updateGlobalState("lastShownAnnouncementId", provider.latestAnnouncementId)
-			await provider.postStateToWebview()
-			break
-		case "selectImages": {
-			const images = await selectImages()
-			await provider.postMessageToWebview({ type: "selectedImages", images })
-			break
-		}
-		case "exportCurrentTask": {
-			const currentTaskId = provider.getCurrent()?.taskId
-			if (currentTaskId) {
-				await provider.exportTaskWithId(currentTaskId)
-			}
-			break
-		}
-		case "showTaskWithId":
-			await provider.showTaskWithId(message.text!)
-			break
-		case "deleteTaskWithId":
-			await provider.deleteTaskWithId(message.text!)
-			break
-		case "deleteMultipleTasksWithIds": {
-			const ids = message.ids
-
-			if (Array.isArray(ids)) {
-				// Process in batches of 20 (or another reasonable number)
-				const batchSize = 20
-				const results = []
-
-				// Only log start and end of the operation
-				console.log(`Batch deletion started: ${ids.length} tasks total`)
-
-				for (let i = 0; i < ids.length; i += batchSize) {
-					const batch = ids.slice(i, i + batchSize)
-
-					const batchPromises = batch.map(async (id) => {
-						try {
-							await provider.deleteTaskWithId(id)
-							return { id, success: true }
-						} catch (error) {
-							// Keep error logging for debugging purposes
-							console.log(
-								`Failed to delete task ${id}: ${error instanceof Error ? error.message : String(error)}`,
-							)
-							return { id, success: false }
-						}
-					})
-
-					// Process each batch in parallel but wait for completion before starting the next batch
-					const batchResults = await Promise.all(batchPromises)
-					results.push(...batchResults)
-
-					// Update the UI after each batch to show progress
-					await provider.postStateToWebview()
-				}
-
-				// Log final results
-				const successCount = results.filter((r) => r.success).length
-				const failCount = results.length - successCount
-				console.log(
-					`Batch deletion completed: ${successCount}/${ids.length} tasks successful, ${failCount} tasks failed`,
-				)
-			}
-			break
-		}
-		case "exportTaskWithId":
-			await provider.exportTaskWithId(message.text!)
 			break
 		case "importSettings": {
 			const { success } = await importSettings({
