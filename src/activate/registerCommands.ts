@@ -3,6 +3,8 @@ import delay from "delay"
 
 import { TheaProvider } from "../core/webview/TheaProvider" // Renamed import
 import { EXTENSION_NAME, HOMEPAGE_URL, COMMANDS } from "../shared/config/thea-config"
+import { supportPrompt } from "../shared/support-prompt"
+import type { McpServer } from "../shared/mcp"
 
 import { handleNewTask } from "./handleTask"
 
@@ -20,10 +22,10 @@ export const registerCommands = ({ context, outputChannel, provider }: RegisterC
 		},
 		[COMMANDS.NEW_TASK]: handleNewTask,
 		[COMMANDS.MCP_BUTTON]: async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Open MCP Servers")
+			await showMcpServerQuickPick(provider)
 		},
 		[COMMANDS.PROMPTS_BUTTON]: async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Show prompts")
+			await showPromptQuickPick(provider)
 		},
 		[COMMANDS.HISTORY_BUTTON]: async () => {
 			await showHistoryQuickPick(provider)
@@ -125,5 +127,81 @@ async function showHistoryQuickPick(provider: TheaProvider) {
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error)
 		await vscode.window.showErrorMessage(`Unable to show task history: ${message}`)
+	}
+}
+
+async function showPromptQuickPick(provider: TheaProvider) {
+	try {
+		const state = await provider.getStateToPostToWebview()
+		const mergedPrompts = {
+			...supportPrompt.default,
+			...(state.customSupportPrompts ?? {}),
+		} as Record<string, string | undefined>
+
+		const items = Object.entries(mergedPrompts)
+			.filter(([, template]) => typeof template === "string" && template.trim().length > 0)
+			.map(([key, template]) => ({
+				label: key,
+				template: template!,
+				detail: template!.split("\n")[0],
+			}))
+
+		if (items.length === 0) {
+			await vscode.window.showInformationMessage("No prompts available.")
+			return
+		}
+
+		const selection = await vscode.window.showQuickPick(items, {
+			placeHolder: "Select a prompt to insert",
+		})
+
+		if (!selection) {
+			return
+		}
+
+		await vscode.commands.executeCommand(
+			"thea-code.chat.respond",
+			provider.getCurrent()?.taskId || "",
+			selection.template,
+		)
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error)
+		await vscode.window.showErrorMessage(`Unable to show prompts: ${message}`)
+	}
+}
+
+async function showMcpServerQuickPick(provider: TheaProvider) {
+	try {
+		const servers: McpServer[] = provider.theaMcpManagerInstance.getAllServers()
+
+		if (servers.length === 0) {
+			await vscode.window.showInformationMessage("No MCP servers configured.")
+			return
+		}
+
+		const items = servers.map((server) => ({
+			label: server.name,
+			description: server.status === "connected" ? "Connected" : server.status,
+			detail: server.config,
+			server,
+		}))
+
+		const selection = await vscode.window.showQuickPick(items, {
+			placeHolder: "Select an MCP server",
+		})
+
+		if (!selection) {
+			return
+		}
+
+		const summary = `MCP Server: ${selection.label}\nStatus: ${selection.description}\nConfig: ${selection.detail}`
+		await vscode.commands.executeCommand(
+			"thea-code.chat.respond",
+			provider.getCurrent()?.taskId || "",
+			summary,
+		)
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error)
+		await vscode.window.showErrorMessage(`Unable to show MCP servers: ${message}`)
 	}
 }
