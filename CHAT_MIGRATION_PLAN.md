@@ -66,11 +66,11 @@ This document maps the existing webview-driven functionality in Thea Code to the
 
 ### Immediate Follow-up Tasks
 
-- Expand the new chat participant handler to launch Thea tasks, stream token usage, and surface approvals through command buttons.
 - ✅ Initial task streaming and approve/reject/respond buttons now live in `src/ux/chat/registerChatParticipant.ts`.
-- Replace `webviewMessageHandler` message types (e.g., `newTask`, `clearTask`, `askResponse`) with chat commands or native prompts.
-- Move history browsing, checkpoint previews, and diff generation into `ChatResponseFileTreePart`/`ChatResponseAnchorPart` outputs.
-- Rework MCP server management to use QuickPick-driven flows instead of custom panels.
+- ✅ History browsing now exposed via `showHistoryQuickPick` in `registerCommands`.
+- ✅ Prompt and MCP panels replaced with native QuickPick flows.
+- Continue replacing residual `webviewMessageHandler` message types (settings updates, MCP toggles, diff previews) with chat commands or native prompts.
+- Move checkpoint previews into `ChatResponseFileTreePart`/`ChatResponseAnchorPart` outputs.
 - Delete the `webview-ui` React bundle once the chat path reaches feature parity, then remove associated build tooling from `package.json`.
 
 This staged approach migrates Thea Code away from the deprecated Webview UI Toolkit while embracing the officially supported chat ecosystem in VS Code 1.103+.
