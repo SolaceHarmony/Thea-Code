@@ -25,7 +25,6 @@ import { playSound, setSoundEnabled, setSoundVolume } from "../../utils/sound"
 import { playTts, setTtsEnabled, setTtsSpeed, stopTts } from "../../utils/tts"
 import { singleCompletionHandler } from "../../utils/single-completion-handler"
 import { searchCommits } from "../../utils/git"
-import { exportSettings, importSettings } from "../config/importExport"
 import { OpenRouterHandler } from "../../api/providers/openrouter"
 import { getUnboundModels } from "../../api/providers/unbound"
 import { getRequestyModels } from "../../api/providers/requesty"
@@ -319,72 +318,19 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			await provider.updateCustomInstructions(message.text)
 			break
 		}
-		case "alwaysAllowReadOnly": {
-			await provider.updateGlobalState("alwaysAllowReadOnly", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		}
-		case "alwaysAllowReadOnlyOutsideWorkspace": {
-			await provider.updateGlobalState("alwaysAllowReadOnlyOutsideWorkspace", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		}
-		case "alwaysAllowWrite": {
-			await provider.updateGlobalState("alwaysAllowWrite", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		}
-		case "alwaysAllowWriteOutsideWorkspace": {
-			await provider.updateGlobalState("alwaysAllowWriteOutsideWorkspace", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		}
-		case "alwaysAllowExecute": {
-			await provider.updateGlobalState("alwaysAllowExecute", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		}
-		case "alwaysAllowBrowser": {
-			await provider.updateGlobalState("alwaysAllowBrowser", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		}
-		case "alwaysAllowMcp": {
-			await provider.updateGlobalState("alwaysAllowMcp", message.bool)
-			await provider.postStateToWebview()
-			break
-		}
+		case "alwaysAllowReadOnly":
+		case "alwaysAllowReadOnlyOutsideWorkspace":
+		case "alwaysAllowWrite":
+		case "alwaysAllowWriteOutsideWorkspace":
+		case "alwaysAllowExecute":
+		case "alwaysAllowBrowser":
+		case "alwaysAllowMcp":
 		case "alwaysAllowModeSwitch":
-			await provider.updateGlobalState("alwaysAllowModeSwitch", message.bool)
-			await provider.postStateToWebview()
-			break
 		case "alwaysAllowSubtasks":
-			await provider.updateGlobalState("alwaysAllowSubtasks", message.bool)
-			await provider.postStateToWebview()
-			break
-		case "importSettings": {
-			const { success } = await importSettings({
-				providerSettingsManager: provider.providerSettingsManager,
-				contextProxy: provider.contextProxy,
-			})
-
-			if (success) {
-				provider.settingsImportedAt = Date.now()
-				await provider.postStateToWebview()
-				await vscode.window.showInformationMessage(t("common:info.settings_imported"))
-			}
-
-			break
-		}
+		case "importSettings":
 		case "exportSettings":
-			await exportSettings({
-				providerSettingsManager: provider.providerSettingsManager,
-				contextProxy: provider.contextProxy,
-			})
-
-			break
 		case "resetState":
-			await provider.resetState()
+			logger.warn(`Received legacy settings message "${message.type}" after native migration; ignoring.`)
 			break
 		case "refreshOpenRouterModels": {
 			const { apiConfiguration: configForRefresh } = await provider.getState()
