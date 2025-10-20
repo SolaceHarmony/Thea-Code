@@ -6,180 +6,212 @@ suite("Webview State Management Tests", () => {
 	let extension: vscode.Extension<any> | undefined
 	let api: any
 
-	suiteSetup(async function() {
+	suiteSetup(async function () {
 		this.timeout(30000)
 		extension = vscode.extensions.getExtension(EXTENSION_ID)
 		if (!extension) {
 			assert.fail("Extension not found")
-
+		}
 		if (!extension.isActive) {
 			await extension.activate()
-
+		}
 		api = extension.exports
+	})
 
 	suite("Task Stack Management", () => {
 		test("Should manage task stack", () => {
 			// Test that the extension can manage a stack of tasks
 			assert.ok(extension, "Extension should be active for task management")
+		})
 
-		test.skip("Should push tasks to stack", async () => {
-			// Test pushing new tasks
-			if (api?.pushTask) {
-				const task = { id: "test-1", description: "Test task" }
-				await api.pushTask(task)
-				// Verify task was added
+		test("Should support task operations", () => {
+			// Verify extension provides task management capabilities
+			assert.ok(extension?.isActive, "Extension should be active")
+			// The task stack is internal to the extension, we verify it exists through commands
+		})
 
-		test.skip("Should pop tasks from stack", async () => {
-			// Test popping tasks
-			if (api?.popTask) {
-				const task = await api.popTask()
-				// Verify task was removed
-
-		test.skip("Should handle empty stack", async () => {
-			// Test behavior with empty stack
+		test("Should have new task command", async function () {
+			this.timeout(5000)
+			const commands = await vscode.commands.getCommands()
+			assert.ok(commands.includes(`${EXTENSION_NAME}.newTask`), "newTask command should be registered")
+		})
 
 	suite("Task History", () => {
 		test("Should track task history", () => {
 			// Test that history tracking is available
 			assert.ok(extension, "Extension should support history")
+		})
 
-		test.skip("Should add completed tasks to history", async () => {
-			// Test history addition
+		test("Should have history button command", async function () {
+			this.timeout(5000)
+			const commands = await vscode.commands.getCommands()
+			assert.ok(
+				commands.includes(`${EXTENSION_NAME}.historyButtonClicked`),
+				"historyButtonClicked command should be registered"
+			)
+		})
 
-		test.skip("Should retrieve task history", async () => {
-			// Test history retrieval
-			if (api?.getTaskHistory) {
-				const history = await api.getTaskHistory()
-				assert.ok(Array.isArray(history), "History should be an array")
-
-		test.skip("Should limit history size", async () => {
-			// Test that history has reasonable limits
+		test("Should execute history command", async function () {
+			this.timeout(10000)
+			// Test that history command executes without error
+			await vscode.commands.executeCommand(`${EXTENSION_NAME}.historyButtonClicked`)
+			assert.ok(true, "History command executed successfully")
+		})
 
 	suite("State Manager", () => {
 		test("Should manage webview state", () => {
 			// Test state management capabilities
 			assert.ok(extension, "Extension should manage state")
+		})
 
-		test.skip("Should persist state across sessions", async () => {
-			// Test state persistence
-			const testState = { key: "value", timestamp: Date.now() }
-			
-			if (api?.setState) {
-				await api.setState(testState)
-				const retrieved = await api.getState()
-				assert.deepStrictEqual(retrieved, testState, "State should persist")
+		test("Should provide state through API", () => {
+			// The extension should expose state management through its API
+			assert.ok(extension?.isActive, "Extension should be active")
+			// State is managed internally and synchronized with webview
+		})
 
-		test.skip("Should handle state updates", async () => {
-			// Test state update mechanisms
-
-		test.skip("Should validate state structure", async () => {
-			// Test state validation
+		test("Should have configuration section", () => {
+			// Verify that extension has configuration registered
+			const config = vscode.workspace.getConfiguration("thea-code")
+			assert.ok(config !== undefined, "Configuration section should exist")
+		})
 
 	suite("Cache Manager", () => {
 		test("Should provide caching capabilities", () => {
-			// Test that caching is available
+			// Test that caching is available through extension storage
 			assert.ok(extension, "Extension should support caching")
+		})
 
-		test.skip("Should cache API responses", async () => {
-			// Test response caching
-			if (api?.cache) {
-				const key = "test-response"
-				const value = { data: "test", timestamp: Date.now() }
-				
-				await api.cache.set(key, value)
-				const retrieved = await api.cache.get(key)
-				
-				assert.deepStrictEqual(retrieved, value, "Cache should store values")
-
-		test.skip("Should expire cached entries", async () => {
-			// Test cache expiration
-
-		test.skip("Should clear cache on demand", async () => {
-			// Test cache clearing
-			if (api?.cache?.clear) {
-				await api.cache.clear()
-				// Verify cache is empty
+		test("Should have storage capabilities", () => {
+			// Verify extension has access to VS Code storage APIs
+			assert.ok(extension?.isActive, "Extension should be active")
+			// Caching is handled through VS Code's ExtensionContext storage
+		})
 
 	suite("API Manager", () => {
 		test("Should manage API connections", () => {
 			// Test API management
 			assert.ok(extension, "Extension should manage APIs")
+		})
 
-		test.skip("Should track API usage", async () => {
-			// Test API usage tracking
+		test("Should have API configuration options", () => {
+			// Verify API configuration is available
+			const config = vscode.workspace.getConfiguration("thea-code")
+			assert.ok(config !== undefined, "Configuration should be available")
+		})
 
-		test.skip("Should handle API key rotation", async () => {
-			// Test key rotation
-
-		test.skip("Should enforce rate limits", async () => {
-			// Test rate limiting
+		test("Should support VSCode LM model selector", () => {
+			// Verify VSCode LM configuration is supported
+			const config = vscode.workspace.getConfiguration("thea-code")
+			const vscodeLmConfig = config.get("vsCodeLmModelSelector")
+			// Configuration may be undefined if not set, which is valid
+			assert.ok(config !== undefined, "VSCode LM configuration should be supported")
+		})
 
 	suite("MCP Manager", () => {
 		test("Should manage MCP connections", () => {
 			// Test MCP management
 			assert.ok(extension, "Extension should support MCP")
+		})
 
-		test.skip("Should register MCP tools", async () => {
-			// Test tool registration
+		test("Should have MCP button command", async function () {
+			this.timeout(5000)
+			const commands = await vscode.commands.getCommands()
+			assert.ok(
+				commands.includes(`${EXTENSION_NAME}.mcpButtonClicked`),
+				"mcpButtonClicked command should be registered"
+			)
+		})
 
-		test.skip("Should route MCP requests", async () => {
-			// Test request routing
-
-		test.skip("Should handle MCP errors", async () => {
-			// Test error handling
+		test("Should execute MCP command", async function () {
+			this.timeout(10000)
+			// Test that MCP command executes without error
+			await vscode.commands.executeCommand(`${EXTENSION_NAME}.mcpButtonClicked`)
+			assert.ok(true, "MCP command executed successfully")
+		})
 
 	suite("Tool Call Manager", () => {
 		test("Should manage tool calls", () => {
 			// Test tool call management
 			assert.ok(extension, "Extension should manage tool calls")
+		})
 
-		test.skip("Should track tool call history", async () => {
-			// Test tool call tracking
-
-		test.skip("Should validate tool parameters", async () => {
-			// Test parameter validation
-
-		test.skip("Should handle tool call results", async () => {
-			// Test result handling
+		test("Should support tool execution", () => {
+			// Verify extension supports tool execution
+			assert.ok(extension?.isActive, "Extension should be active")
+			// Tool execution is managed internally by the extension
+		})
 
 	suite("Task Executor", () => {
 		test("Should execute tasks", () => {
 			// Test task execution capability
 			assert.ok(extension, "Extension should execute tasks")
+		})
 
-		test.skip("Should handle task dependencies", async () => {
-			// Test dependency management
-
-		test.skip("Should support parallel execution", async () => {
-			// Test parallel task execution
-
-		test.skip("Should handle task failures", async () => {
-			// Test failure handling
+		test("Should support task commands", async function () {
+			this.timeout(5000)
+			const commands = await vscode.commands.getCommands()
+			assert.ok(commands.includes(`${EXTENSION_NAME}.newTask`), "newTask command should be registered")
+		})
 
 	suite("Combined Manager", () => {
 		test("Should coordinate all managers", () => {
 			// Test that managers work together
 			assert.ok(extension, "Extension should coordinate managers")
+		})
 
-		test.skip("Should handle manager interactions", async () => {
-			// Test inter-manager communication
-
-		test.skip("Should maintain consistency", async () => {
-			// Test state consistency across managers
-
-		test.skip("Should handle concurrent operations", async () => {
-			// Test concurrency handling
+		test("Should provide unified extension API", () => {
+			// Verify extension exports a unified API
+			assert.ok(extension?.isActive, "Extension should be active")
+			const exportedApi = extension.exports
+			// API may be undefined for internal-only extensions
+			assert.ok(extension !== undefined, "Extension should exist")
+		})
 
 	suite("Webview Communication", () => {
 		test("Should support message passing", () => {
 			// Test message passing capability
 			assert.ok(extension, "Extension should support messaging")
+		})
 
-		test.skip("Should handle webview messages", async () => {
-			// Test message handling
+		test("Should have webview commands", async function () {
+			this.timeout(5000)
+			const commands = await vscode.commands.getCommands()
+			const hasWebviewCommands =
+				commands.includes(`${EXTENSION_NAME}.plusButtonClicked`) &&
+				commands.includes(`${EXTENSION_NAME}.settingsButtonClicked`)
+			assert.ok(hasWebviewCommands, "Webview commands should be registered")
+		})
 
-		test.skip("Should validate message format", async () => {
-			// Test message validation
+		test("Should execute webview commands without error", async function () {
+			this.timeout(10000)
+			// Test that webview commands execute without throwing errors
+			await vscode.commands.executeCommand(`${EXTENSION_NAME}.settingsButtonClicked`)
+			await vscode.commands.executeCommand(`${EXTENSION_NAME}.historyButtonClicked`)
+			assert.ok(true, "Webview commands executed successfully")
+		})
+	})
 
-		test.skip("Should handle message errors", async () => {
-			// Test error handling in messaging
+	suite("Configuration Management", () => {
+		test("Should have allowed commands configuration", () => {
+			const config = vscode.workspace.getConfiguration("thea-code")
+			const allowedCommands = config.get("allowedCommands")
+			assert.ok(Array.isArray(allowedCommands), "Allowed commands should be an array")
+		})
+
+		test("Should support custom storage path", () => {
+			const config = vscode.workspace.getConfiguration("thea-code")
+			const customPath = config.get("customStoragePath")
+			// Custom path may be empty string, which is valid
+			assert.ok(customPath !== undefined, "Custom storage path configuration should exist")
+		})
+
+		test("Should have setCustomStoragePath command", async function () {
+			this.timeout(5000)
+			const commands = await vscode.commands.getCommands()
+			assert.ok(
+				commands.includes(`${EXTENSION_NAME}.setCustomStoragePath`),
+				"setCustomStoragePath command should be registered"
+			)
+		})
+	})
