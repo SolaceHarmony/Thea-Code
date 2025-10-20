@@ -76,16 +76,16 @@ export class McpIntegration extends EventEmitter {
 
 		// Create event handlers and store them for cleanup
 		const toolRegisteredHandler = (...args: unknown[]) => {
-			this.emit("tool-registered", ...(args as [string]))
+			this.emit("tool-registered", args[0])
 		}
 		const toolUnregisteredHandler = (...args: unknown[]) => {
-			this.emit("tool-unregistered", ...(args as [string]))
+			this.emit("tool-unregistered", args[0])
 		}
 		const startedHandler = (...args: unknown[]) => {
-			this.emit("started", ...args)
+			this.emit("started", args[0])
 		}
 		const stoppedHandler = (...args: unknown[]) => {
-			this.emit("stopped", ...args)
+			this.emit("stopped")
 		}
 
 		// Store handlers for cleanup
