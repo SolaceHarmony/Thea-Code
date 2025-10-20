@@ -332,7 +332,7 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		// Ensure messageHandler is properly set up
 		this.messageHandler = webviewMessageHandler
 
-		// Initialize out-of-scope variables that need to recieve persistent global state values
+		// Initialize out-of-scope variables that need to receive persistent global state values
 		void this.theaStateManager.getState().then(({ soundEnabled, terminalShellIntegrationTimeout }) => {
 			// Renamed property
 			setSoundEnabled(soundEnabled ?? false)
@@ -364,7 +364,7 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 				: this.getHtmlContent(webviewView.webview)
 
 		// Sets up an event listener to listen for messages passed from the webview view context
-		// and executes code based on the message that is recieved
+		// and executes code based on the message that is received
 		this.setWebviewMessageListener(webviewView.webview)
 
 		// Logs show up in bottom panel > Debug Console
@@ -723,7 +723,7 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 
 	/**
 	 * Sets up an event listener to listen for messages passed from the webview context and
-	 * executes code based on the message that is recieved.
+	 * executes code based on the message that is received.
 	 *
 	 * @param webview A reference to the extension webview
 	 */
@@ -770,8 +770,6 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		if (!theaTask) {
 			return
 		}
-
-		console.log(`[subtasks] cancelling task ${theaTask.taskId}.${theaTask.instanceId}`) // Use renamed variable
 
 		const { historyItem } = await this.theaTaskHistoryManager.getTaskWithId(theaTask.taskId) // Renamed property
 		// Preserve parent and root task information for history item.
@@ -877,7 +875,6 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 
 	async postStateToWebview() {
 		const state = await this.getStateToPostToWebview()
-		console.log("Posting state to webview:", state)
 		await this.postMessageToWebview({ type: "state", state })
 	}
 
