@@ -62,7 +62,7 @@ export async function readFileTool(
 
 			// Parse start_line if provided
 			if (startLineStr) {
-				startLine = parseInt(startLineStr)
+				startLine = parseInt(startLineStr, 10)
 				if (isNaN(startLine)) {
 					// Invalid start_line
 					theaTask.consecutiveMistakeCount++
@@ -75,7 +75,7 @@ export async function readFileTool(
 
 			// Parse end_line if provided
 			if (endLineStr) {
-				endLine = parseInt(endLineStr)
+				endLine = parseInt(endLineStr, 10)
 
 				if (isNaN(endLine)) {
 					// Invalid end_line
