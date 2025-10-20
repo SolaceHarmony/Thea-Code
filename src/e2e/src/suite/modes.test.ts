@@ -36,7 +36,7 @@ suite("Thea Code Modes", () => {
 
 		const completion = getCompletion({ api, taskId: gradeTaskId })
 		const match = completion?.text?.match(/Grade: (\d+)/)
-		const score = parseInt(match?.[1] ?? "0")
+		const score = parseInt(match?.[1] ?? "0", 10)
 		assert.ok(score >= 7 && score <= 10, `Grade must be between 7 and 10 - ${completion?.text}`)
 
 		await api.cancelCurrentTask()

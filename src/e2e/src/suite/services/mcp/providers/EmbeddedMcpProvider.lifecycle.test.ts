@@ -42,7 +42,7 @@ suite("EmbeddedMcpProvider Lifecycle Tests", () => {
 			assert.notStrictEqual(serverUrl, undefined)
 			assert.notStrictEqual(serverUrl?.port, undefined)
 			
-			const port = parseInt(serverUrl!.port)
+			const port = parseInt(serverUrl!.port, 10)
 			assert.ok(port > 0)
 			assert.notStrictEqual(port, 0)
 		})
@@ -58,7 +58,7 @@ suite("EmbeddedMcpProvider Lifecycle Tests", () => {
 			// First start
 			await provider.start()
 			const firstUrl = provider.getServerUrl()
-			const firstPort = firstUrl ? parseInt(firstUrl.port) : 0
+			const firstPort = firstUrl ? parseInt(firstUrl.port, 10) : 0
 			
 			// Stop
 			await provider.stop()
@@ -66,7 +66,7 @@ suite("EmbeddedMcpProvider Lifecycle Tests", () => {
 			// Restart
 			await provider.start()
 			const secondUrl = provider.getServerUrl()
-			const secondPort = secondUrl ? parseInt(secondUrl.port) : 0
+			const secondPort = secondUrl ? parseInt(secondUrl.port, 10) : 0
 			
 			// Should have valid ports
 			assert.ok(firstPort > 0)
