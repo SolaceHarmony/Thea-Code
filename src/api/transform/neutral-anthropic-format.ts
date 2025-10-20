@@ -173,7 +173,7 @@ export function convertToNeutralHistory(
  * Converts NeutralMessageContent to an array of Anthropic ContentBlockParam.
  */
 export function convertToAnthropicContentBlocks(
-	neutralContent: NeutralMessageContent,
+	neutralContent: string | NeutralMessageContent,
 ): Array<LocalTextBlockParam | LocalImageBlockParam | LocalToolUseBlockParam | LocalToolResultBlockParam> {
 	const anthropicBlocks: Array<
 		LocalTextBlockParam | LocalImageBlockParam | LocalToolUseBlockParam | LocalToolResultBlockParam
