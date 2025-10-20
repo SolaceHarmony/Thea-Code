@@ -20,18 +20,18 @@ suite("Webview UI Integration E2E", () => {
 		extension = vscode.extensions.getExtension(EXTENSION_ID)
 		assert.ok(extension, `Extension ${EXTENSION_ID} should be found`)
 		
-		if (!extension!.isActive) {
-			await extension!.activate()
+		if (!extension.isActive) {
+			await extension.activate()
 		}
 	})
 
 	test("Extension should use modern UI components (no webview-ui-toolkit)", async () => {
 		// Verify extension is using modern architecture
 		assert.ok(extension, "Extension should be loaded")
-		assert.ok(extension!.isActive, "Extension should be active")
+		assert.ok(extension.isActive, "Extension should be active")
 		
 		// Extension should have proper webview provider
-		const packageJSON = extension!.packageJSON
+		const packageJSON = extension.packageJSON
 		assert.ok(packageJSON.contributes, "Extension should have contributes")
 		assert.ok(packageJSON.contributes.views, "Extension should have views")
 		
@@ -54,7 +54,7 @@ suite("Webview UI Integration E2E", () => {
 		await new Promise(resolve => setTimeout(resolve, 2000))
 		
 		// Extension should still be active after webview creation
-		assert.ok(extension!.isActive, "Extension should remain active after webview creation")
+		assert.ok(extension.isActive, "Extension should remain active after webview creation")
 	})
 
 	test("Commands for UI navigation should be registered", async () => {
@@ -161,7 +161,7 @@ suite("Webview UI Integration E2E", () => {
 	})
 
 	test("Extension should have proper views container", async () => {
-		const packageJSON = extension!.packageJSON
+		const packageJSON = extension.packageJSON
 		const viewsContainers = packageJSON.contributes.viewsContainers
 		
 		assert.ok(viewsContainers, "Extension should have viewsContainers")
@@ -181,7 +181,7 @@ suite("Webview UI Integration E2E", () => {
 	})
 
 	test("Extension configuration should be properly defined", async () => {
-		const packageJSON = extension!.packageJSON
+		const packageJSON = extension.packageJSON
 		const config = packageJSON.contributes.configuration
 		
 		assert.ok(config, "Extension should have configuration")
@@ -203,7 +203,7 @@ suite("Webview UI Integration E2E", () => {
 		await new Promise(resolve => setTimeout(resolve, 1000))
 		
 		// Extension should still be active
-		assert.ok(extension!.isActive, "Extension should be active after showing view")
+		assert.ok(extension.isActive, "Extension should be active after showing view")
 		
 		// Hide and show again
 		await vscode.commands.executeCommand("workbench.action.closeSidebar")
@@ -212,11 +212,11 @@ suite("Webview UI Integration E2E", () => {
 		await new Promise(resolve => setTimeout(resolve, 1000))
 		
 		// Should still be functional
-		assert.ok(extension!.isActive, "Extension should remain active after hide/show cycle")
+		assert.ok(extension.isActive, "Extension should remain active after hide/show cycle")
 	})
 
 	test("Extension menus should be properly configured", async () => {
-		const packageJSON = extension!.packageJSON
+		const packageJSON = extension.packageJSON
 		const menus = packageJSON.contributes.menus
 		
 		assert.ok(menus, "Extension should have menus")

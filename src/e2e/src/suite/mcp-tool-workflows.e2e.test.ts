@@ -22,12 +22,12 @@ suite("MCP Tool Workflows E2E", () => {
 		extension = vscode.extensions.getExtension(EXTENSION_ID)
 		assert.ok(extension, `Extension ${EXTENSION_ID} should be found`)
 		
-		if (!extension!.isActive) {
-			await extension!.activate()
+		if (!extension.isActive) {
+			await extension.activate()
 		}
 
 		// Get API if available
-		const exp = extension!.exports
+		const exp = extension.exports
 		if (exp && typeof exp === "object") {
 			api = (exp as any).api || exp
 		}
@@ -35,10 +35,10 @@ suite("MCP Tool Workflows E2E", () => {
 
 	test("Extension should support MCP integration", async () => {
 		assert.ok(extension, "Extension should be loaded")
-		assert.ok(extension!.isActive, "Extension should be active")
+		assert.ok(extension.isActive, "Extension should be active")
 		
 		// Check package.json mentions MCP
-		const packageJSON = extension!.packageJSON
+		const packageJSON = extension.packageJSON
 		assert.ok(
 			packageJSON.keywords.includes("mcp") || 
 			packageJSON.description.toLowerCase().includes("mcp"),
@@ -72,7 +72,7 @@ suite("MCP Tool Workflows E2E", () => {
 		
 		// While the actual tool execution happens through AI models,
 		// the extension should have infrastructure for file operations
-		assert.ok(extension!.isActive, "Extension should support file operations via MCP")
+		assert.ok(extension.isActive, "Extension should support file operations via MCP")
 	})
 
 	test("Context menu 'Add To Context' should enable tool usage", async function () {
@@ -131,7 +131,7 @@ suite("MCP Tool Workflows E2E", () => {
 		// The extension should have infrastructure for browser automation
 		
 		// Verify extension is properly set up
-		assert.ok(extension!.isActive, "Extension should support browser tools via MCP")
+		assert.ok(extension.isActive, "Extension should support browser tools via MCP")
 		
 		// Browser functionality is configured in settings
 		const config = vscode.workspace.getConfiguration("thea-code")
@@ -142,7 +142,7 @@ suite("MCP Tool Workflows E2E", () => {
 		// Verify extension supports multiple AI providers
 		// All should have unified tool access via MCP
 		
-		const packageJSON = extension!.packageJSON
+		const packageJSON = extension.packageJSON
 		
 		// Extension should support multiple providers (documented in README/description)
 		assert.ok(
@@ -152,7 +152,7 @@ suite("MCP Tool Workflows E2E", () => {
 		)
 		
 		// MCP provides unified tool access
-		assert.ok(extension!.isActive, "MCP integration should work across providers")
+		assert.ok(extension.isActive, "MCP integration should work across providers")
 	})
 
 	test("Extension configuration should support tool settings", async () => {
@@ -160,7 +160,7 @@ suite("MCP Tool Workflows E2E", () => {
 		const config = vscode.workspace.getConfiguration("thea-code")
 		
 		// Configuration schema should exist
-		const packageJSON = extension!.packageJSON
+		const packageJSON = extension.packageJSON
 		const configSchema = packageJSON.contributes.configuration
 		
 		assert.ok(configSchema, "Extension should have configuration schema")
@@ -172,7 +172,7 @@ suite("MCP Tool Workflows E2E", () => {
 	})
 
 	test("MCP button should be in view title menu", async () => {
-		const packageJSON = extension!.packageJSON
+		const packageJSON = extension.packageJSON
 		const menus = packageJSON.contributes.menus
 		
 		assert.ok(menus, "Extension should have menus")
@@ -320,7 +320,7 @@ suite("MCP Tool Workflows E2E", () => {
 		await new Promise(resolve => setTimeout(resolve, 500))
 		
 		// MCP state should be maintained
-		assert.ok(extension!.isActive, "MCP state should persist across view changes")
+		assert.ok(extension.isActive, "MCP state should persist across view changes")
 	})
 
 	test("Tool execution should handle errors gracefully", async function () {
@@ -338,7 +338,7 @@ suite("MCP Tool Workflows E2E", () => {
 			"Tool commands should handle missing context gracefully"
 		)
 		
-		assert.ok(extension!.isActive, "Extension should remain stable after tool errors")
+		assert.ok(extension.isActive, "Extension should remain stable after tool errors")
 	})
 
 	test("Multiple tool operations should work sequentially", async function () {
@@ -381,7 +381,7 @@ suite("MCP Tool Workflows E2E", () => {
 		await new Promise(resolve => setTimeout(resolve, 500))
 		
 		// Extension should handle sequential operations
-		assert.ok(extension!.isActive, "Extension should handle sequential tool operations")
+		assert.ok(extension.isActive, "Extension should handle sequential tool operations")
 		
 		// Clean up
 		await vscode.commands.executeCommand("workbench.action.closeActiveEditor")
