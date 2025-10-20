@@ -77,8 +77,8 @@ export async function applyDiffTool(
 			const diffResult = (await theaTask.diffStrategy?.applyDiff(
 				originalContent,
 				diffContent,
-				parseInt(block.params.start_line ?? ""),
-				parseInt(block.params.end_line ?? ""),
+				parseInt(block.params.start_line ?? "", 10),
+				parseInt(block.params.end_line ?? "", 10),
 			)) ?? {
 				success: false,
 				error: "No diff strategy available",

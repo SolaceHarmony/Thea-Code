@@ -35,7 +35,7 @@ describe("EmbeddedMcpProvider Lifecycle Tests", () => {
 			expect(serverUrl).toBeDefined()
 			expect(serverUrl?.port).toBeDefined()
 			
-			const port = parseInt(serverUrl!.port)
+			const port = parseInt(serverUrl!.port, 10)
 			expect(port).toBeGreaterThan(0)
 			expect(port).not.toBe(0)
 		})
@@ -51,7 +51,7 @@ describe("EmbeddedMcpProvider Lifecycle Tests", () => {
 			// First start
 			await provider.start()
 			const firstUrl = provider.getServerUrl()
-			const firstPort = firstUrl ? parseInt(firstUrl.port) : 0
+			const firstPort = firstUrl ? parseInt(firstUrl.port, 10) : 0
 			
 			// Stop
 			await provider.stop()
@@ -59,7 +59,7 @@ describe("EmbeddedMcpProvider Lifecycle Tests", () => {
 			// Restart
 			await provider.start()
 			const secondUrl = provider.getServerUrl()
-			const secondPort = secondUrl ? parseInt(secondUrl.port) : 0
+			const secondPort = secondUrl ? parseInt(secondUrl.port, 10) : 0
 			
 			// Should have valid ports
 			expect(firstPort).toBeGreaterThan(0)
