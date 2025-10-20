@@ -22,12 +22,12 @@ suite("Message Passing System E2E", () => {
 		extension = vscode.extensions.getExtension(EXTENSION_ID)
 		assert.ok(extension, `Extension ${EXTENSION_ID} should be found`)
 		
-		if (!extension!.isActive) {
-			await extension!.activate()
+		if (!extension.isActive) {
+			await extension.activate()
 		}
 
 		// Get API if available
-		const exp = extension!.exports
+		const exp = extension.exports
 		if (exp && typeof exp === "object") {
 			api = (exp as any).api || exp
 		}
@@ -35,14 +35,14 @@ suite("Message Passing System E2E", () => {
 
 	test("Extension should have TheaProvider for message handling", async () => {
 		assert.ok(extension, "Extension should be loaded")
-		assert.ok(extension!.isActive, "Extension should be active")
+		assert.ok(extension.isActive, "Extension should be active")
 		
 		// TheaProvider manages webview communication
 		// Verify extension can handle webview lifecycle
 		await vscode.commands.executeCommand("workbench.view.extension.thea-code-ActivityBar")
 		await new Promise(resolve => setTimeout(resolve, 1000))
 		
-		assert.ok(extension!.isActive, "Extension should handle webview lifecycle")
+		assert.ok(extension.isActive, "Extension should handle webview lifecycle")
 	})
 
 	test("Extension state should be accessible for synchronization", async () => {
@@ -81,7 +81,7 @@ suite("Message Passing System E2E", () => {
 			)
 		}
 		
-		assert.ok(extension!.isActive, "Extension should remain active after commands")
+		assert.ok(extension.isActive, "Extension should remain active after commands")
 	})
 
 	test("Extension should handle state updates through commands", async function () {
@@ -121,7 +121,7 @@ suite("Message Passing System E2E", () => {
 			await new Promise(resolve => setTimeout(resolve, 500))
 			
 			// Extension should maintain state
-			assert.ok(extension!.isActive, `Extension should be active after ${view}`)
+			assert.ok(extension.isActive, `Extension should be active after ${view}`)
 		}
 	})
 
@@ -206,7 +206,7 @@ suite("Message Passing System E2E", () => {
 			"Extension should handle rapid message sequences"
 		)
 		
-		assert.ok(extension!.isActive, "Extension should remain stable after rapid messages")
+		assert.ok(extension.isActive, "Extension should remain stable after rapid messages")
 	})
 
 	test("Extension should recover from view disposal and recreation", async function () {
@@ -237,7 +237,7 @@ suite("Message Passing System E2E", () => {
 			"Extension should handle webview recreation"
 		)
 		
-		assert.ok(extension!.isActive, "Extension should remain active after recreation")
+		assert.ok(extension.isActive, "Extension should remain active after recreation")
 	})
 
 	test("Extension should handle popout command", async function () {
@@ -291,7 +291,7 @@ suite("Message Passing System E2E", () => {
 		await new Promise(resolve => setTimeout(resolve, 2000))
 		
 		// Should restore state (extension handles this internally)
-		assert.ok(extension!.isActive, "Extension should maintain state across sessions")
+		assert.ok(extension.isActive, "Extension should maintain state across sessions")
 	})
 
 	test("Extension should handle openInNewTab command", async function () {
