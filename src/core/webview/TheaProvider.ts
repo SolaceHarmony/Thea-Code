@@ -45,8 +45,8 @@ import { TheaMcpManager } from "./mcp/TheaMcpManager" // Renamed import
 import { logger } from "../../utils/logging"
 
 /**
- * https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
- * https://github.com/KumarVariable/vscode-extension-sidebar-html/blob/master/src/customSidebarViewProvider.ts
+ * TheaProvider implements VS Code's WebviewViewProvider interface to manage the extension's webview UI.
+ * Handles both sidebar webview and tab panel webview instances with proper initialization and message passing.
  */
 
 export type TheaProviderEvents = {
@@ -72,6 +72,8 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 	private disposables: vscode.Disposable[] = []
 	// not private, so it can be accessed from webviewMessageHandler
 	view?: vscode.WebviewView | vscode.WebviewPanel
+	// Track if initial state has been posted to prevent duplicate sends
+	private hasPostedInitialState = false
 	// not private, so it can be accessed from webviewMessageHandler
 	// callers could update to get viewLaunched() getter function
 	isViewLaunched = false
@@ -306,8 +308,32 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		await visibleProvider.initWithTask(prompt) // TODO: Rename
 	}
 
-	async resolveWebviewView(webviewView: vscode.WebviewView | vscode.WebviewPanel) {
-		this.outputChannel.appendLine("Resolving webview view")
+	/**
+	 * Implementation of vscode.WebviewViewProvider interface for sidebar webview
+	 * This is called by VSCode when the sidebar view is first shown
+	 */
+	async resolveWebviewView(
+		webviewView: vscode.WebviewView,
+		context: vscode.WebviewViewResolveContext,
+		_token: vscode.CancellationToken
+	): Promise<void> {
+		this.outputChannel.appendLine("Resolving webview view (sidebar)")
+		await this.setupWebview(webviewView)
+	}
+
+	/**
+	 * Setup method for WebviewPanel (used for "open in tab" functionality)
+	 * This is called manually from registerCommands when creating a tab panel
+	 */
+	async resolveWebviewPanel(webviewPanel: vscode.WebviewPanel): Promise<void> {
+		this.outputChannel.appendLine("Resolving webview panel (tab)")
+		await this.setupWebview(webviewPanel)
+	}
+
+	/**
+	 * Common setup logic for both WebviewView and WebviewPanel
+	 */
+	private async setupWebview(webviewView: vscode.WebviewView | vscode.WebviewPanel): Promise<void> {
 		const isTest = process.env.THEA_E2E === "1" || process.env.NODE_ENV === "test"
 		// Lazily initialize WorkspaceTracker unless in test mode (to avoid heavy file system watchers during e2e)
 		if (!this.workspaceTracker && !isTest) {
@@ -332,23 +358,13 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		// Ensure messageHandler is properly set up
 		this.messageHandler = webviewMessageHandler
 
-		// Initialize out-of-scope variables that need to receive persistent global state values
-		void this.theaStateManager.getState().then(({ soundEnabled, terminalShellIntegrationTimeout }) => {
+		// Initialize out-of-scope variables from state (combined into single state fetch)
+		void this.theaStateManager.getState().then((state) => {
 			// Renamed property
-			setSoundEnabled(soundEnabled ?? false)
-			Terminal.setShellIntegrationTimeout(terminalShellIntegrationTimeout ?? TERMINAL_SHELL_INTEGRATION_TIMEOUT)
-		})
-
-		// Initialize tts enabled state
-		void this.theaStateManager.getState().then(({ ttsEnabled }) => {
-			// Renamed property
-			setTtsEnabled(ttsEnabled ?? false)
-		})
-
-		// Initialize tts speed state
-		void this.theaStateManager.getState().then(({ ttsSpeed }) => {
-			// Renamed property
-			setTtsSpeed(ttsSpeed ?? 1)
+			setSoundEnabled(state.soundEnabled ?? false)
+			Terminal.setShellIntegrationTimeout(state.terminalShellIntegrationTimeout ?? TERMINAL_SHELL_INTEGRATION_TIMEOUT)
+			setTtsEnabled(state.ttsEnabled ?? false)
+			setTtsSpeed(state.ttsSpeed ?? 1)
 		})
 
 		webviewView.webview.options = {
@@ -422,7 +438,16 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		// If the extension is starting a new session, clear previous task state.
 		await this.theaTaskStackManager.removeCurrentTheaTask() // Renamed property
 
-		this.outputChannel.appendLine("Webview view resolved")
+		// Post initial state immediately after webview setup to ensure webview
+		// receives state as soon as it's ready to receive messages.
+		// This prevents race conditions where webviewDidLaunch might be sent
+		// before the extension is ready to handle it.
+		this.outputChannel.appendLine("Posting initial state to webview")
+		this.hasPostedInitialState = false // Reset flag for new webview instance
+		await this.postStateToWebview()
+		this.hasPostedInitialState = true
+
+		this.outputChannel.appendLine("Webview setup completed")
 	}
 
 	public async initWithSubTask(parent: TheaTask, task?: string, images?: string[]) {

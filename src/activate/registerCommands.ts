@@ -121,7 +121,8 @@ const openTheaInNewTab = async ({ context, outputChannel }: Omit<RegisterCommand
 		dark: vscode.Uri.joinPath(context.extensionUri, "assets", "icons", "panel_dark.png"),
 	}
 
-	await tabProvider.resolveWebviewView(newPanel)
+	// Use the dedicated panel method instead of the WebviewViewProvider method
+	await tabProvider.resolveWebviewPanel(newPanel)
 
 	// Handle panel closing events.
 	newPanel.onDidDispose(() => {
