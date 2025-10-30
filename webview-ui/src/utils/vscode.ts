@@ -20,7 +20,17 @@ class VSCodeAPIWrapper {
 		// Check if the acquireVsCodeApi function exists in the current development
 		// context (i.e. VS Code development window or web browser)
 		if (typeof acquireVsCodeApi === "function") {
-			this.vsCodeApi = acquireVsCodeApi()
+			// NOTE: acquireVsCodeApi can only be called once per webview.
+			// In HMR mode, this might be called multiple times if the module reloads.
+			// The singleton export pattern ensures we only call it once.
+			try {
+				this.vsCodeApi = acquireVsCodeApi()
+			} catch (error) {
+				// If called multiple times (e.g., in HMR), the API may already exist
+				console.warn("acquireVsCodeApi already called, using existing instance", error)
+				// Try to get the existing instance from window if available
+				this.vsCodeApi = (window as any).vscodeApi
+			}
 		}
 	}
 
