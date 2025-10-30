@@ -55,6 +55,8 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			const customModes = await provider.customModesManager.getCustomModes()
 			await provider.updateGlobalState("customModes", customModes)
 
+			// Post state to webview (even if already posted during setup, this ensures 
+			// any updates during initialization are reflected)
 			await provider.postStateToWebview()
 			void provider.workspaceTracker?.initializeFilePaths()
 
