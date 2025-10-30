@@ -358,23 +358,13 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		// Ensure messageHandler is properly set up
 		this.messageHandler = webviewMessageHandler
 
-		// Initialize out-of-scope variables that need to receive persistent global state values
-		void this.theaStateManager.getState().then(({ soundEnabled, terminalShellIntegrationTimeout }) => {
+		// Initialize out-of-scope variables from state (combined into single state fetch)
+		void this.theaStateManager.getState().then((state) => {
 			// Renamed property
-			setSoundEnabled(soundEnabled ?? false)
-			Terminal.setShellIntegrationTimeout(terminalShellIntegrationTimeout ?? TERMINAL_SHELL_INTEGRATION_TIMEOUT)
-		})
-
-		// Initialize tts enabled state
-		void this.theaStateManager.getState().then(({ ttsEnabled }) => {
-			// Renamed property
-			setTtsEnabled(ttsEnabled ?? false)
-		})
-
-		// Initialize tts speed state
-		void this.theaStateManager.getState().then(({ ttsSpeed }) => {
-			// Renamed property
-			setTtsSpeed(ttsSpeed ?? 1)
+			setSoundEnabled(state.soundEnabled ?? false)
+			Terminal.setShellIntegrationTimeout(state.terminalShellIntegrationTimeout ?? TERMINAL_SHELL_INTEGRATION_TIMEOUT)
+			setTtsEnabled(state.ttsEnabled ?? false)
+			setTtsSpeed(state.ttsSpeed ?? 1)
 		})
 
 		webviewView.webview.options = {
