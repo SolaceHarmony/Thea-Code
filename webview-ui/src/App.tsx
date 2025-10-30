@@ -76,7 +76,22 @@ const App = () => {
 	useEffect(() => vscode.postMessage({ type: "webviewDidLaunch" }), [])
 
 	if (!didHydrateState) {
-		return null
+		// Show loading indicator while waiting for initial state
+		return (
+			<div
+				style={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					height: "100vh",
+					flexDirection: "column",
+					gap: "16px",
+				}}
+			>
+				<div className="codicon codicon-loading codicon-modifier-spin" style={{ fontSize: "32px" }} />
+				<div style={{ opacity: 0.7 }}>Loading Thea Code...</div>
+			</div>
+		)
 	}
 
 	// Do not conditionally load ChatView, it's expensive and there's state we
