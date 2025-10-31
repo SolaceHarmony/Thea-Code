@@ -6,13 +6,13 @@ This document provides a comprehensive guide for testing the user input to model
 
 The user input to model response flow is a critical path in Thea Code that involves:
 
-1. **User Input** → User message from webview or command
-2. **Message Processing** → TheaTask processes and prepares message for API
-3. **API Request** → Handler sends message to AI model
-4. **Model Response** → Model returns text, tool calls, or errors
-5. **Response Processing** → TheaTask handles response and updates UI
-6. **Tool Execution** → If tool calls, execute and send results back
-7. **Continuation** → Model processes tool results and continues
+1. **User Input**: User message from webview or command
+2. **Message Processing**: TheaTask processes and prepares message for API
+3. **API Request**: Handler sends message to AI model
+4. **Model Response**: Model returns text, tool calls, or errors
+5. **Response Processing**: TheaTask handles response and updates UI
+6. **Tool Execution**: If tool calls, execute and send results back
+7. **Continuation**: Model processes tool results and continues
 
 ## Test Coverage Strategy
 
