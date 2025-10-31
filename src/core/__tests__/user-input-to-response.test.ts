@@ -629,13 +629,12 @@ describe("User Input to Model Response Flow", () => {
 			const stream = handler.createMessage("System", messages)
 
 			// Should handle gracefully
-			let hadError = false
 			try {
 				for await (const chunk of stream) {
 					void chunk
 				}
 			} catch (error) {
-				hadError = true
+				// error handled gracefully
 			}
 
 			// Either succeeds or fails gracefully
