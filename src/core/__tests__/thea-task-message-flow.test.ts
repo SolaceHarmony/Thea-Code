@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 import * as assert from "assert"
-import { Readable } from "stream"
 import sinon from "sinon"
 
 import { OpenAiHandler } from "../../api/providers/openai"
