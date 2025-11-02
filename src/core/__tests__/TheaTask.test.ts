@@ -401,7 +401,7 @@ describe("TheaTask", () => {
 			}
 			const MockDateTimeFormatConstructor: IntlDateTimeFormatConstructorMock = jest.fn(
 				() => mockDateTimeFormatInstanceMethods,
-			) as IntlDateTimeFormatConstructorMock
+			)
 			MockDateTimeFormatConstructor.supportedLocalesOf = jest
 				.fn<string[], [string | string[] | undefined, Intl.DateTimeFormatOptions | undefined]>()
 				.mockReturnValue(["en-US"])

@@ -1,20 +1,19 @@
 // Mock the logger globally for all tests
-jest.mock("../utils/logging", () => ({
-	logger: {
-		debug: jest.fn(),
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		fatal: jest.fn(),
-		child: jest.fn().mockReturnValue({
-			debug: jest.fn(),
-			info: jest.fn(),
-			warn: jest.fn(),
-			error: jest.fn(),
-			fatal: jest.fn(),
-		}),
-	},
-}))
+// This would normally be done in the test setup, but exported here for reference
+export const mockLogger = {
+	debug: () => {},
+	info: () => {},
+	warn: () => {},
+	error: () => {},
+	fatal: () => {},
+	child: () => ({
+		debug: () => {},
+		info: () => {},
+		warn: () => {},
+		error: () => {},
+		fatal: () => {},
+	}),
+}
 
 // Add toPosix method to String prototype for all tests, mimicking src/utils/path.ts
 // This is needed because the production code expects strings to have this method
@@ -46,8 +45,8 @@ if (!String.prototype.toPosix) {
 	}
 }
 
-// Suppress console output after Jest teardown or between tests
-const original = {
+// Suppress console output after test teardown or between tests
+const _original = {
 	log: console.log.bind(console),
 	info: (console.info?.bind(console) ?? console.log.bind(console)) as typeof console.log,
 	warn: console.warn.bind(console),
@@ -55,10 +54,10 @@ const original = {
 	debug: (console.debug?.bind(console) ?? console.log.bind(console)) as typeof console.log,
 }
 
-const shouldAllowLog = () => {
+const _shouldAllowLog = () => {
 	const g = globalThis as Record<string, unknown>
-	const afterTeardown = (g.__JEST_TEARDOWN__ as boolean | undefined) === true
-	const inActiveTest = (g.__JEST_ACTIVE_TEST__ as boolean | undefined) === true
+	const afterTeardown = (g.__MOCHA_TEARDOWN__ as boolean | undefined) === true
+	const inActiveTest = (g.__MOCHA_ACTIVE_TEST__ as boolean | undefined) === true
 	return !afterTeardown && inActiveTest
 }
 
@@ -70,7 +69,7 @@ console.error = () => {}
 console.debug = () => {}
 
 // Propagate mock server base URLs from global port into env for provider clients
-(() => {
+;(() => {
 	const g = globalThis as Record<string, unknown>
 	// Support both new and old global variable names for backward compatibility
 	const port = (g.__GENERIC_MOCK_PORT__ || g.__OLLAMA_PORT__) as number | undefined

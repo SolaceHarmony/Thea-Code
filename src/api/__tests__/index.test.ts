@@ -1,5 +1,6 @@
-// npx jest src/api/__tests__/index.test.ts
+// Test getModelParams function
 
+import { strict as assert } from "assert"
 import { getModelParams } from "../index"
 import { ANTHROPIC_DEFAULT_MAX_TOKENS } from "../providers/constants"
 
@@ -25,7 +26,7 @@ describe("getModelParams", () => {
 			defaultTemperature: 0.5,
 		})
 
-		expect(result).toEqual({
+		assert.deepStrictEqual(result, {
 			maxTokens: 1000,
 			thinking: undefined,
 			temperature: 0.5,
@@ -47,7 +48,7 @@ describe("getModelParams", () => {
 			defaultTemperature: 0.5,
 		})
 
-		expect(result).toEqual({
+		assert.deepStrictEqual(result, {
 			maxTokens: 1000,
 			thinking: undefined,
 			temperature: 0.7,
@@ -69,7 +70,7 @@ describe("getModelParams", () => {
 			defaultMaxTokens: 1000,
 		})
 
-		expect(result).toEqual({
+		assert.deepStrictEqual(result, {
 			maxTokens: 2000,
 			thinking: undefined,
 			temperature: 0,
@@ -96,7 +97,7 @@ describe("getModelParams", () => {
 			budget_tokens: 1600, // 80% of 2000
 		}
 
-		expect(result).toEqual({
+		assert.deepStrictEqual(result, {
 			maxTokens: 2000,
 			thinking: expectedThinking,
 			temperature: 1.0, // Thinking models require temperature 1.0.
@@ -123,7 +124,7 @@ describe("getModelParams", () => {
 			budget_tokens: 2400, // 80% of 3000
 		}
 
-		expect(result).toEqual({
+		assert.deepStrictEqual(result, {
 			maxTokens: 3000,
 			thinking: expectedThinking,
 			temperature: 1.0,
@@ -150,7 +151,7 @@ describe("getModelParams", () => {
 			budget_tokens: 1500, // Using the custom value
 		}
 
-		expect(result).toEqual({
+		assert.deepStrictEqual(result, {
 			maxTokens: 4000,
 			thinking: expectedThinking,
 			temperature: 1.0,
@@ -172,7 +173,7 @@ describe("getModelParams", () => {
 			model,
 		})
 
-		expect(result).toEqual({
+		assert.deepStrictEqual(result, {
 			maxTokens: 4000,
 			thinking: undefined, // Should remain undefined despite customMaxThinkingTokens being set.
 			temperature: 0, // Using default temperature.
@@ -199,7 +200,7 @@ describe("getModelParams", () => {
 			budget_tokens: 1024, // Minimum is 1024
 		}
 
-		expect(result).toEqual({
+		assert.deepStrictEqual(result, {
 			maxTokens: 2000,
 			thinking: expectedThinking,
 			temperature: 1.0,
@@ -226,7 +227,7 @@ describe("getModelParams", () => {
 			budget_tokens: 3200, // 80% of 4000
 		}
 
-		expect(result).toEqual({
+		assert.deepStrictEqual(result, {
 			maxTokens: 4000,
 			thinking: expectedThinking,
 			temperature: 1.0,
@@ -252,7 +253,7 @@ describe("getModelParams", () => {
 			budget_tokens: Math.floor(ANTHROPIC_DEFAULT_MAX_TOKENS * 0.8),
 		}
 
-		expect(result).toEqual({
+		assert.deepStrictEqual(result, {
 			maxTokens: undefined,
 			thinking: expectedThinking,
 			temperature: 1.0,

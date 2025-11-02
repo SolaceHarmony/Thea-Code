@@ -975,7 +975,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 									},
 								]}
 								onChange={(value) => {
-									setMode(value as Mode)
+									setMode(value)
 									vscode.postMessage({ type: "mode", text: value })
 								}}
 								shortcutText={modeShortcutText}

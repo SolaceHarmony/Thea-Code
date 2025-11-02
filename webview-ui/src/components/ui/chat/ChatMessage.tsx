@@ -25,7 +25,7 @@ export function ChatMessage({ message, isLast, isHeaderVisible }: ChatMessagePro
 		() =>
 			message.annotations
 				?.filter(({ type }) => type === MessageAnnotationType.BADGE)
-				.map(({ data }) => data as BadgeData),
+				.map(({ data }) => data),
 		[message.annotations],
 	)
 

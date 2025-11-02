@@ -30,7 +30,7 @@ suite("Global E2E Setup", () => {
 		}
 
 		if (hasApiOrTest(exp) && (typeof exp.isTestMode === "boolean" || typeof exp.api !== "undefined")) {
-			resolvedApi = (exp.api as TheaCodeAPI | undefined) ?? (exp as TheaCodeAPI)
+			resolvedApi = (exp.api) ?? (exp as TheaCodeAPI)
 		} else if (hasGetAPI(exp)) {
 			resolvedApi = exp.getAPI()
 		} else {

@@ -12,7 +12,7 @@ export function useClipboard({ timeout = 2000 }: UseClipboardProps = {}) {
 			return
 		}
 
-		navigator.clipboard.writeText(value).then(() => {
+		void navigator.clipboard.writeText(value).then(() => {
 			setIsCopied(true)
 			setTimeout(() => setIsCopied(false), timeout)
 		})

@@ -10,7 +10,7 @@ describe("EmbeddedMcpProvider (Mocha)", () => {
     provider = global.__MCP_PROVIDER__ as EmbeddedMcpProvider
     const url = provider.getServerUrl()
     assert.ok(url, "expected server URL after start")
-    assert.ok(Number.parseInt(url!.port, 10) > 0)
+    assert.ok(Number.parseInt(url.port, 10) > 0)
   })
 
   it("registers and executes a tool", async () => {

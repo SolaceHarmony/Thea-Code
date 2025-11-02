@@ -3,7 +3,6 @@
  * Tests initialization, shutdown, repeated start/stop, pending registrations, and event forwarding
  */
 
-import { describe, expect, it, jest, beforeEach, afterEach } from "@jest/globals"
 import { McpToolRouter } from "../McpToolRouter"
 import { McpToolExecutor } from "../McpToolExecutor"
 import { McpToolRegistry } from "../McpToolRegistry"

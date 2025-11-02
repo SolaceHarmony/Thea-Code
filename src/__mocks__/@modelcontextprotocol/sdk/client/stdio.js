@@ -1,9 +1,9 @@
 class StdioClientTransport {
 	constructor() {
-		this.start = jest.fn().mockResolvedValue(undefined)
-		this.close = jest.fn().mockResolvedValue(undefined)
+		this.start = () => Promise.resolve(undefined)
+		this.close = () => Promise.resolve(undefined)
 		this.stderr = {
-			on: jest.fn(),
+			on: () => {},
 		}
 	}
 }
@@ -16,7 +16,4 @@ class StdioServerParameters {
 	}
 }
 
-module.exports = {
-	StdioClientTransport,
-	StdioServerParameters,
-}
+export { StdioClientTransport, StdioServerParameters }

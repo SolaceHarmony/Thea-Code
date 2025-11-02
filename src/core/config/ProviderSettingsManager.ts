@@ -62,7 +62,7 @@ export class ProviderSettingsManager {
 	 */
 	public async initialize() {
 		try {
-			return await this.lock(async () => {
+			return void await this.lock(async () => {
 				const providerProfiles = await this.load()
 
 				if (!providerProfiles) {
@@ -116,7 +116,7 @@ export class ProviderSettingsManager {
 	 */
 	public async saveConfig(name: string, config: ProviderSettingsWithId) {
 		try {
-			return await this.lock(async () => {
+			return void await this.lock(async () => {
 				const providerProfiles = await this.load()
 				// Preserve the existing ID if this is an update to an existing config.
 				const existingId = providerProfiles.apiConfigs[name]?.id
@@ -159,7 +159,7 @@ export class ProviderSettingsManager {
 			return await this.lock(async () => {
 				const providerProfiles = await this.load()
 				const providerSettings = Object.entries(providerProfiles.apiConfigs).find(
-					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+					 
 					([_, apiConfig]) => apiConfig.id === id,
 				)
 
@@ -183,7 +183,7 @@ export class ProviderSettingsManager {
 	 */
 	public async deleteConfig(name: string) {
 		try {
-			return await this.lock(async () => {
+			return void await this.lock(async () => {
 				const providerProfiles = await this.load()
 
 				if (!providerProfiles.apiConfigs[name]) {
@@ -221,7 +221,7 @@ export class ProviderSettingsManager {
 	 */
 	public async setModeConfig(mode: Mode, configId: string) {
 		try {
-			return await this.lock(async () => {
+			return void await this.lock(async () => {
 				const providerProfiles = await this.load()
 				const { modeApiConfigs = {} } = providerProfiles
 				modeApiConfigs[mode] = configId
@@ -256,7 +256,7 @@ export class ProviderSettingsManager {
 
 	public async import(providerProfiles: ProviderProfiles) {
 		try {
-			return await this.lock(() => this.store(providerProfiles))
+			return void await this.lock(() => this.store(providerProfiles))
 		} catch (error) {
 			throw new Error(`Failed to import provider profiles: ${error}`)
 		}
@@ -266,7 +266,7 @@ export class ProviderSettingsManager {
 	 * Reset provider profiles by deleting them from secrets.
 	 */
 	public async resetAllConfigs() {
-		return await this.lock(async () => {
+		return void await this.lock(async () => {
 			await this.context.secrets.delete(this.secretsKey)
 		})
 	}

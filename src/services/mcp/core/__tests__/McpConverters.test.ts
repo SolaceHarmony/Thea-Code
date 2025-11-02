@@ -1,6 +1,5 @@
 // npx jest src/services/mcp/core/__tests__/McpConverters.test.ts
 
-import { describe, expect, it } from "@jest/globals"
 import { McpConverters } from "../McpConverters"
 import { NeutralToolResult } from "../../types/McpToolTypes"
 import { ToolDefinition } from "../../types/McpProviderTypes"

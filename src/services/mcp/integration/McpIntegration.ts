@@ -84,7 +84,7 @@ export class McpIntegration extends EventEmitter {
 		const startedHandler = (...args: unknown[]) => {
 			this.emit("started", args[0])
 		}
-		const stoppedHandler = (...args: unknown[]) => {
+		const stoppedHandler = (..._args: unknown[]) => {
 			// stopped event has no arguments, but accept args for consistency with Map type
 			this.emit("stopped")
 		}
