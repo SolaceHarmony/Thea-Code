@@ -1,402 +1,610 @@
 import { EventEmitter } from "events"
+import { z } from "zod"
 
-type ProviderSettings = {
-	apiProvider?:
-		| (
-				| "anthropic"
-				| "glama"
-				| "openrouter"
-				| "bedrock"
-				| "vertex"
-				| "openai"
-				| "ollama"
-				| "vscode-lm"
-				| "lmstudio"
-				| "gemini"
-				| "openai-native"
-				| "mistral"
-				| "deepseek"
-				| "unbound"
-				| "requesty"
-				| "human-relay"
-				| "fake-ai"
-		  )
-		| undefined
-	apiModelId?: string | undefined
-	apiKey?: string | undefined
-	anthropicBaseUrl?: string | undefined
-	glamaModelId?: string | undefined
-	glamaModelInfo?:
-		| ({
-				maxTokens?: (number | null) | undefined
-				contextWindow: number
-				supportsImages?: boolean | undefined
-				supportsComputerUse?: boolean | undefined
-				supportsPromptCache: boolean
-				inputPrice?: number | undefined
-				outputPrice?: number | undefined
-				cacheWritesPrice?: number | undefined
-				cacheReadsPrice?: number | undefined
-				description?: string | undefined
-				reasoningEffort?: ("low" | "medium" | "high") | undefined
-				thinking?: boolean | undefined
-		  } | null)
-		| undefined
-	glamaApiKey?: string | undefined
-	openRouterApiKey?: string | undefined
-	openRouterModelId?: string | undefined
-	openRouterModelInfo?:
-		| ({
-				maxTokens?: (number | null) | undefined
-				contextWindow: number
-				supportsImages?: boolean | undefined
-				supportsComputerUse?: boolean | undefined
-				supportsPromptCache: boolean
-				inputPrice?: number | undefined
-				outputPrice?: number | undefined
-				cacheWritesPrice?: number | undefined
-				cacheReadsPrice?: number | undefined
-				description?: string | undefined
-				reasoningEffort?: ("low" | "medium" | "high") | undefined
-				thinking?: boolean | undefined
-		  } | null)
-		| undefined
-	openRouterBaseUrl?: string | undefined
-	openRouterSpecificProvider?: string | undefined
-	openRouterUseMiddleOutTransform?: boolean | undefined
-	awsAccessKey?: string | undefined
-	awsSecretKey?: string | undefined
-	awsSessionToken?: string | undefined
-	awsRegion?: string | undefined
-	awsUseCrossRegionInference?: boolean | undefined
-	awsUsePromptCache?: boolean | undefined
-	awspromptCacheId?: string | undefined
-	awsProfile?: string | undefined
-	awsUseProfile?: boolean | undefined
-	awsCustomArn?: string | undefined
-	vertexKeyFile?: string | undefined
-	vertexJsonCredentials?: string | undefined
-	vertexProjectId?: string | undefined
-	vertexRegion?: string | undefined
-	openAiBaseUrl?: string | undefined
-	openAiApiKey?: string | undefined
-	openAiR1FormatEnabled?: boolean | undefined
-	openAiModelId?: string | undefined
-	openAiCustomModelInfo?:
-		| ({
-				maxTokens?: (number | null) | undefined
-				contextWindow: number
-				supportsImages?: boolean | undefined
-				supportsComputerUse?: boolean | undefined
-				supportsPromptCache: boolean
-				inputPrice?: number | undefined
-				outputPrice?: number | undefined
-				cacheWritesPrice?: number | undefined
-				cacheReadsPrice?: number | undefined
-				description?: string | undefined
-				reasoningEffort?: ("low" | "medium" | "high") | undefined
-				thinking?: boolean | undefined
-		  } | null)
-		| undefined
-	openAiUseAzure?: boolean | undefined
-	azureApiVersion?: string | undefined
-	openAiStreamingEnabled?: boolean | undefined
-	ollamaModelId?: string | undefined
-	ollamaBaseUrl?: string | undefined
-	vsCodeLmModelSelector?:
-		| {
-				vendor?: string | undefined
-				family?: string | undefined
-				version?: string | undefined
-				id?: string | undefined
-		  }
-		| undefined
-	lmStudioModelId?: string | undefined
-	lmStudioBaseUrl?: string | undefined
-	lmStudioDraftModelId?: string | undefined
-	lmStudioSpeculativeDecodingEnabled?: boolean | undefined
-	geminiApiKey?: string | undefined
-	googleGeminiBaseUrl?: string | undefined
-	openAiNativeApiKey?: string | undefined
-	mistralApiKey?: string | undefined
-	mistralCodestralUrl?: string | undefined
-	deepSeekBaseUrl?: string | undefined
-	deepSeekApiKey?: string | undefined
-	unboundApiKey?: string | undefined
-	unboundModelId?: string | undefined
-	unboundModelInfo?:
-		| ({
-				maxTokens?: (number | null) | undefined
-				contextWindow: number
-				supportsImages?: boolean | undefined
-				supportsComputerUse?: boolean | undefined
-				supportsPromptCache: boolean
-				inputPrice?: number | undefined
-				outputPrice?: number | undefined
-				cacheWritesPrice?: number | undefined
-				cacheReadsPrice?: number | undefined
-				description?: string | undefined
-				reasoningEffort?: ("low" | "medium" | "high") | undefined
-				thinking?: boolean | undefined
-		  } | null)
-		| undefined
-	requestyApiKey?: string | undefined
-	requestyModelId?: string | undefined
-	requestyModelInfo?:
-		| ({
-				maxTokens?: (number | null) | undefined
-				contextWindow: number
-				supportsImages?: boolean | undefined
-				supportsComputerUse?: boolean | undefined
-				supportsPromptCache: boolean
-				inputPrice?: number | undefined
-				outputPrice?: number | undefined
-				cacheWritesPrice?: number | undefined
-				cacheReadsPrice?: number | undefined
-				description?: string | undefined
-				reasoningEffort?: ("low" | "medium" | "high") | undefined
-				thinking?: boolean | undefined
-		  } | null)
-		| undefined
-	modelTemperature?: (number | null) | undefined
-	modelMaxTokens?: number | undefined
-	modelMaxThinkingTokens?: number | undefined
-	includeMaxTokens?: boolean | undefined
-	fakeAi?: unknown
-}
-
-type GlobalSettings = {
-	currentApiConfigName?: string | undefined
-	listApiConfigMeta?:
-		| {
-				id: string
-				name: string
-				apiProvider?:
-					| (
-							| "anthropic"
-							| "glama"
-							| "openrouter"
-							| "bedrock"
-							| "vertex"
-							| "openai"
-							| "ollama"
-							| "vscode-lm"
-							| "lmstudio"
-							| "gemini"
-							| "openai-native"
-							| "mistral"
-							| "deepseek"
-							| "unbound"
-							| "requesty"
-							| "human-relay"
-							| "fake-ai"
-					  )
-					| undefined
-		  }[]
-		| undefined
-	pinnedApiConfigs?:
-		| {
-				[x: string]: boolean
-		  }
-		| undefined
-	lastShownAnnouncementId?: string | undefined
-	customInstructions?: string | undefined
-	taskHistory?:
-		| {
-				id: string
-				number: number
-				ts: number
-				task: string
-				tokensIn: number
-				tokensOut: number
-				cacheWrites?: number | undefined
-				cacheReads?: number | undefined
-				totalCost: number
-				size?: number | undefined
-		  }[]
-		| undefined
-	autoApprovalEnabled?: boolean | undefined
-	alwaysAllowReadOnly?: boolean | undefined
-	alwaysAllowReadOnlyOutsideWorkspace?: boolean | undefined
-	alwaysAllowWrite?: boolean | undefined
-	alwaysAllowWriteOutsideWorkspace?: boolean | undefined
-	writeDelayMs?: number | undefined
-	alwaysAllowBrowser?: boolean | undefined
-	alwaysApproveResubmit?: boolean | undefined
-	requestDelaySeconds?: number | undefined
-	alwaysAllowMcp?: boolean | undefined
-	alwaysAllowModeSwitch?: boolean | undefined
-	alwaysAllowSubtasks?: boolean | undefined
-	alwaysAllowExecute?: boolean | undefined
-	allowedCommands?: string[] | undefined
-	browserToolEnabled?: boolean | undefined
-	browserViewportSize?: string | undefined
-	screenshotQuality?: number | undefined
-	remoteBrowserEnabled?: boolean | undefined
-	remoteBrowserHost?: string | undefined
-	cachedChromeHostUrl?: string | undefined
-	enableCheckpoints?: boolean | undefined
-	checkpointStorage?: ("task" | "workspace") | undefined
-	ttsEnabled?: boolean | undefined
-	ttsSpeed?: number | undefined
-	soundEnabled?: boolean | undefined
-	soundVolume?: number | undefined
-	maxOpenTabsContext?: number | undefined
-	maxWorkspaceFiles?: number | undefined
-	showTheaIgnoredFiles?: boolean | undefined
-	maxReadFileLine?: number | undefined
-	terminalOutputLineLimit?: number | undefined
-	terminalShellIntegrationTimeout?: number | undefined
-	rateLimitSeconds?: number | undefined
-	diffEnabled?: boolean | undefined
-	fuzzyMatchThreshold?: number | undefined
-	experiments?:
-		| {
-				search_and_replace: boolean
-				experimentalDiffStrategy: boolean
-				insert_content: boolean
-				powerSteering: boolean
-		  }
-		| undefined
-	language?:
-		| (
-				| "ca"
-				| "de"
-				| "en"
-				| "es"
-				| "fr"
-				| "hi"
-				| "it"
-				| "ja"
-				| "ko"
-				| "pl"
-				| "pt-BR"
-				| "tr"
-				| "vi"
-				| "zh-CN"
-				| "zh-TW"
-		  )
-		| undefined
-	telemetrySetting?: ("unset" | "enabled" | "disabled") | undefined
-	mcpEnabled?: boolean | undefined
-	enableMcpServerCreation?: boolean | undefined
-	mode?: string | undefined
-	modeApiConfigs?:
-		| {
-				[x: string]: string
-		  }
-		| undefined
-	customModes?:
-		| {
-				slug: string
-				name: string
-				roleDefinition: string
-				customInstructions?: string | undefined
-				groups: (
-					| ("read" | "edit" | "browser" | "command" | "mcp" | "modes")
-					| [
-							"read" | "edit" | "browser" | "command" | "mcp" | "modes",
-							{
-								fileRegex?: string | undefined
-								description?: string | undefined
-							},
-					  ]
-				)[]
-				source?: ("global" | "project") | undefined
-		  }[]
-		| undefined
-	customModePrompts?:
-		| {
-				[x: string]:
-					| {
-							roleDefinition?: string | undefined
-							customInstructions?: string | undefined
-					  }
-					| undefined
-		  }
-		| undefined
-	customSupportPrompts?:
-		| {
-				[x: string]: string | undefined
-		  }
-		| undefined
-	enhancementApiConfigId?: string | undefined
-}
-
-type TheaMessage = {
-	// Renamed type
-	ts: number
-	type: "ask" | "say"
-	ask?:
-		| (
-				| "followup"
-				| "command"
-				| "command_output"
-				| "completion_result"
-				| "tool"
-				| "api_req_failed"
-				| "resume_task"
-				| "resume_completed_task"
-				| "mistake_limit_reached"
-				| "browser_action_launch"
-				| "use_mcp_server"
-				| "finishTask"
-		  )
-		| undefined
-	say?:
-		| (
-				| "task"
-				| "error"
-				| "api_req_started"
-				| "api_req_finished"
-				| "api_req_retried"
-				| "api_req_retry_delayed"
-				| "api_req_deleted"
-				| "text"
-				| "reasoning"
-				| "completion_result"
-				| "user_feedback"
-				| "user_feedback_diff"
-				| "command_output"
-				| "tool"
-				| "shell_integration_warning"
-				| "browser_action"
-				| "browser_action_result"
-				| "command"
-				| "mcp_server_request_started"
-				| "mcp_server_response"
-				| "new_task_started"
-				| "new_task"
-				| "checkpoint_saved"
-				| "theaignore_error"
-		  )
-		| undefined
-	text?: string | undefined
-	images?: string[] | undefined
-	partial?: boolean | undefined
-	reasoning?: string | undefined
-	conversationHistoryIndex?: number | undefined
-	checkpoint?:
-		| {
-				[x: string]: unknown
-		  }
-		| undefined
-	progressStatus?:
-		| {
-				icon?: string | undefined
-				text?: string | undefined
-		  }
-		| undefined
-}
-
-type TokenUsage = {
-	totalTokensIn: number
-	totalTokensOut: number
-	totalCacheWrites?: number | undefined
-	totalCacheReads?: number | undefined
-	totalCost: number
-	contextTokens: number
-}
+/**
+ * ProviderSettings
+ */
+declare const providerSettingsSchema: z.ZodObject<
+	{
+		apiProvider: z.ZodOptional<
+			z.ZodEnum<{
+				anthropic: "anthropic"
+				glama: "glama"
+				openrouter: "openrouter"
+				bedrock: "bedrock"
+				vertex: "vertex"
+				openai: "openai"
+				ollama: "ollama"
+				"vscode-lm": "vscode-lm"
+				lmstudio: "lmstudio"
+				gemini: "gemini"
+				"openai-native": "openai-native"
+				mistral: "mistral"
+				deepseek: "deepseek"
+				unbound: "unbound"
+				requesty: "requesty"
+				"human-relay": "human-relay"
+				"fake-ai": "fake-ai"
+			}>
+		>
+		apiModelId: z.ZodOptional<z.ZodString>
+		apiKey: z.ZodOptional<z.ZodString>
+		anthropicBaseUrl: z.ZodOptional<z.ZodString>
+		anthropicModelId: z.ZodOptional<z.ZodString>
+		anthropicModelInfo: z.ZodOptional<
+			z.ZodNullable<
+				z.ZodObject<
+					{
+						maxTokens: z.ZodOptional<z.ZodNullable<z.ZodNumber>>
+						contextWindow: z.ZodNumber
+						supportsImages: z.ZodOptional<z.ZodBoolean>
+						supportsComputerUse: z.ZodOptional<z.ZodBoolean>
+						supportsPromptCache: z.ZodBoolean
+						supportsTemperature: z.ZodOptional<z.ZodBoolean>
+						supportsTopP: z.ZodOptional<z.ZodBoolean>
+						supportsSystemInstructions: z.ZodOptional<z.ZodBoolean>
+						supportsAssistantTool: z.ZodOptional<z.ZodBoolean>
+						reasoningTokens: z.ZodOptional<z.ZodBoolean>
+						temperature: z.ZodOptional<z.ZodNumber>
+						topP: z.ZodOptional<z.ZodNumber>
+						topK: z.ZodOptional<z.ZodNumber>
+						inputPrice: z.ZodOptional<z.ZodNumber>
+						outputPrice: z.ZodOptional<z.ZodNumber>
+						cacheWritesPrice: z.ZodOptional<z.ZodNumber>
+						cacheReadsPrice: z.ZodOptional<z.ZodNumber>
+						description: z.ZodOptional<z.ZodString>
+						reasoningEffort: z.ZodOptional<
+							z.ZodEnum<{
+								low: "low"
+								medium: "medium"
+								high: "high"
+							}>
+						>
+						thinking: z.ZodOptional<z.ZodBoolean>
+					},
+					z.core.$strip
+				>
+			>
+		>
+		glamaModelId: z.ZodOptional<z.ZodString>
+		glamaModelInfo: z.ZodOptional<
+			z.ZodNullable<
+				z.ZodObject<
+					{
+						maxTokens: z.ZodOptional<z.ZodNullable<z.ZodNumber>>
+						contextWindow: z.ZodNumber
+						supportsImages: z.ZodOptional<z.ZodBoolean>
+						supportsComputerUse: z.ZodOptional<z.ZodBoolean>
+						supportsPromptCache: z.ZodBoolean
+						supportsTemperature: z.ZodOptional<z.ZodBoolean>
+						supportsTopP: z.ZodOptional<z.ZodBoolean>
+						supportsSystemInstructions: z.ZodOptional<z.ZodBoolean>
+						supportsAssistantTool: z.ZodOptional<z.ZodBoolean>
+						reasoningTokens: z.ZodOptional<z.ZodBoolean>
+						temperature: z.ZodOptional<z.ZodNumber>
+						topP: z.ZodOptional<z.ZodNumber>
+						topK: z.ZodOptional<z.ZodNumber>
+						inputPrice: z.ZodOptional<z.ZodNumber>
+						outputPrice: z.ZodOptional<z.ZodNumber>
+						cacheWritesPrice: z.ZodOptional<z.ZodNumber>
+						cacheReadsPrice: z.ZodOptional<z.ZodNumber>
+						description: z.ZodOptional<z.ZodString>
+						reasoningEffort: z.ZodOptional<
+							z.ZodEnum<{
+								low: "low"
+								medium: "medium"
+								high: "high"
+							}>
+						>
+						thinking: z.ZodOptional<z.ZodBoolean>
+					},
+					z.core.$strip
+				>
+			>
+		>
+		glamaApiKey: z.ZodOptional<z.ZodString>
+		openRouterApiKey: z.ZodOptional<z.ZodString>
+		openRouterModelId: z.ZodOptional<z.ZodString>
+		openRouterModelInfo: z.ZodOptional<
+			z.ZodNullable<
+				z.ZodObject<
+					{
+						maxTokens: z.ZodOptional<z.ZodNullable<z.ZodNumber>>
+						contextWindow: z.ZodNumber
+						supportsImages: z.ZodOptional<z.ZodBoolean>
+						supportsComputerUse: z.ZodOptional<z.ZodBoolean>
+						supportsPromptCache: z.ZodBoolean
+						supportsTemperature: z.ZodOptional<z.ZodBoolean>
+						supportsTopP: z.ZodOptional<z.ZodBoolean>
+						supportsSystemInstructions: z.ZodOptional<z.ZodBoolean>
+						supportsAssistantTool: z.ZodOptional<z.ZodBoolean>
+						reasoningTokens: z.ZodOptional<z.ZodBoolean>
+						temperature: z.ZodOptional<z.ZodNumber>
+						topP: z.ZodOptional<z.ZodNumber>
+						topK: z.ZodOptional<z.ZodNumber>
+						inputPrice: z.ZodOptional<z.ZodNumber>
+						outputPrice: z.ZodOptional<z.ZodNumber>
+						cacheWritesPrice: z.ZodOptional<z.ZodNumber>
+						cacheReadsPrice: z.ZodOptional<z.ZodNumber>
+						description: z.ZodOptional<z.ZodString>
+						reasoningEffort: z.ZodOptional<
+							z.ZodEnum<{
+								low: "low"
+								medium: "medium"
+								high: "high"
+							}>
+						>
+						thinking: z.ZodOptional<z.ZodBoolean>
+					},
+					z.core.$strip
+				>
+			>
+		>
+		openRouterBaseUrl: z.ZodOptional<z.ZodString>
+		openRouterSpecificProvider: z.ZodOptional<z.ZodString>
+		openRouterUseMiddleOutTransform: z.ZodOptional<z.ZodBoolean>
+		awsAccessKey: z.ZodOptional<z.ZodString>
+		awsSecretKey: z.ZodOptional<z.ZodString>
+		awsSessionToken: z.ZodOptional<z.ZodString>
+		awsRegion: z.ZodOptional<z.ZodString>
+		awsUseCrossRegionInference: z.ZodOptional<z.ZodBoolean>
+		awsUsePromptCache: z.ZodOptional<z.ZodBoolean>
+		awspromptCacheId: z.ZodOptional<z.ZodString>
+		awsProfile: z.ZodOptional<z.ZodString>
+		awsUseProfile: z.ZodOptional<z.ZodBoolean>
+		awsCustomArn: z.ZodOptional<z.ZodString>
+		vertexKeyFile: z.ZodOptional<z.ZodString>
+		vertexJsonCredentials: z.ZodOptional<z.ZodString>
+		vertexProjectId: z.ZodOptional<z.ZodString>
+		vertexRegion: z.ZodOptional<z.ZodString>
+		openAiBaseUrl: z.ZodOptional<z.ZodString>
+		openAiApiKey: z.ZodOptional<z.ZodString>
+		openAiR1FormatEnabled: z.ZodOptional<z.ZodBoolean>
+		openAiModelId: z.ZodOptional<z.ZodString>
+		openAiCustomModelInfo: z.ZodOptional<
+			z.ZodNullable<
+				z.ZodObject<
+					{
+						maxTokens: z.ZodOptional<z.ZodNullable<z.ZodNumber>>
+						contextWindow: z.ZodNumber
+						supportsImages: z.ZodOptional<z.ZodBoolean>
+						supportsComputerUse: z.ZodOptional<z.ZodBoolean>
+						supportsPromptCache: z.ZodBoolean
+						supportsTemperature: z.ZodOptional<z.ZodBoolean>
+						supportsTopP: z.ZodOptional<z.ZodBoolean>
+						supportsSystemInstructions: z.ZodOptional<z.ZodBoolean>
+						supportsAssistantTool: z.ZodOptional<z.ZodBoolean>
+						reasoningTokens: z.ZodOptional<z.ZodBoolean>
+						temperature: z.ZodOptional<z.ZodNumber>
+						topP: z.ZodOptional<z.ZodNumber>
+						topK: z.ZodOptional<z.ZodNumber>
+						inputPrice: z.ZodOptional<z.ZodNumber>
+						outputPrice: z.ZodOptional<z.ZodNumber>
+						cacheWritesPrice: z.ZodOptional<z.ZodNumber>
+						cacheReadsPrice: z.ZodOptional<z.ZodNumber>
+						description: z.ZodOptional<z.ZodString>
+						reasoningEffort: z.ZodOptional<
+							z.ZodEnum<{
+								low: "low"
+								medium: "medium"
+								high: "high"
+							}>
+						>
+						thinking: z.ZodOptional<z.ZodBoolean>
+					},
+					z.core.$strip
+				>
+			>
+		>
+		openAiUseAzure: z.ZodOptional<z.ZodBoolean>
+		azureApiVersion: z.ZodOptional<z.ZodString>
+		openAiStreamingEnabled: z.ZodOptional<z.ZodBoolean>
+		ollamaModelId: z.ZodOptional<z.ZodString>
+		ollamaBaseUrl: z.ZodOptional<z.ZodString>
+		vsCodeLmModelSelector: z.ZodOptional<
+			z.ZodObject<
+				{
+					vendor: z.ZodOptional<z.ZodString>
+					family: z.ZodOptional<z.ZodString>
+					version: z.ZodOptional<z.ZodString>
+					id: z.ZodOptional<z.ZodString>
+				},
+				z.core.$strip
+			>
+		>
+		lmStudioModelId: z.ZodOptional<z.ZodString>
+		lmStudioBaseUrl: z.ZodOptional<z.ZodString>
+		lmStudioDraftModelId: z.ZodOptional<z.ZodString>
+		lmStudioSpeculativeDecodingEnabled: z.ZodOptional<z.ZodBoolean>
+		geminiApiKey: z.ZodOptional<z.ZodString>
+		googleGeminiBaseUrl: z.ZodOptional<z.ZodString>
+		openAiNativeApiKey: z.ZodOptional<z.ZodString>
+		mistralApiKey: z.ZodOptional<z.ZodString>
+		mistralCodestralUrl: z.ZodOptional<z.ZodString>
+		deepSeekBaseUrl: z.ZodOptional<z.ZodString>
+		deepSeekApiKey: z.ZodOptional<z.ZodString>
+		unboundApiKey: z.ZodOptional<z.ZodString>
+		unboundModelId: z.ZodOptional<z.ZodString>
+		unboundModelInfo: z.ZodOptional<
+			z.ZodNullable<
+				z.ZodObject<
+					{
+						maxTokens: z.ZodOptional<z.ZodNullable<z.ZodNumber>>
+						contextWindow: z.ZodNumber
+						supportsImages: z.ZodOptional<z.ZodBoolean>
+						supportsComputerUse: z.ZodOptional<z.ZodBoolean>
+						supportsPromptCache: z.ZodBoolean
+						supportsTemperature: z.ZodOptional<z.ZodBoolean>
+						supportsTopP: z.ZodOptional<z.ZodBoolean>
+						supportsSystemInstructions: z.ZodOptional<z.ZodBoolean>
+						supportsAssistantTool: z.ZodOptional<z.ZodBoolean>
+						reasoningTokens: z.ZodOptional<z.ZodBoolean>
+						temperature: z.ZodOptional<z.ZodNumber>
+						topP: z.ZodOptional<z.ZodNumber>
+						topK: z.ZodOptional<z.ZodNumber>
+						inputPrice: z.ZodOptional<z.ZodNumber>
+						outputPrice: z.ZodOptional<z.ZodNumber>
+						cacheWritesPrice: z.ZodOptional<z.ZodNumber>
+						cacheReadsPrice: z.ZodOptional<z.ZodNumber>
+						description: z.ZodOptional<z.ZodString>
+						reasoningEffort: z.ZodOptional<
+							z.ZodEnum<{
+								low: "low"
+								medium: "medium"
+								high: "high"
+							}>
+						>
+						thinking: z.ZodOptional<z.ZodBoolean>
+					},
+					z.core.$strip
+				>
+			>
+		>
+		requestyApiKey: z.ZodOptional<z.ZodString>
+		requestyModelId: z.ZodOptional<z.ZodString>
+		requestyModelInfo: z.ZodOptional<
+			z.ZodNullable<
+				z.ZodObject<
+					{
+						maxTokens: z.ZodOptional<z.ZodNullable<z.ZodNumber>>
+						contextWindow: z.ZodNumber
+						supportsImages: z.ZodOptional<z.ZodBoolean>
+						supportsComputerUse: z.ZodOptional<z.ZodBoolean>
+						supportsPromptCache: z.ZodBoolean
+						supportsTemperature: z.ZodOptional<z.ZodBoolean>
+						supportsTopP: z.ZodOptional<z.ZodBoolean>
+						supportsSystemInstructions: z.ZodOptional<z.ZodBoolean>
+						supportsAssistantTool: z.ZodOptional<z.ZodBoolean>
+						reasoningTokens: z.ZodOptional<z.ZodBoolean>
+						temperature: z.ZodOptional<z.ZodNumber>
+						topP: z.ZodOptional<z.ZodNumber>
+						topK: z.ZodOptional<z.ZodNumber>
+						inputPrice: z.ZodOptional<z.ZodNumber>
+						outputPrice: z.ZodOptional<z.ZodNumber>
+						cacheWritesPrice: z.ZodOptional<z.ZodNumber>
+						cacheReadsPrice: z.ZodOptional<z.ZodNumber>
+						description: z.ZodOptional<z.ZodString>
+						reasoningEffort: z.ZodOptional<
+							z.ZodEnum<{
+								low: "low"
+								medium: "medium"
+								high: "high"
+							}>
+						>
+						thinking: z.ZodOptional<z.ZodBoolean>
+					},
+					z.core.$strip
+				>
+			>
+		>
+		modelTemperature: z.ZodOptional<z.ZodNullable<z.ZodNumber>>
+		modelMaxTokens: z.ZodOptional<z.ZodNumber>
+		modelMaxThinkingTokens: z.ZodOptional<z.ZodNumber>
+		includeMaxTokens: z.ZodOptional<z.ZodBoolean>
+		fakeAi: z.ZodOptional<z.ZodUnknown>
+	},
+	z.core.$strip
+>
+type ProviderSettings = z.infer<typeof providerSettingsSchema>
+/**
+ * GlobalSettings
+ */
+declare const globalSettingsSchema: z.ZodObject<
+	{
+		currentApiConfigName: z.ZodOptional<z.ZodString>
+		listApiConfigMeta: z.ZodOptional<
+			z.ZodArray<
+				z.ZodObject<
+					{
+						id: z.ZodString
+						name: z.ZodString
+						apiProvider: z.ZodOptional<
+							z.ZodEnum<{
+								anthropic: "anthropic"
+								glama: "glama"
+								openrouter: "openrouter"
+								bedrock: "bedrock"
+								vertex: "vertex"
+								openai: "openai"
+								ollama: "ollama"
+								"vscode-lm": "vscode-lm"
+								lmstudio: "lmstudio"
+								gemini: "gemini"
+								"openai-native": "openai-native"
+								mistral: "mistral"
+								deepseek: "deepseek"
+								unbound: "unbound"
+								requesty: "requesty"
+								"human-relay": "human-relay"
+								"fake-ai": "fake-ai"
+							}>
+						>
+					},
+					z.core.$strip
+				>
+			>
+		>
+		pinnedApiConfigs: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodBoolean>>
+		lastShownAnnouncementId: z.ZodOptional<z.ZodString>
+		customInstructions: z.ZodOptional<z.ZodString>
+		taskHistory: z.ZodOptional<
+			z.ZodArray<
+				z.ZodObject<
+					{
+						id: z.ZodString
+						number: z.ZodNumber
+						ts: z.ZodNumber
+						task: z.ZodString
+						tokensIn: z.ZodNumber
+						tokensOut: z.ZodNumber
+						cacheWrites: z.ZodOptional<z.ZodNumber>
+						cacheReads: z.ZodOptional<z.ZodNumber>
+						totalCost: z.ZodNumber
+						size: z.ZodOptional<z.ZodNumber>
+					},
+					z.core.$strip
+				>
+			>
+		>
+		autoApprovalEnabled: z.ZodOptional<z.ZodBoolean>
+		alwaysAllowReadOnly: z.ZodOptional<z.ZodBoolean>
+		alwaysAllowReadOnlyOutsideWorkspace: z.ZodOptional<z.ZodBoolean>
+		alwaysAllowWrite: z.ZodOptional<z.ZodBoolean>
+		alwaysAllowWriteOutsideWorkspace: z.ZodOptional<z.ZodBoolean>
+		writeDelayMs: z.ZodOptional<z.ZodNumber>
+		alwaysAllowBrowser: z.ZodOptional<z.ZodBoolean>
+		alwaysApproveResubmit: z.ZodOptional<z.ZodBoolean>
+		requestDelaySeconds: z.ZodOptional<z.ZodNumber>
+		alwaysAllowMcp: z.ZodOptional<z.ZodBoolean>
+		alwaysAllowModeSwitch: z.ZodOptional<z.ZodBoolean>
+		alwaysAllowSubtasks: z.ZodOptional<z.ZodBoolean>
+		alwaysAllowExecute: z.ZodOptional<z.ZodBoolean>
+		allowedCommands: z.ZodOptional<z.ZodArray<z.ZodString>>
+		browserToolEnabled: z.ZodOptional<z.ZodBoolean>
+		browserViewportSize: z.ZodOptional<z.ZodString>
+		screenshotQuality: z.ZodOptional<z.ZodNumber>
+		remoteBrowserEnabled: z.ZodOptional<z.ZodBoolean>
+		remoteBrowserHost: z.ZodOptional<z.ZodString>
+		cachedChromeHostUrl: z.ZodOptional<z.ZodString>
+		enableCheckpoints: z.ZodOptional<z.ZodBoolean>
+		checkpointStorage: z.ZodOptional<
+			z.ZodEnum<{
+				task: "task"
+				workspace: "workspace"
+			}>
+		>
+		ttsEnabled: z.ZodOptional<z.ZodBoolean>
+		ttsSpeed: z.ZodOptional<z.ZodNumber>
+		soundEnabled: z.ZodOptional<z.ZodBoolean>
+		soundVolume: z.ZodOptional<z.ZodNumber>
+		maxOpenTabsContext: z.ZodOptional<z.ZodNumber>
+		maxWorkspaceFiles: z.ZodOptional<z.ZodNumber>
+		showTheaIgnoredFiles: z.ZodOptional<z.ZodBoolean>
+		maxReadFileLine: z.ZodOptional<z.ZodNumber>
+		terminalOutputLineLimit: z.ZodOptional<z.ZodNumber>
+		terminalShellIntegrationTimeout: z.ZodOptional<z.ZodNumber>
+		rateLimitSeconds: z.ZodOptional<z.ZodNumber>
+		diffEnabled: z.ZodOptional<z.ZodBoolean>
+		fuzzyMatchThreshold: z.ZodOptional<z.ZodNumber>
+		experiments: z.ZodOptional<
+			z.ZodObject<
+				{
+					search_and_replace: z.ZodBoolean
+					experimentalDiffStrategy: z.ZodBoolean
+					insert_content: z.ZodBoolean
+					powerSteering: z.ZodBoolean
+				},
+				z.core.$strip
+			>
+		>
+		language: z.ZodOptional<
+			z.ZodEnum<{
+				ca: "ca"
+				de: "de"
+				en: "en"
+				es: "es"
+				fr: "fr"
+				hi: "hi"
+				it: "it"
+				ja: "ja"
+				ko: "ko"
+				pl: "pl"
+				"pt-BR": "pt-BR"
+				tr: "tr"
+				vi: "vi"
+				"zh-CN": "zh-CN"
+				"zh-TW": "zh-TW"
+			}>
+		>
+		telemetrySetting: z.ZodOptional<
+			z.ZodEnum<{
+				unset: "unset"
+				enabled: "enabled"
+				disabled: "disabled"
+			}>
+		>
+		mcpEnabled: z.ZodOptional<z.ZodBoolean>
+		enableMcpServerCreation: z.ZodOptional<z.ZodBoolean>
+		mode: z.ZodOptional<z.ZodString>
+		modeApiConfigs: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodString>>
+		customModes: z.ZodOptional<
+			z.ZodArray<
+				z.ZodObject<
+					{
+						slug: z.ZodString
+						name: z.ZodString
+						roleDefinition: z.ZodString
+						customInstructions: z.ZodOptional<z.ZodString>
+						groups: z.ZodArray<
+							z.ZodUnion<
+								readonly [
+									z.ZodEnum<{
+										read: "read"
+										edit: "edit"
+										browser: "browser"
+										command: "command"
+										mcp: "mcp"
+										modes: "modes"
+									}>,
+									z.ZodTuple<
+										[
+											z.ZodEnum<{
+												read: "read"
+												edit: "edit"
+												browser: "browser"
+												command: "command"
+												mcp: "mcp"
+												modes: "modes"
+											}>,
+											z.ZodObject<
+												{
+													fileRegex: z.ZodOptional<z.ZodString>
+													description: z.ZodOptional<z.ZodString>
+												},
+												z.core.$strip
+											>,
+										],
+										null
+									>,
+								]
+							>
+						>
+						source: z.ZodOptional<
+							z.ZodEnum<{
+								global: "global"
+								project: "project"
+							}>
+						>
+					},
+					z.core.$strip
+				>
+			>
+		>
+		customModePrompts: z.ZodOptional<
+			z.ZodRecord<
+				z.ZodString,
+				z.ZodOptional<
+					z.ZodObject<
+						{
+							roleDefinition: z.ZodOptional<z.ZodString>
+							customInstructions: z.ZodOptional<z.ZodString>
+						},
+						z.core.$strip
+					>
+				>
+			>
+		>
+		customSupportPrompts: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodOptional<z.ZodString>>>
+		enhancementApiConfigId: z.ZodOptional<z.ZodString>
+	},
+	z.core.$strip
+>
+type GlobalSettings = z.infer<typeof globalSettingsSchema>
+/**
+ * TheaMessage // Renamed
+ */
+declare const clineMessageSchema: z.ZodObject<
+	{
+		ts: z.ZodNumber
+		type: z.ZodUnion<readonly [z.ZodLiteral<"ask">, z.ZodLiteral<"say">]>
+		ask: z.ZodOptional<
+			z.ZodEnum<{
+				command: "command"
+				followup: "followup"
+				command_output: "command_output"
+				completion_result: "completion_result"
+				tool: "tool"
+				api_req_failed: "api_req_failed"
+				resume_task: "resume_task"
+				resume_completed_task: "resume_completed_task"
+				mistake_limit_reached: "mistake_limit_reached"
+				browser_action_launch: "browser_action_launch"
+				use_mcp_server: "use_mcp_server"
+				finishTask: "finishTask"
+			}>
+		>
+		say: z.ZodOptional<
+			z.ZodEnum<{
+				command: "command"
+				task: "task"
+				error: "error"
+				command_output: "command_output"
+				completion_result: "completion_result"
+				tool: "tool"
+				api_req_started: "api_req_started"
+				api_req_finished: "api_req_finished"
+				api_req_retried: "api_req_retried"
+				api_req_retry_delayed: "api_req_retry_delayed"
+				api_req_deleted: "api_req_deleted"
+				text: "text"
+				reasoning: "reasoning"
+				user_feedback: "user_feedback"
+				user_feedback_diff: "user_feedback_diff"
+				shell_integration_warning: "shell_integration_warning"
+				browser_action: "browser_action"
+				browser_action_result: "browser_action_result"
+				mcp_server_request_started: "mcp_server_request_started"
+				mcp_server_response: "mcp_server_response"
+				new_task_started: "new_task_started"
+				new_task: "new_task"
+				checkpoint_saved: "checkpoint_saved"
+				theaignore_error: "theaignore_error"
+			}>
+		>
+		text: z.ZodOptional<z.ZodString>
+		images: z.ZodOptional<z.ZodArray<z.ZodString>>
+		partial: z.ZodOptional<z.ZodBoolean>
+		reasoning: z.ZodOptional<z.ZodString>
+		conversationHistoryIndex: z.ZodOptional<z.ZodNumber>
+		checkpoint: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>
+		progressStatus: z.ZodOptional<
+			z.ZodObject<
+				{
+					icon: z.ZodOptional<z.ZodString>
+					text: z.ZodOptional<z.ZodString>
+				},
+				z.core.$strip
+			>
+		>
+	},
+	z.core.$strip
+>
+type TheaMessage = z.infer<typeof clineMessageSchema>
+/**
+ * TokenUsage
+ */
+declare const tokenUsageSchema: z.ZodObject<
+	{
+		totalTokensIn: z.ZodNumber
+		totalTokensOut: z.ZodNumber
+		totalCacheWrites: z.ZodOptional<z.ZodNumber>
+		totalCacheReads: z.ZodOptional<z.ZodNumber>
+		totalCost: z.ZodNumber
+		contextTokens: z.ZodNumber
+	},
+	z.core.$strip
+>
+type TokenUsage = z.infer<typeof tokenUsageSchema>
 
 type TheaCodeSettings = GlobalSettings & ProviderSettings
 
@@ -405,7 +613,7 @@ interface TheaCodeEvents {
 		{
 			taskId: string
 			action: "created" | "updated"
-			message: TheaMessage // Renamed type
+			message: TheaMessage
 		},
 	]
 	taskCreated: [taskId: string]
@@ -484,7 +692,7 @@ interface TheaCodeAPI extends EventEmitter<TheaCodeEvents> {
 	 * @param taskId The ID of the task.
 	 * @returns An array of TheaMessage objects.
 	 */
-	getMessages(taskId: string): TheaMessage[] // Renamed return type
+	getMessages(taskId: string): TheaMessage[]
 	/**
 	 * Returns the token usage for a given task.
 	 * @param taskId The ID of the task.
@@ -498,12 +706,4 @@ interface TheaCodeAPI extends EventEmitter<TheaCodeEvents> {
 	log(message: string): void
 }
 
-export type {
-	TheaMessage, // Renamed type
-	GlobalSettings,
-	ProviderSettings,
-	TheaCodeAPI,
-	TheaCodeEvents,
-	TheaCodeSettings,
-	TokenUsage,
-}
+export type { GlobalSettings, ProviderSettings, TheaCodeAPI, TheaCodeEvents, TheaCodeSettings, TheaMessage, TokenUsage }
