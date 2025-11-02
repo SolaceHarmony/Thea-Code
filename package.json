@@ -328,6 +328,7 @@
     "lint:changed": "git diff --name-only --diff-filter=ACMRT origin/main...HEAD | xargs -r eslint -c eslint.config.mjs --max-warnings=0",
     "metrics:any": "node scripts/analyze-any-usage.mjs",
     "version": "npm run package && npm run verify",
+    "generate-types": "tsx scripts/generate-types.mts",
     "generateChatCommandsClass": "node -e \"require('./scripts/generate-types.mjs').generateChatCommandsClass();\"",
     "dev": "npm run webview:dev",
     "webview:watch": "cd webview-ui && vite build --watch",
