@@ -95,7 +95,7 @@ suite("AwsBedrockHandler Custom ARN Functionality", () => {
 			}
 
 			const handler1 = new AwsBedrockHandler(matchingOptions)
-			assert.strictEqual((handler1 as any).client.config.region, "us-east-1")
+			assert.strictEqual((handler1).client.config.region, "us-east-1")
 
 			// Test with mismatched region - should use ARN region
 			const mismatchOptions: ApiHandlerOptions = {
@@ -106,7 +106,7 @@ suite("AwsBedrockHandler Custom ARN Functionality", () => {
 
 			const handler2 = new AwsBedrockHandler(mismatchOptions)
 			// Should use the ARN region (eu-west-1), not the provided region (us-west-2)
-			assert.strictEqual((handler2 as any).client.config.region, "eu-west-1")
+			assert.strictEqual((handler2).client.config.region, "eu-west-1")
 		})
 
 		test("should handle different ARN resource types", () => {

@@ -1,5 +1,5 @@
 // Mock default shell based on platform
-const os = require("os")
+import os from "os"
 
 let defaultShell
 if (os.platform() === "win32") {
@@ -8,5 +8,4 @@ if (os.platform() === "win32") {
 	defaultShell = "/bin/bash"
 }
 
-module.exports = defaultShell
-module.exports.default = defaultShell
+export default defaultShell

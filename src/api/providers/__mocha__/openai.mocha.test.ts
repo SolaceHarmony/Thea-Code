@@ -18,7 +18,7 @@ describe('OpenAiHandler (Mocha)', () => {
     await openaiSetup()
     requestBody = undefined
     capturedHeaders = {}
-    ;(openAIMock as any)!.addCustomEndpoint('POST', '/v1/chat/completions', function (_uri: any, body: any) {
+    ;(openAIMock)!.addCustomEndpoint('POST', '/v1/chat/completions', function (_uri: any, body: any) {
       // @ts-expect-error req provided by nock
       capturedHeaders = this.req.headers as Record<string, string | string[]>
       requestBody = body
@@ -112,7 +112,7 @@ describe('OpenAiHandler (Mocha)', () => {
     assert.ok(text)
     assert.ok(typeof text?.text === 'string' && (text?.text?.length || 0) > 0)
     assert.ok(usage)
-    assert.ok(typeof usage?.inputTokens === 'number' && usage!.inputTokens >= 0)
-    assert.ok(typeof usage?.outputTokens === 'number' && usage!.outputTokens >= 0)
+    assert.ok(typeof usage?.inputTokens === 'number' && usage.inputTokens >= 0)
+    assert.ok(typeof usage?.outputTokens === 'number' && usage.outputTokens >= 0)
   })
 })

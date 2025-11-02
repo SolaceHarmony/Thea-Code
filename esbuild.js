@@ -1,6 +1,6 @@
-const esbuild = require("esbuild")
-const fs = require("fs")
-const path = require("path")
+import { context } from "esbuild"
+import { mkdirSync, existsSync, copyFileSync, promises, watch as _watch } from "fs"
+import { join } from "path"
 
 const production = process.argv.includes("--production")
 const watch = process.argv.includes("--watch")
@@ -29,22 +29,22 @@ const copyWasmFiles = {
 	name: "copy-wasm-files",
 	setup(build) {
 		build.onEnd(() => {
-			const sourceDir = path.join(__dirname, "node_modules", "web-tree-sitter")
-			const targetDir = path.join(__dirname, "dist")
+			const sourceDir = join(__dirname, "node_modules", "web-tree-sitter")
+			const targetDir = join(__dirname, "dist")
 
 			// Ensure the target directory exists so copyFileSync doesn't throw
-			fs.mkdirSync(targetDir, { recursive: true })
+			mkdirSync(targetDir, { recursive: true })
 
 			// Copy tree-sitter.wasm if available
-			const wasmSource = path.join(sourceDir, "tree-sitter.wasm")
-			if (fs.existsSync(wasmSource)) {
-				fs.copyFileSync(wasmSource, path.join(targetDir, "tree-sitter.wasm"))
+			const wasmSource = join(sourceDir, "tree-sitter.wasm")
+			if (existsSync(wasmSource)) {
+				copyFileSync(wasmSource, join(targetDir, "tree-sitter.wasm"))
 			} else {
 				console.warn(`tree-sitter.wasm not found in ${sourceDir}, skipping copy`)
 			}
 
 			// Copy language-specific WASM files when present
-			const languageWasmDir = path.join(__dirname, "node_modules", "tree-sitter-wasms", "out")
+			const languageWasmDir = join(__dirname, "node_modules", "tree-sitter-wasms", "out")
 			const languages = [
 				"typescript",
 				"tsx",
@@ -64,10 +64,10 @@ const copyWasmFiles = {
 
 			languages.forEach((lang) => {
 				const filename = `tree-sitter-${lang}.wasm`
-				const src = path.join(languageWasmDir, filename)
-				const dest = path.join(targetDir, filename)
-				if (fs.existsSync(src)) {
-					fs.copyFileSync(src, dest)
+				const src = join(languageWasmDir, filename)
+				const dest = join(targetDir, filename)
+				if (existsSync(src)) {
+					copyFileSync(src, dest)
 				} else {
 					console.warn(`Missing ${filename} in ${languageWasmDir}, skipping`)
 				}
@@ -78,40 +78,40 @@ const copyWasmFiles = {
 
 // Simple function to copy locale files (async version)
 async function copyLocaleFiles() {
-	const srcDir = path.join(__dirname, "src", "i18n", "locales")
-	const destDir = path.join(__dirname, "dist", "i18n", "locales")
-	const outDir = path.join(__dirname, "out", "i18n", "locales")
+	const srcDir = join(__dirname, "src", "i18n", "locales")
+	const destDir = join(__dirname, "dist", "i18n", "locales")
+	const outDir = join(__dirname, "out", "i18n", "locales")
 
 	// Ensure source directory exists before proceeding
 	try {
-		await fs.promises.access(srcDir)
+		await promises.access(srcDir)
 	} catch {
 		console.warn(`Source locales directory does not exist: ${srcDir}`)
 		return // Exit early if source directory doesn't exist
 	}
 
 	// Create destination directories
-	await fs.promises.mkdir(destDir, { recursive: true })
+	await promises.mkdir(destDir, { recursive: true })
 	try {
-		await fs.promises.mkdir(outDir, { recursive: true })
-	} catch (e) {}
+		await promises.mkdir(outDir, { recursive: true })
+	} catch {}
 
 	// Async function to copy directory recursively
 	async function copyDir(src, dest) {
-		const entries = await fs.promises.readdir(src, { withFileTypes: true })
+		const entries = await promises.readdir(src, { withFileTypes: true })
 
 		await Promise.all(
 			entries.map(async (entry) => {
-				const srcPath = path.join(src, entry.name)
-				const destPath = path.join(dest, entry.name)
+				const srcPath = join(src, entry.name)
+				const destPath = join(dest, entry.name)
 
 				if (entry.isDirectory()) {
 					// Create directory and copy contents
-					await fs.promises.mkdir(destPath, { recursive: true })
+					await promises.mkdir(destPath, { recursive: true })
 					await copyDir(srcPath, destPath)
 				} else {
 					// Copy the file
-					await fs.promises.copyFile(srcPath, destPath)
+					await promises.copyFile(srcPath, destPath)
 				}
 			}),
 		)
@@ -134,11 +134,11 @@ async function copyLocaleFiles() {
 async function setupLocaleWatcher() {
 	if (!watch) return
 
-	const localesDir = path.join(__dirname, "src", "i18n", "locales")
+	const localesDir = join(__dirname, "src", "i18n", "locales")
 
 	// Ensure the locales directory exists before setting up watcher
 	try {
-		await fs.promises.access(localesDir)
+		await promises.access(localesDir)
 	} catch {
 		console.warn(`Cannot set up watcher: Source locales directory does not exist: ${localesDir}`)
 		return
@@ -162,7 +162,7 @@ async function setupLocaleWatcher() {
 
 	// Watch the locales directory
 	try {
-		fs.watch(localesDir, { recursive: true }, (eventType, filename) => {
+		_watch(localesDir, { recursive: true }, (eventType, filename) => {
 			if (filename && filename.endsWith(".json")) {
 				console.log(`Locale file ${filename} changed, triggering copy...`)
 				debouncedCopy()
@@ -221,7 +221,7 @@ const extensionConfig = {
 }
 
 async function main() {
-	const extensionCtx = await esbuild.context(extensionConfig)
+	const extensionCtx = await context(extensionConfig)
 
 	if (watch) {
 		// Start the esbuild watcher

@@ -3,7 +3,6 @@
  * Tests streaming/non-streaming, XmlMatcher reasoning, tool_calls to MCP conversion
  */
 
-import { describe, expect, it, jest, beforeEach, afterEach } from "@jest/globals"
 import { OpenAiHandler } from "../openai"
 import OpenAI from "openai"
 import { ApiHandlerOptions } from "../../../shared/api"

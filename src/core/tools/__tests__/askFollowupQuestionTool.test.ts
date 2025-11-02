@@ -1,6 +1,5 @@
 // npx jest src/core/tools/__tests__/askFollowupQuestionTool.test.ts
 
-import { describe, it, expect, jest, beforeEach } from "@jest/globals"
 import { askFollowupQuestionTool } from "../askFollowupQuestionTool"
 import type { TheaTask } from "../../TheaTask"
 import type { ToolUse } from "../../assistant-message"

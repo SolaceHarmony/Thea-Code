@@ -18,7 +18,7 @@ beforeEach(async () => {
 	await openaiSetup()
 	requestBody = undefined
 	capturedHeaders = {};
-	(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
+	(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
 		// `this` is the nock request
 		// @ts-expect-error req is provided by nock
 		capturedHeaders = this.req.headers as Record<string, string | string[]>
@@ -177,7 +177,7 @@ describe("OpenAiHandler", () => {
 	it("should handle API errors", async () => {
 		await openaiTeardown()
 		await openaiSetup();
-		(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [
+		(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [
 			500,
 			{ error: { message: "API Error" } },
 		])
@@ -197,7 +197,7 @@ describe("OpenAiHandler", () => {
 	it("should handle rate limiting", async () => {
 		await openaiTeardown()
 		await openaiSetup();
-		(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [
+		(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [
 			429,
 			{ error: { message: "Rate limit exceeded" } },
 		])
@@ -230,7 +230,7 @@ describe("OpenAiHandler", () => {
 	it("should handle API errors", async () => {
 		await openaiTeardown()
 		await openaiSetup();
-		(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [
+		(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [
 			500,
 			{ error: { message: "API Error" } },
 		])
@@ -244,7 +244,7 @@ describe("OpenAiHandler", () => {
 	it("should handle empty response", async () => {
 		await openaiTeardown()
 		await openaiSetup();
-		(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [
+		(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [
 			200,
 			{ choices: [{ message: { content: "" } }] },
 		])

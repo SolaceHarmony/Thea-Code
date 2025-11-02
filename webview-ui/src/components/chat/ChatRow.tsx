@@ -280,8 +280,8 @@ export const ChatRowContent = ({
 						<CodeAccordian
 							progressStatus={message.progressStatus}
 							isLoading={message.partial}
-							diff={tool.diff!}
-							path={tool.path!}
+							diff={tool.diff}
+							path={tool.path}
 							isExpanded={isExpanded}
 							onToggleExpand={onToggleExpand}
 						/>
@@ -296,8 +296,8 @@ export const ChatRowContent = ({
 						</div>
 						<CodeAccordian
 							isLoading={message.partial}
-							code={tool.content!}
-							path={tool.path!}
+							code={tool.content}
+							path={tool.path}
 							isExpanded={isExpanded}
 							onToggleExpand={onToggleExpand}
 						/>
@@ -374,7 +374,7 @@ export const ChatRowContent = ({
 						</div>
 						<CodeAccordian
 							isLoading={message.partial}
-							code={tool.content!}
+							code={tool.content}
 							isExpanded={isExpanded}
 							onToggleExpand={onToggleExpand}
 						/>
@@ -392,8 +392,8 @@ export const ChatRowContent = ({
 							</span>
 						</div>
 						<CodeAccordian
-							code={tool.content!}
-							path={tool.path!}
+							code={tool.content}
+							path={tool.path}
 							language="shell-session"
 							isExpanded={isExpanded}
 							onToggleExpand={onToggleExpand}
@@ -412,8 +412,8 @@ export const ChatRowContent = ({
 							</span>
 						</div>
 						<CodeAccordian
-							code={tool.content!}
-							path={tool.path!}
+							code={tool.content}
+							path={tool.path}
 							language="shell-session"
 							isExpanded={isExpanded}
 							onToggleExpand={onToggleExpand}
@@ -432,8 +432,8 @@ export const ChatRowContent = ({
 							</span>
 						</div>
 						<CodeAccordian
-							code={tool.content!}
-							path={tool.path!}
+							code={tool.content}
+							path={tool.path}
 							isExpanded={isExpanded}
 							onToggleExpand={onToggleExpand}
 						/>
@@ -461,7 +461,7 @@ export const ChatRowContent = ({
 							</span>
 						</div>
 						<CodeAccordian
-							code={tool.content!}
+							code={tool.content}
 							path={tool.path! + (tool.filePattern ? `/(${tool.filePattern})` : "")}
 							language="plaintext"
 							isExpanded={isExpanded}
@@ -719,7 +719,7 @@ export const ChatRowContent = ({
 								width: "100%",
 							}}>
 							<CodeAccordian
-								diff={tool.diff!}
+								diff={tool.diff}
 								isFeedback={true}
 								isExpanded={isExpanded}
 								onToggleExpand={onToggleExpand}
@@ -816,7 +816,7 @@ export const ChatRowContent = ({
 				case "checkpoint_saved":
 					return (
 						<CheckpointSaved
-							ts={message.ts!}
+							ts={message.ts}
 							commitHash={message.text!}
 							currentHash={currentCheckpoint}
 							checkpoint={message.checkpoint}

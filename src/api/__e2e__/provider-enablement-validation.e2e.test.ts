@@ -1,55 +1,45 @@
 import * as assert from 'assert'
-import * as sinon from 'sinon'
-import * as proxyquire from 'proxyquire'
 
 /**
  * Test to validate that all providers are properly enabled and functional
  * This test specifically addresses issue #107 - Provider Handler Re-enablement
  */
-import { ApiConfiguration, ApiProvider, ModelInfo } from "../../../../src/shared/api"
-import { NeutralMessageContent } from "../../../../src/shared/neutral-history"
-import { ApiStream } from "../../../../src/api/transform/stream"
+import { ApiConfiguration, ApiProvider, ModelInfo } from "../../shared/api"
+import type { NeutralMessageContent } from "../../shared/neutral-history"
+import { buildApiHandler } from "../index"
 
-// Mock implementations
-const mockMcpIntegration = {
-	initialize: sinon.stub().resolves(undefined),
-	registerTool: sinon.stub(),
-	routeToolUse: sinon.stub().resolves("{}")
-}
+// Mock implementations (commented out - not used in current tests)
+// const mockMcpIntegration = {
+// 	initialize: sinon.stub().resolves(undefined),
+// 	registerTool: sinon.stub(),
+// 	routeToolUse: sinon.stub().resolves("{}")
+// }
 
 const mockFakeAI = {
-	async *createMessage(): ApiStream {
-		await Promise.resolve() // Add await to satisfy async requirement
+	async *createMessage(): AsyncGenerator<{ type: 'text'; text: string }, void, unknown> {
+		// Yield mock response after a resolved promise to satisfy async requirement
+		await Promise.resolve()
 		yield { type: "text" as const, text: "Mock response" }
 	},
 	getModel(): { id: string; info: ModelInfo } {
-// Mock removed - needs manual implementation,
-// 		}
+		return {
+			id: "fake-model",
+			info: {
+				maxTokens: 4096,
+				costPer1kInputTokens: 0,
+				costPer1kOutputTokens: 0,
+			} as unknown as ModelInfo
+		}
 	},
 	async countTokens(content: NeutralMessageContent): Promise<number> {
 		// Simple token count estimation
-		const text = content.map((item) => (item.type === "text" ? item.text : "")).join(" ")
+		const text = content.map((item: { type?: string; text?: string }) => (item.type === "text" ? item.text ?? "" : "")).join(" ")
 		return Promise.resolve(text.split(/\s+/).length)
 	},
 	async completePrompt(): Promise<string> {
 		return Promise.resolve("Mock completion response")
 	},
 }
-
-class MockMcpIntegration {
-	initialize = mockMcpIntegration.initialize
-	registerTool = mockMcpIntegration.registerTool
-	routeToolUse = mockMcpIntegration.routeToolUse
-
-	static getInstance = sinon.stub().returns(mockMcpIntegration)
-}
-
-// Import buildApiHandler with mocked dependencies
-const { buildApiHandler } = proxyquire('../../../../src/api/index', {
-	'../services/mcp/integration/McpIntegration': {
-		McpIntegration: MockMcpIntegration
-	}
-	})
 
 suite("Provider Enablement Validation", () => {
 	const baseConfig: Omit<ApiConfiguration, "apiProvider"> = {
@@ -181,11 +171,10 @@ suite("Provider Enablement Validation", () => {
 				// vscode-lm returns 0 in test environment, which is expected
 				if (provider === "vscode-lm") {
 					assert.ok(tokenCount >= 0, `Token count for ${provider} should be >= 0`)
-} else {
+				} else {
 					assert.ok(tokenCount > 0, `Token count for ${provider} should be > 0`)
 				}
 			})
 		})
 	})
-// Mock cleanup
 })

@@ -1,6 +1,6 @@
 class Client {
 	constructor() {
-		this.request = jest.fn()
+		this.request = () => Promise.resolve({})
 	}
 
 	connect() {
@@ -30,6 +30,4 @@ class Client {
 	}
 }
 
-module.exports = {
-	Client,
-}
+export { Client }

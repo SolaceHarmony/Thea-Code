@@ -3,7 +3,6 @@
  * Tests file I/O operations, cleanup order, export paths, and error handling
  */
 
-import { describe, expect, it, jest, beforeEach, afterEach } from "@jest/globals"
 import { TheaTaskHistory } from "../TheaTaskHistory"
 import * as vscode from "vscode"
 import * as fs from "fs/promises"

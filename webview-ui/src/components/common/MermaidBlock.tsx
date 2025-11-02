@@ -183,7 +183,7 @@ async function svgToPng(svgEl: SVGElement): Promise<string> {
 			canvas.height = scaledHeight
 
 			const ctx = canvas.getContext("2d")
-			if (!ctx) return reject("Canvas context not available")
+			if (!ctx) return void reject("Canvas context not available")
 
 			// Fill background with Mermaid's dark theme background color
 			ctx.fillStyle = MERMAID_THEME.background

@@ -1,5 +1,5 @@
 // filepath: /Volumes/stuff/Projects/Thea-Code/src/core/webview/__tests__/ClineStateManager.test.ts
-/* eslint-disable @typescript-eslint/unbound-method */
+ 
 import * as vscode from "vscode"
 import * as os from "os"
 import { TheaStateManager } from "../thea/TheaStateManager" // Renamed import and path

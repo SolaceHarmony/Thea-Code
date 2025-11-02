@@ -1,6 +1,5 @@
 // npx jest src/services/mcp/core/__tests__/McpToolRegistry.test.ts
 
-import { describe, expect, it, beforeEach, jest } from "@jest/globals"
 import { McpToolRegistry } from "../McpToolRegistry"
 import { ToolDefinition, ToolCallResult } from "../../types/McpProviderTypes"
 

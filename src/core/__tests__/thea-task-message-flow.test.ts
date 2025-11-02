@@ -46,7 +46,7 @@ describe("TheaTask Message Flow Integration", () => {
 		it("should handle a complete task conversation with multiple turns", async () => {
 			// Setup mock to return different responses for each turn
 			let callCount = 0
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
 				requestBody = body
 				callCount++
 
@@ -216,7 +216,7 @@ describe("TheaTask Message Flow Integration", () => {
 
 		it("should maintain context across tool executions", async () => {
 			let callCount = 0
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
 				requestBody = body
 				callCount++
 
@@ -323,7 +323,7 @@ describe("TheaTask Message Flow Integration", () => {
 	describe("Error Recovery in Conversation", () => {
 		it("should handle API errors and allow retry", async () => {
 			let attemptCount = 0
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
 				requestBody = body
 				attemptCount++
 
@@ -386,7 +386,7 @@ describe("TheaTask Message Flow Integration", () => {
 		})
 
 		it("should handle tool execution failures", async () => {
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
 				requestBody = body
 
 				// Check if this is the request after tool failure
@@ -496,7 +496,7 @@ describe("TheaTask Message Flow Integration", () => {
 			let totalInputTokens = 0
 			let totalOutputTokens = 0
 
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
 				requestBody = body
 				const usage = {
 					prompt_tokens: 20,
@@ -555,7 +555,7 @@ describe("TheaTask Message Flow Integration", () => {
 		it("should track tokens for tool use conversations", async () => {
 			const tokenCounts: Array<{ input: number; output: number }> = []
 
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
 				requestBody = body
 
 				// Vary token counts based on message type
@@ -659,7 +659,7 @@ describe("TheaTask Message Flow Integration", () => {
 
 	describe("Message History Management", () => {
 		it("should maintain correct message order", async () => {
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
 				requestBody = body
 				return [
 					200,
@@ -709,7 +709,7 @@ describe("TheaTask Message Flow Integration", () => {
 		})
 
 		it("should handle conversation history with mixed content types", async () => {
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
 				requestBody = body
 				return [
 					200,

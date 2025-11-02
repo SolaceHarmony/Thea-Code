@@ -1,33 +1,33 @@
-const assert = require('assert')
-const fs = require('fs')
-const path = require('path')
-const os = require('os')
-const { loadTheaModule } = require('../helpers/thea-loader')
+import { strictEqual, ok } from 'assert'
+import { existsSync, readdirSync, lstatSync, unlinkSync, rmdirSync, mkdirSync, readFileSync } from 'fs'
+import { join } from 'path'
+import { tmpdir } from 'os'
+import { loadTheaModule } from '../helpers/thea-loader'
 
 describe('Roo-migration: utils/logging/CompactTransport', function () {
   const { CompactTransport } = loadTheaModule('src/utils/logging/CompactTransport.ts')
 
-  const root = path.join(os.tmpdir(), 'roo-compact-transport-tests')
-  const testDir = path.join(root, `logs-${Date.now()}`)
-  const testLogPath = path.join(testDir, 'test.log')
+  const root = join(tmpdir(), 'roo-compact-transport-tests')
+  const testDir = join(root, `logs-${Date.now()}`)
+  const testLogPath = join(testDir, 'test.log')
   let originalWrite
 
   function cleanupDir(dirPath) {
-    if (!fs.existsSync(dirPath)) return
-    for (const name of fs.readdirSync(dirPath)) {
-      const p = path.join(dirPath, name)
-      const st = fs.lstatSync(p)
+    if (!existsSync(dirPath)) return
+    for (const name of readdirSync(dirPath)) {
+      const p = join(dirPath, name)
+      const st = lstatSync(p)
       if (st.isDirectory()) cleanupDir(p)
-      else fs.unlinkSync(p)
+      else unlinkSync(p)
     }
-    try { fs.rmdirSync(dirPath) } catch {}
+    try { rmdirSync(dirPath) } catch {}
   }
 
   beforeEach(function () {
     originalWrite = process.stdout.write
     process.stdout.write = () => true
     cleanupDir(testDir)
-    fs.mkdirSync(testDir, { recursive: true })
+    mkdirSync(testDir, { recursive: true })
   })
 
   afterEach(function () {
@@ -43,25 +43,25 @@ describe('Roo-migration: utils/logging/CompactTransport', function () {
 
     transport.write({ t: Date.now(), l: 'info', m: 'test message' })
 
-    let content = fs.readFileSync(testLogPath, 'utf8').trim().split('\n')
-    assert.strictEqual(content.length, 2)
+    let content = readFileSync(testLogPath, 'utf8').trim().split('\n')
+    strictEqual(content.length, 2)
 
     const first = JSON.parse(content[0])
     const second = JSON.parse(content[1])
-    assert.strictEqual(first.l, 'info')
-    assert.strictEqual(first.m, 'Log session started')
-    assert.strictEqual(second.l, 'info')
-    assert.strictEqual(second.m, 'test message')
+    strictEqual(first.l, 'info')
+    strictEqual(first.m, 'Log session started')
+    strictEqual(second.l, 'info')
+    strictEqual(second.m, 'test message')
 
     transport.write({ t: Date.now(), l: 'info', m: 'first' })
     transport.write({ t: Date.now(), l: 'info', m: 'second' })
 
-    content = fs.readFileSync(testLogPath, 'utf8').trim().split('\n')
-    assert.strictEqual(content.length, 4)
+    content = readFileSync(testLogPath, 'utf8').trim().split('\n')
+    strictEqual(content.length, 4)
     const third = JSON.parse(content[2])
     const fourth = JSON.parse(content[3])
-    assert.strictEqual(third.m, 'first')
-    assert.strictEqual(fourth.m, 'second')
+    strictEqual(third.m, 'first')
+    strictEqual(fourth.m, 'second')
 
     transport.close()
   })
@@ -75,25 +75,25 @@ describe('Roo-migration: utils/logging/CompactTransport', function () {
     transport.write({ t: Date.now(), l: 'info', m: 'test' })
     transport.close()
 
-    const lines = fs.readFileSync(testLogPath, 'utf8').trim().split('\n')
+    const lines = readFileSync(testLogPath, 'utf8').trim().split('\n')
     const last = JSON.parse(lines[lines.length - 1])
-    assert.strictEqual(last.l, 'info')
-    assert.strictEqual(last.m, 'Log session ended')
+    strictEqual(last.l, 'info')
+    strictEqual(last.m, 'Log session ended')
   })
 
   it('handles deep nested directories for file output', function () {
-    const deepDir = path.join(testDir, 'deep/nested/path')
-    const deepPath = path.join(deepDir, 'test.log')
+    const deepDir = join(testDir, 'deep/nested/path')
+    const deepPath = join(deepDir, 'test.log')
     const transport = new CompactTransport({
       fileOutput: { enabled: true, path: deepPath },
     })
 
     try {
       transport.write({ t: Date.now(), l: 'info', m: 'test' })
-      assert.ok(fs.existsSync(deepPath))
+      ok(existsSync(deepPath))
     } finally {
       transport.close()
-      cleanupDir(path.join(testDir, 'deep'))
+      cleanupDir(join(testDir, 'deep'))
     }
   })
 
@@ -106,8 +106,8 @@ describe('Roo-migration: utils/logging/CompactTransport', function () {
     const entries = Array.from({ length: 50 }, (_, i) => ({ t: Date.now(), l: 'info', m: `test ${i}` }))
     await Promise.all(entries.map((e) => Promise.resolve(transport.write(e))))
 
-    const lines = fs.readFileSync(testLogPath, 'utf8').trim().split('\n')
-    assert.strictEqual(lines.length, entries.length + 1)
+    const lines = readFileSync(testLogPath, 'utf8').trim().split('\n')
+    strictEqual(lines.length, entries.length + 1)
     transport.close()
   })
 
@@ -119,10 +119,10 @@ describe('Roo-migration: utils/logging/CompactTransport', function () {
     transport.write({ t: t0 + 100, l: 'info', m: 'second' })
     transport.close()
 
-    const lines = fs.readFileSync(testLogPath, 'utf8').trim().split('\n')
+    const lines = readFileSync(testLogPath, 'utf8').trim().split('\n')
     const e1 = JSON.parse(lines[1])
     const e2 = JSON.parse(lines[2])
-    assert.ok(e1.t >= 0 && e1.t < 50)
-    assert.strictEqual(e2.t, 100)
+    ok(e1.t >= 0 && e1.t < 50)
+    strictEqual(e2.t, 100)
   })
 })

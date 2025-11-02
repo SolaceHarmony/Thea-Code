@@ -1,53 +1,47 @@
+import { strict as assert } from "assert"
 import { OllamaHandler } from "../providers/ollama"
-import { NeutralConversationHistory } from "../../shared/neutral-history"
-import OpenAI from "openai"
-// Note: This test uses port 10000 which is for Msty, a service that uses Ollama on the backend
+import type { NeutralConversationHistory } from "../../shared/neutral-history"
 
-// Mock the McpIntegration to avoid initialization issues
-jest.mock("../../services/mcp/integration/McpIntegration", () => {
-	const mockInstance = {
-		initialize: jest.fn().mockResolvedValue(undefined),
-		registerTool: jest.fn(),
-		routeToolUse: jest.fn().mockResolvedValue("{}"),
-	}
+describe("OllamaHandler", () => {
+	it("should be instantiable with valid configuration", () => {
+		const config = {
+			apiKey: "test-key",
+			apiModelId: "ollama:llama2",
+			ollamaBaseUrl: "http://localhost:11434",
+		}
 
-	class MockMcpIntegration {
-		initialize = jest.fn().mockResolvedValue(undefined)
-		registerTool = jest.fn()
-		routeToolUse = jest.fn().mockResolvedValue("{}")
+		const handler = new OllamaHandler(config)
+		assert.ok(handler, "Handler should be created")
+	})
 
-		static getInstance = jest.fn().mockReturnValue(mockInstance)
-	}
+	it("should have getModel method", () => {
+		const config = {
+			apiKey: "test-key",
+			apiModelId: "ollama:llama2",
+			ollamaBaseUrl: "http://localhost:11434",
+		}
 
-	return {
-		McpIntegration: MockMcpIntegration,
-	}
+		const handler = new OllamaHandler(config)
+		const model = handler.getModel()
+		assert.ok(model, "getModel should return a model")
+		assert.ok(model.id, "Model should have an id")
+	})
+
+	it("should have countTokens method", async () => {
+		const config = {
+			apiKey: "test-key",
+			apiModelId: "ollama:llama2",
+			ollamaBaseUrl: "http://localhost:11434",
+		}
+
+		const handler = new OllamaHandler(config)
+		const content: NeutralConversationHistory = [{ type: "text", text: "test content" }]
+		
+		const tokenCount = await handler.countTokens(content)
+		assert.strictEqual(typeof tokenCount, "number", "Token count should be a number")
+		assert.ok(tokenCount >= 0, "Token count should be non-negative")
+	})
 })
-
-// Mock the HybridMatcher
-jest.mock("../../utils/json-xml-bridge", () => {
-	return {
-		HybridMatcher: jest.fn().mockImplementation(() => ({
-			update: jest.fn().mockImplementation((text: string) => {
-				if (text.includes("<think>")) {
-					return [{ matched: true, type: "reasoning", data: text.replace(/<\/?think>/g, "") }]
-				}
-				if (text.includes('{"type":"thinking"')) {
-					try {
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-						const jsonObj = JSON.parse(text)
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-						if (jsonObj.type === "thinking") {
-							// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-							return [{ matched: true, type: "reasoning", data: String(jsonObj.content) }]
-						}
-						// eslint-disable-next-line @typescript-eslint/no-unused-vars
-					} catch (_e: unknown) {
-						// Not valid JSON, treat as text
-					}
-				}
-				return [{ matched: false, type: "text", data: text, text: text }]
-			}),
 
 			final: jest.fn().mockImplementation((text: string) => {
 				if (text) {

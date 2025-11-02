@@ -54,7 +54,7 @@ describe("ExtensionStateContext", () => {
 			</ExtensionStateContextProvider>,
 		)
 
-		expect(JSON.parse(screen.getByTestId("allowed-commands").textContent!)).toEqual([])
+		expect(JSON.parse(screen.getByTestId("allowed-commands").textContent)).toEqual([])
 	})
 
 	it("initializes with soundEnabled set to false", () => {
@@ -64,7 +64,7 @@ describe("ExtensionStateContext", () => {
 			</ExtensionStateContextProvider>,
 		)
 
-		expect(JSON.parse(screen.getByTestId("sound-enabled").textContent!)).toBe(false)
+		expect(JSON.parse(screen.getByTestId("sound-enabled").textContent)).toBe(false)
 	})
 
 	it("initializes with showTheaIgnoredFiles set to true", () => {
@@ -74,7 +74,7 @@ describe("ExtensionStateContext", () => {
 			</ExtensionStateContextProvider>,
 		)
 
-		expect(JSON.parse(screen.getByTestId("show-theaignored-files").textContent!)).toBe(true)
+		expect(JSON.parse(screen.getByTestId("show-theaignored-files").textContent)).toBe(true)
 	})
 
 	it("updates showTheaIgnoredFiles through setShowTheaIgnoredFiles", () => {
@@ -88,7 +88,7 @@ describe("ExtensionStateContext", () => {
 			screen.getByTestId("toggle-theaignore-button").click()
 		})
 
-		expect(JSON.parse(screen.getByTestId("show-theaignored-files").textContent!)).toBe(false)
+		expect(JSON.parse(screen.getByTestId("show-theaignored-files").textContent)).toBe(false)
 	})
 
 	it("updates allowedCommands through setAllowedCommands", () => {
@@ -102,7 +102,7 @@ describe("ExtensionStateContext", () => {
 			screen.getByTestId("update-button").click()
 		})
 
-		expect(JSON.parse(screen.getByTestId("allowed-commands").textContent!)).toEqual(["npm install", "git status"])
+		expect(JSON.parse(screen.getByTestId("allowed-commands").textContent)).toEqual(["npm install", "git status"])
 	})
 
 	it("throws error when used outside provider", () => {
@@ -124,14 +124,14 @@ describe("ExtensionStateContext", () => {
 			</ExtensionStateContextProvider>,
 		)
 
-		const initialContent = screen.getByTestId("api-configuration").textContent!
+		const initialContent = screen.getByTestId("api-configuration").textContent
 		expect(initialContent).toBeDefined()
 
 		act(() => {
 			screen.getByTestId("update-api-config-button").click()
 		})
 
-		const updatedContent = screen.getByTestId("api-configuration").textContent!
+		const updatedContent = screen.getByTestId("api-configuration").textContent
 		const updatedConfig = JSON.parse(updatedContent || "{}")
 
 		expect(updatedConfig).toEqual(
@@ -155,7 +155,7 @@ describe("ExtensionStateContext", () => {
 		})
 
 		// Verify initial update
-		const initialContent = screen.getByTestId("api-configuration").textContent!
+		const initialContent = screen.getByTestId("api-configuration").textContent
 		const initialConfig = JSON.parse(initialContent || "{}")
 		expect(initialConfig).toEqual(
 			expect.objectContaining({
@@ -170,7 +170,7 @@ describe("ExtensionStateContext", () => {
 		})
 
 		// Verify that the partial update was merged with the existing configuration
-		const updatedContent = screen.getByTestId("api-configuration").textContent!
+		const updatedContent = screen.getByTestId("api-configuration").textContent
 		const updatedConfig = JSON.parse(updatedContent || "{}")
 		expect(updatedConfig).toEqual(
 			expect.objectContaining({

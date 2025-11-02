@@ -1,6 +1,6 @@
-const { Client } = require("./client/index.js")
-const { StdioClientTransport, StdioServerParameters } = require("./client/stdio.js")
-const {
+import { Client } from "./client/index.js"
+import { StdioClientTransport, StdioServerParameters } from "./client/stdio.js"
+import {
 	CallToolResultSchema,
 	ListToolsResultSchema,
 	ListResourcesResultSchema,
@@ -8,9 +8,9 @@ const {
 	ReadResourceResultSchema,
 	ErrorCode,
 	McpError,
-} = require("./types.js")
+} from "./types.js"
 
-module.exports = {
+export {
 	Client,
 	StdioClientTransport,
 	StdioServerParameters,

@@ -25,7 +25,7 @@ const baseTestDirs = [
 ]
 
 // Helper function to format instructions
-const formatInstructions = (sections: string[]): string => {
+const _formatInstructions = (sections: string[]): string => {
 	const joinedSections = sections.filter(Boolean).join("\n\n")
 	return joinedSections
 		? `
@@ -40,7 +40,7 @@ ${joinedSections}`
 }
 
 // Helper function to format rule content
-const formatRuleContent = (ruleFile: string, content: string): string => {
+const _formatRuleContent = (ruleFile: string, content: string): string => {
 	return `Rules:\n# Rules from ${ruleFile}:\n${content}`
 }
 
@@ -69,11 +69,11 @@ import sinon from 'sinon'
 import * as realFs from 'fs'
 
 const mockFs = {
-	readFile: sinon.stub().callsFake(async (filePath: string, encoding?: string) => {
+	readFile: sinon.stub().callsFake((filePath: string, _encoding?: string): Promise<string> => {
 
 		// Return stored content if it exists
 		if (mockFiles.has(filePath)) {
-			return mockFiles.get(filePath)
+			return Promise.resolve(mockFiles.get(filePath) as string)
 		}
 
 		// Handle rule files
@@ -91,13 +91,13 @@ const mockFs = {
 		// Check for exact file name match
 		const fileName = filePath.split("/").pop()
 		if (fileName && fileName in ruleFiles) {
-			return ruleFiles[fileName as keyof RuleFiles]
+			return Promise.resolve(ruleFiles[fileName as keyof RuleFiles])
 		}
 
 		// Check for file name in path
 		for (const [ruleFile, content] of Object.entries(ruleFiles)) {
 			if (filePath.includes(ruleFile)) {
-				return content
+				return Promise.resolve(content)
 			}
 		}
 
@@ -170,7 +170,7 @@ const mockFs = {
 		// Check if the old file exists
 		if (mockFiles.has(oldPath)) {
 			// Copy content to new path
-			const content = mockFiles.get(oldPath)
+			const content = mockFiles.get(oldPath) as string
 			mockFiles.set(newPath, content)
 			// Delete old file
 			mockFiles.delete(oldPath)

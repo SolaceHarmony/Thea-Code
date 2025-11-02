@@ -1,11 +1,13 @@
 import * as assert from "assert"
 import * as vscode from "vscode"
-import { EXTENSION_ID, EXTENSION_NAME } from "../../../../src/shared/config/thea-config"
+import * as sinon from "sinon"
+import { EXTENSION_ID, EXTENSION_NAME } from "../../shared/config/thea-config"
 
 suite("Comprehensive Provider Tests", () => {
-	let extension: vscode.Extension<any> | undefined
-	let api: any
+	let extension: vscode.Extension<unknown> | undefined
+	let api: unknown
 	let config: vscode.WorkspaceConfiguration
+	let sandbox: sinon.SinonSandbox
 
 	suiteSetup(async function() {
 		this.timeout(30000)
@@ -20,29 +22,43 @@ suite("Comprehensive Provider Tests", () => {
 		config = vscode.workspace.getConfiguration(EXTENSION_NAME)
 	})
 
+	setup(() => {
+		sandbox = sinon.createSandbox()
+	})
+
+	teardown(() => {
+		sandbox.restore()
+	})
+
 	suite("OpenAI Provider", () => {
 		test("Should support OpenAI configuration", () => {
 			const apiKey = config.get("openAiApiKey")
 			const baseUrl = config.get("openAiBaseUrl")
 			const modelId = config.get("openAiModelId")
-			
+
 			// These might be undefined but should be the right types if set
-			assert.ok(apiKey === undefined || typeof apiKey === "string",
-				"API key should be string or undefined"
+			assert.ok(
+				apiKey === undefined || typeof apiKey === "string",
+				"API key should be string or undefined",
 			)
-			assert.ok(baseUrl === undefined || typeof baseUrl === "string",
-				"Base URL should be string or undefined"
+			assert.ok(
+				baseUrl === undefined || typeof baseUrl === "string",
+				"Base URL should be string or undefined",
 			)
-			assert.ok(modelId === undefined || typeof modelId === "string",
-				"Model ID should be string or undefined"
+			assert.ok(
+				modelId === undefined || typeof modelId === "string",
+				"Model ID should be string or undefined",
 			)
 		})
+
 		test.skip("Should list OpenAI models", async () => {
 			// Would require API key
 		})
+
 		test.skip("Should handle streaming responses", async () => {
 			// Test streaming capability
 		})
+
 		test.skip("Should support function calling", async () => {
 			// Test OpenAI function calling
 		})
@@ -51,19 +67,21 @@ suite("Comprehensive Provider Tests", () => {
 	suite("Anthropic Provider", () => {
 		test("Should support Anthropic configuration", () => {
 			const apiKey = config.get("anthropicApiKey")
-			const baseUrl = config.get("anthropicBaseUrl")
-			const modelId = config.get("anthropicModelId")
-			
-			assert.ok(apiKey === undefined || typeof apiKey === "string",
-				"API key should be string or undefined"
+
+			assert.ok(
+				apiKey === undefined || typeof apiKey === "string",
+				"API key should be string or undefined",
 			)
 		})
+
 		test.skip("Should handle Claude models", async () => {
 			// Test Claude-specific features
 		})
+
 		test.skip("Should support artifacts", async () => {
 			// Test Anthropic artifacts feature
 		})
+
 		test.skip("Should handle context caching", async () => {
 			// Test prompt caching
 		})
@@ -92,15 +110,17 @@ suite("Comprehensive Provider Tests", () => {
 	suite("AWS Bedrock Provider", () => {
 		test("Should support Bedrock configuration", () => {
 			const region = config.get("bedrockRegion")
-			const accessKey = config.get("bedrockAccessKey")
-			
-			assert.ok(region === undefined || typeof region === "string",
-				"Region should be string or undefined"
+
+			assert.ok(
+				region === undefined || typeof region === "string",
+				"Region should be string or undefined",
 			)
 		})
+
 		test.skip("Should list Bedrock models", async () => {
 			// Test model listing
 		})
+
 		test.skip("Should handle multiple model families", async () => {
 			// Test Claude, Llama, etc. on Bedrock
 		})
@@ -109,16 +129,17 @@ suite("Comprehensive Provider Tests", () => {
 	suite("OpenRouter Provider", () => {
 		test("Should support OpenRouter configuration", () => {
 			const apiKey = config.get("openRouterApiKey")
-			const siteUrl = config.get("openRouterSiteUrl")
-			const siteName = config.get("openRouterSiteName")
-			
-			assert.ok(apiKey === undefined || typeof apiKey === "string",
-				"API key should be string or undefined"
+
+			assert.ok(
+				apiKey === undefined || typeof apiKey === "string",
+				"API key should be string or undefined",
 			)
 		})
+
 		test.skip("Should route to multiple models", async () => {
 			// Test OpenRouter's model routing
 		})
+
 		test.skip("Should handle credits and pricing", async () => {
 			// Test credit system
 		})
@@ -148,27 +169,32 @@ suite("Comprehensive Provider Tests", () => {
 		suite("Ollama", () => {
 			test("Should support Ollama configuration", () => {
 				const baseUrl = config.get("ollamaBaseUrl")
-				const modelId = config.get("ollamaModelId")
-				
-				assert.ok(baseUrl === undefined || typeof baseUrl === "string",
-					"Base URL should be string or undefined"
+
+				assert.ok(
+					baseUrl === undefined || typeof baseUrl === "string",
+					"Base URL should be string or undefined",
 				)
 			})
+
 			test.skip("Should list local Ollama models", async () => {
 				// Test local model discovery
 			})
+
 			test.skip("Should handle Ollama streaming", async () => {
 				// Test Ollama streaming
 			})
 		})
+
 		suite("LM Studio", () => {
 			test("Should support LM Studio configuration", () => {
 				const baseUrl = config.get("lmStudioBaseUrl")
-				
-				assert.ok(baseUrl === undefined || typeof baseUrl === "string",
-					"Base URL should be string or undefined"
+
+				assert.ok(
+					baseUrl === undefined || typeof baseUrl === "string",
+					"Base URL should be string or undefined",
 				)
 			})
+
 			test.skip("Should connect to LM Studio", async () => {
 				// Test LM Studio connection
 			})
@@ -177,15 +203,20 @@ suite("Comprehensive Provider Tests", () => {
 
 	suite("Model Registry", () => {
 		test.skip("Should maintain model registry", async () => {
-			// Test model registry functionality
-			if (api?.getModelRegistry) {
-				const registry = await api.getModelRegistry()
-				assert.ok(registry, "Should have model registry")
+			// Test model registry functionality - mock the API interface as needed
+			if (typeof api === "object" && api !== null && "getModelRegistry" in api) {
+				const apiWithRegistry = api as Record<string, unknown>
+				if (typeof apiWithRegistry.getModelRegistry === "function") {
+					const registry = await (apiWithRegistry.getModelRegistry as () => Promise<unknown>)()
+					assert.ok(registry, "Should have model registry")
+				}
 			}
 		})
+
 		test.skip("Should track model capabilities", async () => {
 			// Test capability detection
 		})
+
 		test.skip("Should handle dynamic model discovery", async () => {
 			// Test dynamic model loading
 		})
@@ -261,15 +292,64 @@ suite("Comprehensive Provider Tests", () => {
 		test.skip("Should support tool use / function calling", async () => {
 			// Test tool use across providers
 		})
+
 		test.skip("Should handle image inputs", async () => {
 			// Test multimodal capabilities
 		})
+
 		test.skip("Should support artifacts / code blocks", async () => {
 			// Test special response formats
 		})
+
 		test.skip("Should handle reasoning traces", async () => {
 			// Test reasoning/thinking support
 		})
 	})
-// Mock cleanup
+
+	suiteTeardown(() => {
+		// Clean up sandbox resources
+		sandbox.restore()
+	})
 })
+
+/*
+ * MOCHA TEST GUIDELINES FOR THIS SUITE
+ *
+ * Test Structure Pattern:
+ * - Use `suite()` for test groups (not describe())
+ * - Use `test()` for individual tests (not it())
+ * - Use `suiteSetup()` for one-time setup (not beforeAll())
+ * - Use `suiteTeardown()` for one-time teardown (not afterAll())
+ * - Use `setup()` for before each test
+ * - Use `teardown()` for after each test
+ *
+ * Real Classes vs Mocks:
+ * 1. Default to REAL classes - this is a comprehensive integration test
+ * 2. Use real VS Code API methods (vscode.extensions.getExtension, config.get)
+ * 3. Only mock when:
+ *    - External dependencies (like HTTP calls) need recording/replay
+ *    - You need to verify function call counts (use sinon.stub)
+ *    - Testing error conditions that are hard to trigger
+ *
+ * Assertions:
+ * - Use `assert.strictEqual()` for strict equality
+ * - Use `assert.deepStrictEqual()` for object comparison
+ * - Use `assert.ok()` for truthiness checks
+ * - Use `assert.match()` for regex matching
+ * - Prefer assert/strict over chai/expect patterns
+ *
+ * Async Tests:
+ * - Can return Promise or use done callback
+ * - Set timeout with `this.timeout(ms)` if needed
+ * - Always await external calls
+ *
+ * Type Safety:
+ * - Use `unknown` instead of `any` by default
+ * - Type-narrow before accessing properties
+ * - Use record types for config/object access
+ *
+ * Sandbox Management:
+ * - Create fresh sinon sandbox in setup()
+ * - Restore in teardown() to prevent test pollution
+ * - Use sandbox.stub/spy instead of sinon.stub/spy directly
+ */

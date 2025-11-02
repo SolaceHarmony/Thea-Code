@@ -3,7 +3,6 @@
  * Tests fallback behavior when SDK is not available, mock stderr handling, and error handlers
  */
 
-import { describe, expect, it, jest, beforeEach, afterEach } from "@jest/globals"
 import { StdioTransport } from "../StdioTransport"
 import { StdioTransportConfig } from "../../types/McpTransportTypes"
 import { EventEmitter } from "events"

@@ -12,7 +12,7 @@ beforeEach(async () => {
 	await openaiTeardown()
 	await openaiSetup()
 	requestBody = undefined
-	;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
+	;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
 		requestBody = body
 		if (!body.stream) {
 			return [
@@ -135,7 +135,7 @@ describe("OpenAiHandler with usage tracking fix", () => {
 		it("should handle case where usage is only in the final chunk", async () => {
 			await openaiTeardown()
 			await openaiSetup()
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", () => {
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", () => {
 				const stream = new Readable({ read() {} })
 				const chunk1 = {
 					id: "chatcmpl-test-4",
@@ -188,7 +188,7 @@ describe("OpenAiHandler with usage tracking fix", () => {
 		it("should handle case where no usage is provided", async () => {
 			await openaiTeardown()
 			await openaiSetup()
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", () => {
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", () => {
 				const stream = new Readable({ read() {} })
 				const chunk1 = {
 					id: "chatcmpl-test-7",

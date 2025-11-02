@@ -1,5 +1,4 @@
 // __tests__/CompactLogger.test.ts
-import { describe, expect, test, beforeEach, afterEach } from "@jest/globals"
 import { CompactLogger } from "../CompactLogger"
 import { MockTransport } from "./MockTransport"
 import { LogLevel } from "../types"

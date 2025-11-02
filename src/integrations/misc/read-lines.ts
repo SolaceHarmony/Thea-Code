@@ -27,21 +27,21 @@ export function readLines(filepath: string, endLine?: number, startLine?: number
 		// Validate input parameters
 		// Check startLine validity if provided
 		if (startLine !== undefined && (startLine < 0 || startLine % 1 !== 0)) {
-			return reject(
+			return void reject(
 				new RangeError(`Invalid startLine: ${startLine}. Line numbers must be non-negative integers.`),
 			)
 		}
 
 		// Check endLine validity if provided
 		if (endLine !== undefined && (endLine < 0 || endLine % 1 !== 0)) {
-			return reject(new RangeError(`Invalid endLine: ${endLine}. Line numbers must be non-negative integers.`))
+			return void reject(new RangeError(`Invalid endLine: ${endLine}. Line numbers must be non-negative integers.`))
 		}
 
 		const effectiveStartLine = startLine === undefined ? 0 : startLine
 
 		// Check startLine and endLine relationship
 		if (endLine !== undefined && effectiveStartLine > endLine) {
-			return reject(
+			return void reject(
 				new RangeError(`startLine (${effectiveStartLine}) must be less than or equal to endLine (${endLine})`),
 			)
 		}

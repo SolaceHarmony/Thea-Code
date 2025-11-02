@@ -84,6 +84,6 @@ describe('AwsBedrockHandler with custom ARN', () => {
     // Ensure the SDK command was invoked with expected payload
     assert.strictEqual(sendStub.called, true)
     const input = sendStub.firstCall.args[0] as { input: ConverseCommandInput }
-    assert.strictEqual((input.input as ConverseCommandInput).modelId, customArn)
+    assert.strictEqual((input.input).modelId, customArn)
   })
 })

@@ -1,5 +1,5 @@
-const fs = require("fs")
-const path = require("path")
+import { readdirSync, statSync, existsSync, readFileSync } from "fs"
+import { join, extname, relative } from "path"
 
 // Parse command-line arguments
 const args = process.argv.slice(2).reduce((acc, arg) => {
@@ -37,12 +37,12 @@ Output:
 // Directories to traverse and their corresponding locales
 const DIRS = {
 	components: {
-		path: path.join(__dirname, "../webview-ui/src/components"),
-		localesDir: path.join(__dirname, "../webview-ui/src/i18n/locales"),
+		path: join(__dirname, "../webview-ui/src/components"),
+		localesDir: join(__dirname, "../webview-ui/src/i18n/locales"),
 	},
 	src: {
-		path: path.join(__dirname, "../src"),
-		localesDir: path.join(__dirname, "../src/i18n/locales"),
+		path: join(__dirname, "../src"),
+		localesDir: join(__dirname, "../src/i18n/locales"),
 	},
 }
 
@@ -56,8 +56,8 @@ const i18nPatterns = [
 // Get all language directories for a specific locales directory
 function getLocaleDirs(localesDir) {
 	try {
-		const allLocales = fs.readdirSync(localesDir).filter((file) => {
-			const stats = fs.statSync(path.join(localesDir, file))
+		const allLocales = readdirSync(localesDir).filter((file) => {
+			const stats = statSync(join(localesDir, file))
 			return stats.isDirectory() // Do not exclude any language directories
 		})
 
@@ -95,13 +95,13 @@ function checkKeyInLocales(key, localeDirs, localesDir) {
 	const missingLocales = []
 
 	localeDirs.forEach((locale) => {
-		const filePath = path.join(localesDir, locale, `${file}.json`)
-		if (!fs.existsSync(filePath)) {
+		const filePath = join(localesDir, locale, `${file}.json`)
+		if (!existsSync(filePath)) {
 			missingLocales.push(`${locale}/${file}.json`)
 			return
 		}
 
-		const json = JSON.parse(fs.readFileSync(filePath, "utf8"))
+		const json = JSON.parse(readFileSync(filePath, "utf8"))
 		if (getValueByPath(json, jsonPath) === undefined) {
 			missingLocales.push(`${locale}/${file}.json`)
 		}
@@ -115,19 +115,19 @@ function findMissingI18nKeys() {
 	const results = []
 
 	function walk(dir, baseDir, localeDirs, localesDir) {
-		const files = fs.readdirSync(dir)
+		const files = readdirSync(dir)
 
 		for (const file of files) {
-			const filePath = path.join(dir, file)
-			const stat = fs.statSync(filePath)
+			const filePath = join(dir, file)
+			const stat = statSync(filePath)
 
 			// Exclude test files and __mocks__ directory
 			if (filePath.includes(".test.") || filePath.includes("__mocks__")) continue
 
 			if (stat.isDirectory()) {
 				walk(filePath, baseDir, localeDirs, localesDir) // Recursively traverse subdirectories
-			} else if (stat.isFile() && [".ts", ".tsx", ".js", ".jsx"].includes(path.extname(filePath))) {
-				const content = fs.readFileSync(filePath, "utf8")
+			} else if (stat.isFile() && [".ts", ".tsx", ".js", ".jsx"].includes(extname(filePath))) {
+				const content = readFileSync(filePath, "utf8")
 
 				// Match all i18n keys
 				for (const pattern of i18nPatterns) {
@@ -139,7 +139,7 @@ function findMissingI18nKeys() {
 							results.push({
 								key,
 								missingLocales,
-								file: path.relative(baseDir, filePath),
+								file: relative(baseDir, filePath),
 							})
 						}
 					}

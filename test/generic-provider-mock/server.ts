@@ -277,7 +277,7 @@ class GenericProviderMock {
 		}
 		
 		if (stream && this.config.supportsStreaming) {
-			return this.handleStreamingResponse(res, "openai")
+			return void this.handleStreamingResponse(res, "openai")
 		}
 		
 		// Non-streaming response
@@ -307,7 +307,7 @@ class GenericProviderMock {
 		const { messages, stream, model } = req.body
 		
 		if (stream && this.config.supportsStreaming) {
-			return this.handleStreamingResponse(res, "anthropic")
+			return void this.handleStreamingResponse(res, "anthropic")
 		}
 		
 		// Check if we should include thinking

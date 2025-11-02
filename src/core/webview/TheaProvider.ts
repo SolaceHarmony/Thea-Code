@@ -314,7 +314,7 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 	 */
 	async resolveWebviewView(
 		webviewView: vscode.WebviewView,
-		context: vscode.WebviewViewResolveContext,
+		_context: vscode.WebviewViewResolveContext,
 		_token: vscode.CancellationToken
 	): Promise<void> {
 		this.outputChannel.appendLine("Resolving webview view (sidebar)")

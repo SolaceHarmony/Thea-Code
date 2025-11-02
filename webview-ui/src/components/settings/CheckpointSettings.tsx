@@ -17,7 +17,7 @@ type CheckpointSettingsProps = HTMLAttributes<HTMLDivElement> & {
 
 export const CheckpointSettings = ({
 	enableCheckpoints,
-	checkpointStorage: _checkpointStorage = "task", // eslint-disable-line @typescript-eslint/no-unused-vars
+	checkpointStorage: _checkpointStorage = "task",  
 	setCachedStateField,
 	...props
 }: CheckpointSettingsProps) => {

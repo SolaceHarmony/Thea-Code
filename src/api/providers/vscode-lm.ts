@@ -98,7 +98,7 @@ export class VsCodeLmHandler extends BaseProvider implements SingleCompletionHan
 				family: "lm",
 				version: "1.0",
 				maxInputTokens: 8192,
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				 
 				sendRequest: async (_messages, _options, _token) => {
 					// Provide a minimal implementation
 					await Promise.resolve() // Add await to satisfy require-await rule

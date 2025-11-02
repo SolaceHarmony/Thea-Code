@@ -323,7 +323,7 @@ describe("McpToolRouter", () => {
 
 		it("should route XML tool use requests", async () => {
 			// Mock the McpToolExecutor's executeToolFromNeutralFormat method
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			 
 			const mockExecute = jest.fn().mockResolvedValue({
 				type: "tool_result",
 				tool_use_id: "test-123",
@@ -351,7 +351,7 @@ describe("McpToolRouter", () => {
 
 		it("should route JSON tool use requests", async () => {
 			// Mock the McpToolExecutor's executeToolFromNeutralFormat method
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			 
 			const mockExecute = jest.fn().mockResolvedValue({
 				type: "tool_result",
 				tool_use_id: "test-123",

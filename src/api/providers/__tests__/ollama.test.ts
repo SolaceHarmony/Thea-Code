@@ -173,7 +173,7 @@ describe("OllamaHandler", () => {
 				const stream = handler.createMessage("You are helpful.", neutralHistory)
 
 				// Collect stream chunks (just to complete the generator)
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				 
 				for await (const _chunk of stream) {
 					// Do nothing - we're just consuming the stream
 				}
@@ -218,7 +218,7 @@ describe("OllamaHandler", () => {
 			const stream = handler.createMessage("", neutralHistory)
 
 			// Collect stream chunks (just to complete the generator)
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			 
 			for await (const _chunk of stream) {
 				// Do nothing - we're just consuming the stream
 			}

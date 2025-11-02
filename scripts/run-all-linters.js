@@ -1,6 +1,10 @@
-const { exec } = require("child_process")
-const fs = require("fs")
-const path = require("path")
+import { exec } from "child_process"
+import fs from "fs"
+import path from "path"
+import { fileURLToPath } from "url"
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const logFilePath = path.join(__dirname, "..", "lint-output.log")
 const projectRoot = path.join(__dirname, "..")
@@ -58,4 +62,7 @@ const runCommandsSequentially = async () => {
   console.log(`All lint checks finished. Check ${logFilePath} for details.`)
 }
 
-runCommandsSequentially().then(r => )
+runCommandsSequentially().catch((error) => {
+	console.error("Error running linters:", error)
+	process.exit(1)
+})

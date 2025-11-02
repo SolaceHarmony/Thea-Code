@@ -1,4 +1,3 @@
-import { jest } from "@jest/globals"
 import { searchCommits, getCommitInfo, getWorkingState } from "../git"
 import { ExecException } from "child_process"
 

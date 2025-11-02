@@ -1,5 +1,4 @@
 // __tests__/CompactTransport.test.ts
-import { describe, expect, test, beforeEach, afterEach } from "@jest/globals"
 import { CompactTransport } from "../CompactTransport"
 import { CompactLogEntry } from "../types"
 import fs from "fs"

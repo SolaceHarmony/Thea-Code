@@ -1,6 +1,5 @@
 // npx jest src/core/tools/__tests__/executeCommandTool.test.ts
 
-import { describe, expect, it, jest, beforeEach } from "@jest/globals"
 import { executeCommandTool } from "../executeCommandTool"
 import { TheaTask } from "../../TheaTask" // Renamed import
 import type { TheaIgnoreController } from "../../ignore/TheaIgnoreController"

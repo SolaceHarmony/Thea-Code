@@ -31,7 +31,7 @@ describe("User Input to Model Response Flow", () => {
 		capturedHeaders = {}
 
 		// Setup custom endpoint for OpenAI mock
-		;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
+		;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
 			// @ts-expect-error req is provided by nock
 			capturedHeaders = this.req.headers as Record<string, string | string[]>
 			requestBody = body
@@ -238,7 +238,7 @@ describe("User Input to Model Response Flow", () => {
 		beforeEach(async () => {
 			await openaiTeardown()
 			await openaiSetup()
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
 				// @ts-expect-error req is provided by nock
 				capturedHeaders = this.req.headers as Record<string, string | string[]>
 				requestBody = body
@@ -365,7 +365,7 @@ describe("User Input to Model Response Flow", () => {
 			// Reset mock to return text response after tool result
 			await openaiTeardown()
 			await openaiSetup()
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", function (_uri: any, body: any) {
 				requestBody = body
 				return [
 					200,
@@ -403,7 +403,7 @@ describe("User Input to Model Response Flow", () => {
 		it("should handle API errors during conversation", async () => {
 			await openaiTeardown()
 			await openaiSetup()
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [
 				500,
 				{ error: { message: "Internal Server Error" } },
 			])
@@ -430,7 +430,7 @@ describe("User Input to Model Response Flow", () => {
 		it("should handle rate limiting gracefully", async () => {
 			await openaiTeardown()
 			await openaiSetup()
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [
 				429,
 				{ error: { message: "Rate limit exceeded", type: "rate_limit_error" } },
 			])
@@ -457,7 +457,7 @@ describe("User Input to Model Response Flow", () => {
 		it("should handle invalid response format", async () => {
 			await openaiTeardown()
 			await openaiSetup()
-			;(openAIMock as any)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [200, { invalid: "format" }])
+			;(openAIMock)!.addCustomEndpoint("POST", "/v1/chat/completions", () => [200, { invalid: "format" }])
 
 			const messages: NeutralConversationHistory = [
 				{
