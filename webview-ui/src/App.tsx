@@ -49,12 +49,13 @@ const App = () => {
 			if (message.type === "action" && message.action) {
 				const newTab = tabsByMessageAction[message.action]
 
-				if (newTab) {
+				// Don't switch tabs while in WelcomeView - user must configure API first
+				if (newTab && !showWelcome) {
 					switchTab(newTab)
 				}
 			}
 		},
-		[switchTab],
+		[switchTab, showWelcome],
 	)
 
 	useEvent("message", onMessage)
