@@ -96,16 +96,16 @@ const App = () => {
 
 	// Do not conditionally load ChatView, it's expensive and there's state we
 	// don't want to lose (user input, disableInput, askResponse promise, etc.)
-	return showWelcome ? (
-		<WelcomeView />
-	) : (
+	// ChatView is always rendered but hidden when showWelcome is true or when another tab is active
+	return (
 		<>
-			{tab === "prompts" && <PromptsView onDone={() => switchTab("chat")} />}
-			{tab === "mcp" && <McpView onDone={() => switchTab("chat")} />}
-			{tab === "history" && <HistoryView onDone={() => switchTab("chat")} />}
-			{tab === "settings" && <SettingsView ref={settingsRef} onDone={() => switchTab("chat")} />}
+			{showWelcome && <WelcomeView />}
+			{!showWelcome && tab === "prompts" && <PromptsView onDone={() => switchTab("chat")} />}
+			{!showWelcome && tab === "mcp" && <McpView onDone={() => switchTab("chat")} />}
+			{!showWelcome && tab === "history" && <HistoryView onDone={() => switchTab("chat")} />}
+			{!showWelcome && tab === "settings" && <SettingsView ref={settingsRef} onDone={() => switchTab("chat")} />}
 			<ChatView
-				isHidden={tab !== "chat"}
+				isHidden={showWelcome || tab !== "chat"}
 				showAnnouncement={showAnnouncement}
 				hideAnnouncement={() => setShowAnnouncement(false)}
 				showHistoryView={() => switchTab("history")}
