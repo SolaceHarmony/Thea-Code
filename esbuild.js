@@ -1,6 +1,13 @@
 import { context } from "esbuild"
 import { mkdirSync, existsSync, copyFileSync, promises, watch as _watch } from "fs"
-import { join } from "path"
+import { join, dirname } from "path"
+import { fileURLToPath } from "url"
+import { createRequire } from "module"
+
+// Define __dirname and __filename for ES modules
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const require = createRequire(import.meta.url)
 
 const production = process.argv.includes("--production")
 const watch = process.argv.includes("--watch")
