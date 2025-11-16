@@ -1,27 +1,27 @@
 const CallToolResultSchema = {
-	parse: jest.fn().mockReturnValue({}),
+	parse: () => ({}),
 }
 
 const ListToolsResultSchema = {
-	parse: jest.fn().mockReturnValue({
+	parse: () => ({
 		tools: [],
 	}),
 }
 
 const ListResourcesResultSchema = {
-	parse: jest.fn().mockReturnValue({
+	parse: () => ({
 		resources: [],
 	}),
 }
 
 const ListResourceTemplatesResultSchema = {
-	parse: jest.fn().mockReturnValue({
+	parse: () => ({
 		resourceTemplates: [],
 	}),
 }
 
 const ReadResourceResultSchema = {
-	parse: jest.fn().mockReturnValue({
+	parse: () => ({
 		contents: [],
 	}),
 }
@@ -40,12 +40,4 @@ class McpError extends Error {
 	}
 }
 
-module.exports = {
-	CallToolResultSchema,
-	ListToolsResultSchema,
-	ListResourcesResultSchema,
-	ListResourceTemplatesResultSchema,
-	ReadResourceResultSchema,
-	ErrorCode,
-	McpError,
-}
+export { CallToolResultSchema, ListToolsResultSchema, ListResourcesResultSchema, ListResourceTemplatesResultSchema, ReadResourceResultSchema, ErrorCode, McpError }

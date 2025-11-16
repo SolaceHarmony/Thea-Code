@@ -8,11 +8,9 @@ import { EXTENSION_DISPLAY_NAME, EXTENSION_NAME } from "./shared/config/thea-con
 
 
 /**
- * Built using https://github.com/microsoft/vscode-webview-ui-toolkit
- *
- * Inspired by:
- *  - https://github.com/microsoft/vscode-webview-ui-toolkit-samples/tree/main/default/weather-webview
- *  - https://github.com/microsoft/vscode-webview-ui-toolkit-samples/tree/main/frameworks/hello-world-react-cra
+ * Modern webview-based VS Code extension built with React 19.
+ * Uses Radix UI primitives for accessible, theme-aware components.
+ * Migrated from the deprecated @vscode/webview-ui-toolkit to modern UI stack.
  */
 
 let outputChannel: vscode.OutputChannel

@@ -95,7 +95,7 @@ describe("McpToolRow", () => {
 
 		render(<McpToolRow tool={alwaysAllowedTool} serverName="test-server" alwaysAllowMcp={true} />)
 
-		const checkbox = screen.getByRole("checkbox") as HTMLInputElement
+		const checkbox = screen.getByRole("checkbox")
 		expect(checkbox.checked).toBe(true)
 	})
 

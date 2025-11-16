@@ -310,7 +310,7 @@ const experimentsSchema = z.object({
 export type Experiments = z.infer<typeof experimentsSchema>
 
 // Used purely to ensure type coverage during development.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 type _AssertExperiments = AssertEqual<Equals<ExperimentId, Keys<Experiments>>>
 
 /**

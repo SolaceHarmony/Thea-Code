@@ -11,8 +11,8 @@
  *   --help              Show this help message
  */
 
-const fs = require("fs")
-const path = require("path")
+import { readdirSync, statSync, readFileSync, existsSync } from "fs"
+import { join } from "path"
 
 // Process command line arguments
 const args = process.argv.slice(2).reduce(
@@ -64,8 +64,8 @@ Output:
 
 // Paths to the locales directories
 const LOCALES_DIRS = {
-	core: path.join(__dirname, "../src/i18n/locales"),
-	webview: path.join(__dirname, "../webview-ui/src/i18n/locales"),
+	core: join(__dirname, "../src/i18n/locales"),
+	webview: join(__dirname, "../webview-ui/src/i18n/locales"),
 }
 
 // Determine which areas to check based on args
@@ -110,8 +110,8 @@ function checkAreaTranslations(area) {
 	const LOCALES_DIR = LOCALES_DIRS[area]
 
 	// Get all locale directories (or filter to the specified locale)
-	const allLocales = fs.readdirSync(LOCALES_DIR).filter((item) => {
-		const stats = fs.statSync(path.join(LOCALES_DIR, item))
+	const allLocales = readdirSync(LOCALES_DIR).filter((item) => {
+		const stats = statSync(join(LOCALES_DIR, item))
 		return stats.isDirectory() && item !== "en" // Exclude English as it's our source
 	})
 
@@ -128,8 +128,8 @@ function checkAreaTranslations(area) {
 	)
 
 	// Get all English JSON files
-	const englishDir = path.join(LOCALES_DIR, "en")
-	let englishFiles = fs.readdirSync(englishDir).filter((file) => file.endsWith(".json") && !file.startsWith("."))
+	const englishDir = join(LOCALES_DIR, "en")
+	let englishFiles = readdirSync(englishDir).filter((file) => file.endsWith(".json") && !file.startsWith("."))
 
 	// Filter to the specified file if provided
 	if (args.file) {
@@ -146,10 +146,10 @@ function checkAreaTranslations(area) {
 	try {
 		englishFileContents = englishFiles.map((file) => ({
 			name: file,
-			content: JSON.parse(fs.readFileSync(path.join(englishDir, file), "utf8")),
+			content: JSON.parse(readFileSync(join(englishDir, file), "utf8")),
 		}))
-	} catch (e) {
-		console.error(`Error: File '${englishDir}' is not a valid JSON file`)
+	} catch (error) {
+		console.error(`Error: File '${englishDir}' is not a valid JSON file:`, error.message)
 		process.exit(1)
 	}
 
@@ -165,10 +165,10 @@ function checkAreaTranslations(area) {
 		missingTranslations[locale] = {}
 
 		for (const { name, content: englishContent } of englishFileContents) {
-			const localeFilePath = path.join(LOCALES_DIR, locale, name)
+			const localeFilePath = join(LOCALES_DIR, locale, name)
 
 			// Check if the file exists in the locale
-			if (!fs.existsSync(localeFilePath)) {
+			if (!existsSync(localeFilePath)) {
 				missingTranslations[locale][name] = { file: "File is missing entirely" }
 				continue
 			}
@@ -177,8 +177,8 @@ function checkAreaTranslations(area) {
 			let localeContent
 
 			try {
-				localeContent = JSON.parse(fs.readFileSync(localeFilePath, "utf8"))
-			} catch (e) {
+				localeContent = JSON.parse(readFileSync(localeFilePath, "utf8"))
+			} catch {
 				console.error(`Error: File '${localeFilePath}' is not a valid JSON file`)
 				process.exit(1)
 			}

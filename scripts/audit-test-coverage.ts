@@ -6,10 +6,10 @@ const checklistPath = "MASTER_TEST_CHECKLIST.md"
 async function main() {
 	const checklist = (await fs.promises.readFile(checklistPath, "utf8")).split("\n")
 
-function hasTest(name: string): boolean {
-	try {
-		// Use find to locate all test files, then grep through them
-		const findTestFiles = [
+	const hasTest = (name: string): boolean => {
+		try {
+			// Use find to locate all test files, then grep through them
+			const findTestFiles = [
 			// Find all test files in various patterns
 			`find src -path "*/__tests__/*" -name "*.ts" -o -path "*/__tests__/*" -name "*.tsx"`,
 			`find src -name "*.test.ts" -o -name "*.test.tsx" -o -name "*.spec.ts" -o -name "*.spec.tsx"`,
@@ -33,10 +33,10 @@ function hasTest(name: string): boolean {
 		})
 
 		return result.trim().length > 0
-	} catch {
-		return false
+		} catch {
+			return false
+		}
 	}
-}
 
 	const updated = checklist.map((line) => {
 		const match = line.match(/^- \[ \] (function|class|interface): ([^ ]+) \(/)

@@ -3,12 +3,10 @@ class SSEClientTransport {
 		this.url = url
 		this.options = options
 		this.onerror = null
-		this.connect = jest.fn().mockResolvedValue()
-		this.close = jest.fn().mockResolvedValue()
-		this.start = jest.fn().mockResolvedValue()
+		this.connect = () => Promise.resolve()
+		this.close = () => Promise.resolve()
+		this.start = () => Promise.resolve()
 	}
 }
 
-module.exports = {
-	SSEClientTransport,
-}
+export { SSEClientTransport }

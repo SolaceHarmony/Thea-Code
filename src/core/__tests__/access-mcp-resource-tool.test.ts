@@ -36,7 +36,7 @@ describe("accessMcpResourceTool", () => {
 		await accessMcpResourceTool(theaTask, block, askApproval, handleError, pushToolResult, removeClosingTag)
 
 		expect(theaTask.consecutiveMistakeCount).toBe(1)
-		// eslint-disable-next-line @typescript-eslint/unbound-method
+		 
 		expect(theaTask.sayAndCreateMissingParamError).toHaveBeenCalledWith("access_mcp_resource", "server_name")
 		expect(pushToolResult).toHaveBeenCalledWith("err")
 	})
@@ -54,7 +54,7 @@ describe("accessMcpResourceTool", () => {
 		await accessMcpResourceTool(theaTask, block, askApproval, handleError, pushToolResult, removeClosingTag)
 
 		expect(theaTask.consecutiveMistakeCount).toBe(1)
-		// eslint-disable-next-line @typescript-eslint/unbound-method
+		 
 		expect(theaTask.sayAndCreateMissingParamError).toHaveBeenCalledWith("access_mcp_resource", "uri")
 		expect(pushToolResult).toHaveBeenCalledWith("err")
 	})

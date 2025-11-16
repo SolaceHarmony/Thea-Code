@@ -1,41 +1,31 @@
 import assert from "node:assert/strict"
-import sinon from "sinon"
-import * as fsp from "fs/promises"
+import fs from "fs/promises"
 import path from "path"
+import os from "os"
 
 import { loadRuleFiles, addCustomInstructions } from "../custom-instructions"
 
-function errWith(code?: string, message?: string): NodeJS.ErrnoException {
-  const e = new Error(message ?? code) as NodeJS.ErrnoException
-  if (code) e.code = code as NodeJS.ErrnoException["code"]
-  return e
-}
-
 describe("custom-instructions", () => {
-  let readStub: sinon.SinonStub
+  let tempDir: string
 
-  beforeEach(() => {
-    readStub = sinon.stub(fsp, "readFile")
+  beforeEach(async () => {
+    // Create a temporary directory for test files
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "thea-test-"))
   })
 
-  afterEach(() => {
-    sinon.restore()
+  afterEach(async () => {
+    // Clean up temporary directory
+    await fs.rm(tempDir, { recursive: true, force: true })
   })
 
   it("loadRuleFiles: returns empty string for ENOENT/EISDIR and preserves order", async () => {
-    const cwd = "/proj"
-    const files = [".Thearules", ".cursorrules", ".windsurfrules"]
+    // Create only the first rule file
+    await fs.writeFile(path.join(tempDir, ".Thearules"), "first")
+    // .cursorrules and .windsurfrules will not exist (ENOENT)
+    // Create a directory for .windsurfrules to test EISDIR
+    await fs.mkdir(path.join(tempDir, ".windsurfrules"))
 
-    // Simulate: first exists, second ENOENT (by message), third EISDIR (by code)
-    readStub.callsFake((p: string | Buffer | URL) => {
-      const fp = String(p)
-      if (fp === path.join(cwd, files[0])) return Promise.resolve("first")
-      if (fp === path.join(cwd, files[1])) return Promise.reject(errWith(undefined, "ENOENT: not found"))
-      if (fp === path.join(cwd, files[2])) return Promise.reject(errWith("EISDIR"))
-      return Promise.reject(new Error("unexpected path " + fp))
-    })
-
-    const rules = await loadRuleFiles(cwd)
+    const rules = await loadRuleFiles(tempDir)
     assert.ok(rules.includes("# Rules from .Thearules:"))
     assert.ok(rules.includes("first"))
     // Non-existing or directory should be omitted silently
@@ -48,23 +38,18 @@ describe("custom-instructions", () => {
   })
 
   it("addCustomInstructions: composes language, global, mode, and rules with correct sections and priority", async () => {
-    const cwd = "/proj"
     const mode = "architect"
 
-    // Stub mode-specific file and generic rules
-    readStub.callsFake((p: string | Buffer | URL) => {
-      const fp = String(p)
-      if (fp.endsWith(`.Thearules-${mode}`)) return Promise.resolve("mode-rule-1\nmode-rule-2")
-      if (fp.endsWith(".Thearules")) return Promise.resolve("generic-A")
-      if (fp.endsWith(".cursorrules")) return Promise.resolve("generic-B")
-      if (fp.endsWith(".windsurfrules")) return Promise.reject(errWith("ENOENT"))
-      return Promise.reject(errWith("ENOENT")) // any other path
-    })
+    // Create mode-specific and generic rule files
+    await fs.writeFile(path.join(tempDir, `.Thearules-${mode}`), "mode-rule-1\nmode-rule-2")
+    await fs.writeFile(path.join(tempDir, ".Thearules"), "generic-A")
+    await fs.writeFile(path.join(tempDir, ".cursorrules"), "generic-B")
+    // .windsurfrules will not exist (ENOENT)
 
     const result = await addCustomInstructions(
       "Use architecture best practices.",
       "Always keep responses concise.",
-      cwd,
+      tempDir,
       mode,
       { language: "en", theaIgnoreInstructions: "# .thea_ignore: ignore node_modules" }
     )
@@ -99,8 +84,8 @@ describe("custom-instructions", () => {
 
   it("addCustomInstructions: handles empty cwd by falling back to '.' and warning (non-throwing)", async () => {
     // nothing must throw if cwd is empty; our implementation logs a warning and uses '.'
-    readStub.rejects(errWith("ENOENT"))
-    const result = await addCustomInstructions("", "", "", "", { language: "en" })
+    // Don't pass language to get truly empty result
+    const result = await addCustomInstructions("", "", "", "", {})
     assert.strictEqual(result, "")
   })
 })

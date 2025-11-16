@@ -26,7 +26,7 @@ const translations: Record<string, Record<string, unknown>> = {
 }
 
 // Initialize i18next for React
-i18next
+void i18next
 	.use(initReactI18next)
 	.init(
 		{

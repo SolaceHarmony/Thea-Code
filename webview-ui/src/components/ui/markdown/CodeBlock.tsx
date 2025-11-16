@@ -50,7 +50,7 @@ export const CodeBlock: FC<CodeBlockProps> = memo(({ language, value, className,
 			}
 		}
 
-		highlight().then(() => {})
+		void highlight().then(() => {})
 	}, [language, value, className])
 
 	return (

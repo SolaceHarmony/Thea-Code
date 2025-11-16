@@ -49,12 +49,13 @@ const App = () => {
 			if (message.type === "action" && message.action) {
 				const newTab = tabsByMessageAction[message.action]
 
-				if (newTab) {
+				// Don't switch tabs while in WelcomeView - user must configure API first
+				if (newTab && !showWelcome) {
 					switchTab(newTab)
 				}
 			}
 		},
-		[switchTab],
+		[switchTab, showWelcome],
 	)
 
 	useEvent("message", onMessage)
@@ -76,21 +77,36 @@ const App = () => {
 	useEffect(() => vscode.postMessage({ type: "webviewDidLaunch" }), [])
 
 	if (!didHydrateState) {
-		return null
+		// Show loading indicator while waiting for initial state
+		return (
+			<div
+				style={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					height: "100vh",
+					flexDirection: "column",
+					gap: "16px",
+				}}
+			>
+				<div className="codicon codicon-loading codicon-modifier-spin" style={{ fontSize: "32px" }} />
+				<div style={{ opacity: 0.7 }}>Loading Thea Code...</div>
+			</div>
+		)
 	}
 
 	// Do not conditionally load ChatView, it's expensive and there's state we
 	// don't want to lose (user input, disableInput, askResponse promise, etc.)
-	return showWelcome ? (
-		<WelcomeView />
-	) : (
+	// ChatView is always rendered but hidden when showWelcome is true or when another tab is active
+	return (
 		<>
-			{tab === "prompts" && <PromptsView onDone={() => switchTab("chat")} />}
-			{tab === "mcp" && <McpView onDone={() => switchTab("chat")} />}
-			{tab === "history" && <HistoryView onDone={() => switchTab("chat")} />}
-			{tab === "settings" && <SettingsView ref={settingsRef} onDone={() => switchTab("chat")} />}
+			{showWelcome && <WelcomeView />}
+			{!showWelcome && tab === "prompts" && <PromptsView onDone={() => switchTab("chat")} />}
+			{!showWelcome && tab === "mcp" && <McpView onDone={() => switchTab("chat")} />}
+			{!showWelcome && tab === "history" && <HistoryView onDone={() => switchTab("chat")} />}
+			{!showWelcome && tab === "settings" && <SettingsView ref={settingsRef} onDone={() => switchTab("chat")} />}
 			<ChatView
-				isHidden={tab !== "chat"}
+				isHidden={showWelcome || tab !== "chat"}
 				showAnnouncement={showAnnouncement}
 				hideAnnouncement={() => setShowAnnouncement(false)}
 				showHistoryView={() => switchTab("history")}

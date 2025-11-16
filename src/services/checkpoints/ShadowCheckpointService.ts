@@ -315,10 +315,10 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 				const relPath = file.file
 				const absPath = path.join(cwdPath, relPath)
 				const [before, after] = await Promise.all([
-					this.git.show([`${base}:${relPath}`]).catch(() => ""),
+					this.git!.show([`${base}:${relPath}`]).catch(() => ""),
 					!to
 						? fs.readFile(absPath, "utf8").catch(() => "")
-						: this.git.show([`${to}:${relPath}`]).catch(() => ""),
+						: this.git!.show([`${to}:${relPath}`]).catch(() => ""),
 				])
 				return { paths: { relative: relPath, absolute: absPath }, content: { before, after } }
 			}),

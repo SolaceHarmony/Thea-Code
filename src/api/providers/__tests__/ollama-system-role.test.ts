@@ -10,7 +10,7 @@ jest.mock("openai", () => {
 		.mockImplementation(({ messages }: { messages: OpenAI.Chat.ChatCompletionMessageParam[] }) => {
 			// Store the messages for later inspection
 			// Assign to the mock function instance itself. Requires mockCreate to be typed to allow this.
-			;(mockCreate as jest.Mock & { lastMessages?: OpenAI.Chat.ChatCompletionMessageParam[] }).lastMessages =
+			;(mockCreate).lastMessages =
 				messages
 
 			// Return a simple response
@@ -72,7 +72,7 @@ describe("Ollama System Role Handling", () => {
 		const stream = handler.createMessage(systemPrompt, neutralHistory)
 
 		// Consume the stream to ensure the API is called
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		 
 		for await (const _chunk of stream) {
 			// Do nothing with the chunks
 		}
@@ -124,7 +124,7 @@ describe("Ollama System Role Handling", () => {
 			const stream = handler.createMessage(systemPrompt, neutralHistory)
 
 			// Consume the stream to ensure the API is called
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			 
 			for await (const _chunk of stream) {
 				// Do nothing with the chunks
 			}
@@ -181,7 +181,7 @@ describe("Ollama System Role Handling", () => {
 			const stream = handler.createMessage("", neutralHistory)
 
 			// Consume the stream to ensure the API is called
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			 
 			for await (const _chunk of stream) {
 				// Do nothing with the chunks
 			}
@@ -261,7 +261,7 @@ describe("Ollama System Role Handling", () => {
 		const stream = handler.createMessage(systemPrompt, neutralHistory)
 
 		// Consume the stream to ensure the API is called
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		 
 		for await (const _chunk of stream) {
 			// Do nothing with the chunks
 		}
