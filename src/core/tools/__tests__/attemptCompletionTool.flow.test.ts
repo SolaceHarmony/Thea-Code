@@ -3,7 +3,6 @@
  * Tests partial completion, final completion, approval flows, and telemetry
  */
 
-import { describe, expect, it, jest, beforeEach, afterEach } from "@jest/globals"
 import { attemptCompletionTool } from "../attemptCompletionTool"
 import { TheaTask } from "../../TheaTask"
 import { telemetryService } from "../../../services/telemetry/TelemetryService"

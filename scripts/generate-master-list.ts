@@ -2,6 +2,12 @@ import ts from "typescript"
 import fs from "fs"
 import path from "path"
 
+type Entry = {
+	type: string
+	name: string
+	file: string
+}
+
 async function main() {
 	const configPath = ts.findConfigFile("./", ts.sys.fileExists, "tsconfig.json")
 	if (!configPath) {
@@ -10,15 +16,9 @@ async function main() {
 	}
 
 	const configFile = ts.readConfigFile(configPath, ts.sys.readFile)
-	const config = ts.parseJsonConfigFileContent(configFile.config, ts.sys, path.dirname(configPath))
-
+	const config = ts.parseJsonConfigFileContent(configFile.config, ts.sys, "./")
 	const sourceFiles = config.fileNames.filter((fn) => fn.startsWith("src/") && fn.endsWith(".ts"))
 
-	interface Entry {
-		type: string
-		name: string
-		file: string
-	}
 	const entries: Entry[] = []
 
 	for (const fileName of sourceFiles) {

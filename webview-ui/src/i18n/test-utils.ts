@@ -6,7 +6,7 @@ import { initReactI18next } from "react-i18next"
  * Use this in test files to ensure consistent translation handling.
  */
 export const setupI18nForTests = () => {
-	i18next.use(initReactI18next).init({
+	void i18next.use(initReactI18next).init({
 		lng: "en",
 		fallbackLng: "en",
 		debug: false,

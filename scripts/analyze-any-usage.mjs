@@ -62,7 +62,7 @@ async function main() {
         perFile.push({ file: f, count })
         total += count
       }
-    } catch (err) {
+    } catch {
       // ignore read errors
     }
   }

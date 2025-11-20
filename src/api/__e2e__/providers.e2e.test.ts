@@ -1,9 +1,9 @@
 import * as assert from "assert"
 import * as vscode from "vscode"
-import { EXTENSION_ID } from "../../../../src/shared/config/thea-config"
+import { EXTENSION_ID } from "../../shared/config/thea-config"
 
 suite("API Provider Tests", () => {
-	let extension: vscode.Extension<any> | undefined
+	let extension: vscode.Extension<unknown> | undefined
 
 	suiteSetup(async function() {
 		this.timeout(30000)

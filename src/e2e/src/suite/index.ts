@@ -73,35 +73,35 @@ export async function run() {
 		if (!g.specify) g.specify = g.it
 		if (!g.xdescribe) g.xdescribe = (title: string, fn: TestFn) => {
 			// Prefer describe.skip if available, otherwise fall back to suite.skip
-			if (g.describe?.skip) return g.describe.skip(title, fn)
-			if (g.suite?.skip) return g.suite.skip(title, fn)
+			if (g.describe?.skip) return void g.describe.skip(title, fn)
+			if (g.suite?.skip) return void g.suite.skip(title, fn)
 		}
 		if (!g.xit) g.xit = (title: string, fn: TestFn) => {
 			// Prefer it.skip if available, otherwise fall back to test.skip
-			if (g.it?.skip) return g.it.skip(title, fn)
-			if (g.test?.skip) return g.test.skip(title, fn)
+			if (g.it?.skip) return void g.it.skip(title, fn)
+			if (g.test?.skip) return void g.test.skip(title, fn)
 		}
 		// Ensure modifier properties exist before assigning (use non-null assertions
 		// because we've already ensured `describe`/`it` above).
 		if (g.describe && !g.describe.only) g.describe.only = (title: string, fn: TestFn) => {
 			// Prefer suite.only if available, otherwise call suite normally
-			if (g.suite?.only) return g.suite.only(title, fn)
-			return g.suite(title, fn)
+			if (g.suite?.only) return void g.suite.only(title, fn)
+			return void g.suite(title, fn)
 		}
 		if (g.describe && !g.describe.skip) g.describe.skip = (title: string, fn: TestFn) => {
 			// Prefer suite.skip if available, otherwise call suite normally
-			if (g.suite?.skip) return g.suite.skip(title, fn)
-			return g.suite(title, fn)
+			if (g.suite?.skip) return void g.suite.skip(title, fn)
+			return void g.suite(title, fn)
 		}
 		if (g.it && !g.it.only) g.it.only = (title: string, fn: TestFn) => {
 			// Prefer test.only if available, otherwise call test normally
-			if (g.test?.only) return g.test.only(title, fn)
-			return g.test(title, fn)
+			if (g.test?.only) return void g.test.only(title, fn)
+			return void g.test(title, fn)
 		}
 		if (g.it && !g.it.skip) g.it.skip = (title: string, fn: TestFn) => {
 			// Prefer test.skip if available, otherwise call test normally
-			if (g.test?.skip) return g.test.skip(title, fn)
-			return g.test(title, fn)
+			if (g.test?.skip) return void g.test.skip(title, fn)
+			return void g.test(title, fn)
 		}
 		writeDebug("[index] mapping globals done")
 
@@ -232,7 +232,7 @@ export async function run() {
 
 		console.log("[e2e] Starting Mocha run...")
 		writeDebug("[index] mocha.run start")
-		return await new Promise<void>((resolve, reject) =>
+		return void await new Promise<void>((resolve, reject) =>
 			mocha.run((failures) => {
 				console.log(`[e2e] Mocha finished with ${failures} failure(s)`)
 				writeDebug(`[index] mocha.run done failures=${failures}`)

@@ -13,7 +13,7 @@ function readJson(file) {
   try {
     const text = fs.readFileSync(file, 'utf8')
     return JSON.parse(text)
-  } catch (err) {
+  } catch {
     return null
   }
 }

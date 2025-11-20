@@ -1,5 +1,5 @@
 // filepath: /Volumes/stuff/Projects/Thea-Code/src/core/webview/__tests__/TheaTaskStack.test.ts
-/* eslint-disable @typescript-eslint/unbound-method */
+ 
 import { TheaTaskStack } from "../thea/TheaTaskStack" // Renamed import and path
 import { TheaTask } from "../../TheaTask" // Renamed import
 

@@ -1,7 +1,11 @@
-const fs = require("fs")
-const path = require("path")
-const os = require("os")
-const { execSync } = require("child_process")
+import fs from "fs"
+import path from "path"
+import os from "os"
+import { execSync } from "child_process"
+import { fileURLToPath } from "url"
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const binDir = path.join(__dirname, "..", "bin")
 const tempDirPrefix = path.join(os.tmpdir(), "thea-verify-")

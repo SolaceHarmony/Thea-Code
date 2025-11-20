@@ -3,7 +3,6 @@
  * Tests proper XML entity escaping, mixed content types, embedded quotes/newlines
  */
 
-import { describe, expect, it, beforeEach, jest } from "@jest/globals"
 import { McpConverters } from "../McpConverters"
 import { NeutralToolResult } from "../../types/McpToolTypes"
 

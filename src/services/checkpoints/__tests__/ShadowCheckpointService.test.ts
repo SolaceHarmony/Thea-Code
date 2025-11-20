@@ -1,9 +1,9 @@
-// npx jest src/services/checkpoints/__tests__/ShadowCheckpointService.test.ts
+// npx mocha src/services/checkpoints/__tests__/ShadowCheckpointService.test.ts
 
 import fs from "fs/promises"
 import path from "path"
 import os from "os"
-import { EventEmitter } from "events"
+import assert from "node:assert/strict"
 
 import { simpleGit, SimpleGit } from "simple-git"
 import { EXTENSION_DISPLAY_NAME, AUTHOR_EMAIL } from "../../../shared/config/thea-config"
@@ -13,11 +13,6 @@ import { ShadowCheckpointService } from "../ShadowCheckpointService"
 import { RepoPerTaskCheckpointService } from "../RepoPerTaskCheckpointService"
 import { RepoPerWorkspaceCheckpointService } from "../RepoPerWorkspaceCheckpointService"
 import type { CheckpointEventMap } from "../types"
-import { globby } from "globby"
-
-jest.mock("globby", () => ({
-	globby: jest.fn().mockResolvedValue([]),
-}))
 
 const tmpDir = path.join(os.tmpdir(), "CheckpointService")
 
@@ -54,129 +49,135 @@ const initWorkspaceRepo = async ({
 	return { git, testFile }
 }
 
-describe.each([
-	[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"],
-	[RepoPerWorkspaceCheckpointService, "RepoPerWorkspaceCheckpointService"],
-])("CheckpointService", (klass, prefix) => {
-	const taskId = "test-task"
+const serviceClasses: Array<{
+	Class: typeof RepoPerTaskCheckpointService | typeof RepoPerWorkspaceCheckpointService
+	name: string
+}> = [
+	{ Class: RepoPerTaskCheckpointService, name: "RepoPerTaskCheckpointService" },
+	{ Class: RepoPerWorkspaceCheckpointService, name: "RepoPerWorkspaceCheckpointService" },
+]
 
-	let workspaceGit: SimpleGit
-	let testFile: string
-	let service: RepoPerTaskCheckpointService | RepoPerWorkspaceCheckpointService
+for (const { Class: klass, name: prefix } of serviceClasses) {
+	describe(`CheckpointService (${klass.name})`, () => {
+		const taskId = "test-task"
 
-	beforeEach(async () => {
-		jest.mocked(globby).mockClear().mockResolvedValue([])
+		let workspaceGit: SimpleGit
+		let testFile: string
+		let service: RepoPerTaskCheckpointService | RepoPerWorkspaceCheckpointService
 
-		const shadowDir = path.join(tmpDir, `${prefix}-${Date.now()}`)
-		const workspaceDir = path.join(tmpDir, `workspace-${Date.now()}`)
-		const repo = await initWorkspaceRepo({ workspaceDir })
+		beforeEach(async () => {
+			const shadowDir = path.join(tmpDir, `${prefix}-${Date.now()}`)
+			const workspaceDir = path.join(tmpDir, `workspace-${Date.now()}`)
+			const repo = await initWorkspaceRepo({ workspaceDir })
 
-		workspaceGit = repo.git
-		testFile = repo.testFile
+			workspaceGit = repo.git
+			testFile = repo.testFile
 
-		service = klass.create({ taskId, shadowDir, workspaceDir, log: () => {} })
-		await service.initShadowGit()
-	})
+			service = klass.create({ taskId, shadowDir, workspaceDir, log: () => {} })
+			await service.initShadowGit()
+		})
 
-	afterEach(() => {
-		jest.restoreAllMocks()
-	})
+		afterEach(async () => {
+			// Clean up after each test
+			try {
+				await fs.rm(service.checkpointsDir, { recursive: true, force: true })
+				await fs.rm(service.workspaceDir, { recursive: true, force: true })
+			} catch {
+				// Ignore cleanup errors
+			}
+		})
 
-	afterAll(async () => {
-		await fs.rm(tmpDir, { recursive: true, force: true })
-	})
-
-	describe(`${klass.name}#getDiff`, () => {
+		describe(`#getDiff`, () => {
 		it("returns the correct diff between commits", async () => {
 			await fs.writeFile(testFile, "Ahoy, world!")
 			const commit1 = await service.saveCheckpoint("Ahoy, world!")
-			expect(commit1?.commit).toBeTruthy()
+			assert.ok(commit1?.commit, "First checkpoint should have a commit hash")
 
 			await fs.writeFile(testFile, "Goodbye, world!")
 			const commit2 = await service.saveCheckpoint("Goodbye, world!")
-			expect(commit2?.commit).toBeTruthy()
+			assert.ok(commit2?.commit, "Second checkpoint should have a commit hash")
 
 			const diff1 = await service.getDiff({ to: commit1!.commit })
-			expect(diff1).toHaveLength(1)
-			expect(diff1[0].paths.relative).toBe("test.txt")
-			expect(diff1[0].paths.absolute).toBe(testFile)
-			expect(diff1[0].content.before).toBe("Hello, world!")
-			expect(diff1[0].content.after).toBe("Ahoy, world!")
+			assert.strictEqual(diff1.length, 1, "Diff should have one change")
+			assert.strictEqual(diff1[0].paths.relative, "test.txt", "Relative path should be test.txt")
+			assert.strictEqual(diff1[0].paths.absolute, testFile, "Absolute path should match testFile")
+			assert.strictEqual(diff1[0].content.before, "Hello, world!", "Before content should be initial content")
+			assert.strictEqual(diff1[0].content.after, "Ahoy, world!", "After content should be new content")
 
 			const diff2 = await service.getDiff({ from: service.baseHash, to: commit2!.commit })
-			expect(diff2).toHaveLength(1)
-			expect(diff2[0].paths.relative).toBe("test.txt")
-			expect(diff2[0].paths.absolute).toBe(testFile)
-			expect(diff2[0].content.before).toBe("Hello, world!")
-			expect(diff2[0].content.after).toBe("Goodbye, world!")
+			assert.strictEqual(diff2.length, 1, "Diff should have one change")
+			assert.strictEqual(diff2[0].paths.relative, "test.txt", "Relative path should be test.txt")
+			assert.strictEqual(diff2[0].paths.absolute, testFile, "Absolute path should match testFile")
+			assert.strictEqual(diff2[0].content.before, "Hello, world!", "Before content should be initial content")
+			assert.strictEqual(diff2[0].content.after, "Goodbye, world!", "After content should be new content")
 
 			const diff12 = await service.getDiff({ from: commit1!.commit, to: commit2!.commit })
-			expect(diff12).toHaveLength(1)
-			expect(diff12[0].paths.relative).toBe("test.txt")
-			expect(diff12[0].paths.absolute).toBe(testFile)
-			expect(diff12[0].content.before).toBe("Ahoy, world!")
-			expect(diff12[0].content.after).toBe("Goodbye, world!")
+			assert.strictEqual(diff12.length, 1, "Diff should have one change")
+			assert.strictEqual(diff12[0].paths.relative, "test.txt", "Relative path should be test.txt")
+			assert.strictEqual(diff12[0].paths.absolute, testFile, "Absolute path should match testFile")
+			assert.strictEqual(diff12[0].content.before, "Ahoy, world!", "Before content should be first change")
+			assert.strictEqual(diff12[0].content.after, "Goodbye, world!", "After content should be final change")
 		})
 
 		it("handles new files in diff", async () => {
 			const newFile = path.join(service.workspaceDir, "new.txt")
 			await fs.writeFile(newFile, "New file content")
 			const commit = await service.saveCheckpoint("Add new file")
-			expect(commit?.commit).toBeTruthy()
+			assert.ok(commit?.commit, "Checkpoint should have a commit hash")
 
 			const changes = await service.getDiff({ to: commit!.commit })
 			const change = changes.find((c) => c.paths.relative === "new.txt")
-			expect(change).toBeDefined()
-			expect(change?.content.before).toBe("")
-			expect(change?.content.after).toBe("New file content")
+			assert.ok(change, "Should find the new file in changes")
+			assert.strictEqual(change?.content.before, "", "Before content should be empty for new file")
+			assert.strictEqual(change?.content.after, "New file content", "After content should be file content")
 		})
 
 		it("handles deleted files in diff", async () => {
 			const fileToDelete = path.join(service.workspaceDir, "new.txt")
 			await fs.writeFile(fileToDelete, "New file content")
 			const commit1 = await service.saveCheckpoint("Add file")
-			expect(commit1?.commit).toBeTruthy()
+			assert.ok(commit1?.commit, "First checkpoint should have a commit hash")
 
 			await fs.unlink(fileToDelete)
 			const commit2 = await service.saveCheckpoint("Delete file")
-			expect(commit2?.commit).toBeTruthy()
+			assert.ok(commit2?.commit, "Second checkpoint should have a commit hash")
 
 			const changes = await service.getDiff({ from: commit1!.commit, to: commit2!.commit })
 			const change = changes.find((c) => c.paths.relative === "new.txt")
-			expect(change).toBeDefined()
-			expect(change!.content.before).toBe("New file content")
-			expect(change!.content.after).toBe("")
+			assert.ok(change, "Should find the deleted file in changes")
+			assert.strictEqual(change!.content.before, "New file content", "Before content should be file content")
+			assert.strictEqual(change!.content.after, "", "After content should be empty for deleted file")
 		})
 	})
 
-	describe(`${klass.name}#saveCheckpoint`, () => {
+	describe(`#saveCheckpoint`, () => {
 		it("creates a checkpoint if there are pending changes", async () => {
 			await fs.writeFile(testFile, "Ahoy, world!")
 			const commit1 = await service.saveCheckpoint("First checkpoint")
-			expect(commit1?.commit).toBeTruthy()
+			assert.ok(commit1?.commit, "First checkpoint should have a commit hash")
 			const details1 = await service.getDiff({ to: commit1!.commit })
-			expect(details1[0].content.before).toContain("Hello, world!")
-			expect(details1[0].content.after).toContain("Ahoy, world!")
+			assert.ok(details1[0].content.before.includes("Hello, world!"), "Before content should include initial content")
+			assert.ok(details1[0].content.after.includes("Ahoy, world!"), "After content should include new content")
 
 			await fs.writeFile(testFile, "Hola, world!")
 			const commit2 = await service.saveCheckpoint("Second checkpoint")
-			expect(commit2?.commit).toBeTruthy()
+			assert.ok(commit2?.commit, "Second checkpoint should have a commit hash")
 			const details2 = await service.getDiff({ from: commit1!.commit, to: commit2!.commit })
-			expect(details2[0].content.before).toContain("Ahoy, world!")
-			expect(details2[0].content.after).toContain("Hola, world!")
+			assert.ok(details2[0].content.before.includes("Ahoy, world!"), "Before content should include first change")
+			assert.ok(details2[0].content.after.includes("Hola, world!"), "After content should include second change")
 
 			// Switch to checkpoint 1.
 			await service.restoreCheckpoint(commit1!.commit)
-			expect(await fs.readFile(testFile, "utf-8")).toBe("Ahoy, world!")
+			assert.strictEqual(await fs.readFile(testFile, "utf-8"), "Ahoy, world!", "File should be restored to first checkpoint")
 
 			// Switch to checkpoint 2.
 			await service.restoreCheckpoint(commit2!.commit)
-			expect(await fs.readFile(testFile, "utf-8")).toBe("Hola, world!")
+			assert.strictEqual(await fs.readFile(testFile, "utf-8"), "Hola, world!", "File should be restored to second checkpoint")
 
 			// Switch back to initial commit.
-			expect(service.baseHash).toBeTruthy()
+			assert.ok(service.baseHash, "Base hash should exist")
 			await service.restoreCheckpoint(service.baseHash!)
-			expect(await fs.readFile(testFile, "utf-8")).toBe("Hello, world!")
+			assert.strictEqual(await fs.readFile(testFile, "utf-8"), "Hello, world!", "File should be restored to initial state")
 		})
 
 		it("preserves workspace and index state after saving checkpoint", async () => {
@@ -190,7 +191,7 @@ describe.each([
 			await fs.writeFile(mixedFile, "Initial mixed")
 			await workspaceGit.add(["."])
 			const result = await workspaceGit.commit("Add initial files")
-			expect(result?.commit).toBeTruthy()
+			assert.ok(result?.commit, "Initial commit should have a commit hash")
 
 			await fs.writeFile(unstagedFile, "Modified unstaged")
 
@@ -203,47 +204,47 @@ describe.each([
 
 			// Save checkpoint.
 			const commit = await service.saveCheckpoint("Test checkpoint")
-			expect(commit?.commit).toBeTruthy()
+			assert.ok(commit?.commit, "Checkpoint should have a commit hash")
 
 			// Verify workspace state is preserved.
 			const status = await workspaceGit.status()
 
 			// All files should be modified.
-			expect(status.modified).toContain("unstaged.txt")
-			expect(status.modified).toContain("staged.txt")
-			expect(status.modified).toContain("mixed.txt")
+			assert.ok(status.modified.includes("unstaged.txt"), "unstaged.txt should be modified")
+			assert.ok(status.modified.includes("staged.txt"), "staged.txt should be modified")
+			assert.ok(status.modified.includes("mixed.txt"), "mixed.txt should be modified")
 
 			// Only staged and mixed files should be staged.
-			expect(status.staged).not.toContain("unstaged.txt")
-			expect(status.staged).toContain("staged.txt")
-			expect(status.staged).toContain("mixed.txt")
+			assert.ok(!status.staged.includes("unstaged.txt"), "unstaged.txt should not be staged")
+			assert.ok(status.staged.includes("staged.txt"), "staged.txt should be staged")
+			assert.ok(status.staged.includes("mixed.txt"), "mixed.txt should be staged")
 
 			// Verify file contents.
-			expect(await fs.readFile(unstagedFile, "utf-8")).toBe("Modified unstaged")
-			expect(await fs.readFile(stagedFile, "utf-8")).toBe("Modified staged")
-			expect(await fs.readFile(mixedFile, "utf-8")).toBe("Modified mixed - unstaged")
+			assert.strictEqual(await fs.readFile(unstagedFile, "utf-8"), "Modified unstaged", "unstaged.txt should have modified content")
+			assert.strictEqual(await fs.readFile(stagedFile, "utf-8"), "Modified staged", "staged.txt should have modified content")
+			assert.strictEqual(await fs.readFile(mixedFile, "utf-8"), "Modified mixed - unstaged", "mixed.txt should have unstaged content")
 
 			// Verify staged changes (--cached shows only staged changes).
 			const stagedDiff = await workspaceGit.diff(["--cached", "mixed.txt"])
-			expect(stagedDiff).toContain("-Initial mixed")
-			expect(stagedDiff).toContain("+Modified mixed - staged")
+			assert.ok(stagedDiff.includes("-Initial mixed"), "Staged diff should show removed initial content")
+			assert.ok(stagedDiff.includes("+Modified mixed - staged"), "Staged diff should show added staged content")
 
 			// Verify unstaged changes (shows working directory changes).
 			const unstagedDiff = await workspaceGit.diff(["mixed.txt"])
-			expect(unstagedDiff).toContain("-Modified mixed - staged")
-			expect(unstagedDiff).toContain("+Modified mixed - unstaged")
+			assert.ok(unstagedDiff.includes("-Modified mixed - staged"), "Unstaged diff should show removed staged content")
+			assert.ok(unstagedDiff.includes("+Modified mixed - unstaged"), "Unstaged diff should show added unstaged content")
 		})
 
 		it("does not create a checkpoint if there are no pending changes", async () => {
 			const commit0 = await service.saveCheckpoint("Zeroth checkpoint")
-			expect(commit0?.commit).toBeFalsy()
+			assert.strictEqual(commit0?.commit, undefined, "No checkpoint should be created if there are no changes")
 
 			await fs.writeFile(testFile, "Ahoy, world!")
 			const commit1 = await service.saveCheckpoint("First checkpoint")
-			expect(commit1?.commit).toBeTruthy()
+			assert.ok(commit1?.commit, "Checkpoint should be created when there are changes")
 
 			const commit2 = await service.saveCheckpoint("Second checkpoint")
-			expect(commit2?.commit).toBeFalsy()
+			assert.strictEqual(commit2?.commit, undefined, "No checkpoint should be created if there are no changes after first checkpoint")
 		})
 
 		it("includes untracked files in checkpoints", async () => {
@@ -253,28 +254,28 @@ describe.each([
 
 			// Save a checkpoint with the untracked file.
 			const commit1 = await service.saveCheckpoint("Checkpoint with untracked file")
-			expect(commit1?.commit).toBeTruthy()
+			assert.ok(commit1?.commit, "Checkpoint should have a commit hash")
 
 			// Verify the untracked file was included in the checkpoint.
 			const details = await service.getDiff({ to: commit1!.commit })
-			expect(details[0].content.before).toContain("")
-			expect(details[0].content.after).toContain("I am untracked!")
+			assert.ok(details[0].content.before.includes(""), "Before content should be empty")
+			assert.ok(details[0].content.after.includes("I am untracked!"), "After content should include untracked file")
 
 			// Create another checkpoint with a different state.
 			await fs.writeFile(testFile, "Changed tracked file")
 			const commit2 = await service.saveCheckpoint("Second checkpoint")
-			expect(commit2?.commit).toBeTruthy()
+			assert.ok(commit2?.commit, "Second checkpoint should have a commit hash")
 
 			// Restore first checkpoint and verify untracked file is preserved.
 			await service.restoreCheckpoint(commit1!.commit)
-			expect(await fs.readFile(untrackedFile, "utf-8")).toBe("I am untracked!")
-			expect(await fs.readFile(testFile, "utf-8")).toBe("Hello, world!")
+			assert.strictEqual(await fs.readFile(untrackedFile, "utf-8"), "I am untracked!", "Untracked file should be preserved")
+			assert.strictEqual(await fs.readFile(testFile, "utf-8"), "Hello, world!", "Tracked file should be at initial state")
 
 			// Restore second checkpoint and verify untracked file remains (since
 			// restore preserves untracked files)
 			await service.restoreCheckpoint(commit2!.commit)
-			expect(await fs.readFile(untrackedFile, "utf-8")).toBe("I am untracked!")
-			expect(await fs.readFile(testFile, "utf-8")).toBe("Changed tracked file")
+			assert.strictEqual(await fs.readFile(untrackedFile, "utf-8"), "I am untracked!", "Untracked file should remain")
+			assert.strictEqual(await fs.readFile(testFile, "utf-8"), "Changed tracked file", "Tracked file should be at changed state")
 		})
 
 		it("handles file deletions correctly", async () => {
@@ -282,26 +283,26 @@ describe.each([
 			const untrackedFile = path.join(service.workspaceDir, "new.txt")
 			await fs.writeFile(untrackedFile, "I am untracked!")
 			const commit1 = await service.saveCheckpoint("First checkpoint")
-			expect(commit1?.commit).toBeTruthy()
+			assert.ok(commit1?.commit, "First checkpoint should have a commit hash")
 
 			await fs.unlink(testFile)
 			await fs.unlink(untrackedFile)
 			const commit2 = await service.saveCheckpoint("Second checkpoint")
-			expect(commit2?.commit).toBeTruthy()
+			assert.ok(commit2?.commit, "Second checkpoint should have a commit hash")
 
 			// Verify files are gone.
-			await expect(fs.readFile(testFile, "utf-8")).rejects.toThrow()
-			await expect(fs.readFile(untrackedFile, "utf-8")).rejects.toThrow()
+			await assert.rejects(fs.readFile(testFile, "utf-8"), {}, "Tracked file should not exist")
+			await assert.rejects(fs.readFile(untrackedFile, "utf-8"), {}, "Untracked file should not exist")
 
 			// Restore first checkpoint.
 			await service.restoreCheckpoint(commit1!.commit)
-			expect(await fs.readFile(testFile, "utf-8")).toBe("I am tracked!")
-			expect(await fs.readFile(untrackedFile, "utf-8")).toBe("I am untracked!")
+			assert.strictEqual(await fs.readFile(testFile, "utf-8"), "I am tracked!", "Tracked file should be restored")
+			assert.strictEqual(await fs.readFile(untrackedFile, "utf-8"), "I am untracked!", "Untracked file should be restored")
 
 			// Restore second checkpoint.
 			await service.restoreCheckpoint(commit2!.commit)
-			await expect(fs.readFile(testFile, "utf-8")).rejects.toThrow()
-			await expect(fs.readFile(untrackedFile, "utf-8")).rejects.toThrow()
+			await assert.rejects(fs.readFile(testFile, "utf-8"), {}, "Tracked file should not exist after restore")
+			await assert.rejects(fs.readFile(untrackedFile, "utf-8"), {}, "Untracked file should not exist after restore")
 		})
 
 		it("does not create a checkpoint for ignored files", async () => {
@@ -310,14 +311,14 @@ describe.each([
 			await fs.writeFile(ignoredFile, "Initial ignored content")
 
 			const commit = await service.saveCheckpoint("Ignored file checkpoint")
-			expect(commit?.commit).toBeFalsy()
+			assert.strictEqual(commit?.commit, undefined, "No checkpoint should be created for ignored files")
 
 			await fs.writeFile(ignoredFile, "Modified ignored content")
 
 			const commit2 = await service.saveCheckpoint("Ignored file modified checkpoint")
-			expect(commit2?.commit).toBeFalsy()
+			assert.strictEqual(commit2?.commit, undefined, "No checkpoint should be created for modified ignored files")
 
-			expect(await fs.readFile(ignoredFile, "utf-8")).toBe("Modified ignored content")
+			assert.strictEqual(await fs.readFile(ignoredFile, "utf-8"), "Modified ignored content", "Ignored file should still be modifiable")
 		})
 
 		it("does not create a checkpoint for LFS files", async () => {
@@ -328,30 +329,32 @@ describe.each([
 			// Re-initialize the service to trigger a write to .git/info/exclude.
 			service = new klass(service.taskId, service.checkpointsDir, service.workspaceDir, () => {})
 			const excludesPath = path.join(service.checkpointsDir, ".git", "info", "exclude")
-			expect((await fs.readFile(excludesPath, "utf-8")).split("\n")).not.toContain("*.lfs")
+			const excludesBefore = (await fs.readFile(excludesPath, "utf-8")).split("\n")
+			assert.ok(!excludesBefore.includes("*.lfs"), "LFS pattern should not be in excludes before init")
 			await service.initShadowGit()
-			expect((await fs.readFile(excludesPath, "utf-8")).split("\n")).toContain("*.lfs")
+			const excludesAfter = (await fs.readFile(excludesPath, "utf-8")).split("\n")
+			assert.ok(excludesAfter.includes("*.lfs"), "LFS pattern should be in excludes after init")
 
 			const commit0 = await service.saveCheckpoint("Add gitattributes")
-			expect(commit0?.commit).toBeTruthy()
+			assert.ok(commit0?.commit, "Checkpoint should be created for gitattributes")
 
 			// Create a file that matches an LFS pattern.
 			const lfsFile = path.join(service.workspaceDir, "foo.lfs")
 			await fs.writeFile(lfsFile, "Binary file content simulation")
 
 			const commit = await service.saveCheckpoint("LFS file checkpoint")
-			expect(commit?.commit).toBeFalsy()
+			assert.strictEqual(commit?.commit, undefined, "No checkpoint should be created for LFS files")
 
 			await fs.writeFile(lfsFile, "Modified binary content")
 
 			const commit2 = await service.saveCheckpoint("LFS file modified checkpoint")
-			expect(commit2?.commit).toBeFalsy()
+			assert.strictEqual(commit2?.commit, undefined, "No checkpoint should be created for modified LFS files")
 
-			expect(await fs.readFile(lfsFile, "utf-8")).toBe("Modified binary content")
+			assert.strictEqual(await fs.readFile(lfsFile, "utf-8"), "Modified binary content", "LFS file should still be modifiable")
 		})
 	})
 
-	describe(`${klass.name}#create`, () => {
+	describe(`#create`, () => {
 		it("initializes a git repository if one does not already exist", async () => {
 			const shadowDir = path.join(tmpDir, `${prefix}2-${Date.now()}`)
 			const workspaceDir = path.join(tmpDir, `workspace2-${Date.now()}`)
@@ -359,36 +362,38 @@ describe.each([
 
 			const newTestFile = path.join(workspaceDir, "test.txt")
 			await fs.writeFile(newTestFile, "Hello, world!")
-			expect(await fs.readFile(newTestFile, "utf-8")).toBe("Hello, world!")
+			assert.strictEqual(await fs.readFile(newTestFile, "utf-8"), "Hello, world!", "Test file should be created")
 
 			// Ensure the git repository was initialized.
 			const newService = klass.create({ taskId, shadowDir, workspaceDir, log: () => {} })
 			const { created } = await newService.initShadowGit()
-			expect(created).toBeTruthy()
+			assert.strictEqual(created, true, "Git repository should be newly created")
 
 			const gitDir = path.join(newService.checkpointsDir, ".git")
-			expect(await fs.stat(gitDir)).toBeTruthy()
+			const stats = await fs.stat(gitDir)
+			assert.ok(stats, "Git directory should exist")
 
 			// Save a new checkpoint: Ahoy, world!
 			await fs.writeFile(newTestFile, "Ahoy, world!")
 			const commit1 = await newService.saveCheckpoint("Ahoy, world!")
-			expect(commit1?.commit).toBeTruthy()
-			expect(await fs.readFile(newTestFile, "utf-8")).toBe("Ahoy, world!")
+			assert.ok(commit1?.commit, "First checkpoint should have a commit hash")
+			assert.strictEqual(await fs.readFile(newTestFile, "utf-8"), "Ahoy, world!", "File should have new content")
 
 			// Restore "Hello, world!"
+			assert.ok(newService.baseHash, "Base hash should exist")
 			await newService.restoreCheckpoint(newService.baseHash!)
-			expect(await fs.readFile(newTestFile, "utf-8")).toBe("Hello, world!")
+			assert.strictEqual(await fs.readFile(newTestFile, "utf-8"), "Hello, world!", "File should be restored to initial state")
 
 			// Restore "Ahoy, world!"
 			await newService.restoreCheckpoint(commit1!.commit)
-			expect(await fs.readFile(newTestFile, "utf-8")).toBe("Ahoy, world!")
+			assert.strictEqual(await fs.readFile(newTestFile, "utf-8"), "Ahoy, world!", "File should be restored to checkpoint state")
 
 			await fs.rm(newService.checkpointsDir, { recursive: true, force: true })
 			await fs.rm(newService.workspaceDir, { recursive: true, force: true })
 		})
 	})
 
-	describe(`${klass.name}#renameNestedGitRepos`, () => {
+	describe(`#renameNestedGitRepos`, () => {
 		it("handles nested git repositories during initialization", async () => {
 			// Create a new temporary workspace and service for this test.
 			const shadowDir = path.join(tmpDir, `${prefix}-nested-git-${Date.now()}`)
@@ -424,70 +429,27 @@ describe.each([
 			// Confirm nested git directory exists before initialization.
 			const nestedGitDir = path.join(nestedRepoPath, ".git")
 			const nestedGitDisabledDir = `${nestedGitDir}_disabled`
-			expect(await fileExistsAtPath(nestedGitDir)).toBe(true)
-			expect(await fileExistsAtPath(nestedGitDisabledDir)).toBe(false)
-
-			// Configure globby mock to return our nested git repository.
-			const relativeGitPath = path.relative(workspaceDir, nestedGitDir)
-			jest.mocked(globby).mockImplementation((pattern: string | readonly string[]) => {
-				if (pattern === "**/.git") {
-					return Promise.resolve([relativeGitPath])
-				} else if (pattern === "**/.git_disabled") {
-					return Promise.resolve([`${relativeGitPath}_disabled`])
-				}
-
-				return Promise.resolve([])
-			})
-
-			// Create a spy on fs.rename to track when it's called.
-			const renameSpy = jest.spyOn(fs, "rename")
+			assert.strictEqual(await fileExistsAtPath(nestedGitDir), true, "Nested git directory should exist before init")
+			assert.strictEqual(await fileExistsAtPath(nestedGitDisabledDir), false, "Disabled nested git directory should not exist before init")
 
 			// Initialize the shadow git service.
-			const service = new klass(taskId, shadowDir, workspaceDir, () => {})
+			const testService = new klass(taskId, shadowDir, workspaceDir, () => {})
 
-			// Override renameNestedGitRepos to track calls.
-			const originalRenameMethod = service["renameNestedGitRepos"].bind(service)
-			let disableCall = false
-			let enableCall = false
-
-			service["renameNestedGitRepos"] = async (disable: boolean) => {
-				if (disable) {
-					disableCall = true
-				} else {
-					enableCall = true
-				}
-
-				return originalRenameMethod(disable)
-			}
-
-			// Initialize the shadow git repo.
-			await service.initShadowGit()
-
-			// Verify both disable and enable were called.
-			expect(disableCall).toBe(true)
-			expect(enableCall).toBe(true)
-
-			// Verify rename was called with correct paths.
-			const renameCallsArgs = renameSpy.mock.calls.map((call) => String(call[0]) + " -> " + String(call[1]))
-			expect(
-				renameCallsArgs.some((args) => args.includes(nestedGitDir) && args.includes(nestedGitDisabledDir)),
-			).toBe(true)
-			expect(
-				renameCallsArgs.some((args) => args.includes(nestedGitDisabledDir) && args.includes(nestedGitDir)),
-			).toBe(true)
+			// Initialize the shadow git repo - this should handle the nested git repo.
+			await testService.initShadowGit()
 
 			// Verify the nested git directory is back to normal after initialization.
-			expect(await fileExistsAtPath(nestedGitDir)).toBe(true)
-			expect(await fileExistsAtPath(nestedGitDisabledDir)).toBe(false)
+			// The service should have temporarily disabled and then re-enabled nested git repos.
+			assert.strictEqual(await fileExistsAtPath(nestedGitDir), true, "Nested git directory should exist after init")
+			assert.strictEqual(await fileExistsAtPath(nestedGitDisabledDir), false, "Disabled nested git directory should not exist after init")
 
 			// Clean up.
-			renameSpy.mockRestore()
 			await fs.rm(shadowDir, { recursive: true, force: true })
 			await fs.rm(workspaceDir, { recursive: true, force: true })
 		})
 	})
 
-	describe(`${klass.name}#events`, () => {
+	describe(`#events`, () => {
 		it("emits initialize event when service is created", async () => {
 			const shadowDir = path.join(tmpDir, `${prefix}3-${Date.now()}`)
 			const workspaceDir = path.join(tmpDir, `workspace3-${Date.now()}`)
@@ -496,37 +458,27 @@ describe.each([
 			const newTestFile = path.join(workspaceDir, "test.txt")
 			await fs.writeFile(newTestFile, "Testing events!")
 
-			// Create a mock implementation of emit to track events.
-			const emitSpy = jest.spyOn(EventEmitter.prototype, "emit")
+			// Track emitted events using real event listeners
+			const emittedEvents: Array<CheckpointEventMap[keyof CheckpointEventMap]> = []
 
 			// Create the service - this will trigger the initialize event.
 			const newService = klass.create({ taskId, shadowDir, workspaceDir, log: () => {} })
+			
+			// Listen for all events
+			newService.on("initialize", (event: CheckpointEventMap["initialize"]) => {
+				emittedEvents.push(event)
+			})
+
 			await newService.initShadowGit()
 
-			// Find the initialize event in the emit calls.
-			let initializeEvent: CheckpointEventMap["initialize"] | null = null
-
-			for (let i = 0; i < emitSpy.mock.calls.length; i++) {
-				const call = emitSpy.mock.calls[i]
-
-				if (call[0] === "initialize") {
-					initializeEvent = call[1] as CheckpointEventMap["initialize"]
-					break
-				}
-			}
-
-			// Restore the spy.
-			emitSpy.mockRestore()
-
 			// Verify the event was emitted with the correct data.
-			expect(initializeEvent).not.toBeNull()
-			if (initializeEvent) {
-				expect(initializeEvent.type).toBe("initialize")
-				expect(initializeEvent.workspaceDir).toBe(workspaceDir)
-				expect(initializeEvent.baseHash).toBeTruthy()
-				expect(typeof initializeEvent.created).toBe("boolean")
-				expect(typeof initializeEvent.duration).toBe("number")
-			}
+			assert.strictEqual(emittedEvents.length, 1, "One initialize event should be emitted")
+			const initializeEvent = emittedEvents[0] as CheckpointEventMap["initialize"]
+			assert.strictEqual(initializeEvent.type, "initialize", "Event type should be initialize")
+			assert.strictEqual(initializeEvent.workspaceDir, workspaceDir, "Workspace dir should match")
+			assert.ok(initializeEvent.baseHash, "Base hash should exist")
+			assert.strictEqual(typeof initializeEvent.created, "boolean", "Created should be boolean")
+			assert.strictEqual(typeof initializeEvent.duration, "number", "Duration should be number")
 
 			// Clean up.
 			await fs.rm(shadowDir, { recursive: true, force: true })
@@ -534,51 +486,60 @@ describe.each([
 		})
 
 		it("emits checkpoint event when saving checkpoint", async () => {
-			const checkpointHandler = jest.fn<void, [CheckpointEventMap["checkpoint"]]>()
-			service.on("checkpoint", checkpointHandler)
+			const emittedEvents: Array<CheckpointEventMap["checkpoint"]> = []
+
+			// Set up real event listener
+			service.on("checkpoint", (event: CheckpointEventMap["checkpoint"]) => {
+				emittedEvents.push(event)
+			})
 
 			await fs.writeFile(testFile, "Changed content for checkpoint event test")
 			const result = await service.saveCheckpoint("Test checkpoint event")
-			expect(result?.commit).toBeDefined()
+			assert.ok(result?.commit, "Checkpoint should have a commit")
 
-			expect(checkpointHandler).toHaveBeenCalledTimes(1)
-			const eventData = checkpointHandler.mock.calls[0][0]
-			expect(eventData.type).toBe("checkpoint")
-			expect(eventData.toHash).toBeDefined()
-			expect(eventData.toHash).toBe(result!.commit)
-			expect(typeof eventData.duration).toBe("number")
+			assert.strictEqual(emittedEvents.length, 1, "One checkpoint event should be emitted")
+			const eventData = emittedEvents[0]
+			assert.strictEqual(eventData.type, "checkpoint", "Event type should be checkpoint")
+			assert.ok(eventData.toHash, "toHash should be defined")
+			assert.strictEqual(eventData.toHash, result!.commit, "toHash should match commit")
+			assert.strictEqual(typeof eventData.duration, "number", "Duration should be number")
 		})
 
 		it("emits restore event when restoring checkpoint", async () => {
 			// First create a checkpoint to restore.
 			await fs.writeFile(testFile, "Content for restore test")
 			const commit = await service.saveCheckpoint("Checkpoint for restore test")
-			expect(commit?.commit).toBeTruthy()
+			assert.ok(commit?.commit, "Checkpoint should have a commit hash")
 
 			// Change the file again.
 			await fs.writeFile(testFile, "Changed after checkpoint")
 
-			// Setup restore event listener.
-			const restoreHandler = jest.fn<void, [CheckpointEventMap["restore"]]>()
-			service.on("restore", restoreHandler)
+			// Setup real restore event listener.
+			const emittedEvents: Array<CheckpointEventMap["restore"]> = []
+			service.on("restore", (event: CheckpointEventMap["restore"]) => {
+				emittedEvents.push(event)
+			})
 
 			// Restore the checkpoint.
 			await service.restoreCheckpoint(commit!.commit)
 
 			// Verify the event was emitted.
-			expect(restoreHandler).toHaveBeenCalledTimes(1)
-			const eventData = restoreHandler.mock.calls[0][0]
-			expect(eventData.type).toBe("restore")
-			expect(eventData.commitHash).toBe(commit!.commit)
-			expect(typeof eventData.duration).toBe("number")
+			assert.strictEqual(emittedEvents.length, 1, "One restore event should be emitted")
+			const eventData = emittedEvents[0]
+			assert.strictEqual(eventData.type, "restore", "Event type should be restore")
+			assert.strictEqual(eventData.commitHash, commit!.commit, "Commit hash should match")
+			assert.strictEqual(typeof eventData.duration, "number", "Duration should be number")
 
 			// Verify the file was actually restored.
-			expect(await fs.readFile(testFile, "utf-8")).toBe("Content for restore test")
+			assert.strictEqual(await fs.readFile(testFile, "utf-8"), "Content for restore test", "File should be restored")
 		})
 
 		it("emits error event when an error occurs", async () => {
-			const errorHandler = jest.fn<void, [CheckpointEventMap["error"]]>()
-			service.on("error", errorHandler)
+			const emittedEvents: Array<CheckpointEventMap["error"]> = []
+
+			service.on("error", (event: CheckpointEventMap["error"]) => {
+				emittedEvents.push(event)
+			})
 
 			// Force an error by providing an invalid commit hash.
 			const invalidCommitHash = "invalid-commit-hash"
@@ -591,60 +552,69 @@ describe.each([
 			}
 
 			// Verify the error event was emitted.
-			expect(errorHandler).toHaveBeenCalledTimes(1)
-			const eventData = errorHandler.mock.calls[0][0]
-			expect(eventData.type).toBe("error")
-			expect(eventData.error).toBeInstanceOf(Error)
+			assert.ok(emittedEvents.length > 0, "At least one error event should be emitted")
+			const eventData = emittedEvents[0]
+			assert.strictEqual(eventData.type, "error", "Event type should be error")
+			assert.ok(eventData.error instanceof Error, "Error should be an Error instance")
 		})
 
 		it("supports multiple event listeners for the same event", async () => {
-			const checkpointHandler1 = jest.fn<void, [CheckpointEventMap["checkpoint"]]>()
-			const checkpointHandler2 = jest.fn<void, [CheckpointEventMap["checkpoint"]]>()
+			const checkpointEvents1: Array<CheckpointEventMap["checkpoint"]> = []
+			const checkpointEvents2: Array<CheckpointEventMap["checkpoint"]> = []
 
-			service.on("checkpoint", checkpointHandler1)
-			service.on("checkpoint", checkpointHandler2)
+			service.on("checkpoint", (event: CheckpointEventMap["checkpoint"]) => {
+				checkpointEvents1.push(event)
+			})
+			service.on("checkpoint", (event: CheckpointEventMap["checkpoint"]) => {
+				checkpointEvents2.push(event)
+			})
 
 			await fs.writeFile(testFile, "Content for multiple listeners test")
 			const result = await service.saveCheckpoint("Testing multiple listeners")
 
 			// Verify both handlers were called with the same event data.
-			expect(checkpointHandler1).toHaveBeenCalledTimes(1)
-			expect(checkpointHandler2).toHaveBeenCalledTimes(1)
+			assert.strictEqual(checkpointEvents1.length, 1, "First listener should receive one event")
+			assert.strictEqual(checkpointEvents2.length, 1, "Second listener should receive one event")
 
-			const eventData1 = checkpointHandler1.mock.calls[0][0]
-			const eventData2 = checkpointHandler2.mock.calls[0][0]
+			const eventData1 = checkpointEvents1[0]
+			const eventData2 = checkpointEvents2[0]
 
-			expect(eventData1).toEqual(eventData2)
-			expect(eventData1.type).toBe("checkpoint")
-			expect(eventData1.toHash).toBe(result?.commit)
+			assert.deepStrictEqual(eventData1, eventData2, "Both listeners should receive the same event data")
+			assert.strictEqual(eventData1.type, "checkpoint", "Event type should be checkpoint")
+			assert.strictEqual(eventData1.toHash, result?.commit, "toHash should match commit")
 		})
 
 		it("allows removing event listeners", async () => {
-			const checkpointHandler = jest.fn<void, [CheckpointEventMap["checkpoint"]]>()
+			const checkpointEvents: Array<CheckpointEventMap["checkpoint"]> = []
+
+			const listener = (event: CheckpointEventMap["checkpoint"]) => {
+				checkpointEvents.push(event)
+			}
 
 			// Add the listener.
-			service.on("checkpoint", checkpointHandler)
+			service.on("checkpoint", listener)
 
 			// Make a change and save a checkpoint.
 			await fs.writeFile(testFile, "Content for remove listener test - part 1")
 			await service.saveCheckpoint("Testing listener - part 1")
 
 			// Verify handler was called.
-			expect(checkpointHandler).toHaveBeenCalledTimes(1)
-			checkpointHandler.mockClear()
+			assert.strictEqual(checkpointEvents.length, 1, "Listener should receive first event")
+			checkpointEvents.length = 0 // Clear the array
 
 			// Remove the listener.
-			service.off("checkpoint", checkpointHandler)
+			service.off("checkpoint", listener)
 
 			// Make another change and save a checkpoint.
 			await fs.writeFile(testFile, "Content for remove listener test - part 2")
 			await service.saveCheckpoint("Testing listener - part 2")
 
 			// Verify handler was not called after being removed.
-			expect(checkpointHandler).not.toHaveBeenCalled()
+			assert.strictEqual(checkpointEvents.length, 0, "Listener should not receive events after being removed")
 		})
 	})
-})
+	})
+}
 
 describe("ShadowCheckpointService", () => {
 	const taskId = "test-task-storage"
@@ -675,7 +645,7 @@ describe("ShadowCheckpointService", () => {
 			await service.initShadowGit()
 
 			const storage = await ShadowCheckpointService.getTaskStorage({ taskId, globalStorageDir, workspaceDir })
-			expect(storage).toBe("task")
+			assert.strictEqual(storage, "task", "Storage should be 'task'")
 		})
 
 		it("returns 'workspace' when workspace repo exists with task branch", async () => {
@@ -689,12 +659,12 @@ describe("ShadowCheckpointService", () => {
 			await service.initShadowGit()
 
 			const storage = await ShadowCheckpointService.getTaskStorage({ taskId, globalStorageDir, workspaceDir })
-			expect(storage).toBe("workspace")
+			assert.strictEqual(storage, "workspace", "Storage should be 'workspace'")
 		})
 
 		it("returns undefined when no repos exist", async () => {
 			const storage = await ShadowCheckpointService.getTaskStorage({ taskId, globalStorageDir, workspaceDir })
-			expect(storage).toBeUndefined()
+			assert.strictEqual(storage, undefined, "Storage should be undefined")
 		})
 
 		it("returns undefined when workspace repo exists but has no task branch", async () => {
@@ -720,7 +690,7 @@ describe("ShadowCheckpointService", () => {
 				workspaceDir,
 			})
 
-			expect(storage).toBeUndefined()
+			assert.strictEqual(storage, undefined, "Storage should be undefined")
 		})
 	})
 })

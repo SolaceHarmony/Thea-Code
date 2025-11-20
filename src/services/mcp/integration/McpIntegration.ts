@@ -75,10 +75,19 @@ export class McpIntegration extends EventEmitter {
 		this.mcpToolSystem = McpToolExecutor.getInstance()
 
 		// Create event handlers and store them for cleanup
-		const toolRegisteredHandler = (name: string) => this.emit("tool-registered", name)
-		const toolUnregisteredHandler = (name: string) => this.emit("tool-unregistered", name)
-		const startedHandler = (info: unknown) => this.emit("started", info)
-		const stoppedHandler = () => this.emit("stopped")
+		const toolRegisteredHandler = (...args: unknown[]) => {
+			this.emit("tool-registered", args[0])
+		}
+		const toolUnregisteredHandler = (...args: unknown[]) => {
+			this.emit("tool-unregistered", args[0])
+		}
+		const startedHandler = (...args: unknown[]) => {
+			this.emit("started", args[0])
+		}
+		const stoppedHandler = (..._args: unknown[]) => {
+			// stopped event has no arguments, but accept args for consistency with Map type
+			this.emit("stopped")
+		}
 
 		// Store handlers for cleanup
 		this.eventHandlers.set("tool-registered", toolRegisteredHandler)

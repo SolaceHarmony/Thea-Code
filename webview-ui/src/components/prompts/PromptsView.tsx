@@ -737,7 +737,7 @@ const PromptsView = ({ onDone }: PromptsViewProps) => {
 							onChange={(e) => {
 								const value =
 									(e as unknown as CustomEvent)?.detail?.target?.value ||
-									((e as React.ChangeEvent<HTMLTextAreaElement>).target as HTMLTextAreaElement).value
+									((e).target as HTMLTextAreaElement).value
 								const customMode = findModeBySlug(mode, customModes)
 								if (customMode) {
 									// For custom modes, update the JSON file
@@ -897,7 +897,7 @@ const PromptsView = ({ onDone }: PromptsViewProps) => {
 						onChange={(e) => {
 							const value =
 								(e as unknown as CustomEvent)?.detail?.target?.value ||
-								((e as React.ChangeEvent<HTMLTextAreaElement>).target as HTMLTextAreaElement).value
+								((e).target as HTMLTextAreaElement).value
 							setCustomInstructions(value || undefined)
 							vscode.postMessage({
 								type: "customInstructions",
@@ -960,7 +960,7 @@ const PromptsView = ({ onDone }: PromptsViewProps) => {
 								key={type}
 								data-testid={`${type}-tab`}
 								data-active={activeSupportTab === type ? "true" : "false"}
-								onClick={() => setActiveSupportTab(type as SupportPromptType)}
+								onClick={() => setActiveSupportTab(type)}
 								style={{
 									padding: "4px 8px",
 									border: "none",
@@ -1012,7 +1012,7 @@ const PromptsView = ({ onDone }: PromptsViewProps) => {
 							onChange={(e) => {
 								const value =
 									(e as unknown as CustomEvent)?.detail?.target?.value ||
-									((e as React.ChangeEvent<HTMLTextAreaElement>).target as HTMLTextAreaElement).value
+									((e).target as HTMLTextAreaElement).value
 								const trimmedValue = value.trim()
 								updateSupportPrompt(activeSupportTab, trimmedValue || undefined)
 							}}
@@ -1233,7 +1233,7 @@ const PromptsView = ({ onDone }: PromptsViewProps) => {
 										const value =
 											(e as unknown as CustomEvent)?.detail?.target?.value ||
 											(
-												(e as React.ChangeEvent<HTMLTextAreaElement>)
+												(e)
 													.target as HTMLTextAreaElement
 											).value
 										setNewModeRoleDefinition(value)
@@ -1305,7 +1305,7 @@ const PromptsView = ({ onDone }: PromptsViewProps) => {
 										const value =
 											(e as unknown as CustomEvent)?.detail?.target?.value ||
 											(
-												(e as React.ChangeEvent<HTMLTextAreaElement>)
+												(e)
 													.target as HTMLTextAreaElement
 											).value
 										setNewModeCustomInstructions(value)

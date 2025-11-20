@@ -177,56 +177,61 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 	)
 	const handleMessage = useCallback(
 		(event: MessageEvent) => {
-			const message: ExtensionMessage = event.data
-			console.log("Received message in webview:", message)
-			switch (message.type) {
-				case "state": {
-					const newState = message.state!
-					setState((prevState) => mergeExtensionState(prevState, newState))
-					setShowWelcome(!checkExistKey(newState.apiConfiguration))
-					setDidHydrateState(true)
-					break
-				}
-				case "theme": {
-					if (message.text) {
-						setTheme(convertTextMateToHljs(JSON.parse(message.text)))
+			try {
+				const message: ExtensionMessage = event.data
+				console.log("Received message in webview:", message)
+				switch (message.type) {
+					case "state": {
+						const newState = message.state!
+						setState((prevState) => mergeExtensionState(prevState, newState))
+						setShowWelcome(!checkExistKey(newState.apiConfiguration))
+						setDidHydrateState(true)
+						break
 					}
-					break
-				}
-				case "workspaceUpdated": {
-					const paths = message.filePaths ?? []
-					const tabs = message.openedTabs ?? []
-
-					setFilePaths(paths)
-					setOpenedTabs(tabs)
-					break
-				}
-				case "partialMessage": {
-					const partialMessage = message.partialMessage!
-					setState((prevState) => {
-						// worth noting it will never be possible for a more up-to-date message to be sent here or in normal messages post since the presentAssistantContent function uses lock
-						const lastIndex = findLastIndex(prevState.clineMessages, (msg) => msg.ts === partialMessage.ts)
-						if (lastIndex !== -1) {
-							const newClineMessages = [...prevState.clineMessages]
-							newClineMessages[lastIndex] = partialMessage
-							return { ...prevState, clineMessages: newClineMessages }
+					case "theme": {
+						if (message.text) {
+							setTheme(convertTextMateToHljs(JSON.parse(message.text)))
 						}
-						return prevState
-					})
-					break
+						break
+					}
+					case "workspaceUpdated": {
+						const paths = message.filePaths ?? []
+						const tabs = message.openedTabs ?? []
+
+						setFilePaths(paths)
+						setOpenedTabs(tabs)
+						break
+					}
+					case "partialMessage": {
+						const partialMessage = message.partialMessage!
+						setState((prevState) => {
+							// worth noting it will never be possible for a more up-to-date message to be sent here or in normal messages post since the presentAssistantContent function uses lock
+							const lastIndex = findLastIndex(prevState.clineMessages, (msg) => msg.ts === partialMessage.ts)
+							if (lastIndex !== -1) {
+								const newClineMessages = [...prevState.clineMessages]
+								newClineMessages[lastIndex] = partialMessage
+								return { ...prevState, clineMessages: newClineMessages }
+							}
+							return prevState
+						})
+						break
+					}
+					case "mcpServers": {
+						setMcpServers(message.mcpServers ?? [])
+						break
+					}
+					case "currentCheckpointUpdated": {
+						setCurrentCheckpoint(message.text)
+						break
+					}
+					case "listApiConfig": {
+						setListApiConfigMeta(message.listApiConfig ?? [])
+						break
+					}
 				}
-				case "mcpServers": {
-					setMcpServers(message.mcpServers ?? [])
-					break
-				}
-				case "currentCheckpointUpdated": {
-					setCurrentCheckpoint(message.text)
-					break
-				}
-				case "listApiConfig": {
-					setListApiConfigMeta(message.listApiConfig ?? [])
-					break
-				}
+			} catch (error) {
+				console.error("Error handling message in webview:", error, event.data)
+				// Don't throw - keep the webview running even if one message fails
 			}
 		},
 		[setListApiConfigMeta],

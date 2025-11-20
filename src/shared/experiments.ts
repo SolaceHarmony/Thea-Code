@@ -10,7 +10,7 @@ export const EXPERIMENT_IDS = {
 	POWER_STEERING: "powerSteering",
 } as const satisfies Record<string, ExperimentId>
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 type _AssertExperimentIds = AssertEqual<Equals<ExperimentId, Values<typeof EXPERIMENT_IDS>>>
 
 type ExperimentKey = Keys<typeof EXPERIMENT_IDS>
