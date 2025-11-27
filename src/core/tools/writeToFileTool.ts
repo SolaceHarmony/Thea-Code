@@ -6,26 +6,54 @@ import type { ToolUse } from "../assistant-message"
 import { formatResponse } from "../prompts/responses"
 import { AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "./types"
 import path from "path"
-import { fileExistsAtPath } from "../../utils/fs"
-import { addLineNumbers, stripLineNumbers } from "../../integrations/misc/extract-text"
-import { getReadablePath } from "../../utils/path"
+import * as fsUtils from "../../utils/fs"
+import * as extractText from "../../integrations/misc/extract-text"
+import * as pathUtils from "../../utils/path"
 import { isPathOutsideWorkspace } from "../../utils/pathUtils"
-import { everyLineHasLineNumbers } from "../../integrations/misc/extract-text"
 import delay from "delay"
-import { detectCodeOmission } from "../../integrations/editor/detect-omission"
+import * as detectOmission from "../../integrations/editor/detect-omission"
+
+interface WriteToFileDependencies {
+	vscode: typeof vscode
+	fs: {
+		fileExistsAtPath: typeof fsUtils.fileExistsAtPath
+	}
+	path: {
+		getReadablePath: typeof pathUtils.getReadablePath
+	}
+	extractText: {
+		addLineNumbers: typeof extractText.addLineNumbers
+		stripLineNumbers: typeof extractText.stripLineNumbers
+		everyLineHasLineNumbers: typeof extractText.everyLineHasLineNumbers
+	}
+	detectOmission: {
+		detectCodeOmission: typeof detectOmission.detectCodeOmission
+	}
+}
 
 export async function writeToFileTool(
-	theaTask: TheaTask, // Renamed parameter and type
+	theaTask: TheaTask,
 	block: ToolUse,
 	askApproval: AskApproval,
 	handleError: HandleError,
 	pushToolResult: PushToolResult,
 	removeClosingTag: RemoveClosingTag,
+	dependencies: WriteToFileDependencies = {
+		vscode,
+		fs: { fileExistsAtPath: fsUtils.fileExistsAtPath },
+		path: { getReadablePath: pathUtils.getReadablePath },
+		extractText: {
+			addLineNumbers: extractText.addLineNumbers,
+			stripLineNumbers: extractText.stripLineNumbers,
+			everyLineHasLineNumbers: extractText.everyLineHasLineNumbers,
+		},
+		detectOmission: { detectCodeOmission: detectOmission.detectCodeOmission },
+	}
 ) {
 	const relPath: string | undefined = block.params.path
 	let newContent: string | undefined = block.params.content
 	let predictedLineCount: number | undefined = parseInt(block.params.line_count ?? "0", 10)
-	if (!relPath || !newContent) {
+	if ((!relPath || !newContent) && block.partial) {
 		// checking for newContent ensure relPath is complete
 		// wait so we can determine if it's a new file or editing an existing file
 		return
@@ -45,7 +73,7 @@ export async function writeToFileTool(
 		fileExists = theaTask.diffViewProvider.editType === "modify"
 	} else {
 		const absolutePath = path.resolve(theaTask.cwd, relPath)
-		fileExists = await fileExistsAtPath(absolutePath)
+		fileExists = await dependencies.fs.fileExistsAtPath(absolutePath)
 		theaTask.diffViewProvider.editType = fileExists ? "modify" : "create"
 	}
 
@@ -70,19 +98,19 @@ export async function writeToFileTool(
 
 	// Determine if the path is outside the workspace
 	const fullPath = relPath ? path.resolve(theaTask.cwd, removeClosingTag("path", relPath)) : ""
-	const isOutsideWorkspace = isPathOutsideWorkspace(fullPath, vscode.workspace.workspaceFolders)
+	const isOutsideWorkspace = isPathOutsideWorkspace(fullPath, dependencies.vscode.workspace.workspaceFolders)
 
 	const sharedMessageProps: TheaSayTool = {
 		// Renamed type
 		tool: fileExists ? "editedExistingFile" : "newFileCreated",
-		path: getReadablePath(theaTask.cwd, removeClosingTag("path", relPath)),
+		path: dependencies.path.getReadablePath(theaTask.cwd, removeClosingTag("path", relPath)),
 		isOutsideWorkspace,
 	}
 	try {
 		if (block.partial) {
 			// update gui message
 			const partialMessage = JSON.stringify(sharedMessageProps)
-			await theaTask.webviewCommunicator.ask("tool", partialMessage, block.partial).catch(() => {}) // Use communicator
+			await theaTask.webviewCommunicator.ask("tool", partialMessage, block.partial).catch(() => { }) // Use communicator
 			// update editor
 			if (!theaTask.diffViewProvider.isEditing) {
 				// open the editor and prepare to stream content in
@@ -90,7 +118,7 @@ export async function writeToFileTool(
 			}
 			// editor is open, stream content in
 			await theaTask.diffViewProvider.update(
-				everyLineHasLineNumbers(newContent) ? stripLineNumbers(newContent) : newContent,
+				dependencies.extractText.everyLineHasLineNumbers(newContent) ? dependencies.extractText.stripLineNumbers(newContent) : newContent,
 				false,
 			)
 			return
@@ -121,38 +149,37 @@ export async function writeToFileTool(
 			if (!theaTask.diffViewProvider.isEditing) {
 				// show gui message before showing edit animation
 				const partialMessage = JSON.stringify(sharedMessageProps)
-				await theaTask.webviewCommunicator.ask("tool", partialMessage, true).catch(() => {}) // Use communicator
+				await theaTask.webviewCommunicator.ask("tool", partialMessage, true).catch(() => { }) // Use communicator
 				await theaTask.diffViewProvider.open(relPath)
 			}
 			await theaTask.diffViewProvider.update(
-				everyLineHasLineNumbers(newContent) ? stripLineNumbers(newContent) : newContent,
+				dependencies.extractText.everyLineHasLineNumbers(newContent) ? dependencies.extractText.stripLineNumbers(newContent) : newContent,
 				true,
 			)
 			await delay(300) // wait for diff view to update
 			theaTask.diffViewProvider.scrollToFirstDiff()
 
 			// Check for code omissions before proceeding
-			if (detectCodeOmission(theaTask.diffViewProvider.originalContent || "", newContent, predictedLineCount)) {
+			if (dependencies.detectOmission.detectCodeOmission(theaTask.diffViewProvider.originalContent || "", newContent, predictedLineCount)) {
 				if (theaTask.diffStrategy) {
 					await theaTask.diffViewProvider.revertChanges()
 					pushToolResult(
 						formatResponse.toolError(
-							`Content appears to be truncated (file has ${
-								newContent.split("\n").length
+							`Content appears to be truncated (file has ${newContent.split("\n").length
 							} lines but was predicted to have ${predictedLineCount} lines), and found comments indicating omitted code (e.g., '// rest of code unchanged', '/* previous code */'). Please provide the complete file content without any omissions if possible, or otherwise use the 'apply_diff' tool to apply the diff to the original file.`,
 						),
 					)
 					return
 				} else {
-					vscode.window
+					dependencies.vscode.window
 						.showWarningMessage(
 							"Potential code truncation detected. cline happens when the AI reaches its max output limit.",
 							"Follow cline guide to fix the issue",
 						)
 						.then((selection) => {
 							if (selection === "Follow cline guide to fix the issue") {
-								vscode.env.openExternal(
-									vscode.Uri.parse(
+								dependencies.vscode.env.openExternal(
+									dependencies.vscode.Uri.parse(
 										"https://github.com/cline/cline/wiki/Troubleshooting-%E2%80%90-Cline-Deleting-Code-with-%22Rest-of-Code-Here%22-Comments",
 									),
 								)
@@ -181,21 +208,21 @@ export async function writeToFileTool(
 					"user_feedback_diff",
 					JSON.stringify({
 						tool: fileExists ? "editedExistingFile" : "newFileCreated",
-						path: getReadablePath(theaTask.cwd, relPath),
+						path: dependencies.path.getReadablePath(theaTask.cwd, relPath),
 						diff: userEdits,
 					} satisfies TheaSayTool), // Renamed type
 				)
 				pushToolResult(
 					`The user made the following updates to your content:\n\n${userEdits}\n\n` +
-						`The updated content, which includes both your original modifications and the user's edits, has been successfully saved to ${relPath.toPosix()}. Here is the full, updated content of the file, including line numbers:\n\n` +
-						`<final_file_content path="${relPath.toPosix()}">\n${addLineNumbers(
-							finalContent || "",
-						)}\n</final_file_content>\n\n` +
-						`Please note:\n` +
-						`1. You do not need to re-write the file with these changes, as they have already been applied.\n` +
-						`2. Proceed with the task using the updated file content as the new baseline.\n` +
-						`3. If the user's edits have addressed part of the task or changed the requirements, adjust your approach accordingly.` +
-						`${newProblemsMessage}`,
+					`The updated content, which includes both your original modifications and the user's edits, has been successfully saved to ${relPath.toPosix()}. Here is the full, updated content of the file, including line numbers:\n\n` +
+					`<final_file_content path="${relPath.toPosix()}">\n${dependencies.extractText.addLineNumbers(
+						finalContent || "",
+					)}\n</final_file_content>\n\n` +
+					`Please note:\n` +
+					`1. You do not need to re-write the file with these changes, as they have already been applied.\n` +
+					`2. Proceed with the task using the updated file content as the new baseline.\n` +
+					`3. If the user's edits have addressed part of the task or changed the requirements, adjust your approach accordingly.` +
+					`${newProblemsMessage}`,
 				)
 			} else {
 				pushToolResult(`The content was successfully saved to ${relPath.toPosix()}.${newProblemsMessage}`)
