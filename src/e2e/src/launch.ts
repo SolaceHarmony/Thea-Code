@@ -14,13 +14,13 @@ async function main() {
         if (process.platform === "win32") {
           // Best-effort on Windows. Silently ignore errors.
           const winKill = (pattern: string) => {
-            try { execSync(`wmic process where \"CommandLine like '%${pattern.replace(/"/g, "\\\"")}%'\" call terminate`, { stdio: "ignore" }) } catch {}
+            try { execSync(`wmic process where \"CommandLine like '%${pattern.replace(/"/g, "\\\"")}%'\" call terminate`, { stdio: "ignore" }) } catch { }
           }
-          ;["mocha -r tsx", "uv tool uvx", "markitdown-mcp", "imagesorcery-mcp"].forEach(winKill)
+            ;["mocha -r tsx", "uv tool uvx", "markitdown-mcp", "imagesorcery-mcp"].forEach(winKill)
         } else {
           // POSIX/macOS
-          const pkill = (p: string) => { try { execSync(`pkill -f "${p}"`, { stdio: "ignore" }) } catch {} }
-          ;["mocha -r tsx", "uv tool uvx", "markitdown-mcp", "imagesorcery-mcp"].forEach(pkill)
+          const pkill = (p: string) => { try { execSync(`pkill -f "${p}"`, { stdio: "ignore" }) } catch { } }
+            ;["mocha -r tsx", "uv tool uvx", "markitdown-mcp", "imagesorcery-mcp"].forEach(pkill)
         }
       } catch {
         // Ignore any cleanup errors
@@ -28,12 +28,12 @@ async function main() {
     }
 
     // This file is compiled to e2e/out/suite/launch.js
-  const compiledDir = __dirname // e2e/out/suite
-  // Go up 4 levels: suite -> out -> e2e -> src -> repo root
-  const repoRoot = path.resolve(compiledDir, "..", "..", "..", "..") // -> repo root
+    const compiledDir = __dirname // e2e/out/suite
+    // Go up 4 levels: suite -> out -> e2e -> src -> repo root
+    const repoRoot = path.resolve(compiledDir, "..", "..", "..", "..", "..", "..", "..") // -> repo root
 
-  const extensionDevelopmentPath = repoRoot
-  const extensionTestsPath = path.resolve(compiledDir, "suite", "index.js")
+    const extensionDevelopmentPath = repoRoot
+    const extensionTestsPath = path.resolve(compiledDir, "suite", "index.js")
 
     // Create an isolated sandbox workspace and user data dirs
     const testRoot = path.resolve(repoRoot, ".vscode-test")
@@ -47,7 +47,7 @@ async function main() {
     await fs.promises.mkdir(userDataDir, { recursive: true })
     await fs.promises.mkdir(extensionsDir, { recursive: true })
 
-  const launchArgs = [
+    const launchArgs = [
       `--user-data-dir=${userDataDir}`,
       `--extensions-dir=${extensionsDir}`,
       `--enable-proposed-api=SolaceHarmony.thea-code`,
@@ -125,12 +125,12 @@ async function main() {
           try {
             if (!child.killed) {
               if (process.platform === "win32") {
-                try { spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"], { stdio: "ignore" }) } catch {}
+                try { spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"], { stdio: "ignore" }) } catch { }
               } else {
                 child.kill("SIGKILL")
               }
             }
-          } catch {}
+          } catch { }
         }
         const onParentExit = () => killChild()
         process.on("exit", onParentExit)

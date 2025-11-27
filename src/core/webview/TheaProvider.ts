@@ -599,13 +599,6 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 
 		const nonce = getNonce()
 
-		const stylesUri = getUri(webview, this.contextProxy.extensionUri, [
-			"webview-ui",
-			"build",
-			"assets",
-			"index.css",
-		])
-
 		const codiconsUri = getUri(webview, this.contextProxy.extensionUri, [
 			"node_modules",
 			"@vscode",
@@ -645,7 +638,6 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 					<meta charset="utf-8">
 					<meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
 					<meta http-equiv="Content-Security-Policy" content="${csp.join("; ")}">
-					<link rel="stylesheet" type="text/css" href="${stylesUri.toString()}">
 					<link href="${codiconsUri.toString()}" rel="stylesheet" />
 					<script nonce="${nonce}">
 						window.IMAGES_BASE_URI = "${imagesUri.toString()}"
@@ -677,11 +669,17 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		// then convert it to a uri we can use in the webview.
 
 		// The CSS file from the React build output
-		const stylesUri = getUri(webview, this.contextProxy.extensionUri, [
+		const mainStylesUri = getUri(webview, this.contextProxy.extensionUri, [
 			"webview-ui",
 			"build",
 			"assets",
-			"index.css",
+			"main.css",
+		])
+		const vendorStylesUri = getUri(webview, this.contextProxy.extensionUri, [
+			"webview-ui",
+			"build",
+			"assets",
+			"vendor.css",
 		])
 		// The JS file from the React build output
 		const scriptUri = getUri(webview, this.contextProxy.extensionUri, ["webview-ui", "build", "assets", "index.js"])
@@ -730,7 +728,8 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
             <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
             <meta name="theme-color" content="#000000">
             <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data:; script-src 'nonce-${nonce}' https://us-assets.i.posthog.com; connect-src https://openrouter.ai https://us.i.posthog.com https://us-assets.i.posthog.com;">
-            <link rel="stylesheet" type="text/css" href="${stylesUri.toString()}">
+            <link rel="stylesheet" type="text/css" href="${vendorStylesUri.toString()}">
+            <link rel="stylesheet" type="text/css" href="${mainStylesUri.toString()}">
 			<link href="${codiconsUri.toString()}" rel="stylesheet" />
 			<script nonce="${nonce}">
 				window.IMAGES_BASE_URI = "${imagesUri.toString()}"
@@ -981,8 +980,8 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 			uriScheme: vscode.env.uriScheme,
 			currentTaskItem: this.theaTaskStackManager.getCurrentTheaTask()?.taskId // Renamed property
 				? (taskHistory || []).find(
-						(item: HistoryItem) => item.id === this.theaTaskStackManager.getCurrentTheaTask()?.taskId,
-					) // Renamed property
+					(item: HistoryItem) => item.id === this.theaTaskStackManager.getCurrentTheaTask()?.taskId,
+				) // Renamed property
 				: undefined,
 			Messages: this.theaTaskStackManager.getCurrentTheaTask()?.taskStateManager.theaTaskMessages || [], // Renamed property & access via state manager
 			clineMessages: this.theaTaskStackManager.getCurrentTheaTask()?.taskStateManager.theaTaskMessages || [], // Add required property to satisfy ExtensionState type
