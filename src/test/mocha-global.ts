@@ -1,3 +1,9 @@
+import moduleAlias from "module-alias"
+import path from "path"
+
+// Register alias before importing anything else
+moduleAlias.addAlias("vscode", path.join(__dirname, "mocks", "vscode.ts"))
+
 import { EmbeddedMcpProvider } from "../services/mcp/providers/EmbeddedMcpProvider"
 
 declare const global: typeof globalThis & { __MCP_PROVIDER__?: EmbeddedMcpProvider }
@@ -20,7 +26,7 @@ export const mochaHooks = {
   },
   async afterAll() {
     if (global.__MCP_PROVIDER__) {
-      try { await global.__MCP_PROVIDER__.stop() } catch {}
+      try { await global.__MCP_PROVIDER__.stop() } catch { }
       global.__MCP_PROVIDER__ = undefined
     }
   },
@@ -29,7 +35,7 @@ export const mochaHooks = {
 // Extra safety: stop provider on process signals to avoid hanging handles
 const stopProvider = async () => {
   if (global.__MCP_PROVIDER__) {
-    try { await global.__MCP_PROVIDER__.stop() } catch {}
+    try { await global.__MCP_PROVIDER__.stop() } catch { }
     global.__MCP_PROVIDER__ = undefined
   }
 }
