@@ -1,14 +1,25 @@
-import { getReadablePath } from "../../utils/path"
+import * as pathUtils from "../../utils/path"
 import { TheaTask } from "../TheaTask" // Renamed from Cline
 import type { ToolUse } from "../assistant-message"
 import { AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "./types"
 import { formatResponse } from "../prompts/responses"
 import { TheaSayTool } from "../../shared/ExtensionMessage" // Renamed import
 import path from "path"
-import { fileExistsAtPath } from "../../utils/fs"
-import { insertGroups } from "../diff/insert-groups"
+import * as fsUtils from "../../utils/fs"
+import * as insertGroupsModule from "../diff/insert-groups"
 import delay from "delay"
 import fs from "fs/promises"
+
+interface InsertContentDependencies {
+	path: {
+		getReadablePath: typeof pathUtils.getReadablePath
+	}
+	fs: {
+		fileExistsAtPath: typeof fsUtils.fileExistsAtPath
+		readFile: typeof fs.readFile
+	}
+	insertGroups: typeof insertGroupsModule.insertGroups
+}
 
 export async function insertContentTool(
 	theaTask: TheaTask, // Renamed parameter and type
@@ -17,19 +28,27 @@ export async function insertContentTool(
 	handleError: HandleError,
 	pushToolResult: PushToolResult,
 	removeClosingTag: RemoveClosingTag,
+	dependencies: InsertContentDependencies = {
+		path: { getReadablePath: pathUtils.getReadablePath },
+		fs: {
+			fileExistsAtPath: fsUtils.fileExistsAtPath,
+			readFile: fs.readFile,
+		},
+		insertGroups: insertGroupsModule.insertGroups,
+	}
 ) {
 	const relPath: string | undefined = block.params.path
 	const operations: string | undefined = block.params.operations
 
 	const sharedMessageProps: TheaSayTool = {
 		tool: "appliedDiff",
-		path: getReadablePath(theaTask.cwd, removeClosingTag("path", relPath)),
+		path: dependencies.path.getReadablePath(theaTask.cwd, removeClosingTag("path", relPath)),
 	}
 
 	try {
 		if (block.partial) {
 			const partialMessage = JSON.stringify(sharedMessageProps)
-			await theaTask.webviewCommunicator.ask("tool", partialMessage, block.partial).catch(() => {}) // Use communicator
+			await theaTask.webviewCommunicator.ask("tool", partialMessage, block.partial).catch(() => { }) // Use communicator
 			return
 		}
 
@@ -47,7 +66,7 @@ export async function insertContentTool(
 		}
 
 		const absolutePath = path.resolve(theaTask.cwd, relPath)
-		const fileExists = await fileExistsAtPath(absolutePath)
+		const fileExists = await dependencies.fs.fileExistsAtPath(absolutePath)
 
 		if (!fileExists) {
 			theaTask.consecutiveMistakeCount++
@@ -79,12 +98,12 @@ export async function insertContentTool(
 		theaTask.consecutiveMistakeCount = 0
 
 		// Read the file
-		const fileContent = await fs.readFile(absolutePath, "utf8")
+		const fileContent = await dependencies.fs.readFile(absolutePath, "utf8")
 		theaTask.diffViewProvider.editType = "modify"
 		theaTask.diffViewProvider.originalContent = fileContent
 		const lines = fileContent.split("\n")
 
-		const updatedContent = insertGroups(
+		const updatedContent = dependencies.insertGroups(
 			lines,
 			parsedOperations.map((elem) => {
 				return {
@@ -96,7 +115,7 @@ export async function insertContentTool(
 
 		// Show changes in diff view
 		if (!theaTask.diffViewProvider.isEditing) {
-			await theaTask.webviewCommunicator.ask("tool", JSON.stringify(sharedMessageProps), true).catch(() => {}) // Use communicator
+			await theaTask.webviewCommunicator.ask("tool", JSON.stringify(sharedMessageProps), true).catch(() => { }) // Use communicator
 			// First open with original content
 			await theaTask.diffViewProvider.open(relPath)
 			await theaTask.diffViewProvider.update(fileContent, false)
@@ -139,7 +158,7 @@ export async function insertContentTool(
 
 		const userFeedbackDiff = JSON.stringify({
 			tool: "appliedDiff",
-			path: getReadablePath(theaTask.cwd, relPath),
+			path: dependencies.path.getReadablePath(theaTask.cwd, relPath),
 			diff: userEdits,
 		} satisfies TheaSayTool)
 
@@ -147,13 +166,13 @@ export async function insertContentTool(
 		await theaTask.webviewCommunicator.say("user_feedback_diff", userFeedbackDiff) // Use communicator
 		pushToolResult(
 			`The user made the following updates to your content:\n\n${userEdits}\n\n` +
-				`The updated content, which includes both your original modifications and the user's edits, has been successfully saved to ${relPath.toPosix()}. Here is the full, updated content of the file:\n\n` +
-				`<final_file_content path="${relPath.toPosix()}">\n${finalContent}\n</final_file_content>\n\n` +
-				`Please note:\n` +
-				`1. You do not need to re-write the file with these changes, as they have already been applied.\n` +
-				`2. Proceed with the task using the updated file content as the new baseline.\n` +
-				`3. If the user's edits have addressed part of the task or changed the requirements, adjust your approach accordingly.` +
-				`${newProblemsMessage}`,
+			`The updated content, which includes both your original modifications and the user's edits, has been successfully saved to ${relPath.toPosix()}. Here is the full, updated content of the file:\n\n` +
+			`<final_file_content path="${relPath.toPosix()}">\n${finalContent}\n</final_file_content>\n\n` +
+			`Please note:\n` +
+			`1. You do not need to re-write the file with these changes, as they have already been applied.\n` +
+			`2. Proceed with the task using the updated file content as the new baseline.\n` +
+			`3. If the user's edits have addressed part of the task or changed the requirements, adjust your approach accordingly.` +
+			`${newProblemsMessage}`,
 		)
 		theaTask.diffViewProvider.reset()
 	} catch (error) {

@@ -11,17 +11,19 @@
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
     "outDir": "./out/suite",
-    "rootDir": "./src",
+    "rootDir": "../..",
     "types": ["node", "mocha"]
   },
   "include": [
     "src/launch.ts",
     "src/runTest.ts",
     "src/suite/index.ts",
+    "src/suite/setup.ts",
     "src/suite/setup.test.ts",
-    "src/suite/**/*.ts",
+    "src/suite/model-integration.e2e.test.ts",
     "src/exports/**/*.d.ts",
-    "src/thea-constants.ts"
+    "src/thea-constants.ts",
+    "../../test/generic-provider-mock/server.ts"
   ],
   "exclude": [
     "node_modules",

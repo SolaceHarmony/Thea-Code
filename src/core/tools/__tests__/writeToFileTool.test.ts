@@ -29,7 +29,7 @@ describe("writeToFileTool", () => {
             },
             webviewCommunicator: {
                 say: sinon.stub(),
-                ask: sinon.stub(),
+                ask: sinon.stub().resolves(),
             },
             diffViewProvider: {
                 editType: undefined,
