@@ -59,40 +59,46 @@ export async function writeToFileTool(
 		return
 	}
 
-	const accessAllowed = theaTask.theaIgnoreController?.validateAccess(relPath)
-	if (!accessAllowed) {
-		await theaTask.webviewCommunicator.say("theaignore_error", relPath) // Use communicator
-		pushToolResult(formatResponse.toolError(formatResponse.theaIgnoreError(relPath)))
+	if (relPath) {
+		const accessAllowed = theaTask.theaIgnoreController?.validateAccess(relPath)
+		if (!accessAllowed) {
+			await theaTask.webviewCommunicator.say("theaignore_error", relPath) // Use communicator
+			pushToolResult(formatResponse.toolError(formatResponse.theaIgnoreError(relPath)))
 
-		return
+			return
+		}
 	}
 
 	// Check if file exists using cached map or fs.access
-	let fileExists: boolean
-	if (theaTask.diffViewProvider.editType !== undefined) {
-		fileExists = theaTask.diffViewProvider.editType === "modify"
-	} else {
-		const absolutePath = path.resolve(theaTask.cwd, relPath)
-		fileExists = await dependencies.fs.fileExistsAtPath(absolutePath)
-		theaTask.diffViewProvider.editType = fileExists ? "modify" : "create"
+	let fileExists = false
+	if (relPath) {
+		if (theaTask.diffViewProvider.editType !== undefined) {
+			fileExists = theaTask.diffViewProvider.editType === "modify"
+		} else {
+			const absolutePath = path.resolve(theaTask.cwd, relPath)
+			fileExists = await dependencies.fs.fileExistsAtPath(absolutePath)
+			theaTask.diffViewProvider.editType = fileExists ? "modify" : "create"
+		}
 	}
 
 	// pre-processing newContent for cases where weaker models might add artifacts like markdown codeblock markers (deepseek/llama) or extra escape characters (gemini)
-	if (newContent.startsWith("```")) {
-		// cline handles cases where it includes language specifiers like ```python ```js
-		newContent = newContent.split("\n").slice(1).join("\n").trim()
-	}
-	if (newContent.endsWith("```")) {
-		newContent = newContent.split("\n").slice(0, -1).join("\n").trim()
-	}
+	if (newContent) {
+		if (newContent.startsWith("```")) {
+			// cline handles cases where it includes language specifiers like ```python ```js
+			newContent = newContent.split("\n").slice(1).join("\n").trim()
+		}
+		if (newContent.endsWith("```")) {
+			newContent = newContent.split("\n").slice(0, -1).join("\n").trim()
+		}
 
-	if (!theaTask.api.getModel().id.includes("claude")) {
-		// it seems not just llama models are doing cline, but also gemini and potentially others
-		if (newContent.includes("&gt;") || newContent.includes("&lt;") || newContent.includes("&quot;")) {
-			newContent = newContent
-				.replace(/&gt;/g, ">")
-				.replace(/&lt;/g, "<")
-				.replace(/&quot;/g, '"')
+		if (!theaTask.api.getModel().id.includes("claude")) {
+			// it seems not just llama models are doing cline, but also gemini and potentially others
+			if (newContent.includes("&gt;") || newContent.includes("&lt;") || newContent.includes("&quot;")) {
+				newContent = newContent
+					.replace(/&gt;/g, ">")
+					.replace(/&lt;/g, "<")
+					.replace(/&quot;/g, '"')
+			}
 		}
 	}
 
@@ -103,7 +109,7 @@ export async function writeToFileTool(
 	const sharedMessageProps: TheaSayTool = {
 		// Renamed type
 		tool: fileExists ? "editedExistingFile" : "newFileCreated",
-		path: dependencies.path.getReadablePath(theaTask.cwd, removeClosingTag("path", relPath)),
+		path: relPath ? dependencies.path.getReadablePath(theaTask.cwd, removeClosingTag("path", relPath)) : "",
 		isOutsideWorkspace,
 	}
 	try {
@@ -118,7 +124,7 @@ export async function writeToFileTool(
 			}
 			// editor is open, stream content in
 			await theaTask.diffViewProvider.update(
-				dependencies.extractText.everyLineHasLineNumbers(newContent) ? dependencies.extractText.stripLineNumbers(newContent) : newContent,
+				dependencies.extractText.everyLineHasLineNumbers(newContent as string) ? dependencies.extractText.stripLineNumbers(newContent as string) : (newContent as string),
 				false,
 			)
 			return
@@ -150,10 +156,10 @@ export async function writeToFileTool(
 				// show gui message before showing edit animation
 				const partialMessage = JSON.stringify(sharedMessageProps)
 				await theaTask.webviewCommunicator.ask("tool", partialMessage, true).catch(() => { }) // Use communicator
-				await theaTask.diffViewProvider.open(relPath)
+				await theaTask.diffViewProvider.open(relPath as string)
 			}
 			await theaTask.diffViewProvider.update(
-				dependencies.extractText.everyLineHasLineNumbers(newContent) ? dependencies.extractText.stripLineNumbers(newContent) : newContent,
+				dependencies.extractText.everyLineHasLineNumbers(newContent as string) ? dependencies.extractText.stripLineNumbers(newContent as string) : (newContent as string),
 				true,
 			)
 			await delay(300) // wait for diff view to update

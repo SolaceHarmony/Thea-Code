@@ -7,8 +7,8 @@
 		"compile": "rm -rf out && tsc -p .",
 		"lint": "eslint src --ext ts",
 		"check-types": "tsc --noEmit",
-		"test": "cd ../.. && npm run build:extension && cd src/e2e && npm run compile && node out/suite/launch.js",
-		"test:full": "cd ../.. && npm run build && cd src/e2e && npm run compile && node out/suite/launch.js",
+		"test": "cd ../.. && npm run build:extension && cd src/e2e && npm run compile && node out/suite/src/e2e/src/launch.js",
+		"test:full": "cd ../.. && npm run build && cd src/e2e && npm run compile && node out/suite/src/e2e/src/launch.js",
 		"ci": "npm run build && npm run test",
 		"clean": "rimraf out .vscode-test ../../.vscode-test"
 	},

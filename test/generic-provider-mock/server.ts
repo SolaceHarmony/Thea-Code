@@ -193,7 +193,7 @@ class GenericProviderMock {
 
 	private setupMiddleware() {
 		this.app.use(express.json({ limit: '10mb' }))
-		
+
 		// Log all requests for debugging
 		this.app.use((req, res, next) => {
 			this.requestLog.push({
@@ -203,14 +203,14 @@ class GenericProviderMock {
 				body: req.body,
 				headers: req.headers,
 			})
-			
+
 			// Add custom headers if configured
 			if (this.config.customHeaders) {
 				Object.entries(this.config.customHeaders).forEach(([key, value]) => {
 					res.setHeader(key, value)
 				})
 			}
-			
+
 			next()
 		})
 	}
@@ -220,24 +220,24 @@ class GenericProviderMock {
 		this.app.get("/v1/models", this.handleListModels.bind(this))
 		this.app.post("/v1/chat/completions", this.handleChatCompletion.bind(this))
 		this.app.post("/v1/completions", this.handleCompletion.bind(this))
-		
+
 		// Anthropic-compatible endpoints
 		this.app.post("/v1/messages", this.handleAnthropicMessages.bind(this))
 		this.app.post("/v1/messages/count_tokens", this.handleTokenCount.bind(this))
-		
+
 		// AWS Bedrock endpoints
 		this.app.post("/", this.handleBedrockRequest.bind(this))
-		
+
 		// Google Vertex AI endpoints
 		this.app.get("/v1/projects/:project/locations/:location/publishers/:publisher/models", this.handleVertexPublisherModels.bind(this))
 		this.app.get("/v1/projects/:project/locations/:location/models", this.handleVertexFoundationModels.bind(this))
 		this.app.post("/v1/projects/:project/locations/:location/publishers/:publisher/models/:model/streamGenerateContent", this.handleVertexGenerate.bind(this))
-		
+
 		// Ollama-specific endpoints
 		this.app.post("/api/generate", this.handleOllamaGenerate.bind(this))
 		this.app.post("/api/chat", this.handleOllamaChat.bind(this))
 		this.app.get("/api/tags", this.handleOllamaTags.bind(this))
-		
+
 		// Test/debug endpoints
 		this.app.get("/debug/requests", (req, res) => res.json(this.requestLog))
 		this.app.post("/debug/override", this.handleOverride.bind(this))
@@ -246,7 +246,7 @@ class GenericProviderMock {
 
 	private handleListModels(req: Request, res: Response) {
 		console.log(`Mock ${this.config.name}: GET /v1/models`)
-		
+
 		const models = this.config.models.map(m => ({
 			id: m.id,
 			object: m.object || "model",
@@ -254,7 +254,7 @@ class GenericProviderMock {
 			owned_by: this.config.name.toLowerCase().replace(/\s/g, "-"),
 			capabilities: m.capabilities,
 		}))
-		
+
 		res.json({
 			data: models,
 			object: "list",
@@ -264,22 +264,22 @@ class GenericProviderMock {
 	private async handleChatCompletion(req: Request, res: Response) {
 		console.log(`Mock ${this.config.name}: POST /v1/chat/completions`)
 		const { messages, stream, model, tools, tool_choice } = req.body
-		
+
 		// Check for override
 		const overrideKey = `chat_${model || this.config.defaultModel}`
 		if (this.responseOverrides.has(overrideKey)) {
 			return res.json(this.responseOverrides.get(overrideKey))
 		}
-		
+
 		// Handle tool calls if requested
 		if (tools && this.config.supportsTools) {
 			return this.handleToolResponse(req, res, "openai")
 		}
-		
+
 		if (stream && this.config.supportsStreaming) {
 			return void this.handleStreamingResponse(res, "openai")
 		}
-		
+
 		// Non-streaming response
 		res.json({
 			id: `chatcmpl-${Date.now()}`,
@@ -305,19 +305,19 @@ class GenericProviderMock {
 	private handleAnthropicMessages(req: Request, res: Response) {
 		console.log(`Mock ${this.config.name}: POST /v1/messages`)
 		const { messages, stream, model } = req.body
-		
+
 		if (stream && this.config.supportsStreaming) {
 			return void this.handleStreamingResponse(res, "anthropic")
 		}
-		
+
 		// Check if we should include thinking
-		const useThinking = this.config.supportsThinking && 
+		const useThinking = this.config.supportsThinking &&
 			model?.includes("thinking") || model?.includes("o1")
-		
+
 		const content = useThinking && this.config.responsePatterns?.withThinking
 			? this.config.responsePatterns.withThinking
 			: this.config.responsePatterns?.simple || "Mock response"
-		
+
 		res.json({
 			id: `msg_${Date.now()}`,
 			type: "message",
@@ -332,10 +332,10 @@ class GenericProviderMock {
 		res.setHeader("Content-Type", "text/event-stream")
 		res.setHeader("Cache-Control", "no-cache")
 		res.setHeader("Connection", "keep-alive")
-		
+
 		const response = this.config.responsePatterns?.simple || "Mock streamed response."
 		const chunks = response.split(" ")
-		
+
 		if (format === "openai") {
 			// Send OpenAI-style streaming chunks
 			chunks.forEach((chunk, i) => {
@@ -363,13 +363,13 @@ class GenericProviderMock {
 					usage: { input_tokens: 10, output_tokens: 0 },
 				},
 			})}\n\n`)
-			
+
 			res.write(`data: ${JSON.stringify({
 				type: "content_block_start",
 				index: 0,
 				content_block: { type: "text", text: "" },
 			})}\n\n`)
-			
+
 			chunks.forEach((chunk, i) => {
 				res.write(`data: ${JSON.stringify({
 					type: "content_block_delta",
@@ -377,20 +377,20 @@ class GenericProviderMock {
 					delta: { type: "text_delta", text: chunk + (i < chunks.length - 1 ? " " : "") },
 				})}\n\n`)
 			})
-			
+
 			res.write(`data: ${JSON.stringify({
 				type: "content_block_stop",
 				index: 0,
 			})}\n\n`)
 		}
-		
+
 		res.write("data: [DONE]\n\n")
 		res.end()
 	}
 
 	private handleToolResponse(req: Request, res: Response, format: "openai" | "anthropic") {
 		const { stream, model, tools } = req.body
-		
+
 		if (!this.config.supportsTools) {
 			return res.status(400).json({
 				error: {
@@ -399,16 +399,16 @@ class GenericProviderMock {
 				},
 			})
 		}
-		
+
 		// Get the appropriate tool response pattern
-		const toolResponse = this.config.responsePatterns?.withTools || 
+		const toolResponse = this.config.responsePatterns?.withTools ||
 			'{"type":"tool_use","id":"call_123","name":"test_tool","arguments":"{}"}';
-		
+
 		if (stream) {
 			res.setHeader("Content-Type", "text/event-stream")
 			res.setHeader("Cache-Control", "no-cache")
 			res.setHeader("Connection", "keep-alive")
-			
+
 			if (format === "openai") {
 				// Stream tool call in OpenAI format
 				res.write(`data: ${JSON.stringify({
@@ -433,7 +433,7 @@ class GenericProviderMock {
 					}],
 				})}\n\n`)
 			}
-			
+
 			res.write("data: [DONE]\n\n")
 			res.end()
 		} else {
@@ -487,13 +487,13 @@ class GenericProviderMock {
 	private handleCompletion(req: Request, res: Response) {
 		console.log(`Mock ${this.config.name}: POST /v1/completions`)
 		const { prompt, model, stream } = req.body
-		
+
 		if (stream) {
 			// Handle streaming completions
 			res.setHeader("Content-Type", "text/event-stream")
 			res.setHeader("Cache-Control", "no-cache")
 			res.setHeader("Connection", "keep-alive")
-			
+
 			const response = this.config.responsePatterns?.simple || "Mock completion"
 			res.write(`data: ${JSON.stringify({
 				id: `cmpl-${Date.now()}`,
@@ -506,7 +506,7 @@ class GenericProviderMock {
 					finish_reason: "stop",
 				}],
 			})}\n\n`)
-			
+
 			res.write("data: [DONE]\n\n")
 			res.end()
 		} else {
@@ -532,14 +532,14 @@ class GenericProviderMock {
 	private handleOllamaGenerate(req: Request, res: Response) {
 		console.log(`Mock ${this.config.name}: POST /api/generate`)
 		const { prompt, model, stream } = req.body
-		
+
 		if (stream !== false) {
 			// Ollama defaults to streaming
 			res.setHeader("Content-Type", "application/x-ndjson")
-			
+
 			const response = this.config.responsePatterns?.simple || "Mock Ollama response"
 			const chunks = response.split(" ")
-			
+
 			chunks.forEach((chunk, i) => {
 				res.write(JSON.stringify({
 					model: model || this.config.defaultModel,
@@ -548,7 +548,7 @@ class GenericProviderMock {
 					done: i === chunks.length - 1,
 				}) + "\n")
 			})
-			
+
 			res.end()
 		} else {
 			res.json({
@@ -563,10 +563,10 @@ class GenericProviderMock {
 	private handleOllamaChat(req: Request, res: Response) {
 		console.log(`Mock ${this.config.name}: POST /api/chat`)
 		const { messages, model, stream } = req.body
-		
+
 		if (stream !== false) {
 			res.setHeader("Content-Type", "application/x-ndjson")
-			
+
 			const response = this.config.responsePatterns?.simple || "Mock Ollama chat response"
 			res.write(JSON.stringify({
 				model: model || this.config.defaultModel,
@@ -577,7 +577,7 @@ class GenericProviderMock {
 				},
 				done: true,
 			}) + "\n")
-			
+
 			res.end()
 		} else {
 			res.json({
@@ -595,11 +595,11 @@ class GenericProviderMock {
 	private handleTokenCount(req: Request, res: Response) {
 		console.log(`Mock ${this.config.name}: POST /v1/messages/count_tokens`)
 		const { messages } = req.body
-		
+
 		// Simple token estimation
 		const text = JSON.stringify(messages || "")
 		const tokens = Math.max(1, Math.ceil(text.length / 4))
-		
+
 		res.json({ input_tokens: tokens })
 	}
 
@@ -619,7 +619,7 @@ class GenericProviderMock {
 	private handleBedrockRequest(req: Request, res: Response) {
 		const target = req.headers['x-amz-target'] as string
 		console.log(`Mock Bedrock: ${target}`)
-		
+
 		if (target === 'AmazonBedrockControlPlaneService.ListFoundationModels') {
 			const models = this.config.models
 				.filter(m => m.id.includes('claude') || m.id.includes('titan'))
@@ -634,7 +634,7 @@ class GenericProviderMock {
 					inferenceTypesSupported: ['ON_DEMAND'],
 					modelLifecycle: { status: 'ACTIVE' }
 				}))
-			
+
 			res.json({ modelSummaries: models })
 		} else {
 			res.status(400).json({ error: 'Unknown Bedrock operation' })
@@ -645,7 +645,7 @@ class GenericProviderMock {
 	private handleVertexPublisherModels(req: Request, res: Response) {
 		const { project, location, publisher } = req.params
 		console.log(`Mock Vertex: GET publisher models for ${publisher}`)
-		
+
 		const publisherModels = this.config.models
 			.filter(m => m.id.includes(publisher) || publisher === 'anthropic')
 			.map(m => ({
@@ -657,14 +657,14 @@ class GenericProviderMock {
 				outputTokenLimit: 8192,
 				supportedGenerationMethods: ['generateContent', 'streamGenerateContent']
 			}))
-		
+
 		res.json({ models: publisherModels })
 	}
 
 	private handleVertexFoundationModels(req: Request, res: Response) {
 		const { project, location } = req.params
 		console.log(`Mock Vertex: GET foundation models`)
-		
+
 		const foundationModels = this.config.models
 			.filter(m => m.id.includes('gemini'))
 			.map(m => ({
@@ -676,14 +676,14 @@ class GenericProviderMock {
 				outputTokenLimit: 8192,
 				supportedGenerationMethods: ['generateContent', 'streamGenerateContent']
 			}))
-		
+
 		res.json({ models: foundationModels })
 	}
 
 	private handleVertexGenerate(req: Request, res: Response) {
 		const { project, location, publisher, model } = req.params
 		console.log(`Mock Vertex: Generate content for ${model}`)
-		
+
 		res.json({
 			candidates: [{
 				content: {
@@ -706,7 +706,7 @@ class GenericProviderMock {
 	// Enhanced Ollama handlers
 	private handleOllamaTags(req: Request, res: Response) {
 		console.log(`Mock Ollama: GET /api/tags`)
-		
+
 		const models = this.config.models.map(m => ({
 			name: m.id,
 			model: m.id,
@@ -722,7 +722,7 @@ class GenericProviderMock {
 				quantization_level: 'Q4_0'
 			}
 		}))
-		
+
 		res.json({ models })
 	}
 
@@ -747,7 +747,7 @@ class GenericProviderMock {
 		)
 
 		return new Promise((resolve, reject) => {
-			this.server = this.app.listen(this.port, HOST, () => {
+			this.server = this.app.listen(this.port!, HOST, () => {
 				console.log(`Mock ${this.config.name} Server listening on http://${HOST}:${this.port}`)
 				resolve(this.port!)
 			}).on("error", reject)
