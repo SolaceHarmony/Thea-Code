@@ -36,6 +36,7 @@ export const COMMANDS = {
   TERMINAL_FIX_CURRENT: `${EXTENSION_NAME}.terminalFixCommandInCurrentTask`,
   TERMINAL_EXPLAIN_CURRENT: `${EXTENSION_NAME}.terminalExplainCommandInCurrentTask`,
   NEW_TASK: `${EXTENSION_NAME}.newTask`,
+  SET_CUSTOM_STORAGE_PATH: `${EXTENSION_NAME}.setCustomStoragePath`,
 } as const
 
 export const VIEWS = {

@@ -77,8 +77,7 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 			void vscode.env.openExternal(vscode.Uri.parse(HOMEPAGE_URL))
 		},
 		[COMMANDS.NEW_TASK]: handleNewTask,
-		// Assuming this command ID uses EXTENSION_NAME prefix convention implicitly
-		[`${EXTENSION_NAME}.setCustomStoragePath`]: async () => {
+		[COMMANDS.SET_CUSTOM_STORAGE_PATH]: async () => {
 			const { promptForCustomStoragePath } = await import("../shared/storagePathManager")
 			await promptForCustomStoragePath()
 		},
