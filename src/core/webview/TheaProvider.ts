@@ -143,22 +143,20 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		this.theaMcpManager = new TheaMcpManager(this.context) // Renamed property and constructor
 
 		// Initialize MCP Hub through the singleton manager (skipped in tests/e2e)
-		if (!isTest) {
-			this.outputChannel.appendLine("Initializing MCP Hub (non-test mode)")
-			McpServerManager.getInstance(this.context, this)
-				.then((hub) => {
-					this.mcpHub = hub // Keep local reference
-					this.theaMcpManager.setMcpHub(hub) // Renamed property
-					this.outputChannel.appendLine("MCP Hub initialized")
-				})
-				.catch((error) => {
-					const msg = `Failed to initialize MCP Hub: ${error instanceof Error ? error.message : String(error)}`
-					this.outputChannel.appendLine(msg)
-					console.error(`[TheaProvider] ${msg}`, error)
-				})
-		} else {
-			this.outputChannel.appendLine("Skipping MCP Hub initialization in test/e2e mode")
-		}
+		// Initialize MCP Hub through the singleton manager
+		// User requested to run MCP in E2E tests as well
+		this.outputChannel.appendLine("Initializing MCP Hub")
+		McpServerManager.getInstance(this.context, this)
+			.then((hub) => {
+				this.mcpHub = hub // Keep local reference
+				this.theaMcpManager.setMcpHub(hub) // Renamed property
+				this.outputChannel.appendLine("MCP Hub initialized")
+			})
+			.catch((error) => {
+				const msg = `Failed to initialize MCP Hub: ${error instanceof Error ? error.message : String(error)}`
+				this.outputChannel.appendLine(msg)
+				console.error(`[TheaProvider] ${msg}`, error)
+			})
 	}
 
 	// Stack related methods (addToStack, removeFromStack, getCurrent, getStackSize, getCurrentTaskStack, finishSubTask)
@@ -743,6 +741,18 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
             <link rel="stylesheet" type="text/css" href="${mainStylesUri.toString()}">
 			<!-- <link href="codiconsUri" rel="stylesheet" /> -->
 			<script nonce="${nonce}">
+                window.onerror = function(message, source, lineno, colno, error) {
+                    try {
+                        const vscode = acquireVsCodeApi();
+                        vscode.postMessage({
+                            type: "error",
+                            value: \`Webview Error (HTML): \${message} at \${source}:\${lineno}:\${colno}\\nStack: \${error?.stack}\`
+                        });
+                    } catch (e) {
+                        console.error("Failed to report error:", e);
+                        console.error(message, error);
+                    }
+                };
 				window.IMAGES_BASE_URI = "${imagesUri.toString()}"
 			</script>
             <title>${EXTENSION_DISPLAY_NAME}</title> 

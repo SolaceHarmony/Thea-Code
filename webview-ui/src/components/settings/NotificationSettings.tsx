@@ -1,6 +1,6 @@
 import { HTMLAttributes } from "react"
 import { useAppTranslation } from "@/i18n/TranslationContext"
-import { Checkbox } from "vscrui"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Bell } from "lucide-react"
 
 import { SetCachedStateField } from "./types"
@@ -38,7 +38,7 @@ export const NotificationSettings = ({
 				<div>
 					<Checkbox
 						checked={ttsEnabled}
-						onChange={(checked: boolean) => setCachedStateField("ttsEnabled", checked)}
+						onCheckedChange={(checked) => setCachedStateField("ttsEnabled", checked === true)}
 						data-testid="tts-enabled-checkbox">
 						<span className="font-medium">{t("settings:notifications.tts.label")}</span>
 					</Checkbox>
@@ -71,7 +71,7 @@ export const NotificationSettings = ({
 				<div>
 					<Checkbox
 						checked={soundEnabled}
-						onChange={(checked: boolean) => setCachedStateField("soundEnabled", checked)}
+						onCheckedChange={(checked) => setCachedStateField("soundEnabled", checked === true)}
 						data-testid="sound-enabled-checkbox">
 						<span className="font-medium">{t("settings:notifications.sound.label")}</span>
 					</Checkbox>

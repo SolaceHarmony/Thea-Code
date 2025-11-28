@@ -10,36 +10,44 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
+			"react": path.resolve(__dirname, "./vendor/react"),
+			"scheduler": path.resolve(__dirname, "./vendor/scheduler"),
 		},
 	},
 	build: {
 		outDir: "build",
 		reportCompressedSize: false,
+		commonjsOptions: {
+			include: [/scheduler/, /node_modules/, /vendor/],
+		},
 		rollupOptions: {
 			output: {
 				entryFileNames: `assets/[name].js`,
 				chunkFileNames: `assets/[name].js`,
 				assetFileNames: `assets/[name].[ext]`,
-				manualChunks: (id) => {
-					if (id.includes("node_modules")) {
-						// Explicitly separate large libraries
-						if (id.includes("mermaid")) return "vendor-mermaid"
-						if (id.includes("cytoscape")) return "vendor-cytoscape"
-						if (id.includes("katex")) return "vendor-katex"
-						if (id.includes("highlight.js")) return "vendor-highlightjs"
-						if (id.includes("react-dom")) return "vendor-react-dom"
-						if (id.includes("zod")) return "vendor-zod"
-						if (id.includes("@microsoft/fast-foundation")) return "vendor-fast-foundation"
-						// Group all other node_modules into a single vendor chunk
-						return "vendor"
-					}
-					// Create a separate chunk for the main application code
-					if (id.includes("src")) {
-						return "main"
-					}
-				},
+				// manualChunks: (id) => {
+				// 	if (id.includes("node_modules")) {
+				// 		// Explicitly separate large libraries
+				// 		if (id.includes("mermaid")) return "vendor-mermaid"
+				// 		if (id.includes("cytoscape")) return "vendor-cytoscape"
+				// 		if (id.includes("katex")) return "vendor-katex"
+				// 		if (id.includes("highlight.js")) return "vendor-highlightjs"
+				// 		if (id.includes("react-dom")) return "vendor-react-dom"
+				// 		if (id.includes("zod")) return "vendor-zod"
+				// 		if (id.includes("@microsoft/fast-foundation")) return "vendor-fast-foundation"
+				// 		// Group all other node_modules into a single vendor chunk
+				// 		return "vendor"
+				// 	}
+				// 	// Create a separate chunk for the main application code
+				// 	if (id.includes("src")) {
+				// 		return "main"
+				// 	}
+				// },
 			},
 		},
+	},
+	optimizeDeps: {
+		exclude: ['react', 'react-dom', 'scheduler'],
 	},
 	server: {
 		hmr: {
@@ -55,5 +63,6 @@ export default defineConfig({
 	define: {
 		"process.platform": JSON.stringify(process.platform),
 		"process.env.VSCODE_TEXTMATE_DEBUG": JSON.stringify(process.env.VSCODE_TEXTMATE_DEBUG),
+		"global": "window",
 	},
 })

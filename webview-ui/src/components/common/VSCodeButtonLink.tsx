@@ -1,5 +1,5 @@
 import React from "react"
-import { Button } from "vscrui"
+import { Button } from "@/components/ui/button"
 
 interface VSCodeButtonLinkProps {
 	href: string
@@ -16,8 +16,8 @@ export const VSCodeButtonLink = ({ href, children, onClick, ...props }: VSCodeBu
 		if (onClick) {
 			// Create a synthetic event to pass to the onClick handler
 			const syntheticEvent = {
-				preventDefault: () => {},
-				stopPropagation: () => {},
+				preventDefault: () => { },
+				stopPropagation: () => { },
 			} as React.MouseEvent<HTMLButtonElement>
 			onClick(syntheticEvent)
 		}

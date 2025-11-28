@@ -4,7 +4,7 @@ import { Trans } from "react-i18next"
 import { getRequestyAuthUrl, getOpenRouterAuthUrl, getGlamaAuthUrl } from "@/oauth/urls.ts"
 import { useDebounce, useEvent } from "react-use"
 import { LanguageModelChatSelector } from "vscode"
-import { Checkbox } from "vscrui"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui"
 import { VSCodeTextField, VSCodeLink } from "../ui/vscode-components"
 // Simple replacements for VSCodeRadio and VSCodeRadioGroup
@@ -452,10 +452,11 @@ const ApiOptions = ({
 							<div>
 								<Checkbox
 									checked={openRouterBaseUrlSelected}
-									onChange={(checked: boolean) => {
-										setOpenRouterBaseUrlSelected(checked)
+									onCheckedChange={(checked) => {
+										const isChecked = checked === true
+										setOpenRouterBaseUrlSelected(isChecked)
 
-										if (!checked) {
+										if (!isChecked) {
 											setApiConfigurationField("openRouterBaseUrl", "")
 										}
 									}}>
@@ -473,7 +474,7 @@ const ApiOptions = ({
 							</div>
 							<Checkbox
 								checked={apiConfiguration?.openRouterUseMiddleOutTransform ?? true}
-								onChange={handleInputChange("openRouterUseMiddleOutTransform", noTransform)}>
+								onCheckedChange={(checked) => handleInputChange("openRouterUseMiddleOutTransform", () => checked === true)(checked)}>
 								<Trans
 									i18nKey="settings:providers.openRouterTransformsText"
 									components={{
@@ -513,10 +514,11 @@ const ApiOptions = ({
 					<div>
 						<Checkbox
 							checked={anthropicBaseUrlSelected}
-							onChange={(checked: boolean) => {
-								setAnthropicBaseUrlSelected(checked)
+							onCheckedChange={(checked) => {
+								const isChecked = checked === true
+								setAnthropicBaseUrlSelected(isChecked)
 
-								if (!checked) {
+								if (!isChecked) {
 									setApiConfigurationField("anthropicBaseUrl", "")
 								}
 							}}>
@@ -713,7 +715,7 @@ const ApiOptions = ({
 					</div>
 					<Checkbox
 						checked={apiConfiguration?.awsUseCrossRegionInference || false}
-						onChange={handleInputChange("awsUseCrossRegionInference", noTransform)}>
+						onCheckedChange={(checked) => setApiConfigurationField("awsUseCrossRegionInference", checked === true)}>
 						{t("settings:providers.awsCrossRegion")}
 					</Checkbox>
 				</>
@@ -809,10 +811,11 @@ const ApiOptions = ({
 					<div>
 						<Checkbox
 							checked={googleGeminiBaseUrlSelected}
-							onChange={(checked: boolean) => {
-								setGoogleGeminiBaseUrlSelected(checked)
+							onCheckedChange={(checked) => {
+								const isChecked = checked === true
+								setGoogleGeminiBaseUrlSelected(isChecked)
 
-								if (!checked) {
+								if (!isChecked) {
 									setApiConfigurationField("googleGeminiBaseUrl", "")
 								}
 							}}>
@@ -861,26 +864,27 @@ const ApiOptions = ({
 						serviceUrl="https://platform.openai.com"
 					/>
 					<R1FormatSetting
-						onChange={handleInputChange("openAiR1FormatEnabled", noTransform)}
+						onChange={(value) => setApiConfigurationField("openAiR1FormatEnabled", value)}
 						openAiR1FormatEnabled={apiConfiguration?.openAiR1FormatEnabled ?? false}
 					/>
 					<Checkbox
 						checked={apiConfiguration?.openAiStreamingEnabled ?? true}
-						onChange={handleInputChange("openAiStreamingEnabled", noTransform)}>
+						onCheckedChange={(checked) => setApiConfigurationField("openAiStreamingEnabled", checked === true)}>
 						{t("settings:modelInfo.enableStreaming")}
 					</Checkbox>
 					<Checkbox
 						checked={apiConfiguration?.openAiUseAzure ?? false}
-						onChange={handleInputChange("openAiUseAzure", noTransform)}>
+						onCheckedChange={(checked) => setApiConfigurationField("openAiUseAzure", checked === true)}>
 						{t("settings:modelInfo.useAzure")}
 					</Checkbox>
 					<div>
 						<Checkbox
 							checked={azureApiVersionSelected}
-							onChange={(checked: boolean) => {
-								setAzureApiVersionSelected(checked)
+							onCheckedChange={(checked) => {
+								const isChecked = checked === true
+								setAzureApiVersionSelected(isChecked)
 
-								if (!checked) {
+								if (!isChecked) {
 									setApiConfigurationField("azureApiVersion", "")
 								}
 							}}>
@@ -993,12 +997,13 @@ const ApiOptions = ({
 										apiConfiguration?.openAiCustomModelInfo?.supportsImages ??
 										openAiModelInfoSaneDefaults.supportsImages
 									}
-									onChange={handleInputChange("openAiCustomModelInfo", (checked) => {
-										return {
+									onCheckedChange={(checked) => {
+										const isChecked = checked === true
+										setApiConfigurationField("openAiCustomModelInfo", {
 											...(apiConfiguration?.openAiCustomModelInfo || openAiModelInfoSaneDefaults),
-											supportsImages: checked,
-										}
-									})}>
+											supportsImages: isChecked,
+										})
+									}}>
 									<span className="font-medium">
 										{t("settings:providers.customModel.imageSupport.label")}
 									</span>
@@ -1018,12 +1023,13 @@ const ApiOptions = ({
 							<div className="flex items-center gap-1">
 								<Checkbox
 									checked={apiConfiguration?.openAiCustomModelInfo?.supportsComputerUse ?? false}
-									onChange={handleInputChange("openAiCustomModelInfo", (checked) => {
-										return {
+									onCheckedChange={(checked) => {
+										const isChecked = checked === true
+										setApiConfigurationField("openAiCustomModelInfo", {
 											...(apiConfiguration?.openAiCustomModelInfo || openAiModelInfoSaneDefaults),
-											supportsComputerUse: checked,
-										}
-									})}>
+											supportsComputerUse: isChecked,
+										})
+									}}>
 									<span className="font-medium">
 										{t("settings:providers.customModel.computerUse.label")}
 									</span>
@@ -1043,12 +1049,13 @@ const ApiOptions = ({
 							<div className="flex items-center gap-1">
 								<Checkbox
 									checked={apiConfiguration?.openAiCustomModelInfo?.supportsPromptCache ?? false}
-									onChange={handleInputChange("openAiCustomModelInfo", (checked) => {
-										return {
+									onCheckedChange={(checked) => {
+										const isChecked = checked === true
+										setApiConfigurationField("openAiCustomModelInfo", {
 											...(apiConfiguration?.openAiCustomModelInfo || openAiModelInfoSaneDefaults),
-											supportsPromptCache: checked,
-										}
-									})}>
+											supportsPromptCache: isChecked,
+										})
+									}}>
 									<span className="font-medium">
 										{t("settings:providers.customModel.promptCache.label")}
 									</span>
@@ -1288,8 +1295,8 @@ const ApiOptions = ({
 					)}
 					<Checkbox
 						checked={apiConfiguration?.lmStudioSpeculativeDecodingEnabled === true}
-						onChange={(checked) => {
-							setApiConfigurationField("lmStudioSpeculativeDecodingEnabled", checked)
+						onCheckedChange={(checked) => {
+							setApiConfigurationField("lmStudioSpeculativeDecodingEnabled", checked === true)
 						}}>
 						{t("settings:providers.lmStudio.speculativeDecoding")}
 					</Checkbox>
@@ -1687,7 +1694,7 @@ const ApiOptions = ({
 			{!fromWelcomeView && selectedModelInfo?.supportsTemperature !== false && (
 				<TemperatureControl
 					value={apiConfiguration?.modelTemperature}
-					onChange={handleInputChange("modelTemperature", noTransform)}
+					onChange={(value) => setApiConfigurationField("modelTemperature", value)}
 					maxValue={2}
 				/>
 			)}
