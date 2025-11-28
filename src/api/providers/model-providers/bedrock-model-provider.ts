@@ -26,8 +26,8 @@ interface CacheEntry {
  * Model provider for AWS Bedrock that dynamically fetches available foundation models
  */
 export class BedrockModelProvider implements ModelProvider {
-	listModels(): Promise<ModelListing[]> {
-		throw new Error("Method not implemented.")
+	async listModels(): Promise<ModelListing[]> {
+		return this.getModels()
 	}
 	private client: BedrockClient | null = null
 	private cache: Map<string, CacheEntry> = new Map()

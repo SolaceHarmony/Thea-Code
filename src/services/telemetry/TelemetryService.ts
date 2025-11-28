@@ -1,3 +1,4 @@
+/// <reference lib="es2022" />
 import { PostHog } from "posthog-node"
 import * as vscode from "vscode"
 import type { ZodError } from "zod"

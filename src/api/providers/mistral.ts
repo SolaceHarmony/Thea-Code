@@ -110,7 +110,7 @@ export class MistralHandler extends BaseProvider implements SingleCompletionHand
 		}
 	}
 
-	override getModel(): { id: MistralModelId; info: ModelInfo } {
+	override getModel(): { id: string; info: ModelInfo } {
 		const modelId = this.options.apiModelId
 		if (modelId && modelId in mistralModels) {
 			const id = modelId as MistralModelId
