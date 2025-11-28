@@ -152,7 +152,9 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 					this.outputChannel.appendLine("MCP Hub initialized")
 				})
 				.catch((error) => {
-					this.outputChannel.appendLine(`Failed to initialize MCP Hub: ${error instanceof Error ? error.message : String(error)}`)
+					const msg = `Failed to initialize MCP Hub: ${error instanceof Error ? error.message : String(error)}`
+					this.outputChannel.appendLine(msg)
+					console.error(`[TheaProvider] ${msg}`, error)
 				})
 		} else {
 			this.outputChannel.appendLine("Skipping MCP Hub initialization in test/e2e mode")

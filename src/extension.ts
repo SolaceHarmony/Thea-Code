@@ -21,18 +21,15 @@ let extensionContext: vscode.ExtensionContext
 // This method is called when your extension is activated.
 // Your extension is activated the very first time the command is executed.
 export async function activate(context: vscode.ExtensionContext) {
-	console.log('[Thea Code] activate() function called')
-
 	// Detect e2e/test mode only via env for explicit control.
 	const isE2E = process.env.THEA_E2E === '1' || process.env.NODE_ENV === 'test'
-	console.log(`[Thea Code] Test mode: ${isE2E}`)
 
 	extensionContext = context
 	outputChannel = vscode.window.createOutputChannel(String(EXTENSION_DISPLAY_NAME))
 	context.subscriptions.push(outputChannel)
 	outputChannel.appendLine(`${EXTENSION_DISPLAY_NAME} extension activated`)
 
-	outputChannel.appendLine(`Activation starting (testMode=${isE2E})`)
+	outputChannel.appendLine(`Activation starting(testMode = ${isE2E})`)
 
 	if (isE2E) {
 		outputChannel.appendLine("E2E mode detected: Performing lightweight activation")
@@ -54,7 +51,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		for (const command of testCommands) {
 			context.subscriptions.push(
 				vscode.commands.registerCommand(command, () => {
-					outputChannel.appendLine(`Test stub command executed: ${command}`)
+					outputChannel.appendLine(`Test stub command executed: ${command} `)
 				})
 			)
 		}
@@ -101,7 +98,7 @@ export async function activate(context: vscode.ExtensionContext) {
 							return result
 						}
 					} catch (err) {
-						outputChannel.appendLine(`[E2E] browserCapture error: ${String(err)}`)
+						outputChannel.appendLine(`[E2E] browserCapture error: ${String(err)} `)
 						throw err
 					}
 				}
@@ -113,41 +110,34 @@ export async function activate(context: vscode.ExtensionContext) {
 		const minimalApi = {
 			outputChannel,
 			isTestMode: true,
-			version: pkg?.version ?? ""
+			version: pkg?.version ?? "",
+			// sidebarProvider, // Expose provider for testing - NOTE: sidebarProvider is not instantiated in E2E mode.
 		}
 
 		return minimalApi
 	}
 
 	// Non-E2E activation continues here with lazy loading
-	outputChannel.appendLine("Starting lazy initialization...")
-	console.log("[Thea Code] Starting lazy initialization...")
 
 	// Load heavy modules dynamically
 	try {
 		// Load environment variables if needed
 		try {
-			console.log("[Thea Code] Loading dotenvx...")
 			const dotenvx = await import("@dotenvx/dotenvx")
 			const path = await import("path")
 			const envPath = path.join(__dirname, "..", ".env")
 			dotenvx.config({ path: envPath })
-			console.log("[Thea Code] dotenvx loaded")
 		} catch (e) {
 			// Silently handle environment loading errors
 			outputChannel.appendLine(`Failed to load .env file: ${e}`)
-			console.log(`[Thea Code] Failed to load .env: ${e}`)
+			console.warn(`[Thea Code] Failed to load .env file:`, e)
 		}
 
 		// Load path utilities first
-		console.log("[Thea Code] Loading path utils...")
 		await import("./utils/path")
-		console.log("[Thea Code] path utils loaded")
 
 		// Load configuration
-		console.log("[Thea Code] Loading config...")
 		const { configSection } = await import("./shared/config/thea-config")
-		console.log("[Thea Code] config loaded")
 
 		// Migration and settings
 		const { migrateSettings } = await import("./utils/migrateSettings")
@@ -155,6 +145,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			await migrateSettings(context, outputChannel)
 		} catch (err) {
 			outputChannel.appendLine(`migrateSettings failed: ${String(err)}`)
+			console.error(`[Thea Code] migrateSettings failed:`, err)
 		}
 
 		// Initialize telemetry
@@ -250,6 +241,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	} catch (error) {
 		outputChannel.appendLine(`Failed to initialize extension: ${error}`)
 		console.error('[Thea Code] Failed to initialize:', error)
+
 		// In E2E/test mode, don't fail activation; return a minimal API so tests can proceed
 		if (process.env.THEA_E2E === '1' || process.env.NODE_ENV === 'test') {
 			try {
@@ -260,10 +252,17 @@ export async function activate(context: vscode.ExtensionContext) {
 					version: pkg?.version ?? ""
 				}
 				outputChannel.appendLine('E2E fallback API returned due to initialization error')
+				console.error('[Thea Code] Returning E2E fallback API')
 				return minimalApi
-			} catch {
+			} catch (fallbackError) {
 				// If even minimal API construction fails, rethrow original error
+				console.error('[Thea Code] Fallback API construction failed:', fallbackError)
 			}
+		}
+
+		// Show error message to user in non-test mode
+		if (process.env.THEA_E2E !== '1' && process.env.NODE_ENV !== 'test') {
+			void vscode.window.showErrorMessage(`Thea Code failed to initialize: ${error instanceof Error ? error.message : String(error)}`)
 		}
 		throw error
 	}
