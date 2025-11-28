@@ -9,7 +9,8 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "test/**/*.ts",
-    "test/**/*.tsx"
+    "test/**/*.tsx",
+    "src/e2e/src/suite/architecture-patterns.e2e.test.ts"
   ],
   "exclude": [
     "node_modules",

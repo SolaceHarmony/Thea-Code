@@ -5,6 +5,16 @@ import { findAvailablePort, waitForPortInUse } from "../../src/utils/port-utils"
 
 const HOST = "127.0.0.1"
 
+export interface RequestLogEntry {
+	timestamp: Date
+	method: string
+	path: string
+	body: unknown
+	headers: http.IncomingHttpHeaders
+}
+
+export type MockResponse = Record<string, unknown>
+
 // Configuration for different provider behaviors
 export interface MockProviderConfig {
 	name: string
@@ -181,8 +191,8 @@ class GenericProviderMock {
 	private server: http.Server | null = null
 	private port: number | null = null
 	private config: MockProviderConfig
-	private requestLog: any[] = []
-	private responseOverrides: Map<string, any> = new Map()
+	private requestLog: RequestLogEntry[] = []
+	private responseOverrides: Map<string, MockResponse> = new Map()
 
 	constructor(config: MockProviderConfig = PROVIDER_CONFIGS.generic) {
 		this.config = config
@@ -263,7 +273,13 @@ class GenericProviderMock {
 
 	private async handleChatCompletion(req: Request, res: Response) {
 		console.log(`Mock ${this.config.name}: POST /v1/chat/completions`)
-		const { messages, stream, model, tools, tool_choice } = req.body
+		const { messages, stream, model, tools, tool_choice } = req.body as {
+			messages: unknown[]
+			stream?: boolean
+			model?: string
+			tools?: unknown[]
+			tool_choice?: unknown
+		}
 
 		// Check for override
 		const overrideKey = `chat_${model || this.config.defaultModel}`
@@ -302,33 +318,21 @@ class GenericProviderMock {
 		})
 	}
 
-	private handleAnthropicMessages(req: Request, res: Response) {
+	private handleAnthropicMessage(req: Request, res: Response) {
 		console.log(`Mock ${this.config.name}: POST /v1/messages`)
-		const { messages, stream, model } = req.body
-
-		if (stream && this.config.supportsStreaming) {
-			return void this.handleStreamingResponse(res, "anthropic")
+		const { messages, stream, model, tools, tool_choice } = req.body as {
+			messages: unknown[]
+			stream?: boolean
+			model?: string
+			tools?: unknown[]
+			tool_choice?: unknown
 		}
 
-		// Check if we should include thinking
-		const useThinking = this.config.supportsThinking &&
-			model?.includes("thinking") || model?.includes("o1")
-
-		const content = useThinking && this.config.responsePatterns?.withThinking
-			? this.config.responsePatterns.withThinking
-			: this.config.responsePatterns?.simple || "Mock response"
-
-		res.json({
-			id: `msg_${Date.now()}`,
-			type: "message",
-			role: "assistant",
-			content: [{ type: "text", text: content }],
-			model: model || this.config.defaultModel,
-			usage: { input_tokens: 10, output_tokens: 15 },
-		})
-	}
-
-	private handleStreamingResponse(res: Response, format: "openai" | "anthropic") {
+		// Check for override
+		const overrideKey = `message_${model || this.config.defaultModel}`
+		if (this.responseOverrides.has(overrideKey)) {
+			return res.json(this.responseOverrides.get(overrideKey))
+		}	private handleStreamingResponse(res: Response, format: "openai" | "anthropic") {
 		res.setHeader("Content-Type", "text/event-stream")
 		res.setHeader("Cache-Control", "no-cache")
 		res.setHeader("Connection", "keep-alive")
@@ -594,7 +598,7 @@ class GenericProviderMock {
 
 	private handleTokenCount(req: Request, res: Response) {
 		console.log(`Mock ${this.config.name}: POST /v1/messages/count_tokens`)
-		const { messages } = req.body
+		const { messages } = req.body as { messages: unknown }
 
 		// Simple token estimation
 		const text = JSON.stringify(messages || "")
@@ -604,7 +608,7 @@ class GenericProviderMock {
 	}
 
 	private handleOverride(req: Request, res: Response) {
-		const { key, response } = req.body
+		const { key, response } = req.body as { key: string; response: MockResponse }
 		this.responseOverrides.set(key, response)
 		res.json({ success: true, message: `Override set for key: ${key}` })
 	}
@@ -778,7 +782,7 @@ class GenericProviderMock {
 		return this.port
 	}
 
-	getRequestLog(): any[] {
+	getRequestLog(): RequestLogEntry[] {
 		return this.requestLog
 	}
 
@@ -786,7 +790,7 @@ class GenericProviderMock {
 		this.requestLog = []
 	}
 
-	setResponseOverride(key: string, response: any): void {
+	setResponseOverride(key: string, response: MockResponse): void {
 		this.responseOverrides.set(key, response)
 	}
 
