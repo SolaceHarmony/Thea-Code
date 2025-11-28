@@ -1,23 +1,44 @@
 import { McpConverters } from "../core/McpConverters"
 import { ToolDefinition } from "../types/McpProviderTypes"
 import { NeutralToolResult } from "../types/McpToolTypes"
+import { expect } from "chai"
+import * as sinon from "sinon"
+import proxyquire from "proxyquire"
 
 // Mock the json-xml-bridge utilities
-jest.mock("../../../utils/json-xml-bridge", () => ({
-	jsonToolUseToXml: jest.fn((json) => `<mock_xml>${json}</mock_xml>`),
-	xmlToolUseToJson: jest.fn(() => '{"type":"tool_use","id":"test","name":"test_tool","input":{"param":"test"}}'),
-	openAiFunctionCallToNeutralToolUse: jest.fn(() => ({
+const jsonXmlBridgeMock = {
+	jsonToolUseToXml: sinon.stub().callsFake((json) => `<mock_xml>${json}</mock_xml>`),
+	xmlToolUseToJson: sinon.stub().returns('{"type":"tool_use","id":"test","name":"test_tool","input":{"param":"test"}}'),
+	openAiFunctionCallToNeutralToolUse: sinon.stub().returns({
 		type: "tool_use",
 		id: "test",
 		name: "test_tool",
 		input: { param: "test" },
-	})),
-	neutralToolUseToOpenAiFunctionCall: jest.fn(),
-}))
+	}),
+	neutralToolUseToOpenAiFunctionCall: sinon.stub(),
+}
+
+// Use proxyquire to inject mocks if needed, but McpConverters seems to import directly.
+// If McpConverters imports json-xml-bridge, we need proxyquire.
+// Assuming McpConverters imports from "../../../utils/json-xml-bridge" based on the original jest.mock
 
 describe("McpConverters", () => {
+	// Since we can't easily proxyquire a static class if it's already imported, 
+	// we might need to rely on the fact that we are in a test environment where we can maybe overwrite properties if they were exported functions.
+	// However, the original code used jest.mock which works at module level.
+	// Let's try to use proxyquire to load McpConverters with the mocked dependency.
+	
+	let McpConverters: any
+
+	before(() => {
+		const module = proxyquire("../core/McpConverters", {
+			"../../../utils/json-xml-bridge": jsonXmlBridgeMock
+		})
+		McpConverters = module.McpConverters
+	})
+
 	describe("toolDefinitionsToOpenAiFunctions", () => {
-		test("should convert tool definitions to OpenAI function definitions", () => {
+		it("should convert tool definitions to OpenAI function definitions", () => {
 			// Create a map of tool definitions
 			const tools = new Map<string, ToolDefinition>()
 
@@ -61,10 +82,10 @@ describe("McpConverters", () => {
 			const functions = McpConverters.toolDefinitionsToOpenAiFunctions(tools)
 
 			// Verify the conversion
-			expect(functions).toHaveLength(2)
+			expect(functions).to.have.lengthOf(2)
 
 			// Check the first function
-			expect(functions[0]).toEqual({
+			expect(functions[0]).to.deep.equal({
 				name: "test_tool",
 				description: "A test tool",
 				parameters: {
@@ -80,7 +101,7 @@ describe("McpConverters", () => {
 			})
 
 			// Check the second function
-			expect(functions[1]).toEqual({
+			expect(functions[1]).to.deep.equal({
 				name: "another_tool",
 				description: "Another test tool",
 				parameters: {
@@ -100,7 +121,7 @@ describe("McpConverters", () => {
 			})
 		})
 
-		test("should handle tool definitions without schemas", () => {
+		it("should handle tool definitions without schemas", () => {
 			// Create a map of tool definitions without schemas
 			const tools = new Map<string, ToolDefinition>()
 
@@ -114,8 +135,8 @@ describe("McpConverters", () => {
 			const functions = McpConverters.toolDefinitionsToOpenAiFunctions(tools)
 
 			// Verify the conversion
-			expect(functions).toHaveLength(1)
-			expect(functions[0]).toEqual({
+			expect(functions).to.have.lengthOf(1)
+			expect(functions[0]).to.deep.equal({
 				name: "simple_tool",
 				description: "A simple tool without schema",
 				parameters: {
@@ -126,7 +147,7 @@ describe("McpConverters", () => {
 			})
 		})
 
-		test("should handle tool definitions without descriptions", () => {
+		it("should handle tool definitions without descriptions", () => {
 			// Create a map of tool definitions without descriptions
 			const tools = new Map<string, ToolDefinition>()
 
@@ -139,8 +160,8 @@ describe("McpConverters", () => {
 			const functions = McpConverters.toolDefinitionsToOpenAiFunctions(tools)
 
 			// Verify the conversion
-			expect(functions).toHaveLength(1)
-			expect(functions[0]).toEqual({
+			expect(functions).to.have.lengthOf(1)
+			expect(functions[0]).to.deep.equal({
 				name: "no_description",
 				description: "",
 				parameters: {
@@ -151,7 +172,7 @@ describe("McpConverters", () => {
 			})
 		})
 
-		test("should handle empty tool map", () => {
+		it("should handle empty tool map", () => {
 			// Create an empty map of tool definitions
 			const tools = new Map<string, ToolDefinition>()
 
@@ -159,17 +180,17 @@ describe("McpConverters", () => {
 			const functions = McpConverters.toolDefinitionsToOpenAiFunctions(tools)
 
 			// Verify the conversion
-			expect(functions).toHaveLength(0)
-			expect(functions).toEqual([])
+			expect(functions).to.have.lengthOf(0)
+			expect(functions).to.deep.equal([])
 		})
 	})
 
 	describe("format conversion", () => {
-		test("should convert XML to MCP format", () => {
+		it("should convert XML to MCP format", () => {
 			const xmlContent = '<tool_use id="test" name="test_tool"><param>test</param></tool_use>'
 			const result = McpConverters.xmlToMcp(xmlContent)
 
-			expect(result).toEqual({
+			expect(result).to.deep.equal({
 				type: "tool_use",
 				id: "test",
 				name: "test_tool",
@@ -177,7 +198,7 @@ describe("McpConverters", () => {
 			})
 		})
 
-		test("should convert JSON to MCP format", () => {
+		it("should convert JSON to MCP format", () => {
 			const jsonContent = {
 				type: "tool_use",
 				id: "test",
@@ -187,7 +208,7 @@ describe("McpConverters", () => {
 
 			const result = McpConverters.jsonToMcp(jsonContent)
 
-			expect(result).toEqual({
+			expect(result).to.deep.equal({
 				type: "tool_use",
 				id: "test",
 				name: "test_tool",
@@ -195,7 +216,7 @@ describe("McpConverters", () => {
 			})
 		})
 
-		test("should convert OpenAI function call to MCP format", () => {
+		it("should convert OpenAI function call to MCP format", () => {
 			const functionCall = {
 				function_call: {
 					name: "test_tool",
@@ -205,7 +226,7 @@ describe("McpConverters", () => {
 
 			const result = McpConverters.openAiToMcp(functionCall)
 
-			expect(result).toEqual({
+			expect(result).to.deep.equal({
 				type: "tool_use",
 				id: "test",
 				name: "test_tool",
@@ -213,7 +234,7 @@ describe("McpConverters", () => {
 			})
 		})
 
-		test("should convert basic text content to XML", () => {
+		it("should convert basic text content to XML", () => {
 			const mcpResult: NeutralToolResult = {
 				type: "tool_result",
 				tool_use_id: "test",
@@ -223,12 +244,12 @@ describe("McpConverters", () => {
 
 			const result = McpConverters.mcpToXml(mcpResult)
 
-			expect(result).toContain('tool_use_id="test"')
-			expect(result).toContain('status="success"')
-			expect(result).toContain("Test result")
+			expect(result).to.include('tool_use_id="test"')
+			expect(result).to.include('status="success"')
+			expect(result).to.include("Test result")
 		})
 
-		test("should properly escape XML special characters", () => {
+		it("should properly escape XML special characters", () => {
 			const mcpResult: NeutralToolResult = {
 				type: "tool_result",
 				tool_use_id: "test-123",
@@ -238,11 +259,11 @@ describe("McpConverters", () => {
 
 			const result = McpConverters.mcpToXml(mcpResult)
 
-			expect(result).toContain('tool_use_id="test-123"')
-			expect(result).toContain("Text with &lt;special&gt; &amp; &quot;characters&quot;")
+			expect(result).to.include('tool_use_id="test-123"')
+			expect(result).to.include("Text with &lt;special&gt; &amp; &quot;characters&quot;")
 		})
 
-		test("should handle image content with base64 data", () => {
+		it("should handle image content with base64 data", () => {
 			const mcpResult: NeutralToolResult = {
 				type: "tool_result",
 				tool_use_id: "test-123",
@@ -259,10 +280,10 @@ describe("McpConverters", () => {
 
 			const result = McpConverters.mcpToXml(mcpResult)
 
-			expect(result).toContain('<image type="image/png" data="base64data" />')
+			expect(result).to.include('<image type="image/png" data="base64data" />')
 		})
 
-		test("should handle image content with URL", () => {
+		it("should handle image content with URL", () => {
 			const mcpResult: NeutralToolResult = {
 				type: "tool_result",
 				tool_use_id: "test-123",
@@ -278,10 +299,10 @@ describe("McpConverters", () => {
 
 			const result = McpConverters.mcpToXml(mcpResult)
 
-			expect(result).toContain('<image url="https://example.com/image.png" />')
+			expect(result).to.include('<image url="https://example.com/image.png" />')
 		})
 
-		test("should handle mixed content types", () => {
+		it("should handle mixed content types", () => {
 			const mcpResult: NeutralToolResult = {
 				type: "tool_result",
 				tool_use_id: "test-123",
@@ -301,11 +322,11 @@ describe("McpConverters", () => {
 
 			const result = McpConverters.mcpToXml(mcpResult)
 
-			expect(result).toContain("Text result")
-			expect(result).toContain('<image type="image/png" data="base64data" />')
+			expect(result).to.include("Text result")
+			expect(result).to.include('<image type="image/png" data="base64data" />')
 		})
 
-		test("should handle error details", () => {
+		it("should handle error details", () => {
 			const mcpResult: NeutralToolResult = {
 				type: "tool_result",
 				tool_use_id: "test-123",
@@ -319,12 +340,12 @@ describe("McpConverters", () => {
 
 			const result = McpConverters.mcpToXml(mcpResult)
 
-			expect(result).toContain('status="error"')
-			expect(result).toContain('<error message="Something went wrong"')
-			expect(result).toContain('details="{&quot;code&quot;:500,&quot;reason&quot;:&quot;Internal error&quot;}"')
+			expect(result).to.include('status="error"')
+			expect(result).to.include('<error message="Something went wrong"')
+			expect(result).to.include('details="{&quot;code&quot;:500,&quot;reason&quot;:&quot;Internal error&quot;}"')
 		})
 
-		test("should handle tool_use content type", () => {
+		it("should handle tool_use content type", () => {
 			const mcpResult: NeutralToolResult = {
 				type: "tool_result",
 				tool_use_id: "test-123",
@@ -338,10 +359,10 @@ describe("McpConverters", () => {
 
 			const result = McpConverters.mcpToXml(mcpResult)
 
-			expect(result).toContain('<tool_use name="test_tool" input="{&quot;param&quot;:&quot;value&quot;}" />')
+			expect(result).to.include('<tool_use name="test_tool" input="{&quot;param&quot;:&quot;value&quot;}" />')
 		})
 
-		test("should handle nested tool_result content type", () => {
+		it("should handle nested tool_result content type", () => {
 			const mcpResult: NeutralToolResult = {
 				type: "tool_result",
 				tool_use_id: "parent-123",
@@ -356,10 +377,10 @@ describe("McpConverters", () => {
 
 			const result = McpConverters.mcpToXml(mcpResult)
 
-			expect(result).toContain('<nested_tool_result tool_use_id="child-456">Nested result</nested_tool_result>')
+			expect(result).to.include('<nested_tool_result tool_use_id="child-456">Nested result</nested_tool_result>')
 		})
 
-		test("should handle unrecognized content types", () => {
+		it("should handle unrecognized content types", () => {
 			const mcpResult: NeutralToolResult = {
 				type: "tool_result",
 				tool_use_id: "test-123",
@@ -369,10 +390,10 @@ describe("McpConverters", () => {
 
 			const result = McpConverters.mcpToXml(mcpResult)
 
-			expect(result).toContain('<unknown type="unknown_type" />')
+			expect(result).to.include('<unknown type="unknown_type" />')
 		})
 
-		test("should convert MCP format to JSON", () => {
+		it("should convert MCP format to JSON", () => {
 			const mcpResult: NeutralToolResult = {
 				type: "tool_result",
 				tool_use_id: "test",
@@ -383,10 +404,10 @@ describe("McpConverters", () => {
 			const result = McpConverters.mcpToJson(mcpResult)
 			const parsed = JSON.parse(result) as unknown as NeutralToolResult
 
-			expect(parsed).toEqual(mcpResult)
+			expect(parsed).to.deep.equal(mcpResult)
 		})
 
-		test("should convert MCP format to OpenAI", () => {
+		it("should convert MCP format to OpenAI", () => {
 			const mcpResult: NeutralToolResult = {
 				type: "tool_result",
 				tool_use_id: "test",
@@ -396,7 +417,7 @@ describe("McpConverters", () => {
 
 			const result = McpConverters.mcpToOpenAi(mcpResult)
 
-			expect(result).toEqual({
+			expect(result).to.deep.equal({
 				role: "tool",
 				tool_call_id: "test",
 				content: "Test result",
