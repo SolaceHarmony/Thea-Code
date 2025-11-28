@@ -98,20 +98,41 @@ const App = () => {
 	// Do not conditionally load ChatView, it's expensive and there's state we
 	// don't want to lose (user input, disableInput, askResponse promise, etc.)
 	// ChatView is always rendered but hidden when showWelcome is true or when another tab is active
+	const { renderContext } = useExtensionState()
+
 	return (
-		<>
+		<div
+			style={{
+				height: "100vh",
+				display: "flex",
+				flexDirection: "column",
+				overflow: "hidden", // Ensure main container doesn't scroll, let children handle it
+			}}
+		>
 			{showWelcome && <WelcomeView />}
-			{!showWelcome && tab === "prompts" && <PromptsView onDone={() => switchTab("chat")} />}
-			{!showWelcome && tab === "mcp" && <McpView onDone={() => switchTab("chat")} />}
-			{!showWelcome && tab === "history" && <HistoryView onDone={() => switchTab("chat")} />}
-			{!showWelcome && tab === "settings" && <SettingsView ref={settingsRef} onDone={() => switchTab("chat")} />}
+
+			{/* Non-Chat Views: Wrap in a scrollable container with adaptive layout */}
+			{!showWelcome && tab !== "chat" && (
+				<div
+					className={`flex-1 overflow-y-auto ${renderContext === "editor"
+							? "w-full max-w-5xl mx-auto p-6" // Editor mode: Centered, constrained width, padded
+							: "w-full p-0"                   // Sidebar mode: Full width, no padding
+						}`}
+				>
+					{tab === "prompts" && <PromptsView onDone={() => switchTab("chat")} />}
+					{tab === "mcp" && <McpView onDone={() => switchTab("chat")} />}
+					{tab === "history" && <HistoryView onDone={() => switchTab("chat")} />}
+					{tab === "settings" && <SettingsView ref={settingsRef} onDone={() => switchTab("chat")} />}
+				</div>
+			)}
+
 			<ChatView
 				isHidden={showWelcome || tab !== "chat"}
 				showAnnouncement={showAnnouncement}
 				hideAnnouncement={() => setShowAnnouncement(false)}
 				showHistoryView={() => switchTab("history")}
 			/>
-		</>
+		</div>
 	)
 }
 

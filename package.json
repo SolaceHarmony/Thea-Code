@@ -176,6 +176,15 @@
         "category": "Thea Code"
       }
     ],
+    "chatParticipants": [
+      {
+        "id": "thea-code.thea",
+        "name": "thea",
+        "fullName": "Thea Code",
+        "description": "A whole dev team of AI agents in your editor.",
+        "isSticky": true
+      }
+    ],
     "menus": {
       "editor/context": [
         {

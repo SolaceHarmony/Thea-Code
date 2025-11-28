@@ -688,13 +688,13 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		// https://github.com/microsoft/vscode-extension-samples/blob/main/webview-codicons-sample/src/extension.ts
 		// we installed this package in the extension so that we can access it how its intended from the extension (the font file is likely bundled in vscode), and we just import the css fileinto our react app we don't have access to it
 		// don't forget to add font-src ${webview.cspSource};
-		const codiconsUri = getUri(webview, this.contextProxy.extensionUri, [
-			"node_modules",
-			"@vscode",
-			"codicons",
-			"dist",
-			"codicon.css",
-		])
+		// const codiconsUri = getUri(webview, this.contextProxy.extensionUri, [
+		// 	"node_modules",
+		// 	"@vscode",
+		// 	"codicons",
+		// 	"dist",
+		// 	"codicon.css",
+		// ])
 
 		const imagesUri = getUri(webview, this.contextProxy.extensionUri, ["assets", "images"])
 
@@ -730,7 +730,7 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
             <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data:; script-src 'nonce-${nonce}' https://us-assets.i.posthog.com; connect-src https://openrouter.ai https://us.i.posthog.com https://us-assets.i.posthog.com;">
             <link rel="stylesheet" type="text/css" href="${vendorStylesUri.toString()}">
             <link rel="stylesheet" type="text/css" href="${mainStylesUri.toString()}">
-			<link href="${codiconsUri.toString()}" rel="stylesheet" />
+			<!-- <link href="codiconsUri" rel="stylesheet" /> -->
 			<script nonce="${nonce}">
 				window.IMAGES_BASE_URI = "${imagesUri.toString()}"
 			</script>

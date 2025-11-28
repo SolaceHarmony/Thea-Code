@@ -52,8 +52,8 @@ import {
 	requestyDefaultModelId,
 	requestyDefaultModelInfo,
 	ApiProvider,
-} from "../../../../src/shared/api"
-import { ExtensionMessage } from "../../../../src/shared/ExtensionMessage"
+} from "../../../../src/shared/api.ts"
+import { ExtensionMessage } from "../../../../src/shared/ExtensionMessage.ts"
 
 import { vscode } from "@/utils/vscode"
 import { validateApiConfiguration, validateModelId, validateBedrockArn } from "@/utils/validate"
@@ -114,9 +114,9 @@ const ApiOptions = ({
 	})
 
 	const [openAiModels, setOpenAiModels] = useState<Record<string, ModelInfo> | null>(null)
-	
+
 	const [anthropicModels, setAnthropicModels] = useState<Record<string, ModelInfo> | null>(null)
-	const [bedrockModels, setBedrockModels] = useState<Record<string, ModelInfo> | null>(null)  
+	const [bedrockModels, setBedrockModels] = useState<Record<string, ModelInfo> | null>(null)
 	const [vertexModels, setVertexModels] = useState<Record<string, ModelInfo> | null>(null)
 	const [geminiModels, setGeminiModels] = useState<Record<string, ModelInfo> | null>(null)
 	const [mistralModels, setMistralModels] = useState<Record<string, ModelInfo> | null>(null)
@@ -145,7 +145,7 @@ const ApiOptions = ({
 	)
 
 	const { selectedProvider, selectedModelId, selectedModelInfo } = useMemo(
-		() => normalizeApiConfiguration(apiConfiguration, { 
+		() => normalizeApiConfiguration(apiConfiguration, {
 			anthropicModels,
 			bedrockModels,
 			vertexModels,
@@ -160,7 +160,7 @@ const ApiOptions = ({
 	// stops typing.
 	useDebounce(
 		() => {
-			switch(selectedProvider) {
+			switch (selectedProvider) {
 				case "anthropic":
 					vscode.postMessage({ type: "refreshAnthropicModels" })
 					break
@@ -330,7 +330,7 @@ const ApiOptions = ({
 				mistral: mistralModels,
 				deepseek: deepseekModels,
 			}
-			
+
 			// Check if the current provider has dynamic models available
 			if (selectedProvider in dynamicProviders) {
 				const models = dynamicProviders[selectedProvider as keyof typeof dynamicProviders]
@@ -341,13 +341,13 @@ const ApiOptions = ({
 					}))
 				}
 			}
-			
+
 			// Fallback to static models (for providers that haven't been migrated yet)
 			return MODELS_BY_PROVIDER[selectedProvider]
 				? Object.keys(MODELS_BY_PROVIDER[selectedProvider]).map((modelId) => ({
-						value: modelId,
-						label: modelId,
-					}))
+					value: modelId,
+					label: modelId,
+				}))
 				: []
 		},
 		[selectedProvider, anthropicModels, bedrockModels, vertexModels, geminiModels, mistralModels, deepseekModels],
@@ -623,22 +623,22 @@ const ApiOptions = ({
 					)}
 					{(apiConfiguration?.apiModelId?.startsWith("codestral-") ||
 						(!apiConfiguration?.apiModelId && mistralDefaultModelId.startsWith("codestral-"))) && (
-						<>
-							<VSCodeTextField
-								value={apiConfiguration?.mistralCodestralUrl || ""}
-								type="url"
-								onInput={handleInputChange("mistralCodestralUrl")}
-								placeholder="https://codestral.mistral.ai"
-								className="w-full">
-								<label className="block font-medium mb-1">
-									{t("settings:providers.codestralBaseUrl")}
-								</label>
-							</VSCodeTextField>
-							<div className="text-sm text-vscode-descriptionForeground -mt-2">
-								{t("settings:providers.codestralBaseUrlDesc")}
-							</div>
-						</>
-					)}
+							<>
+								<VSCodeTextField
+									value={apiConfiguration?.mistralCodestralUrl || ""}
+									type="url"
+									onInput={handleInputChange("mistralCodestralUrl")}
+									placeholder="https://codestral.mistral.ai"
+									className="w-full">
+									<label className="block font-medium mb-1">
+										{t("settings:providers.codestralBaseUrl")}
+									</label>
+								</VSCodeTextField>
+								<div className="text-sm text-vscode-descriptionForeground -mt-2">
+									{t("settings:providers.codestralBaseUrlDesc")}
+								</div>
+							</>
+						)}
 				</>
 			)}
 
@@ -1732,36 +1732,48 @@ export function normalizeApiConfiguration(
 	switch (provider) {
 		case "anthropic":
 			// Use dynamic models if available, otherwise fall back to static
-			{ const anthropicModelsToUse = dynamicModels?.anthropicModels || anthropicModels
-			return getProviderData(anthropicModelsToUse, anthropicDefaultModelId) }
+			{
+				const anthropicModelsToUse = dynamicModels?.anthropicModels || anthropicModels
+				return getProviderData(anthropicModelsToUse, anthropicDefaultModelId)
+			}
 		case "bedrock":
 			// Special case for custom ARN
-			{ if (modelId === "custom-arn") {
-				return {
-					selectedProvider: provider,
-					selectedModelId: "custom-arn",
-					selectedModelInfo: {
-						maxTokens: 5000,
-						contextWindow: 128_000,
-						supportsPromptCache: false,
-						supportsImages: true,
-					},
+			{
+				if (modelId === "custom-arn") {
+					return {
+						selectedProvider: provider,
+						selectedModelId: "custom-arn",
+						selectedModelInfo: {
+							maxTokens: 5000,
+							contextWindow: 128_000,
+							supportsPromptCache: false,
+							supportsImages: true,
+						},
+					}
 				}
+				const bedrockModelsToUse = dynamicModels?.bedrockModels || bedrockModels
+				return getProviderData(bedrockModelsToUse, bedrockDefaultModelId)
 			}
-			const bedrockModelsToUse = dynamicModels?.bedrockModels || bedrockModels
-			return getProviderData(bedrockModelsToUse, bedrockDefaultModelId) }
 		case "vertex":
-			{ const vertexModelsToUse = dynamicModels?.vertexModels || vertexModels
-			return getProviderData(vertexModelsToUse, vertexDefaultModelId) }
+			{
+				const vertexModelsToUse = dynamicModels?.vertexModels || vertexModels
+				return getProviderData(vertexModelsToUse, vertexDefaultModelId)
+			}
 		case "gemini":
-			{ const geminiModelsToUse = dynamicModels?.geminiModels || geminiModels
-			return getProviderData(geminiModelsToUse, geminiDefaultModelId) }
+			{
+				const geminiModelsToUse = dynamicModels?.geminiModels || geminiModels
+				return getProviderData(geminiModelsToUse, geminiDefaultModelId)
+			}
 		case "mistral":
-			{ const mistralModelsToUse = dynamicModels?.mistralModels || mistralModels
-			return getProviderData(mistralModelsToUse, mistralDefaultModelId) }
+			{
+				const mistralModelsToUse = dynamicModels?.mistralModels || mistralModels
+				return getProviderData(mistralModelsToUse, mistralDefaultModelId)
+			}
 		case "deepseek":
-			{ const deepseekModelsToUse = dynamicModels?.deepseekModels || deepSeekModels
-			return getProviderData(deepseekModelsToUse, deepSeekDefaultModelId) }
+			{
+				const deepseekModelsToUse = dynamicModels?.deepseekModels || deepSeekModels
+				return getProviderData(deepseekModelsToUse, deepSeekDefaultModelId)
+			}
 		case "openai-native":
 			return getProviderData(openAiNativeModels, openAiNativeDefaultModelId)
 		case "openrouter":

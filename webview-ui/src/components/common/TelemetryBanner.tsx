@@ -3,7 +3,7 @@ import "../ui/vscode-components.css"
 import { memo, useState } from "react"
 import styled from "styled-components"
 import { vscode } from "../../utils/vscode"
-import { TelemetrySetting } from "../../../../src/shared/TelemetrySetting"
+import { TelemetrySetting } from "../../../../src/shared/TelemetrySetting.ts"
 import { useAppTranslation } from "../../i18n/TranslationContext"
 import { Trans } from "react-i18next"
 

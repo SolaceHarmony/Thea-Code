@@ -3,7 +3,7 @@ import { useAppTranslation } from "@/i18n/TranslationContext"
 import { VSCodeCheckbox } from "@/components/ui/vscode-components"
 import { Cog } from "lucide-react"
 
-import { EXPERIMENT_IDS, ExperimentId } from "../../../../src/shared/experiments"
+import { EXPERIMENT_IDS, ExperimentId } from "../../../../src/shared/experiments.ts"
 
 import { cn } from "@/lib/utils"
 import { Slider } from "@/components/ui"

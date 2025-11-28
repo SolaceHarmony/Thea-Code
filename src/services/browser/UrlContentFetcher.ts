@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { Browser, chromium, Page } from "playwright" // Changed to playwright
+import type { Browser, Page } from "playwright"
 import * as cheerio from "cheerio"
 import { NodeHtmlMarkdown } from "node-html-markdown"
 
@@ -29,6 +29,7 @@ export class UrlContentFetcher {
 		if (this.browser) {
 			return
 		}
+		const { chromium } = await import("playwright")
 		this.browser = await chromium.launch({
 			// Changed to playwright's chromium launch
 			args: [
@@ -63,7 +64,7 @@ export class UrlContentFetcher {
 		$("script, style, nav, footer, header").remove()
 
 		// convert cleaned HTML to markdown using node-html-markdown
-		
+
 
 		return NodeHtmlMarkdown.translate($.html())
 	}

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { Button, Popover, PopoverContent, PopoverTrigger } from "@/components/ui"
 import { useTheaPortal } from "@/components/ui/hooks"
-import { SPECIFIC_STRINGS } from "../../../../../src/shared/config/thea-config"
+import { SPECIFIC_STRINGS } from "../../../../../src/shared/config/thea-config.ts"
 import { vscode } from "@/utils/vscode.ts"
 import { Checkpoint } from "./schema"
 

@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react"
 import { useEvent } from "react-use"
 import { ApiConfigMeta, ExtensionMessage, ExtensionState } from "../../../src/shared/ExtensionMessage.ts"
-import { ApiConfiguration } from "../../../src/shared/api.ts"
+import { ApiConfiguration, ModelInfo } from "../../../src/shared/api.ts"
 import { vscode } from "../utils/vscode"
 import { convertTextMateToHljs } from "../utils/textMateToHljs"
 import { findLastIndex } from "../../../src/shared/array.ts"
@@ -11,6 +11,7 @@ import { Mode, CustomModePrompts, defaultModeSlug, defaultPrompts, ModeConfig } 
 import { CustomSupportPrompts } from "../../../src/shared/support-prompt.ts"
 import { experimentDefault, ExperimentId } from "../../../src/shared/experiments.ts"
 import { TelemetrySetting } from "../../../src/shared/TelemetrySetting.ts"
+import { GLOBAL_FILENAMES } from "../../../src/shared/config/thea-config.ts"
 
 export interface ExtensionStateContextType extends ExtensionState {
 	didHydrateState: boolean

@@ -18,9 +18,9 @@ import {
 } from "lucide-react"
 import { CaretSortIcon } from "@radix-ui/react-icons"
 
-import { ExperimentId } from "../../../../src/shared/experiments"
-import { TelemetrySetting } from "../../../../src/shared/TelemetrySetting"
-import { ApiConfiguration } from "../../../../src/shared/api"
+import { ExperimentId } from "../../../../src/shared/experiments.ts"
+import { TelemetrySetting } from "../../../../src/shared/TelemetrySetting.ts"
+import { ApiConfiguration } from "../../../../src/shared/api.ts"
 
 import { vscode } from "@/utils/vscode"
 import { ExtensionStateContextType, useExtensionState } from "@/context/ExtensionStateContext"
@@ -89,7 +89,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone },
 	const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
 
 	const prevApiConfigName = useRef(currentApiConfigName)
-	const confirmDialogHandler = useRef<() => void>(() => {})
+	const confirmDialogHandler = useRef<() => void>(() => { })
 
 	const [cachedState, setCachedState] = useState(extensionState)
 

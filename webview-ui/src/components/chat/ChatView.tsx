@@ -15,10 +15,10 @@ import {
 } from "../../../../src/shared/ExtensionMessage.ts" // Corrected imports
 import { McpServer, McpTool } from "../../../../src/shared/mcp.ts"
 import { findLast } from "../../../../src/shared/array.ts"
-import { combineApiRequests } from "../../../../src/shared/combineApiRequests"
-import { combineCommandSequences } from "../../../../src/shared/combineCommandSequences"
-import { getApiMetrics } from "../../../../src/shared/getApiMetrics"
-import { convertTheaMessagesToNeutralForMetrics } from "../../../../src/shared/convertTheaMessagesToNeutral"
+import { combineApiRequests } from "../../../../src/shared/combineApiRequests.ts"
+import { combineCommandSequences } from "../../../../src/shared/combineCommandSequences.ts"
+import { getApiMetrics } from "../../../../src/shared/getApiMetrics.ts"
+import { convertTheaMessagesToNeutralForMetrics } from "../../../../src/shared/convertTheaMessagesToNeutral.ts"
 import { useExtensionState } from "../../context/ExtensionStateContext"
 import { vscode } from "@/utils/vscode.ts"
 import HistoryPreview from "../history/HistoryPreview"
@@ -29,9 +29,9 @@ import ChatRow from "./ChatRow"
 import ChatTextArea from "./ChatTextArea"
 import TaskHeader from "./TaskHeader"
 import AutoApproveMenu from "./AutoApproveMenu"
-import { AudioType } from "../../../../src/shared/WebviewMessage"
+import { AudioType } from "../../../../src/shared/WebviewMessage.ts"
 import { validateCommand } from "@/utils/command-validation.ts"
-import { getAllModes } from "../../../../src/shared/modes"
+import { getAllModes } from "../../../../src/shared/modes.ts"
 import TelemetryBanner from "../common/TelemetryBanner"
 import { useAppTranslation } from "../../i18n/TranslationContext"
 import removeMd from "remove-markdown"
@@ -349,7 +349,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 				if (theaAsk) {
 					// Use renamed state variable
 					switch (
-						theaAsk // Use renamed state variable
+					theaAsk // Use renamed state variable
 					) {
 						case "followup":
 						case "tool":
@@ -397,7 +397,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 		(text?: string, images?: string[]) => {
 			const trimmedInput = text?.trim()
 			switch (
-				theaAsk // Use renamed state variable
+			theaAsk // Use renamed state variable
 			) {
 				case "api_req_failed":
 				case "command":
@@ -449,7 +449,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 			}
 
 			switch (
-				theaAsk // Use renamed state variable
+			theaAsk // Use renamed state variable
 			) {
 				case "api_req_failed":
 				case "mistake_limit_reached":
@@ -1332,7 +1332,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 																: primaryButtonText === t("chat:proceedAnyways.title")
 																	? t("chat:proceedAnyways.tooltip")
 																	: primaryButtonText ===
-																		  t("chat:proceedWhileRunning.title")
+																		t("chat:proceedWhileRunning.title")
 																		? t("chat:proceedWhileRunning.tooltip")
 																		: undefined
 									}

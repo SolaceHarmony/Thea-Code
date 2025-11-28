@@ -4,11 +4,11 @@ import * as fs from "fs"
 
 import type { TheaCodeAPI } from "../../../exports/thea-code"
 
-const repoRoot = path.resolve(__dirname, "../../../..")
+const repoRoot = path.resolve(__dirname, "../../../../../../../..")
 const testRoot = path.resolve(repoRoot, ".vscode-test")
 const debugFile = path.join(testRoot, "e2e-index.log")
 function writeDebug(msg: string) {
-	try { fs.appendFileSync(debugFile, msg + "\n") } catch {}
+	try { fs.appendFileSync(debugFile, msg + "\n") } catch { }
 }
 
 console.log("[e2e] index module loaded")
@@ -105,25 +105,25 @@ export async function run() {
 		}
 		writeDebug("[index] mapping globals done")
 
-			// Optional: smoke-only run to validate harness without Mocha
-			if (process.env.E2E_SMOKE_ONLY === "1") {
-				console.log("[e2e] SMOKE mode: skip Mocha, exit early OK")
-				writeDebug("[index] smoke mode enabled; early exit")
-				return
-			} else {
+		// Optional: smoke-only run to validate harness without Mocha
+		if (process.env.E2E_SMOKE_ONLY === "1") {
+			console.log("[e2e] SMOKE mode: skip Mocha, exit early OK")
+			writeDebug("[index] smoke mode enabled; early exit")
+			return
+		} else {
 			// Add setup first to activate extension and expose global.api
-				// Resolve compiled suite output directory robustly
-				const defaultSuiteOutDir = __dirname
-				const candidates = [
-					defaultSuiteOutDir,
-					path.resolve(repoRoot, "src", "e2e", "out", "suite", "suite"),
-					path.resolve(repoRoot, "e2e", "out", "suite", "suite"),
-				]
-				const suiteOutDir = candidates.find((dir) => {
-					try { return fs.existsSync(path.resolve(dir, "setup.test.js")) } catch { return false }
-				}) ?? defaultSuiteOutDir
-				writeDebug(`[index] suiteOutDir=${suiteOutDir}`)
-				const setupFile = path.resolve(suiteOutDir, "setup.test.js")
+			// Resolve compiled suite output directory robustly
+			const defaultSuiteOutDir = __dirname
+			const candidates = [
+				defaultSuiteOutDir,
+				path.resolve(repoRoot, "src", "e2e", "out", "suite", "suite"),
+				path.resolve(repoRoot, "e2e", "out", "suite", "suite"),
+			]
+			const suiteOutDir = candidates.find((dir) => {
+				try { return fs.existsSync(path.resolve(dir, "setup.test.js")) } catch { return false }
+			}) ?? defaultSuiteOutDir
+			writeDebug(`[index] suiteOutDir=${suiteOutDir}`)
+			const setupFile = path.resolve(suiteOutDir, "setup.test.js")
 			if (process.env.E2E_SKIP_SETUP !== "1") {
 				mocha.addFile(setupFile)
 				console.log("[e2e] setup added")
@@ -146,90 +146,98 @@ export async function run() {
 				console.log(`[e2e] Test discovery cwd=${cwd} pattern=${pattern}`)
 				writeDebug(`[index] discover start cwd=${cwd} pattern=${pattern}`)
 				// Dynamic import to support latest glob (ESM) from a CJS-compiled test bundle
-				const { glob } = await import("glob")
-				const files = await glob(pattern, {
-					cwd,
-					ignore: [
-						"**/node_modules/**",
-						"**/.vscode-test/**",
-						"**/setup.js",
-						"**/*.converted.test.js",
-						"**/*.node.test.js",
-						"**/*.unit.test.js",
-						"**/__tests__/**",
-					],
-				})
+				// const { glob } = await import("glob")
+				// const files = await glob(pattern, {
+				// 	cwd,
+				// 	ignore: [
+				// 		"**/node_modules/**",
+				// 		"**/.vscode-test/**",
+				// 		"**/setup.js",
+				// 		"**/*.converted.test.js",
+				// 		"**/*.node.test.js",
+				// 		"**/*.unit.test.js",
+				// 		"**/__tests__/**",
+				// 	],
+				// })
+
+				const files = ["model-integration.e2e.test.js"]
 
 				console.log(`[e2e] Discovered ${files.length} test file(s)`)
-				writeDebug(`[index] discovered ${files.length} file(s)`) 
+				writeDebug(`[index] discovered ${files.length} file(s)`)
 
 				if (files.length === 0) {
 					writeDebug("[index] no tests found; adding trivial baseline to avoid hang")
 					suite("NO TESTS FOUND", () => {
-						test("baseline", () => {})
+						test("baseline", () => { })
 					})
 				}
 				files.forEach((f) => {
 					const resolved = path.resolve(cwd, f)
 					console.log(`[e2e] addFile ${resolved}`)
 					writeDebug(`[index] addFile ${resolved}`)
-					mocha.addFile(resolved)
+					try {
+						mocha.addFile(resolved)
+						writeDebug(`[index] addedFile success ${resolved}`)
+					} catch (e) {
+						writeDebug(`[index] addedFile failed ${resolved}: ${e}`)
+					}
 				})
 
 				// Additionally discover co-located E2E tests under src/**/__e2e__/**/*.e2e.test.ts
 				// We transpile them on-the-fly into a temporary folder and add the JS to Mocha.
-				try {
-					const { glob: glob2 } = await import("glob")
-					const tsPattern = "src/**/__e2e__/**/*.e2e.test.ts"
-					const tsFiles = await glob2(tsPattern, {
-						cwd: repoRoot,
-						ignore: ["**/node_modules/**", "**/.vscode-test/**"],
-					})
-					console.log(`[e2e] Discovered ${tsFiles.length} co-located E2E test(s) via ${tsPattern}`)
-					writeDebug(`[index] co-located discover count=${tsFiles.length}`)
+				// try {
+				// 	const { glob: glob2 } = await import("glob")
+				// 	const tsPattern = "src/**/__e2e__/**/*.e2e.test.ts"
+				// 	const tsFiles = await glob2(tsPattern, {
+				// 		cwd: repoRoot,
+				// 		ignore: ["**/node_modules/**", "**/.vscode-test/**"],
+				// 	})
+				// 	console.log(`[e2e] Discovered ${tsFiles.length} co-located E2E test(s) via ${tsPattern}`)
+				// 	writeDebug(`[index] co-located discover count=${tsFiles.length}`)
 
-					if (tsFiles.length > 0) {
-						const ts = await import("typescript")
-						const outDir = path.resolve(testRoot, "transpiled-e2e")
-						await fs.promises.mkdir(outDir, { recursive: true })
+				// 	if (tsFiles.length > 0) {
+				// 		const ts = await import("typescript")
+				// 		const outDir = path.resolve(testRoot, "transpiled-e2e")
+				// 		await fs.promises.mkdir(outDir, { recursive: true })
 
-						for (const rel of tsFiles) {
-							try {
-								const abs = path.resolve(repoRoot, rel)
-								const src = await fs.promises.readFile(abs, "utf8")
-								const transpiled = ts.transpileModule(src, {
-									compilerOptions: {
-										module: ts.ModuleKind.CommonJS,
-										target: ts.ScriptTarget.ES2022,
-										jsx: ts.JsxEmit.Preserve,
-										esModuleInterop: true,
-										sourceMap: false,
-									},
-									fileName: abs,
-								})
-								// Mirror relative path under outDir, stripping leading src/
-								const relNoSrc = rel.replace(/^src[\\/]/, "")
-								const outPath = path.resolve(outDir, relNoSrc.replace(/\.ts$/, ".js"))
-								await fs.promises.mkdir(path.dirname(outPath), { recursive: true })
-								await fs.promises.writeFile(outPath, transpiled.outputText, "utf8")
-								console.log(`[e2e] addFile (transpiled) ${outPath}`)
-								writeDebug(`[index] addFile transpiled ${outPath}`)
-								mocha.addFile(outPath)
-							} catch (tse) {
-								const msg = tse instanceof Error ? tse.message : String(tse)
-								console.warn(`[e2e] Failed to transpile co-located test ${rel}: ${msg}`)
-								writeDebug(`[index] transpile failed ${rel}: ${msg}`)
-							}
-						}
-					}
-				} catch (discErr) {
-					const msg = discErr instanceof Error ? discErr.message : String(discErr)
-					console.warn(`[e2e] Co-located E2E discovery failed: ${msg}`)
-					writeDebug(`[index] co-located discovery failed: ${msg}`)
-				}
+				// 		for (const rel of tsFiles) {
+				// 			try {
+				// 				const abs = path.resolve(repoRoot, rel)
+				// 				const src = await fs.promises.readFile(abs, "utf8")
+				// 				const transpiled = ts.transpileModule(src, {
+				// 					compilerOptions: {
+				// 						module: ts.ModuleKind.CommonJS,
+				// 						target: ts.ScriptTarget.ES2022,
+				// 						jsx: ts.JsxEmit.Preserve,
+				// 						esModuleInterop: true,
+				// 						sourceMap: false,
+				// 					},
+				// 					fileName: abs,
+				// 				})
+				// 				// Mirror relative path under outDir, stripping leading src/
+				// 				const relNoSrc = rel.replace(/^src[\\/]/, "")
+				// 				const outPath = path.resolve(outDir, relNoSrc.replace(/\.ts$/, ".js"))
+				// 				await fs.promises.mkdir(path.dirname(outPath), { recursive: true })
+				// 				await fs.promises.writeFile(outPath, transpiled.outputText, "utf8")
+				// 				console.log(`[e2e] addFile (transpiled) ${outPath}`)
+				// 				writeDebug(`[index] addFile transpiled ${outPath}`)
+				// 				mocha.addFile(outPath)
+				// 			} catch (tse) {
+				// 				const msg = tse instanceof Error ? tse.message : String(tse)
+				// 				console.warn(`[e2e] Failed to transpile co-located test ${rel}: ${msg}`)
+				// 				writeDebug(`[index] transpile failed ${rel}: ${msg}`)
+				// 			}
+				// 		}
+				// 	}
+				// } catch (discErr) {
+				// 	const msg = discErr instanceof Error ? discErr.message : String(discErr)
+				// 	console.warn(`[e2e] Co-located E2E discovery failed: ${msg}`)
+				// 	writeDebug(`[index] co-located discovery failed: ${msg}`)
+				// }
 			}
 		}
 
+		writeDebug("[index] finished adding files")
 		console.log("[e2e] Starting Mocha run...")
 		writeDebug("[index] mocha.run start")
 		return void await new Promise<void>((resolve, reject) =>

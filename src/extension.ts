@@ -22,11 +22,11 @@ let extensionContext: vscode.ExtensionContext
 // Your extension is activated the very first time the command is executed.
 export async function activate(context: vscode.ExtensionContext) {
 	console.log('[Thea Code] activate() function called')
-    
+
 	// Detect e2e/test mode only via env for explicit control.
 	const isE2E = process.env.THEA_E2E === '1' || process.env.NODE_ENV === 'test'
 	console.log(`[Thea Code] Test mode: ${isE2E}`)
-	
+
 	extensionContext = context
 	outputChannel = vscode.window.createOutputChannel(String(EXTENSION_DISPLAY_NAME))
 	context.subscriptions.push(outputChannel)
@@ -108,20 +108,20 @@ export async function activate(context: vscode.ExtensionContext) {
 			)
 		)
 
-			// Return a minimal API for tests (avoid unsafe packageJSON access)
-			const pkg = context.extension?.packageJSON as { version?: string } | undefined
-			const minimalApi = {
-				outputChannel,
-				isTestMode: true,
-				version: pkg?.version ?? ""
-			}
-		
+		// Return a minimal API for tests (avoid unsafe packageJSON access)
+		const pkg = context.extension?.packageJSON as { version?: string } | undefined
+		const minimalApi = {
+			outputChannel,
+			isTestMode: true,
+			version: pkg?.version ?? ""
+		}
+
 		return minimalApi
 	}
 
 	// Non-E2E activation continues here with lazy loading
 	outputChannel.appendLine("Starting lazy initialization...")
-	
+
 	// Load heavy modules dynamically
 	try {
 		// Load environment variables if needed
@@ -134,13 +134,13 @@ export async function activate(context: vscode.ExtensionContext) {
 			// Silently handle environment loading errors
 			outputChannel.appendLine(`Failed to load .env file: ${e}`)
 		}
-		
+
 		// Load path utilities first
 		await import("./utils/path")
-		
+
 		// Load configuration
 		const { configSection } = await import("./shared/config/thea-config")
-		
+
 		// Migration and settings
 		const { migrateSettings } = await import("./utils/migrateSettings")
 		try {
@@ -148,34 +148,34 @@ export async function activate(context: vscode.ExtensionContext) {
 		} catch (err) {
 			outputChannel.appendLine(`migrateSettings failed: ${String(err)}`)
 		}
-		
+
 		// Initialize telemetry
 		const { telemetryService } = await import("./services/telemetry/TelemetryService")
 		telemetryService.initialize()
-		
+
 		// Initialize i18n
 		const { initializeI18n } = await import("./i18n")
 		const { formatLanguage } = await import("./shared/language")
 		await initializeI18n(context.globalState.get("language") ?? formatLanguage(vscode.env.language))
-		
+
 		// Initialize terminal
 		const { TerminalRegistry } = await import("./integrations/terminal/TerminalRegistry")
 		TerminalRegistry.initialize()
-		
+
 		// Get default commands from configuration
 		const defaultCommands =
 			vscode.workspace.getConfiguration((configSection as () => string)()).get<string[]>("allowedCommands") || []
-		
+
 		// Initialize global state if not already set
 		if (!context.globalState.get("allowedCommands")) {
 			context.globalState.update("allowedCommands", defaultCommands)
 		}
-		
+
 		outputChannel.appendLine("Creating TheaProvider...")
-			const { TheaProvider } = await import("./core/webview/TheaProvider")
-			const theaProvider = new TheaProvider(context, outputChannel, "sidebar")
-			outputChannel.appendLine("TheaProvider created")
-			telemetryService.setProvider(theaProvider)
+		const { TheaProvider } = await import("./core/webview/TheaProvider")
+		const theaProvider = new TheaProvider(context, outputChannel, "sidebar")
+		outputChannel.appendLine("TheaProvider created")
+		telemetryService.setProvider(theaProvider)
 
 		context.subscriptions.push(
 			vscode.window.registerWebviewViewProvider(String(TheaProvider.sideBarId), theaProvider, {
@@ -186,22 +186,22 @@ export async function activate(context: vscode.ExtensionContext) {
 		const { registerCommands } = await import("./activate")
 		registerCommands({ context, outputChannel, provider: theaProvider })
 
-	/**
-	 * We use the text document content provider API to show the left side for diff
-	 * view by creating a virtual document for the original content. This makes it
-	 * readonly so users know to edit the right side if they want to keep their changes.
-	 *
-	 * This API allows you to create readonly documents in VSCode from arbitrary
-	 * sources, and works by claiming an uri-scheme for which your provider then
-	 * returns text contents. The scheme must be provided when registering a
-	 * provider and cannot change afterwards.
-	 *
-	 * Note how the provider doesn't create uris for virtual documents - its role
-	 * is to provide contents given such an uri. In return, content providers are
-	 * wired into the open document logic so that providers are always considered.
-	 *
-	 * https://code.visualstudio.com/api/extension-guides/virtual-documents
-	 */
+		/**
+		 * We use the text document content provider API to show the left side for diff
+		 * view by creating a virtual document for the original content. This makes it
+		 * readonly so users know to edit the right side if they want to keep their changes.
+		 *
+		 * This API allows you to create readonly documents in VSCode from arbitrary
+		 * sources, and works by claiming an uri-scheme for which your provider then
+		 * returns text contents. The scheme must be provided when registering a
+		 * provider and cannot change afterwards.
+		 *
+		 * Note how the provider doesn't create uris for virtual documents - its role
+		 * is to provide contents given such an uri. In return, content providers are
+		 * wired into the open document logic so that providers are always considered.
+		 *
+		 * https://code.visualstudio.com/api/extension-guides/virtual-documents
+		 */
 		// Register diff view provider
 		const { DIFF_VIEW_URI_SCHEME } = await import("./integrations/editor/DiffViewProvider")
 		const diffContentProvider = new (class implements vscode.TextDocumentContentProvider {
@@ -209,11 +209,11 @@ export async function activate(context: vscode.ExtensionContext) {
 				return Buffer.from(uri.query, "base64").toString("utf-8")
 			}
 		})()
-		
+
 		context.subscriptions.push(
 			vscode.workspace.registerTextDocumentContentProvider(DIFF_VIEW_URI_SCHEME, diffContentProvider),
 		)
-		
+
 		const { handleUri } = await import("./activate")
 		context.subscriptions.push(vscode.window.registerUriHandler({ handleUri }))
 
@@ -224,17 +224,21 @@ export async function activate(context: vscode.ExtensionContext) {
 				providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds,
 			}),
 		)
-		
+
 		const { registerCodeActions, registerTerminalActions } = await import("./activate")
 		registerCodeActions(context)
 		registerTerminalActions(context)
 
+		// Register Native Chat Participant
+		const { registerChatParticipant } = await import("./integrations/chat/TheaChatParticipant")
+		context.subscriptions.push(registerChatParticipant(context))
+
 		// Allows other extensions to activate once Thea is ready
 		vscode.commands.executeCommand(`${EXTENSION_NAME}.activationCompleted`)
-		
+
 		// Return the API
-			const { API } = await import("./exports/api")
-			return new API(outputChannel, theaProvider)
+		const { API } = await import("./exports/api")
+		return new API(outputChannel, theaProvider)
 	} catch (error) {
 		outputChannel.appendLine(`Failed to initialize extension: ${error}`)
 		console.error('[Thea Code] Failed to initialize:', error)
@@ -262,21 +266,21 @@ export async function deactivate() {
 	if (outputChannel) {
 		outputChannel.appendLine(`${EXTENSION_DISPLAY_NAME} extension deactivated`)
 	}
-	
+
 	// Only cleanup if modules were loaded
 	try {
 		const { McpServerManager } = await import("./services/mcp/management/McpServerManager")
 		await McpServerManager.cleanup(extensionContext)
-	} catch {}
-	
+	} catch { }
+
 	try {
 		const { telemetryService } = await import("./services/telemetry/TelemetryService")
 		await telemetryService.shutdown()
-	} catch {}
-	
+	} catch { }
+
 	try {
 		const { TerminalRegistry } = await import("./integrations/terminal/TerminalRegistry")
 		TerminalRegistry.cleanup()
-	} catch {}
+	} catch { }
 
 }
