@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useRef, useState } from "react"
 import { VSCodeTextField } from "@/components/ui/vscode-components"
 
-import { ApiConfigMeta } from "../../../../src/shared/ExtensionMessage"
+import { ApiConfigMeta } from "../../../../src/shared/ExtensionMessage.ts"
 
 import { useAppTranslation } from "@/i18n/TranslationContext"
 import {

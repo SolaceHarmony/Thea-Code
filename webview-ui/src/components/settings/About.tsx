@@ -4,9 +4,9 @@ import { Trans } from "react-i18next"
 import { Info, Download, Upload, TriangleAlert } from "lucide-react"
 
 import { VSCodeCheckbox, VSCodeLink } from "@/components/ui/vscode-components"
-import { API_REFERENCES } from "../../../../src/shared/config/thea-config"
+import { API_REFERENCES } from "../../../../src/shared/config/thea-config.ts"
 
-import { TelemetrySetting } from "../../../../src/shared/TelemetrySetting"
+import { TelemetrySetting } from "../../../../src/shared/TelemetrySetting.ts"
 
 import { vscode } from "@/utils/vscode"
 import { cn } from "@/lib/utils"

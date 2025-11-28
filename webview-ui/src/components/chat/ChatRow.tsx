@@ -6,8 +6,8 @@ import React, { memo, useEffect, useMemo, useRef, useState } from "react"
 import { useSize } from "react-use"
 import { useCopyToClipboard } from "../../utils/clipboard"
 import { useTranslation, Trans } from "react-i18next"
-import { TheaApiReqInfo, TheaAskUseMcpServer, TheaMessage, TheaSayTool } from "../../../../src/shared/ExtensionMessage"
-import { COMMAND_OUTPUT_STRING } from "../../../../src/shared/combineCommandSequences"
+import { TheaApiReqInfo, TheaAskUseMcpServer, TheaMessage, TheaSayTool } from "../../../../src/shared/ExtensionMessage.ts"
+import { COMMAND_OUTPUT_STRING } from "../../../../src/shared/combineCommandSequences.ts"
 import { useExtensionState } from "../../context/ExtensionStateContext"
 import { findMatchingResourceOrTemplate } from "../../utils/mcp"
 import { vscode } from "../../utils/vscode"
@@ -567,7 +567,7 @@ export const ChatRowContent = ({
 									...headerStyle,
 									marginBottom:
 										((cost === null || cost === undefined) && apiRequestFailedMessage) ||
-										apiReqStreamingFailedMessage
+											apiReqStreamingFailedMessage
 											? 10
 											: 0,
 									justifyContent: "space-between",
@@ -589,25 +589,25 @@ export const ChatRowContent = ({
 							</div>
 							{(((cost === null || cost === undefined) && apiRequestFailedMessage) ||
 								apiReqStreamingFailedMessage) && (
-								<>
-									<p style={{ ...pStyle, color: "var(--vscode-errorForeground)" }}>
-										{apiRequestFailedMessage || apiReqStreamingFailedMessage}
-										{apiRequestFailedMessage?.toLowerCase().includes("powershell") && (
-											<>
-												<br />
-												<br />
-												{t("chat:powershell.issues")}{" "}
-												<a
-													href="https://github.com/cline/cline/wiki/TroubleShooting-%E2%80%90-%22PowerShell-is-not-recognized-as-an-internal-or-external-command%22"
-													style={{ color: "inherit", textDecoration: "underline" }}>
-													troubleshooting guide
-												</a>
-												.
-											</>
-										)}
-									</p>
+									<>
+										<p style={{ ...pStyle, color: "var(--vscode-errorForeground)" }}>
+											{apiRequestFailedMessage || apiReqStreamingFailedMessage}
+											{apiRequestFailedMessage?.toLowerCase().includes("powershell") && (
+												<>
+													<br />
+													<br />
+													{t("chat:powershell.issues")}{" "}
+													<a
+														href="https://github.com/cline/cline/wiki/TroubleShooting-%E2%80%90-%22PowerShell-is-not-recognized-as-an-internal-or-external-command%22"
+														style={{ color: "inherit", textDecoration: "underline" }}>
+														troubleshooting guide
+													</a>
+													.
+												</>
+											)}
+										</p>
 
-									{/* {apiProvider === "" && (
+										{/* {apiProvider === "" && (
 											<div
 												style={{
 													display: "flex",
@@ -639,8 +639,8 @@ export const ChatRowContent = ({
 												</span>
 											</div>
 										)} */}
-								</>
-							)}
+									</>
+								)}
 
 							{isExpanded && (
 								<div style={{ marginTop: "10px" }}>

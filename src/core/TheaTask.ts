@@ -47,7 +47,13 @@ import {
 import { getApiMetrics } from "../shared/getApiMetrics"
 import { convertTheaMessagesToNeutralForMetrics } from "../shared/convertTheaMessagesToNeutral"
 import { HistoryItem } from "../shared/HistoryItem"
-import { defaultModeSlug, getModeBySlug, getFullModeDetails } from "../shared/modes"
+import {
+	defaultModeSlug, // Kept as it's used in the file
+	Mode,
+	getModeBySlug,
+	getToolsForMode,
+} from "../shared/modes"
+import { getFullModeDetails } from "./config/ModeUtils"
 import { EXPERIMENT_IDS, experiments as Experiments, ExperimentId } from "../shared/experiments"
 import { calculateApiCostAnthropic } from "../utils/cost"
 import { arePathsEqual } from "../utils/path"
@@ -332,8 +338,7 @@ export class TheaTask extends EventEmitter<TheaProviderEvents> {
 	async sayAndCreateMissingParamError(toolName: ToolUseName, paramName: string, relPath?: string) {
 		await this.webviewCommunicator.say(
 			"error",
-			`Thea tried to use ${toolName}${
-				relPath ? ` for '${relPath.toPosix()}'` : ""
+			`Thea tried to use ${toolName}${relPath ? ` for '${relPath.toPosix()}'` : ""
 			} without value for required parameter '${paramName}'. Retrying...`,
 		)
 		return formatResponse.toolError(formatResponse.missingToolParameterError(paramName))
@@ -630,10 +635,9 @@ export class TheaTask extends EventEmitter<TheaProviderEvents> {
 		newUserContent.push({
 			type: "text",
 			text:
-				`[TASK RESUMPTION] This task was interrupted ${agoText}. It may or may not be complete, so please reassess the task context. Be aware that the project state may have changed since then. The current working directory is now '${this.cwd.toPosix()}'. If the task has not been completed, retry the last step before interruption and proceed with completing the task.\n\nNote: If you previously attempted a tool use that the user did not provide a result for, you should assume the tool use was not successful and assess whether you should retry. If the last tool was a browser_action, the browser has been closed and you must launch a new browser if needed.${
-					wasRecent
-						? "\n\nIMPORTANT: If the last tool use was a write_to_file that was interrupted, the file was reverted back to its original state before the interrupted edit, and you do NOT need to re-read the file as you already have its up-to-date contents."
-						: ""
+				`[TASK RESUMPTION] This task was interrupted ${agoText}. It may or may not be complete, so please reassess the task context. Be aware that the project state may have changed since then. The current working directory is now '${this.cwd.toPosix()}'. If the task has not been completed, retry the last step before interruption and proceed with completing the task.\n\nNote: If you previously attempted a tool use that the user did not provide a result for, you should assume the tool use was not successful and assess whether you should retry. If the last tool was a browser_action, the browser has been closed and you must launch a new browser if needed.${wasRecent
+					? "\n\nIMPORTANT: If the last tool use was a write_to_file that was interrupted, the file was reverted back to its original state before the interrupted edit, and you do NOT need to re-read the file as you already have its up-to-date contents."
+					: ""
 				}` +
 				(responseText
 					? `\n\nNew instructions for task continuation:\n<user_message>\n${responseText}\n</user_message>`
@@ -817,8 +821,7 @@ export class TheaTask extends EventEmitter<TheaProviderEvents> {
 			return [
 				true,
 				formatResponse.toolResult(
-					`Command is still running in terminal ${terminalInfo.id}${workingDirInfo}.${
-						result.length > 0 ? `\nHere's the output so far:\n${result}` : ""
+					`Command is still running in terminal ${terminalInfo.id}${workingDirInfo}.${result.length > 0 ? `\nHere's the output so far:\n${result}` : ""
 					}\n\nThe user provided the following feedback:\n<feedback>\n${userFeedback.text}\n</feedback>`,
 					userFeedback.images,
 				),
@@ -860,8 +863,7 @@ export class TheaTask extends EventEmitter<TheaProviderEvents> {
 		} else {
 			return [
 				false,
-				`Command is still running in terminal ${terminalInfo.id}${workingDirInfo}.${
-					result.length > 0 ? `\nHere's the output so far:\n${result}` : ""
+				`Command is still running in terminal ${terminalInfo.id}${workingDirInfo}.${result.length > 0 ? `\nHere's the output so far:\n${result}` : ""
 				}\n\nYou will be updated on the terminal status and new output in the future.`,
 			]
 		}
@@ -1182,9 +1184,8 @@ export class TheaTask extends EventEmitter<TheaProviderEvents> {
 						case "apply_diff":
 							return `[${block.name} for '${block.params.path}']`
 						case "search_files":
-							return `[${block.name} for '${block.params.regex}'${
-								block.params.file_pattern ? ` in '${block.params.file_pattern}'` : ""
-							}]`
+							return `[${block.name} for '${block.params.regex}'${block.params.file_pattern ? ` in '${block.params.file_pattern}'` : ""
+								}]`
 						case "insert_content":
 							return `[${block.name} for '${block.params.path}']`
 						case "search_and_replace":
@@ -1671,10 +1672,9 @@ export class TheaTask extends EventEmitter<TheaProviderEvents> {
 							type: "text",
 							text:
 								assistantMessage +
-								`\n\n[${
-									cancelReason === "streaming_failed"
-										? "Response interrupted by API Error"
-										: "Response interrupted by user"
+								`\n\n[${cancelReason === "streaming_failed"
+									? "Response interrupted by API Error"
+									: "Response interrupted by user"
 								}]`,
 						},
 					],
@@ -1696,7 +1696,7 @@ export class TheaTask extends EventEmitter<TheaProviderEvents> {
 			this.userMessageContentReady = false
 			this.didRejectTool = false
 			this.didAlreadyUseTool = false
-		
+
 			this.presentAssistantMessageLocked = false
 			this.presentAssistantMessageHasPendingUpdates = false
 			this.diffViewProvider.reset()
@@ -2007,7 +2007,7 @@ export class TheaTask extends EventEmitter<TheaProviderEvents> {
 			await pWaitFor(() => busyTerminals.every((t) => !TerminalRegistry.isProcessHot(t.id)), {
 				interval: 100,
 				timeout: 15_000,
-			}).catch(() => {})
+			}).catch(() => { })
 		}
 
 		// we want to get diagnostics AFTER terminal cools down for a few reasons: terminal could be scaffolding a project, dev servers (compilers like webpack) will first re-compile and then send diagnostics, etc

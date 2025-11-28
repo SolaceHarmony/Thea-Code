@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react"
-import { GLOBAL_FILENAMES, CONFIG_DIR_NAME } from "../../../../src/shared/config/thea-config"
+import { GLOBAL_FILENAMES, CONFIG_DIR_NAME } from "../../../../src/shared/config/thea-config.ts"
 import {
 	VSCodeButton,
 	VSCodeTextArea,
@@ -19,12 +19,12 @@ import {
 	getAllModes,
 	ModeConfig,
 	GroupEntry,
-} from "../../../../src/shared/modes"
-import { modeConfigSchema } from "../../../../src/schemas"
+} from "../../../../src/shared/modes.ts"
+import { modeConfigSchema } from "../../../../src/schemas/index.ts"
 import type { ZodIssue } from "zod"
-import { supportPrompt, SupportPromptType } from "../../../../src/shared/support-prompt"
+import { supportPrompt, SupportPromptType } from "../../../../src/shared/support-prompt.ts"
 
-import { TOOL_GROUPS, ToolGroup } from "../../../../src/shared/tool-groups"
+import { TOOL_GROUPS, ToolGroup } from "../../../../src/shared/tool-groups.ts"
 import { vscode } from "../../utils/vscode"
 import { Tab, TabContent, TabHeader } from "../common/Tab"
 import i18next from "i18next"
@@ -471,11 +471,10 @@ const PromptsView = ({ onDone }: PromptsViewProps) => {
 									data-testid={`${modeConfig.slug}-tab`}
 									data-active={isActive ? "true" : "false"}
 									onClick={() => handleModeSwitch(modeConfig)}
-									className={`px-2 py-1 border-none rounded cursor-pointer font-bold ${
-										isActive
+									className={`px-2 py-1 border-none rounded cursor-pointer font-bold ${isActive
 											? "bg-vscode-button-background text-vscode-button-foreground opacity-100"
 											: "bg-transparent text-vscode-foreground opacity-80"
-									}`}>
+										}`}>
 									{modeConfig.name}
 								</button>
 							)

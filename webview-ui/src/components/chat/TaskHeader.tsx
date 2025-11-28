@@ -10,9 +10,9 @@ import { formatLargeNumber } from "@/utils/format"
 import { calculateTokenDistribution, getMaxTokensForModel } from "@/utils/model-utils"
 import { Button } from "@/components/ui"
 
-import { TheaMessage } from "../../../../src/shared/ExtensionMessage" // Renamed import
-import { mentionRegexGlobal } from "../../../../src/shared/context-mentions"
-import { HistoryItem } from "../../../../src/shared/HistoryItem"
+import { TheaMessage } from "../../../../src/shared/ExtensionMessage.ts" // Renamed import
+import { mentionRegexGlobal } from "../../../../src/shared/context-mentions.ts"
+import { HistoryItem } from "../../../../src/shared/HistoryItem.ts"
 
 import { useExtensionState } from "../../context/ExtensionStateContext"
 import Thumbnails from "../common/Thumbnails"

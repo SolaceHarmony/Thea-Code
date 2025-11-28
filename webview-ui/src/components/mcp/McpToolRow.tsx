@@ -1,5 +1,5 @@
 import { Checkbox } from "vscrui"
-import { McpTool } from "../../../../src/shared/mcp"
+import { McpTool } from "../../../../src/shared/mcp.ts"
 import { useAppTranslation } from "../../i18n/TranslationContext"
 import { vscode } from "../../utils/vscode"
 

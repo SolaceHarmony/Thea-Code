@@ -8,7 +8,7 @@ import {
 	VSCodePanelView,
 } from "@/components/ui/vscode-components"
 
-import { McpServer } from "../../../../src/shared/mcp"
+import { McpServer } from "../../../../src/shared/mcp.ts"
 
 import { vscode } from "@/utils/vscode"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui"
@@ -371,7 +371,7 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 
 							<VSCodePanelView id="resources-view">
 								{(server.resources && server.resources.length > 0) ||
-								(server.resourceTemplates && server.resourceTemplates.length > 0) ? (
+									(server.resourceTemplates && server.resourceTemplates.length > 0) ? (
 									<div
 										style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
 										{[...(server.resourceTemplates || []), ...(server.resources || [])].map(
