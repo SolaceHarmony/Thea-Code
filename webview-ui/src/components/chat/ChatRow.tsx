@@ -1,4 +1,4 @@
-import { Button } from "vscrui"
+import { Button } from "@/components/ui/button"
 import { Badge } from "../ui/badge"
 import { Progress } from "@radix-ui/react-progress"
 import deepEqual from "fast-deep-equal"
@@ -686,7 +686,7 @@ export const ChatRowContent = ({
 									{highlightMentions(message.text)}
 								</span>
 								<Button
-									appearance="icon"
+									size="icon"
 									style={{
 										padding: "3px",
 										flexShrink: 0,
@@ -1093,7 +1093,7 @@ const Markdown = memo(({ markdown, partial }: { markdown?: string; partial?: boo
 					</style>
 					<Button
 						className="copy-button"
-						appearance="icon"
+						size="icon"
 						style={{
 							height: "24px",
 							border: "none",

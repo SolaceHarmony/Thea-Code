@@ -225,6 +225,7 @@ const extensionConfig = {
 		"chromium-bidi/lib/cjs/cdp/CdpConnection",
 		"playwright",
 		"playwright-core",
+		"jsonc-parser",
 	],
 }
 

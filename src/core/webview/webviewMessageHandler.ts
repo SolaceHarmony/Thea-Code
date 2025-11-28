@@ -51,6 +51,7 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 	// Renamed type
 	switch (message.type) {
 		case "webviewDidLaunch": {
+			console.log("[TheaProvider] Received webviewDidLaunch")
 			// Load custom modes first
 			const customModes = await provider.customModesManager.getCustomModes()
 			await provider.updateGlobalState("customModes", customModes)
@@ -60,6 +61,8 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			await provider.postStateToWebview()
 			void provider.workspaceTracker?.initializeFilePaths()
 
+			// Mark view as launched
+			provider.isViewLaunched = true
 			void getTheme().then((theme) =>
 				provider.postMessageToWebview({ type: "theme", text: JSON.stringify(theme) }),
 			)
@@ -172,34 +175,34 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 					void provider.postMessageToWebview({ type: "requestyModels", requestyModels })
 				}
 			})
-			
+
 			// Load cached Anthropic models
 			void provider.readModelsFromCache(GlobalFileNames.anthropicModels).then((anthropicModels) => {
 				if (anthropicModels) {
 					void provider.postMessageToWebview({ type: "anthropicModels", anthropicModels })
 				}
 			})
-			
+
 			// Fetch dynamic Anthropic models
 			void (async () => {
 				const modelRegistry = ModelRegistry.getInstance()
 				const anthropicModelsList = await modelRegistry.getModels("anthropic")
-				
+
 				if (anthropicModelsList.length > 0) {
 					// Convert to Record<string, ModelInfo> format expected by frontend
 					const anthropicModels: Record<string, import("../../schemas").ModelInfo> = {}
 					for (const model of anthropicModelsList) {
 						anthropicModels[model.id] = model.info
 					}
-					
+
 					await fs.writeFile(
 						path.join(cacheDir, GlobalFileNames.anthropicModels),
 						JSON.stringify(anthropicModels)
 					)
 					await provider.postMessageToWebview({ type: "anthropicModels", anthropicModels })
-					
+
 					const { apiConfiguration } = await provider.getState()
-					
+
 					if (apiConfiguration?.anthropicModelId) {
 						const key = String(apiConfiguration.anthropicModelId)
 						if (anthropicModels[key]) {
@@ -530,14 +533,14 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 		case "refreshAnthropicModels": {
 			const modelRegistry = ModelRegistry.getInstance()
 			const anthropicModels = await modelRegistry.getModels("anthropic", true)
-			
+
 			if (anthropicModels.length > 0) {
 				// Convert to Record<string, ModelInfo> format expected by frontend
 				const modelsRecord: Record<string, import("../../schemas").ModelInfo> = {}
 				for (const model of anthropicModels) {
 					modelsRecord[model.id] = model.info
 				}
-				
+
 				const cacheDir = await provider.ensureCacheDirectoryExists()
 				await fs.writeFile(
 					path.join(cacheDir, GlobalFileNames.anthropicModels),
@@ -545,19 +548,19 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				)
 				await provider.postMessageToWebview({ type: "anthropicModels", anthropicModels: modelsRecord })
 			}
-			
+
 			break
 		}
 		case "refreshBedrockModels": {
 			const { apiConfiguration: configForRefresh } = await provider.getState()
-				const bedrockModels = await getBedrockModels({
-					awsRegion: configForRefresh.awsRegion,
-					awsAccessKey: configForRefresh.awsAccessKey,
-					awsSecretKey: configForRefresh.awsSecretKey,
-					awsUseProfile: configForRefresh.awsUseProfile,
-					awsProfile: configForRefresh.awsProfile,
-				})
-			
+			const bedrockModels = await getBedrockModels({
+				awsRegion: configForRefresh.awsRegion,
+				awsAccessKey: configForRefresh.awsAccessKey,
+				awsSecretKey: configForRefresh.awsSecretKey,
+				awsUseProfile: configForRefresh.awsUseProfile,
+				awsProfile: configForRefresh.awsProfile,
+			})
+
 			if (Object.keys(bedrockModels).length > 0) {
 				const cacheDir = await provider.ensureCacheDirectoryExists()
 				await fs.writeFile(
@@ -566,7 +569,7 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				)
 				await provider.postMessageToWebview({ type: "bedrockModels", bedrockModels })
 			}
-			
+
 			break
 		}
 		case "refreshVertexModels": {
@@ -577,7 +580,7 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				vertexJsonCredentials: configForRefresh.vertexJsonCredentials,
 				vertexKeyFile: configForRefresh.vertexKeyFile,
 			})
-			
+
 			if (Object.keys(vertexModels).length > 0) {
 				const cacheDir = await provider.ensureCacheDirectoryExists()
 				await fs.writeFile(
@@ -586,7 +589,7 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				)
 				await provider.postMessageToWebview({ type: "vertexModels", vertexModels })
 			}
-			
+
 			break
 		}
 		case "refreshGeminiModels": {
@@ -595,7 +598,7 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				geminiApiKey: configForRefresh.geminiApiKey,
 				googleGeminiBaseUrl: configForRefresh.googleGeminiBaseUrl,
 			})
-			
+
 			if (Object.keys(geminiModels).length > 0) {
 				const cacheDir = await provider.ensureCacheDirectoryExists()
 				await fs.writeFile(
@@ -604,7 +607,7 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				)
 				await provider.postMessageToWebview({ type: "geminiModels", geminiModels })
 			}
-			
+
 			break
 		}
 		case "refreshMistralModels": {
@@ -612,7 +615,7 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			const mistralModels = await getMistralModels({
 				mistralApiKey: configForRefresh.mistralApiKey,
 			})
-			
+
 			if (Object.keys(mistralModels).length > 0) {
 				const cacheDir = await provider.ensureCacheDirectoryExists()
 				await fs.writeFile(
@@ -621,7 +624,7 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				)
 				await provider.postMessageToWebview({ type: "mistralModels", mistralModels })
 			}
-			
+
 			break
 		}
 		case "refreshDeepSeekModels": {
@@ -629,7 +632,7 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			const deepSeekModels = await getDeepSeekModels({
 				deepSeekApiKey: configForRefresh.deepSeekApiKey,
 			})
-			
+
 			if (Object.keys(deepSeekModels).length > 0) {
 				const cacheDir = await provider.ensureCacheDirectoryExists()
 				await fs.writeFile(
@@ -638,7 +641,7 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				)
 				await provider.postMessageToWebview({ type: "deepseekModels", deepseekModels: deepSeekModels })
 			}
-			
+
 			break
 		}
 		case "requestOllamaModels": {

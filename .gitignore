@@ -33,7 +33,6 @@ docs/_site/
 
 #Logging
 logs
-package.json.bak*
 .thea_modes
 
 # Build output
@@ -90,3 +89,9 @@ pretrained_models/
 # Experimental nested repo removed
 mbrl-lib/
 /.idea/
+test_output_2.txt
+test_output_3.txt
+test_output_4.txt
+test_output_5.txt
+test_output_6.txt
+test_output.txt

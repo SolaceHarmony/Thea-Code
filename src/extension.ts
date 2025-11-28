@@ -45,6 +45,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			`${EXTENSION_NAME}.explainCode`,
 			`${EXTENSION_NAME}.fixCode`,
 			`${EXTENSION_NAME}.improveCode`,
+			`${EXTENSION_NAME}.promptsButtonClicked`,
 		]
 
 		// Register stub commands for testing
@@ -105,13 +106,22 @@ export async function activate(context: vscode.ExtensionContext) {
 			)
 		)
 
+		// Instantiate provider for testing
+		const { TheaProvider } = await import("./core/webview/TheaProvider")
+		const sidebarProvider = new TheaProvider(context, outputChannel, "sidebar")
+		context.subscriptions.push(
+			vscode.window.registerWebviewViewProvider(String(TheaProvider.sideBarId), sidebarProvider, {
+				webviewOptions: { retainContextWhenHidden: true },
+			}),
+		)
+
 		// Return a minimal API for tests (avoid unsafe packageJSON access)
 		const pkg = context.extension?.packageJSON as { version?: string } | undefined
 		const minimalApi = {
 			outputChannel,
 			isTestMode: true,
 			version: pkg?.version ?? "",
-			// sidebarProvider, // Expose provider for testing - NOTE: sidebarProvider is not instantiated in E2E mode.
+			sidebarProvider, // Expose provider for testing
 		}
 
 		return minimalApi

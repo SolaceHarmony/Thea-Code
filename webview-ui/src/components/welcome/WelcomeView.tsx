@@ -75,11 +75,11 @@ const WelcomeView = () => {
 									className="flex-1 border border-vscode-panel-border rounded p-4 flex flex-col items-center cursor-pointer transition-all hover:bg-vscode-button-hoverBackground hover:border-vscode-button-border no-underline text-inherit"
 									target="_blank"
 									rel="noopener noreferrer">
-									<div className="w-16 h-16 flex items-center justify-center rounded mb-2 overflow-hidden bg-white relative">
+									<div className="w-12 h-12 flex items-center justify-center rounded mb-2 overflow-hidden bg-white relative">
 										<img
 											src={`${imagesBaseUri}/${provider.slug}.png`}
 											alt={provider.name}
-											className="w-full h-full object-contain p-2"
+											className="w-full h-full object-contain p-1"
 										/>
 									</div>
 									<div className="text-center">
