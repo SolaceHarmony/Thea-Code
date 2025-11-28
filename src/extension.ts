@@ -121,25 +121,33 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// Non-E2E activation continues here with lazy loading
 	outputChannel.appendLine("Starting lazy initialization...")
+	console.log("[Thea Code] Starting lazy initialization...")
 
 	// Load heavy modules dynamically
 	try {
 		// Load environment variables if needed
 		try {
+			console.log("[Thea Code] Loading dotenvx...")
 			const dotenvx = await import("@dotenvx/dotenvx")
 			const path = await import("path")
 			const envPath = path.join(__dirname, "..", ".env")
 			dotenvx.config({ path: envPath })
+			console.log("[Thea Code] dotenvx loaded")
 		} catch (e) {
 			// Silently handle environment loading errors
 			outputChannel.appendLine(`Failed to load .env file: ${e}`)
+			console.log(`[Thea Code] Failed to load .env: ${e}`)
 		}
 
 		// Load path utilities first
+		console.log("[Thea Code] Loading path utils...")
 		await import("./utils/path")
+		console.log("[Thea Code] path utils loaded")
 
 		// Load configuration
+		console.log("[Thea Code] Loading config...")
 		const { configSection } = await import("./shared/config/thea-config")
+		console.log("[Thea Code] config loaded")
 
 		// Migration and settings
 		const { migrateSettings } = await import("./utils/migrateSettings")

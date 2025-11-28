@@ -21,6 +21,7 @@
     "src/suite/setup.ts",
     "src/suite/setup.test.ts",
     "src/suite/model-integration.e2e.test.ts",
+    "src/suite/simple.e2e.test.ts",
     "src/exports/**/*.d.ts",
     "src/thea-constants.ts",
     "../../test/generic-provider-mock/server.ts"

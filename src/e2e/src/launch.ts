@@ -35,6 +35,20 @@ async function main() {
     const extensionDevelopmentPath = repoRoot
     const extensionTestsPath = path.resolve(compiledDir, "suite", "index.js")
 
+    console.log(`[e2e/launch] Resolved repoRoot: ${repoRoot}`)
+    if (!fs.existsSync(path.join(repoRoot, "package.json"))) {
+      console.error(`[e2e/launch] CRITICAL: package.json not found at ${repoRoot}`)
+      // Try to find where it is
+      let curr = compiledDir
+      while (curr !== path.dirname(curr)) {
+        if (fs.existsSync(path.join(curr, "package.json"))) {
+          console.log(`[e2e/launch] Found package.json at ${curr}`)
+          break
+        }
+        curr = path.dirname(curr)
+      }
+    }
+
     // Create an isolated sandbox workspace and user data dirs
     const testRoot = path.resolve(repoRoot, ".vscode-test")
     const workspaceDir = process.env.E2E_WORKSPACE_DIR ?? path.join(testRoot, "workspace")
@@ -96,74 +110,21 @@ async function main() {
     }
 
     try {
-      // Prefer invoking the VS Code CLI shim to avoid Insiders app binary rejecting args on macOS
-      const vscodeExecutablePath = await downloadAndUnzipVSCode({ version: "insiders", extensionDevelopmentPath })
-      const [cli] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath)
-
-      const args = [
-        ...launchArgs,
-        "--no-sandbox",
-        "--disable-gpu-sandbox",
-        "--disable-updates",
-        "--skip-welcome",
-        "--skip-release-notes",
-        "--disable-workspace-trust",
-        `--extensionDevelopmentPath=${extensionDevelopmentPath}`,
-        `--extensionTestsPath=${extensionTestsPath}`,
-      ]
-
-      console.log(`[e2e/launch] Spawning VS Code CLI: ${cli}`)
-      const shell = process.platform === "win32"
-      await new Promise<void>((resolve, reject) => {
-        const child = spawn(shell ? `"${cli}"` : cli, [...args], {
-          env,
-          stdio: "inherit",
-          shell,
-        })
-
-        const killChild = () => {
-          try {
-            if (!child.killed) {
-              if (process.platform === "win32") {
-                try { spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"], { stdio: "ignore" }) } catch { }
-              } else {
-                child.kill("SIGKILL")
-              }
-            }
-          } catch { }
-        }
-        const onParentExit = () => killChild()
-        process.on("exit", onParentExit)
-        process.on("SIGINT", onParentExit)
-        process.on("SIGTERM", onParentExit)
-
-        child.on("error", (err) => {
-          process.off("exit", onParentExit)
-          process.off("SIGINT", onParentExit)
-          process.off("SIGTERM", onParentExit)
-          reject(err)
-        })
-        child.on("exit", (code, signal) => {
-          process.off("exit", onParentExit)
-          process.off("SIGINT", onParentExit)
-          process.off("SIGTERM", onParentExit)
-          console.log(`[e2e/launch] VS Code exited with ${code ?? signal}`)
-          if (code === 0) {
-            resolve()
-          } else {
-            reject(new Error(`VS Code exited with ${code ?? signal}`))
-          }
-        })
-      })
-    } catch (cliErr) {
-      console.warn(`[e2e/launch] CLI spawn failed (${cliErr instanceof Error ? cliErr.message : String(cliErr)}); falling back to test-electron`)
+      console.log(`[e2e/launch] Starting tests using runTests`)
       await runTests({
         extensionDevelopmentPath,
         extensionTestsPath,
         version: "insiders",
-        launchArgs,
+        launchArgs: [
+          ...launchArgs,
+          "--no-sandbox",
+          "--disable-gpu-sandbox"
+        ],
         extensionTestsEnv: env,
       })
+    } catch (err) {
+      console.error(`[e2e/launch] runTests failed: ${err}`)
+      throw err
     }
   } catch (err) {
     console.error("[e2e] VS Code test launch failed:", err)
