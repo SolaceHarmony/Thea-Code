@@ -125,7 +125,9 @@ export interface WebviewMessage {
 		| "maxReadFileLine"
 		| "searchFiles"
 		| "toggleApiConfigPin"
+		| "action" // For webview actions that need extension handling
 	text?: string
+	action?: string // The action name for type="action" messages
 	disabled?: boolean
 	askResponse?: TheaAskResponse
 	apiConfiguration?: ApiConfiguration

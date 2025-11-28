@@ -3,6 +3,7 @@ import "../ui/vscode-components.css"
 import { memo } from "react"
 import { useAppTranslation } from "@/i18n/TranslationContext"
 import { Trans } from "react-i18next"
+import { vscode } from "../../utils/vscode"
 
 interface AnnouncementProps {
 	version: string
@@ -19,10 +20,11 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 			href="https://discord.gg/thea-placeholder"
 			onClick={(e) => {
 				e.preventDefault()
-				window.postMessage(
-					{ type: "action", action: "openExternal", data: { url: "https://discord.gg/thea-placeholder" } },
-					"*",
-				)
+				vscode.postMessage({
+					type: "action",
+					action: "openExternal",
+					values: { url: "https://discord.gg/thea-placeholder" },
+				})
 			}}>
 			Discord
 		</VSCodeLink>
@@ -33,10 +35,11 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 			href="https://reddit.com/r/thea-placeholder"
 			onClick={(e) => {
 				e.preventDefault()
-				window.postMessage(
-					{ type: "action", action: "openExternal", data: { url: "https://reddit.com/r/thea-placeholder" } },
-					"*",
-				)
+				vscode.postMessage({
+					type: "action",
+					action: "openExternal",
+					values: { url: "https://reddit.com/r/thea-placeholder" },
+				})
 			}}>
 			Reddit
 		</VSCodeLink>

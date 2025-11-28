@@ -1544,6 +1544,44 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			await provider.postStateToWebview()
 			break
 		}
+		case "action": {
+			// Handle action messages from the webview that need extension involvement
+			const action = message.action
+			if (!action) {
+				break
+			}
+
+			switch (action) {
+				case "openExternal": {
+					// Handle opening external URLs
+					const data = message.values as { url?: string } | undefined
+					if (data?.url) {
+						await vscode.env.openExternal(vscode.Uri.parse(data.url))
+					}
+					break
+				}
+				case "helpButtonClicked": {
+					// Open the help/documentation URL
+					const { HOMEPAGE_URL } = await import("../../shared/config/thea-config")
+					await vscode.env.openExternal(vscode.Uri.parse(HOMEPAGE_URL))
+					break
+				}
+				case "settingsButtonClicked":
+				case "historyButtonClicked":
+				case "mcpButtonClicked":
+				case "promptsButtonClicked":
+				case "chatButtonClicked": {
+					// These actions are for tab switching within the webview
+					// Relay back to webview for handling
+					await provider.postMessageToWebview({ type: "action", action: action as any })
+					break
+				}
+				default:
+					provider.outputChannel.appendLine(`Unknown action: ${action}`)
+					break
+			}
+			break
+		}
 	}
 }
 

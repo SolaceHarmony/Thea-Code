@@ -41,6 +41,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			`${EXTENSION_NAME}.historyButtonClicked`,
 			`${EXTENSION_NAME}.popoutButtonClicked`,
 			`${EXTENSION_NAME}.settingsButtonClicked`,
+			`${EXTENSION_NAME}.helpButtonClicked`,
 			`${EXTENSION_NAME}.openInNewTab`,
 			`${EXTENSION_NAME}.explainCode`,
 			`${EXTENSION_NAME}.fixCode`,

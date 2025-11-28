@@ -161,7 +161,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 	}, [alwaysApproveResubmit, setAlwaysApproveResubmit])
 
 	const handleOpenSettings = useCallback(() => {
-		window.postMessage({ type: "action", action: "settingsButtonClicked" })
+		vscode.postMessage({ type: "action", action: "settingsButtonClicked" })
 	}, [])
 
 	// Map action IDs to their specific handlers

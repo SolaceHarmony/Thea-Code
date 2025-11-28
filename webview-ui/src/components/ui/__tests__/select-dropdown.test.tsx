@@ -4,12 +4,13 @@ import { ReactNode } from "react"
 import { render, screen, fireEvent } from "@testing-library/react"
 import { SelectDropdown, DropdownOptionType } from "../select-dropdown"
 
-// Mock window.postMessage
+// Mock vscode.postMessage
 const postMessageMock = jest.fn()
-Object.defineProperty(window, "postMessage", {
-	writable: true,
-	value: postMessageMock,
-})
+jest.mock("../../../utils/vscode", () => ({
+	vscode: {
+		postMessage: (...args: unknown[]) => postMessageMock(...args),
+	},
+}))
 
 // Mock the Radix UI DropdownMenu component and its children
 jest.mock("../dropdown-menu", () => {
