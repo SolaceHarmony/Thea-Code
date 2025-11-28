@@ -1,6 +1,7 @@
 import * as React from "react"
 import { CaretUpIcon } from "@radix-ui/react-icons"
 import { SPECIFIC_STRINGS } from "../../../../src/shared/config/thea-config.ts"
+import { vscode } from "../../utils/vscode"
 
 import { cn } from "@/lib/utils"
 
@@ -74,7 +75,7 @@ export const SelectDropdown = React.forwardRef<React.ElementRef<typeof DropdownM
 
 		const handleSelect = (option: DropdownOption) => {
 			if (option.type === DropdownOptionType.ACTION) {
-				window.postMessage({ type: "action", action: option.value })
+				vscode.postMessage({ type: "action", action: option.value })
 				setOpen(false)
 				return
 			}

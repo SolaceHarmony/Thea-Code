@@ -127,7 +127,11 @@ export const VSCodeButton: React.FC<VSCodeButtonProps> = ({
 	title,
 	...props
 }) => {
-	const buttonClassName = `vscode-button ${appearance === "primary" ? "primary" : appearance === "secondary" ? "secondary" : ""} ${className || ""}`
+	const appearanceClass =
+		appearance === "primary" ? "primary" :
+		appearance === "secondary" ? "secondary" :
+		appearance === "icon" ? "icon" : ""
+	const buttonClassName = `vscode-button ${appearanceClass} ${className || ""}`.trim()
 
 	return (
 		<button
