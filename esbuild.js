@@ -102,7 +102,7 @@ async function copyLocaleFiles() {
 	await promises.mkdir(destDir, { recursive: true })
 	try {
 		await promises.mkdir(outDir, { recursive: true })
-	} catch {}
+	} catch { }
 
 	// Async function to copy directory recursively
 	async function copyDir(src, dest) {
@@ -206,7 +206,7 @@ const extensionConfig = {
 		{
 			name: "alias-plugin",
 			setup(build) {
-    build.onResolve({ filter: /^pkce-challenge$/ }, () => {
+				build.onResolve({ filter: /^pkce-challenge$/ }, () => {
 					// Use the browser export path
 					return { path: require.resolve("pkce-challenge") }
 				})
@@ -214,7 +214,7 @@ const extensionConfig = {
 		},
 	],
 	entryPoints: ["src/extension.ts"],
-	format: "esm",
+	format: "cjs",
 	sourcesContent: false,
 	platform: "node",
 	outfile: "dist/extension.js",

@@ -15,11 +15,7 @@ suite("Global E2E Setup", () => {
 		assert.ok(extension, `Extension ${EXTENSION_ID} not found`)
 
 		if (!extension.isActive) {
-			console.log("[Setup] Activating extension...")
 			await extension.activate()
-			console.log("[Setup] Extension activated")
-		} else {
-			console.log("[Setup] Extension already active")
 		}
 
 		const exp: unknown = extension.exports
@@ -43,5 +39,9 @@ suite("Global E2E Setup", () => {
 
 		assert.ok(resolvedApi, "TheaCodeAPI not available from extension exports")
 		global.api = resolvedApi
+	})
+
+	test("setup complete", () => {
+		assert.ok(true)
 	})
 })
