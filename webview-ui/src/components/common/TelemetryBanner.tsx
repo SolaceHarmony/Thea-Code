@@ -41,7 +41,7 @@ const TelemetryBanner = () => {
 	}
 
 	const handleOpenSettings = () => {
-		window.postMessage({ type: "action", action: "settingsButtonClicked" })
+		vscode.postMessage({ type: "action", action: "settingsButtonClicked" })
 	}
 
 	return (
