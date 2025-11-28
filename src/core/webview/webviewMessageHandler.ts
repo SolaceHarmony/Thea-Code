@@ -26,16 +26,22 @@ import { singleCompletionHandler } from "../../utils/single-completion-handler"
 import { searchCommits } from "../../utils/git"
 import { exportSettings, importSettings } from "../config/importExport"
 import { OpenRouterHandler } from "../../api/providers/openrouter"
-import { getGlamaModels } from "../../api/providers/glama"
 import { getUnboundModels } from "../../api/providers/unbound"
 import { getRequestyModels } from "../../api/providers/requesty"
-import { getOpenAiModels } from "../../api/providers/openai"
-import { getOllamaModels } from "../../api/providers/ollama"
 import { getVsCodeLmModels } from "../../api/providers/vscode-lm"
 import { getLmStudioModels } from "../../api/providers/lmstudio"
 import { getOpenRouterModels } from "../../api/providers/openrouter"
 import { ModelRegistry } from "../../api/providers/model-registry"
-import { getBedrockModels, getGeminiModels, getVertexModels, getMistralModels, getDeepSeekModels } from "../../api/providers/provider-helpers"
+import { 
+	getBedrockModels, 
+	getGeminiModels, 
+	getVertexModels, 
+	getMistralModels, 
+	getDeepSeekModels,
+	getGlamaModels,
+	getOllamaModels,
+	getOpenAiModels
+} from "../../api/providers/provider-helpers"
 import { openMention } from "../mentions"
 import { telemetryService } from "../../services/telemetry/TelemetryService"
 import { TelemetrySetting } from "../../shared/TelemetrySetting"
@@ -487,7 +493,8 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			break
 		}
 		case "refreshGlamaModels": {
-			const glamaModels = await getGlamaModels()
+			const { apiConfiguration: configForRefresh } = await provider.getState()
+			const glamaModels = await getGlamaModels({ glamaApiKey: configForRefresh.glamaApiKey })
 
 			if (Object.keys(glamaModels).length > 0) {
 				const cacheDir = await provider.ensureCacheDirectoryExists()
@@ -522,10 +529,14 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 		case "refreshOpenAiModels": {
 			if (message?.values?.baseUrl && message?.values?.apiKey) {
 				const values = message.values as { baseUrl: string; apiKey: string }
-				const openAiModels = await getOpenAiModels(values.baseUrl, values.apiKey)
+				const openAiModels = await getOpenAiModels({ openAiBaseUrl: values.baseUrl, openAiApiKey: values.apiKey })
 				// Handle the case where getOpenAiModels returns {} on error or string[] on success
 				const normalizedModels = Array.isArray(openAiModels) ? openAiModels : []
-				await provider.postMessageToWebview({ type: "openAiModels", openAiModels: normalizedModels })
+				if (normalizedModels.length > 0) {
+					const cacheDir = await provider.ensureCacheDirectoryExists()
+					await fs.writeFile(path.join(cacheDir, GlobalFileNames.openAiModels), JSON.stringify(normalizedModels))
+					await provider.postMessageToWebview({ type: "openAiModels", openAiModels: normalizedModels })
+				}
 			}
 
 			break
@@ -646,20 +657,29 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 		}
 		case "requestOllamaModels": {
 			const ollamaModels = await getOllamaModels(message.text)
-			// TODO: Cache like we do for OpenRouter, etc?
-			await provider.postMessageToWebview({ type: "ollamaModels", ollamaModels })
+			if (ollamaModels.length > 0) {
+				const cacheDir = await provider.ensureCacheDirectoryExists()
+				await fs.writeFile(path.join(cacheDir, GlobalFileNames.ollamaModels), JSON.stringify(ollamaModels))
+				await provider.postMessageToWebview({ type: "ollamaModels", ollamaModels })
+			}
 			break
 		}
 		case "requestLmStudioModels": {
 			const lmStudioModels = await getLmStudioModels(message.text)
-			// TODO: Cache like we do for OpenRouter, etc?
-			await provider.postMessageToWebview({ type: "lmStudioModels", lmStudioModels })
+			if (lmStudioModels.length > 0) {
+				const cacheDir = await provider.ensureCacheDirectoryExists()
+				await fs.writeFile(path.join(cacheDir, GlobalFileNames.lmStudioModels), JSON.stringify(lmStudioModels))
+				await provider.postMessageToWebview({ type: "lmStudioModels", lmStudioModels })
+			}
 			break
 		}
 		case "requestVsCodeLmModels": {
 			const vsCodeLmModels = await getVsCodeLmModels()
-			// TODO: Cache like we do for OpenRouter, etc?
-			await provider.postMessageToWebview({ type: "vsCodeLmModels", vsCodeLmModels })
+			if (vsCodeLmModels.length > 0) {
+				const cacheDir = await provider.ensureCacheDirectoryExists()
+				await fs.writeFile(path.join(cacheDir, GlobalFileNames.vsCodeLmModels), JSON.stringify(vsCodeLmModels))
+				await provider.postMessageToWebview({ type: "vsCodeLmModels", vsCodeLmModels })
+			}
 			break
 		}
 		case "openImage": {

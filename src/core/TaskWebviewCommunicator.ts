@@ -1,3 +1,4 @@
+/// <reference lib="es2022" />
 import pWaitFor from "p-wait-for"
 import { TheaProvider } from "./webview/TheaProvider" // Renamed import and path
 import { TheaAsk, TheaMessage, TheaSay, ToolProgressStatus } from "../shared/ExtensionMessage" // Renamed imports

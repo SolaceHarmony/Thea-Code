@@ -1,3 +1,4 @@
+/// <reference lib="es2022" />
 import fs from "fs/promises"
 import * as path from "path"
 import os from "os"

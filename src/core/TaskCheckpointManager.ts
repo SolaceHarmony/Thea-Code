@@ -1,3 +1,4 @@
+/// <reference lib="es2022" />
 import * as vscode from "vscode"
 import EventEmitter from "events"
 import pWaitFor from "p-wait-for"

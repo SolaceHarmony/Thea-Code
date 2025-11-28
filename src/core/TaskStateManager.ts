@@ -1,3 +1,4 @@
+/// <reference lib="es2022" />
 import * as path from "path"
 import fs from "fs/promises"
 import getFolderSize from "get-folder-size"
