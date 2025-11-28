@@ -13,13 +13,25 @@ import * as vscode from "vscode"
 import { EXTENSION_ID } from "../thea-constants"
 import type { TheaCodeAPI } from "../../../exports/thea-code"
 
+interface ExtensionCommand {
+	command: string
+	title: string
+	category?: string
+}
+
+interface ExtensionPackageJSON {
+	contributes: {
+		commands: ExtensionCommand[]
+	}
+}
+
 suite("Architecture Patterns E2E", () => {
-	let extension: vscode.Extension<any> | undefined
+	let extension: vscode.Extension<TheaCodeAPI> | undefined
 	let api: TheaCodeAPI | undefined
 
 	suiteSetup(async function () {
 		this.timeout(60_000)
-		extension = vscode.extensions.getExtension(EXTENSION_ID)
+		extension = vscode.extensions.getExtension<TheaCodeAPI>(EXTENSION_ID)
 		assert.ok(extension, `Extension ${EXTENSION_ID} should be found`)
 		
 		if (!extension.isActive) {
@@ -28,22 +40,26 @@ suite("Architecture Patterns E2E", () => {
 
 		// Get API if available
 		const exp = extension.exports
-		if (exp && typeof exp === "object") {
-			api = (exp as any).api || exp
-		}
+		// The export is the API itself
+		api = exp
 	})
+
+	// Type assertion helper - after suiteSetup, extension is guaranteed to be defined
+	function getExtension(): vscode.Extension<TheaCodeAPI> {
+		assert.ok(extension, "Extension should be initialized in suiteSetup")
+		return extension!
+	}
 
 	test("Extension should follow single responsibility principle", async () => {
 		// Extension package.json should be well-organized
-		const packageJSON = extension.packageJSON
-		
+		const packageJSON = getExtension().packageJSON as ExtensionPackageJSON
 		// Commands should be organized by functionality
 		const commands = packageJSON.contributes.commands
 		assert.ok(commands, "Commands should be defined")
 		assert.ok(Array.isArray(commands), "Commands should be an array")
 		
 		// Categories should group related commands
-		const categories = new Set(commands.map((cmd: any) => cmd.category).filter(Boolean))
+		const categories = new Set(commands.map((cmd) => cmd.category).filter(Boolean))
 		assert.ok(categories.size > 0, "Commands should be categorized")
 		assert.ok(categories.has("Thea Code"), "Thea Code category should exist")
 	})
@@ -56,22 +72,22 @@ suite("Architecture Patterns E2E", () => {
 		// 1. Create and show
 		await vscode.commands.executeCommand("workbench.view.extension.thea-code-ActivityBar")
 		await new Promise(resolve => setTimeout(resolve, 1000))
-		assert.ok(extension.isActive, "Extension should be active after view creation")
+		assert.ok(getExtension().isActive, "Extension should be active after view creation")
 		
 		// 2. Hide
 		await vscode.commands.executeCommand("workbench.action.closeSidebar")
 		await new Promise(resolve => setTimeout(resolve, 500))
-		assert.ok(extension.isActive, "Extension should remain active after hide")
+		assert.ok(getExtension().isActive, "Extension should remain active after hide")
 		
 		// 3. Show again (recreate)
 		await vscode.commands.executeCommand("workbench.view.extension.thea-code-ActivityBar")
 		await new Promise(resolve => setTimeout(resolve, 1000))
-		assert.ok(extension.isActive, "Extension should handle view recreation")
+		assert.ok(getExtension().isActive, "Extension should handle view recreation")
 		
 		// 4. Verify functionality after recreation
 		await vscode.commands.executeCommand("thea-code.settingsButtonClicked")
 		await new Promise(resolve => setTimeout(resolve, 500))
-		assert.ok(extension.isActive, "Extension should be functional after recreation")
+		assert.ok(getExtension().isActive, "Extension should be functional after recreation")
 	})
 
 	test("Extension should implement state synchronization pattern", async function () {
@@ -93,7 +109,7 @@ suite("Architecture Patterns E2E", () => {
 			await new Promise(resolve => setTimeout(resolve, 500))
 			
 			// Extension should maintain consistent state
-			assert.ok(extension.isActive, `State should be consistent after ${view}`)
+			assert.ok(getExtension().isActive, `State should be consistent after ${view}`)
 		}
 		
 		// Return to main view
@@ -101,18 +117,18 @@ suite("Architecture Patterns E2E", () => {
 		await new Promise(resolve => setTimeout(resolve, 500))
 		
 		// State should be synchronized
-		assert.ok(extension.isActive, "State should remain synchronized")
+		assert.ok(getExtension().isActive, "State should remain synchronized")
 	})
 
 	test("Extension should support composition through menu structure", async () => {
-		const packageJSON = extension.packageJSON
+		const packageJSON = getExtension().packageJSON
 		const menus = packageJSON.contributes.menus
 		
 		// Verify menu composition
 		assert.ok(menus, "Menus should be defined")
 		
 		// Submenus enable composition
-		const submenus = packageJSON.contributes.submenus
+		const submenus = getExtension().packageJSON.contributes.submenus
 		assert.ok(submenus, "Submenus should be defined")
 		assert.ok(Array.isArray(submenus), "Submenus should be an array")
 		
@@ -150,7 +166,7 @@ suite("Architecture Patterns E2E", () => {
 			"Extension should handle concurrent operations"
 		)
 		
-		assert.ok(extension.isActive, "Extension should remain stable after concurrent ops")
+		assert.ok(getExtension().isActive, "Extension should remain stable after concurrent ops")
 	})
 
 	test("Extension should support dependency injection pattern", async () => {
@@ -164,7 +180,7 @@ suite("Architecture Patterns E2E", () => {
 		assert.ok(api, "API should be available as injected dependency")
 		
 		// Extension exports should provide access to services
-		const exp = extension.exports
+		const exp = getExtension().exports
 		assert.ok(exp, "Extension should export services")
 	})
 
@@ -191,7 +207,7 @@ suite("Architecture Patterns E2E", () => {
 		await new Promise(resolve => setTimeout(resolve, 1000))
 		
 		// Extension should still be functional
-		assert.ok(extension.isActive, "Extension should handle errors gracefully")
+		assert.ok(getExtension().isActive, "Extension should handle errors gracefully")
 	})
 
 	test("Extension should follow event-driven architecture", async function () {
@@ -208,7 +224,7 @@ suite("Architecture Patterns E2E", () => {
 		await new Promise(resolve => setTimeout(resolve, 500))
 		
 		// Extension should handle document events
-		assert.ok(extension.isActive, "Extension should handle document events")
+		assert.ok(getExtension().isActive, "Extension should handle document events")
 		
 		// 2. Window events (view visibility)
 		await vscode.commands.executeCommand("workbench.action.closeSidebar")
@@ -217,7 +233,7 @@ suite("Architecture Patterns E2E", () => {
 		await new Promise(resolve => setTimeout(resolve, 500))
 		
 		// Extension should handle window events
-		assert.ok(extension.isActive, "Extension should handle window events")
+		assert.ok(getExtension().isActive, "Extension should handle window events")
 		
 		// Clean up
 		await vscode.commands.executeCommand("workbench.action.closeActiveEditor")
@@ -237,7 +253,7 @@ suite("Architecture Patterns E2E", () => {
 		}
 		
 		// Extension should handle multiple resources
-		assert.ok(extension.isActive, "Extension should handle multiple resources")
+		assert.ok(getExtension().isActive, "Extension should handle multiple resources")
 		
 		// Dispose terminals
 		for (const terminal of terminals) {
@@ -246,7 +262,7 @@ suite("Architecture Patterns E2E", () => {
 		}
 		
 		// Extension should clean up properly
-		assert.ok(extension.isActive, "Extension should manage resource disposal")
+		assert.ok(getExtension().isActive, "Extension should manage resource disposal")
 	})
 
 	test("Extension should support configuration reactivity", async function () {
@@ -261,7 +277,7 @@ suite("Architecture Patterns E2E", () => {
 		
 		// Extension should support configuration updates
 		// (Actual update requires workspace, but we verify the pattern exists)
-		const packageJSON = extension.packageJSON
+		const packageJSON = getExtension().packageJSON
 		const configSchema = packageJSON.contributes.configuration
 		
 		assert.ok(configSchema.properties, "Configuration should support updates")
@@ -272,7 +288,7 @@ suite("Architecture Patterns E2E", () => {
 	})
 
 	test("Extension should implement proper activation strategy", async () => {
-		const packageJSON = extension.packageJSON
+		const packageJSON = getExtension().packageJSON
 		
 		// Check activation events
 		const activationEvents = packageJSON.activationEvents
@@ -286,7 +302,7 @@ suite("Architecture Patterns E2E", () => {
 		)
 		
 		// Extension should be activated by now
-		assert.ok(extension.isActive, "Extension should be activated")
+		assert.ok(getExtension().isActive, "Extension should be activated")
 	})
 
 	test("Extension should implement view persistence", async function () {
@@ -310,11 +326,11 @@ suite("Architecture Patterns E2E", () => {
 		await new Promise(resolve => setTimeout(resolve, 2000))
 		
 		// View should be restored (extension handles internally)
-		assert.ok(extension.isActive, "Extension should maintain view state")
+		assert.ok(getExtension().isActive, "Extension should maintain view state")
 	})
 
 	test("Extension should implement command validation pattern", async () => {
-		const packageJSON = extension.packageJSON
+		const packageJSON = getExtension().packageJSON
 		
 		// Commands should have proper metadata
 		const commands = packageJSON.contributes.commands
@@ -331,7 +347,7 @@ suite("Architecture Patterns E2E", () => {
 	})
 
 	test("Extension should follow separation of concerns", async () => {
-		const packageJSON = extension.packageJSON
+		const packageJSON = getExtension().packageJSON
 		
 		// Configuration is separate from commands
 		assert.ok(packageJSON.contributes.configuration, "Configuration should be separate")
@@ -348,7 +364,7 @@ suite("Architecture Patterns E2E", () => {
 	})
 
 	test("Extension should implement proper icon management", async () => {
-		const packageJSON = extension.packageJSON
+		const packageJSON = getExtension().packageJSON
 		
 		// Extension should have icon
 		assert.ok(packageJSON.icon, "Extension should have icon")
@@ -366,7 +382,7 @@ suite("Architecture Patterns E2E", () => {
 	})
 
 	test("Extension should implement proper categorization", async () => {
-		const packageJSON = extension.packageJSON
+		const packageJSON = getExtension().packageJSON
 		
 		// Extension should be in appropriate categories
 		const categories = packageJSON.categories

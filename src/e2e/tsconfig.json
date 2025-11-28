@@ -20,16 +20,16 @@
     "src/suite/index.ts",
     "src/suite/setup.ts",
     "src/suite/setup.test.ts",
-    "src/suite/model-integration.e2e.test.ts",
     "src/suite/simple.e2e.test.ts",
+    "src/suite/architecture-patterns.e2e.test.ts",
     "src/exports/**/*.d.ts",
-    "src/thea-constants.ts",
-    "../../test/generic-provider-mock/server.ts"
+    "src/thea-constants.ts"
   ],
   "exclude": [
     "node_modules",
     "out",
     "dist",
+    "../../test/generic-provider-mock/server.ts",
     // Exclude legacy selected tests to avoid duplicate discovery after migration
     "src/suite/selected/**"
   ]
