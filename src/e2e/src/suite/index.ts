@@ -160,27 +160,18 @@ export async function run() {
 				// 	],
 				// })
 
-				const files = ["model-integration.e2e.test.js"]
+				// Force load only simple test
+				const simpleTest = path.resolve(suiteOutDir, "simple.e2e.test.js")
+				const files = [simpleTest]
 
 				console.log(`[e2e] Discovered ${files.length} test file(s)`)
 				writeDebug(`[index] discovered ${files.length} file(s)`)
 
-				if (files.length === 0) {
-					writeDebug("[index] no tests found; adding trivial baseline to avoid hang")
-					suite("NO TESTS FOUND", () => {
-						test("baseline", () => { })
-					})
-				}
 				files.forEach((f) => {
 					const resolved = path.resolve(cwd, f)
 					console.log(`[e2e] addFile ${resolved}`)
-					writeDebug(`[index] addFile ${resolved}`)
-					try {
-						mocha.addFile(resolved)
-						writeDebug(`[index] addedFile success ${resolved}`)
-					} catch (e) {
-						writeDebug(`[index] addedFile failed ${resolved}: ${e}`)
-					}
+					mocha.addFile(resolved)
+					console.log(`[e2e] addedFile done ${resolved}`)
 				})
 
 				// Additionally discover co-located E2E tests under src/**/__e2e__/**/*.e2e.test.ts

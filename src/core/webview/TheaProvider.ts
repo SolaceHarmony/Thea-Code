@@ -318,6 +318,7 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		_token: vscode.CancellationToken
 	): Promise<void> {
 		this.outputChannel.appendLine("Resolving webview view (sidebar)")
+		console.log("[TheaProvider] resolveWebviewView called")
 		await this.setupWebview(webviewView)
 	}
 
@@ -327,6 +328,7 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 	 */
 	async resolveWebviewPanel(webviewPanel: vscode.WebviewPanel): Promise<void> {
 		this.outputChannel.appendLine("Resolving webview panel (tab)")
+		console.log("[TheaProvider] resolveWebviewPanel called")
 		await this.setupWebview(webviewPanel)
 	}
 
@@ -335,6 +337,7 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 	 */
 	private async setupWebview(webviewView: vscode.WebviewView | vscode.WebviewPanel): Promise<void> {
 		const isTest = process.env.THEA_E2E === "1" || process.env.NODE_ENV === "test"
+		console.log(`[TheaProvider] setupWebview (isTest=${isTest})`)
 		// Lazily initialize WorkspaceTracker unless in test mode (to avoid heavy file system watchers during e2e)
 		if (!this.workspaceTracker && !isTest) {
 			this.workspaceTracker = new WorkspaceTracker(this)
@@ -378,6 +381,8 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 			!isTest && this.contextProxy.extensionMode === vscode.ExtensionMode.Development
 				? await this.getHMRHtmlContent(webviewView.webview)
 				: this.getHtmlContent(webviewView.webview)
+
+		console.log("[TheaProvider] webview.html set")
 
 		// Sets up an event listener to listen for messages passed from the webview view context
 		// and executes code based on the message that is received
@@ -665,6 +670,7 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 	 * rendered within the webview panel
 	 */
 	private getHtmlContent(webview: vscode.Webview): string {
+		console.log("[TheaProvider] getHtmlContent called")
 		// Get the local path to main script run in the webview,
 		// then convert it to a uri we can use in the webview.
 
@@ -683,6 +689,9 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		])
 		// The JS file from the React build output
 		const scriptUri = getUri(webview, this.contextProxy.extensionUri, ["webview-ui", "build", "assets", "index.js"])
+
+		console.log(`[TheaProvider] mainStylesUri: ${mainStylesUri}`)
+		console.log(`[TheaProvider] scriptUri: ${scriptUri}`)
 
 		// The codicon font from the React build output
 		// https://github.com/microsoft/vscode-extension-samples/blob/main/webview-codicons-sample/src/extension.ts
