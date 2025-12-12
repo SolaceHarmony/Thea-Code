@@ -10,7 +10,7 @@ import { ApiConfiguration } from "../../shared/api"
 import { supportPrompt } from "../../shared/support-prompt"
 import { GlobalFileNames } from "../../shared/globalFileNames"
 
-import { checkoutDiffPayloadSchema, checkoutRestorePayloadSchema, WebviewMessage } from "../../shared/WebviewMessage"
+import { checkoutDiffPayloadSchema, checkoutRestorePayloadSchema, openExternalPayloadSchema, WebviewMessage } from "../../shared/WebviewMessage"
 import { checkExistKey } from "../../shared/checkExistApiConfig"
 import { EXPERIMENT_IDS, experimentDefault } from "../../shared/experiments"
 import { Terminal } from "../../integrations/terminal/Terminal"
@@ -44,7 +44,7 @@ import { Mode, defaultModeSlug, getModeBySlug, getGroupName } from "../../shared
 import { getDiffStrategy } from "../diff/DiffStrategy"
 import { SYSTEM_PROMPT } from "../prompts/system"
 import { buildApiHandler } from "../../api"
-import { EXTENSION_CONFIG_DIR, configSection } from "../../shared/config/thea-config"
+import { EXTENSION_CONFIG_DIR, configSection, HOMEPAGE_URL } from "../../shared/config/thea-config"
 
 // Export for testing
 export const webviewMessageHandler = async (provider: TheaProvider, message: WebviewMessage) => {
@@ -1553,16 +1553,15 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 
 			switch (action) {
 				case "openExternal": {
-					// Handle opening external URLs
-					const data = message.values as { url?: string } | undefined
-					if (data?.url) {
-						await vscode.env.openExternal(vscode.Uri.parse(data.url))
+					// Handle opening external URLs with validation
+					const result = openExternalPayloadSchema.safeParse(message.values)
+					if (result.success) {
+						await vscode.env.openExternal(vscode.Uri.parse(result.data.url))
 					}
 					break
 				}
 				case "helpButtonClicked": {
-					// Open the help/documentation URL
-					const { HOMEPAGE_URL } = await import("../../shared/config/thea-config")
+					// Open the help/documentation URL (HOMEPAGE_URL is imported at the top)
 					await vscode.env.openExternal(vscode.Uri.parse(HOMEPAGE_URL))
 					break
 				}
@@ -1573,7 +1572,9 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				case "chatButtonClicked": {
 					// These actions are for tab switching within the webview
 					// Relay back to webview for handling
-					await provider.postMessageToWebview({ type: "action", action: action as any })
+					// Type assertion is safe here since we're in a switch case that validates the action
+					type TabSwitchAction = "settingsButtonClicked" | "historyButtonClicked" | "mcpButtonClicked" | "promptsButtonClicked" | "chatButtonClicked"
+					await provider.postMessageToWebview({ type: "action", action: action as TabSwitchAction })
 					break
 				}
 				default:

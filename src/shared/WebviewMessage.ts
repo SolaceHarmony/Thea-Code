@@ -172,3 +172,10 @@ export const checkoutRestorePayloadSchema = z.object({
 export type CheckpointRestorePayload = z.infer<typeof checkoutRestorePayloadSchema>
 
 export type WebViewMessagePayload = CheckpointDiffPayload | CheckpointRestorePayload
+
+// Schema for validating openExternal action payload
+export const openExternalPayloadSchema = z.object({
+	url: z.string().url(),
+})
+
+export type OpenExternalPayload = z.infer<typeof openExternalPayloadSchema>

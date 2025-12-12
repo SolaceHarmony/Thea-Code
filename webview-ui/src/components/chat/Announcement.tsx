@@ -4,6 +4,7 @@ import { memo } from "react"
 import { useAppTranslation } from "@/i18n/TranslationContext"
 import { Trans } from "react-i18next"
 import { vscode } from "../../utils/vscode"
+import { API_REFERENCES } from "../../../../src/shared/config/thea-config"
 
 interface AnnouncementProps {
 	version: string
@@ -17,13 +18,13 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 
 	const discordLink = (
 		<VSCodeLink
-			href="https://discord.gg/thea-placeholder"
+			href={API_REFERENCES.DISCORD_URL}
 			onClick={(e) => {
 				e.preventDefault()
 				vscode.postMessage({
 					type: "action",
 					action: "openExternal",
-					values: { url: "https://discord.gg/thea-placeholder" },
+					values: { url: API_REFERENCES.DISCORD_URL },
 				})
 			}}>
 			Discord
@@ -32,13 +33,13 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 
 	const redditLink = (
 		<VSCodeLink
-			href="https://reddit.com/r/thea-placeholder"
+			href={API_REFERENCES.REDDIT_URL}
 			onClick={(e) => {
 				e.preventDefault()
 				vscode.postMessage({
 					type: "action",
 					action: "openExternal",
-					values: { url: "https://reddit.com/r/thea-placeholder" },
+					values: { url: API_REFERENCES.REDDIT_URL },
 				})
 			}}>
 			Reddit
