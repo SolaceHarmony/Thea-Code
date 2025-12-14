@@ -5,6 +5,13 @@ import { runTests, downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePat
 
 async function main() {
   try {
+    // Some environments (including certain CI/dev shells) set this, which makes
+    // the VS Code Electron binary behave like `node` and reject VS Code args.
+    if (process.env.ELECTRON_RUN_AS_NODE) {
+      console.log(`[e2e/launch] Clearing ELECTRON_RUN_AS_NODE (was ${process.env.ELECTRON_RUN_AS_NODE})`)
+      delete process.env.ELECTRON_RUN_AS_NODE
+    }
+
     // Preflight: kill lingering test/mock processes to avoid port conflicts or duplicate mocks
     // Can be disabled via THEA_AUTO_KILL=0
     const autoKill = (process.env.THEA_AUTO_KILL ?? "1") === "1"
