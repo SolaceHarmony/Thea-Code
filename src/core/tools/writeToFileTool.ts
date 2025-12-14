@@ -114,6 +114,9 @@ export async function writeToFileTool(
 	}
 	try {
 		if (block.partial) {
+			if (!relPath) {
+				return
+			}
 			// update gui message
 			const partialMessage = JSON.stringify(sharedMessageProps)
 			await theaTask.webviewCommunicator.ask("tool", partialMessage, block.partial).catch(() => { }) // Use communicator
