@@ -73,8 +73,7 @@ const App = () => {
 		}
 	}, [telemetrySetting, telemetryKey, machineId, didHydrateState])
 
-	// Tell the extension that we are ready to receive messages.
-	useEffect(() => vscode.postMessage({ type: "webviewDidLaunch" }), [])
+	// Note: webviewDidLaunch is sent by ExtensionStateContext on mount
 
 	if (!didHydrateState) {
 		// Show loading indicator while waiting for initial state

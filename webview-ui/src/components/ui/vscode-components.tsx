@@ -1,4 +1,5 @@
 import React from "react"
+import { cn } from "@/lib/utils"
 
 interface VSCodeButtonProps {
 	children?: React.ReactNode
@@ -127,15 +128,15 @@ export const VSCodeButton: React.FC<VSCodeButtonProps> = ({
 	title,
 	...props
 }) => {
-	const appearanceClass =
-		appearance === "primary" ? "primary" :
-		appearance === "secondary" ? "secondary" :
-		appearance === "icon" ? "icon" : ""
-	const buttonClassName = `vscode-button ${appearanceClass} ${className || ""}`.trim()
-
 	return (
 		<button
-			className={buttonClassName}
+			className={cn(
+				"vscode-button",
+				appearance === "primary" && "primary",
+				appearance === "secondary" && "secondary",
+				appearance === "icon" && "icon",
+				className
+			)}
 			onClick={onClick}
 			disabled={disabled}
 			style={style}
@@ -163,7 +164,7 @@ export const VSCodeCheckbox: React.FC<VSCodeCheckboxProps> = ({
 	}
 
 	return (
-		<label className={`vscode-checkbox ${className || ""}`} style={style} title={title}>
+		<label className={cn("vscode-checkbox", className)} style={style} title={title}>
 			<input type="checkbox" checked={checked} onChange={handleChange} disabled={disabled} {...props} />
 			{children && <span>{children}</span>}
 		</label>
@@ -174,7 +175,7 @@ export const VSCodeTextField = React.forwardRef<HTMLInputElement, VSCodeTextFiel
 	({ children, value, onInput, onKeyDown, placeholder, disabled, className, style, title, ...props }, ref) => {
 		return (
 			<div
-				className={`vscode-textfield ${className || ""}`}
+				className={cn("vscode-textfield", className)}
 				style={{ position: "relative", display: "inline-block", width: "100%", ...style }}>
 				<input
 					ref={ref}
@@ -205,7 +206,7 @@ export const VSCodeLink: React.FC<VSCodeLinkProps> = ({
 	return (
 		<a
 			href={href || "#"}
-			className={`vscode-link ${className || ""}`}
+			className={cn("vscode-link", className)}
 			style={style}
 			title={title}
 			onClick={onClick}
@@ -230,7 +231,7 @@ export const VSCodeTextArea: React.FC<VSCodeTextAreaProps> = ({
 			value={value}
 			onChange={onChange}
 			disabled={disabled}
-			className={`vscode-textarea ${className || ""}`}
+			className={cn("vscode-textarea", className)}
 			style={style}
 			title={title}
 			placeholder={placeholder}
@@ -254,7 +255,7 @@ export const VSCodeDropdown: React.FC<VSCodeDropdownProps> = ({
 			value={value}
 			onChange={onChange}
 			disabled={disabled}
-			className={`vscode-dropdown ${className || ""}`}
+			className={cn("vscode-dropdown", className)}
 			style={style}
 			title={title}
 			{...props}>
@@ -284,7 +285,7 @@ export const VSCodeRadio: React.FC<VSCodeRadioProps> = ({
 }) => {
 	return (
 		<label
-			className={`vscode-radio ${className || ""}`}
+			className={cn("vscode-radio", className)}
 			style={{ display: "inline-flex", alignItems: "center", ...style }}
 			title={title}>
 			<input type="radio" value={value} checked={checked} onChange={onChange} disabled={disabled} {...props} />
@@ -305,7 +306,7 @@ export const VSCodeRadioGroup: React.FC<VSCodeRadioGroupProps> = ({
 		<div
 			role="radiogroup"
 			onChange={onChange}
-			className={`vscode-radiogroup ${className || ""}`}
+			className={cn("vscode-radiogroup", className)}
 			style={style}
 			title={title}
 			{...props}>
@@ -316,7 +317,7 @@ export const VSCodeRadioGroup: React.FC<VSCodeRadioGroupProps> = ({
 
 export const VSCodePanels: React.FC<VSCodePanelsProps> = ({ children, className, style, title, ...props }) => {
 	return (
-		<div className={`vscode-panels ${className || ""}`} style={style} title={title} {...props}>
+		<div className={cn("vscode-panels", className)} style={style} title={title} {...props}>
 			{children}
 		</div>
 	)
@@ -324,7 +325,7 @@ export const VSCodePanels: React.FC<VSCodePanelsProps> = ({ children, className,
 
 export const VSCodePanelTab: React.FC<VSCodePanelTabProps> = ({ children, id, className, style, title, ...props }) => {
 	return (
-		<div id={id} className={`vscode-panel-tab ${className || ""}`} style={style} title={title} {...props}>
+		<div id={id} className={cn("vscode-panel-tab", className)} style={style} title={title} {...props}>
 			{children}
 		</div>
 	)
@@ -339,7 +340,7 @@ export const VSCodePanelView: React.FC<VSCodePanelViewProps> = ({
 	...props
 }) => {
 	return (
-		<div id={id} className={`vscode-panel-view ${className || ""}`} style={style} title={title} {...props}>
+		<div id={id} className={cn("vscode-panel-view", className)} style={style} title={title} {...props}>
 			{children}
 		</div>
 	)
