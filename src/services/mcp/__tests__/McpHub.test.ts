@@ -4,8 +4,10 @@ import type { ExtensionContext, Uri, Extension, Memento, SecretStorage, Environm
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import type { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import type { McpConnection } from "../management/McpHub"
-import { ServerConfigSchema, McpHub } from "../management/McpHub"
-import fs from "fs/promises"
+import { ServerConfigSchema } from "../management/McpHub"
+import { expect } from "chai"
+import * as sinon from "sinon"
+import proxyquire from "proxyquire"
 
 interface TestSettings {
 	mcpServers: Record<
@@ -21,36 +23,53 @@ interface TestSettings {
 	>
 }
 
-jest.mock("vscode", () => ({
-	workspace: {
-		createFileSystemWatcher: jest.fn().mockReturnValue({
-			onDidChange: jest.fn(),
-			onDidCreate: jest.fn(),
-			onDidDelete: jest.fn(),
-			dispose: jest.fn(),
-		}),
-		onDidSaveTextDocument: jest.fn(),
-		onDidChangeWorkspaceFolders: jest.fn(),
-		workspaceFolders: [],
-	},
-	window: {
-		showErrorMessage: jest.fn(),
-		showInformationMessage: jest.fn(),
-		showWarningMessage: jest.fn(),
-	},
-	Disposable: {
-		from: jest.fn(),
-	},
-}))
-jest.mock("fs/promises")
-jest.mock("../../../core/webview/TheaProvider") // Updated mock path
-
 describe("McpHub", () => {
 	let mcpHub: McpHubType
 	let mockProvider: Partial<TheaProvider> // Renamed type
+	let fsMock: any
+	let vscodeMock: any
+	let McpHub: typeof McpHubType
 
 	beforeEach(() => {
-		jest.clearAllMocks()
+		sinon.restore()
+
+		vscodeMock = {
+			workspace: {
+				createFileSystemWatcher: sinon.stub().returns({
+					onDidChange: sinon.stub(),
+					onDidCreate: sinon.stub(),
+					onDidDelete: sinon.stub(),
+					dispose: sinon.stub(),
+				}),
+				onDidSaveTextDocument: sinon.stub(),
+				onDidChangeWorkspaceFolders: sinon.stub(),
+				workspaceFolders: [],
+			},
+			window: {
+				showErrorMessage: sinon.stub(),
+				showInformationMessage: sinon.stub(),
+				showWarningMessage: sinon.stub(),
+			},
+			Disposable: {
+				from: sinon.stub(),
+			},
+			Uri: {
+				file: (path: string) => ({ fsPath: path, with: sinon.stub(), toJSON: sinon.stub() })
+			}
+		}
+
+		fsMock = {
+			readFile: sinon.stub(),
+			writeFile: sinon.stub(),
+		}
+
+		// Load McpHub with mocks
+		const module = proxyquire("../management/McpHub", {
+			"vscode": vscodeMock,
+			"fs/promises": fsMock,
+			"../../../core/webview/TheaProvider": {} 
+		})
+		McpHub = module.McpHub
 
 		const mockUri: Uri = {
 			scheme: "file",
@@ -59,14 +78,14 @@ describe("McpHub", () => {
 			query: "",
 			fragment: "",
 			fsPath: "/test/path",
-			with: jest.fn(),
-			toJSON: jest.fn(),
+			with: sinon.stub(),
+			toJSON: sinon.stub(),
 		}
 
 		mockProvider = {
-			ensureSettingsDirectoryExists: jest.fn().mockResolvedValue("/mock/settings/path"),
-			ensureMcpServersDirectoryExists: jest.fn().mockResolvedValue("/mock/settings/path"),
-			postMessageToWebview: jest.fn(),
+			ensureSettingsDirectoryExists: sinon.stub().resolves("/mock/settings/path"),
+			ensureMcpServersDirectoryExists: sinon.stub().resolves("/mock/settings/path"),
+			postMessageToWebview: sinon.stub(),
 			context: {
 				subscriptions: [],
 				workspaceState: {} as unknown as Memento,
@@ -86,7 +105,7 @@ describe("McpHub", () => {
 					packageJSON: {
 						version: "1.0.0",
 					},
-					activate: jest.fn(),
+					activate: sinon.stub(),
 					exports: undefined,
 				} as unknown as Extension<unknown>,
 				asAbsolutePath: (path: string) => path,
@@ -100,7 +119,7 @@ describe("McpHub", () => {
 		}
 
 		// Mock fs.readFile for initial settings
-		;(fs.readFile as jest.Mock).mockResolvedValue(
+		fsMock.readFile.resolves(
 			JSON.stringify({
 				mcpServers: {
 					"test-server": {
@@ -130,14 +149,14 @@ describe("McpHub", () => {
 			}
 
 			// Mock reading initial config
-			;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
+			fsMock.readFile.resolves(JSON.stringify(mockConfig))
 
 			await mcpHub.toggleToolAlwaysAllow("test-server", "global", "new-tool", true)
 
 			// Verify the config was updated correctly
-			const writeCall = (fs.writeFile as jest.Mock).mock.calls[0] as [string, string]
+			const writeCall = fsMock.writeFile.getCall(0).args
 			const writtenConfig = JSON.parse(writeCall[1]) as TestSettings
-			expect(writtenConfig.mcpServers["test-server"].alwaysAllow).toContain("new-tool")
+			expect(writtenConfig.mcpServers["test-server"].alwaysAllow).to.include("new-tool")
 		})
 
 		it("should remove tool from always allow list when disabling", async () => {
@@ -153,14 +172,14 @@ describe("McpHub", () => {
 			}
 
 			// Mock reading initial config
-			;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
+			fsMock.readFile.resolves(JSON.stringify(mockConfig))
 
 			await mcpHub.toggleToolAlwaysAllow("test-server", "global", "existing-tool", false)
 
 			// Verify the config was updated correctly
-			const writeCall = (fs.writeFile as jest.Mock).mock.calls[0] as [string, string]
+			const writeCall = fsMock.writeFile.getCall(0).args
 			const writtenConfig = JSON.parse(writeCall[1]) as TestSettings
-			expect(writtenConfig.mcpServers["test-server"].alwaysAllow).not.toContain("existing-tool")
+			expect(writtenConfig.mcpServers["test-server"].alwaysAllow).not.to.include("existing-tool")
 		})
 
 		it("should initialize alwaysAllow if it does not exist", async () => {
@@ -175,15 +194,15 @@ describe("McpHub", () => {
 			}
 
 			// Mock reading initial config
-			;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
+			fsMock.readFile.resolves(JSON.stringify(mockConfig))
 
 			await mcpHub.toggleToolAlwaysAllow("test-server", "global", "new-tool", true)
 
 			// Verify the config was updated with initialized alwaysAllow
-			const writeCall = (fs.writeFile as jest.Mock).mock.calls[0] as [string, string]
+			const writeCall = fsMock.writeFile.getCall(0).args
 			const writtenConfig = JSON.parse(writeCall[1]) as TestSettings
-			expect(writtenConfig.mcpServers["test-server"].alwaysAllow).toBeDefined()
-			expect(writtenConfig.mcpServers["test-server"].alwaysAllow).toContain("new-tool")
+			expect(writtenConfig.mcpServers["test-server"].alwaysAllow).to.exist
+			expect(writtenConfig.mcpServers["test-server"].alwaysAllow).to.include("new-tool")
 		})
 	})
 
@@ -201,14 +220,14 @@ describe("McpHub", () => {
 			}
 
 			// Mock reading initial config
-			;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
+			fsMock.readFile.resolves(JSON.stringify(mockConfig))
 
 			await mcpHub.toggleServerDisabled("test-server", true)
 
 			// Verify the config was updated correctly
-			const writeCall = (fs.writeFile as jest.Mock).mock.calls[0] as [string, string]
+			const writeCall = fsMock.writeFile.getCall(0).args
 			const writtenConfig = JSON.parse(writeCall[1]) as TestSettings
-			expect(writtenConfig.mcpServers["test-server"].disabled).toBe(true)
+			expect(writtenConfig.mcpServers["test-server"].disabled).to.be.true
 		})
 
 		it("should filter out disabled servers from getServers", () => {
@@ -238,8 +257,8 @@ describe("McpHub", () => {
 			mcpHub.connections = mockConnections
 			const servers = mcpHub.getServers()
 
-			expect(servers.length).toBe(1)
-			expect(servers[0].name).toBe("enabled-server")
+			expect(servers.length).to.equal(1)
+			expect(servers[0].name).to.equal("enabled-server")
 		})
 
 		it("should prevent calling tools on disabled servers", async () => {
@@ -251,16 +270,19 @@ describe("McpHub", () => {
 					disabled: true,
 				},
 				client: {
-					request: jest.fn().mockResolvedValue({ result: "success" }),
+					request: sinon.stub().resolves({ result: "success" }),
 				} as unknown as Client,
 				transport: {} as unknown as StdioClientTransport,
 			}
 
 			mcpHub.connections = [mockConnection]
 
-			await expect(mcpHub.callTool("disabled-server", "some-tool", {})).rejects.toThrow(
-				'Server "disabled-server" is disabled and cannot be used',
-			)
+			try {
+				await mcpHub.callTool("disabled-server", "some-tool", {})
+				expect.fail("Should have thrown error")
+			} catch (error: any) {
+				expect(error.message).to.include('Server "disabled-server" is disabled and cannot be used')
+			}
 		})
 
 		it("should prevent reading resources from disabled servers", async () => {
@@ -272,16 +294,19 @@ describe("McpHub", () => {
 					disabled: true,
 				},
 				client: {
-					request: jest.fn(),
+					request: sinon.stub(),
 				} as unknown as Client,
 				transport: {} as unknown as StdioClientTransport,
 			}
 
 			mcpHub.connections = [mockConnection]
 
-			await expect(mcpHub.readResource("disabled-server", "some/uri")).rejects.toThrow(
-				'Server "disabled-server" is disabled',
-			)
+			try {
+				await mcpHub.readResource("disabled-server", "some/uri")
+				expect.fail("Should have thrown error")
+			} catch (error: any) {
+				expect(error.message).to.include('Server "disabled-server" is disabled')
+			}
 		})
 	})
 
@@ -295,12 +320,12 @@ describe("McpHub", () => {
 					status: "connected" as const,
 				},
 				client: {
-					request: jest.fn().mockResolvedValue({ result: "success" }),
+					request: sinon.stub().resolves({ result: "success" }),
 				} as unknown as Client,
 				transport: {
-					start: jest.fn(),
-					close: jest.fn(),
-					stderr: { on: jest.fn() },
+					start: sinon.stub(),
+					close: sinon.stub(),
+					stderr: { on: sinon.stub() },
 				} as unknown as StdioClientTransport,
 			}
 
@@ -309,8 +334,8 @@ describe("McpHub", () => {
 			await mcpHub.callTool("test-server", "some-tool", {})
 
 			// Verify the request was made with correct parameters
-			// eslint-disable-next-line @typescript-eslint/unbound-method
-			expect(mockConnection.client.request as jest.Mock).toHaveBeenCalledWith(
+			const requestStub = mockConnection.client.request as sinon.SinonStub
+			expect(requestStub.calledWith(
 				{
 					method: "tools/call",
 					params: {
@@ -318,15 +343,18 @@ describe("McpHub", () => {
 						arguments: {},
 					},
 				},
-				expect.any(Object),
-				expect.objectContaining({ timeout: 60000 }), // Default 60 second timeout
-			)
+				sinon.match.any,
+				sinon.match({ timeout: 60000 }), // Default 60 second timeout
+			)).to.be.true
 		})
 
 		it("should throw error if server not found", async () => {
-			await expect(mcpHub.callTool("non-existent-server", "some-tool", {})).rejects.toThrow(
-				"No connection found for server: non-existent-server",
-			)
+			try {
+				await mcpHub.callTool("non-existent-server", "some-tool", {})
+				expect.fail("Should have thrown error")
+			} catch (error: any) {
+				expect(error.message).to.include("No connection found for server: non-existent-server")
+			}
 		})
 
 		describe("timeout configuration", () => {
@@ -337,7 +365,7 @@ describe("McpHub", () => {
 					command: "test",
 					timeout: 60,
 				}
-				expect(() => ServerConfigSchema.parse(validConfig)).not.toThrow()
+				expect(() => ServerConfigSchema.parse(validConfig)).not.to.throw()
 
 				// Test invalid timeout values
 				const invalidConfigs = [
@@ -347,7 +375,7 @@ describe("McpHub", () => {
 				]
 
 				invalidConfigs.forEach((config) => {
-					expect(() => ServerConfigSchema.parse(config)).toThrow()
+					expect(() => ServerConfigSchema.parse(config)).to.throw()
 				})
 			})
 
@@ -359,7 +387,7 @@ describe("McpHub", () => {
 						status: "connected",
 					},
 					client: {
-						request: jest.fn().mockResolvedValue({ content: [] }),
+						request: sinon.stub().resolves({ content: [] }),
 					} as unknown as Client,
 					transport: {} as unknown as StdioClientTransport,
 				}
@@ -367,12 +395,12 @@ describe("McpHub", () => {
 				mcpHub.connections = [mockConnection]
 				await mcpHub.callTool("test-server", "test-tool")
 
-				// eslint-disable-next-line @typescript-eslint/unbound-method
-				expect(mockConnection.client.request as jest.Mock).toHaveBeenCalledWith(
-					expect.anything(),
-					expect.anything(),
-					expect.objectContaining({ timeout: 60000 }), // 60 seconds in milliseconds
-				)
+				const requestStub = mockConnection.client.request as sinon.SinonStub
+				expect(requestStub.calledWith(
+					sinon.match.any,
+					sinon.match.any,
+					sinon.match({ timeout: 60000 }), // 60 seconds in milliseconds
+				)).to.be.true
 			})
 
 			it("should apply configured timeout to tool calls", async () => {
@@ -383,7 +411,7 @@ describe("McpHub", () => {
 						status: "connected",
 					},
 					client: {
-						request: jest.fn().mockResolvedValue({ content: [] }),
+						request: sinon.stub().resolves({ content: [] }),
 					} as unknown as Client,
 					transport: {} as unknown as StdioClientTransport,
 				}
@@ -391,12 +419,12 @@ describe("McpHub", () => {
 				mcpHub.connections = [mockConnection]
 				await mcpHub.callTool("test-server", "test-tool")
 
-				// eslint-disable-next-line @typescript-eslint/unbound-method
-				expect(mockConnection.client.request as jest.Mock).toHaveBeenCalledWith(
-					expect.anything(),
-					expect.anything(),
-					expect.objectContaining({ timeout: 120000 }), // 120 seconds in milliseconds
-				)
+				const requestStub = mockConnection.client.request as sinon.SinonStub
+				expect(requestStub.calledWith(
+					sinon.match.any,
+					sinon.match.any,
+					sinon.match({ timeout: 120000 }), // 120 seconds in milliseconds
+				)).to.be.true
 			})
 		})
 
@@ -414,14 +442,14 @@ describe("McpHub", () => {
 				}
 
 				// Mock reading initial config
-				;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
+				fsMock.readFile.resolves(JSON.stringify(mockConfig))
 
 				await mcpHub.updateServerTimeout("test-server", 120)
 
 				// Verify the config was updated correctly
-				const writeCall = (fs.writeFile as jest.Mock).mock.calls[0] as [string, string]
+				const writeCall = fsMock.writeFile.getCall(0).args
 				const writtenConfig = JSON.parse(writeCall[1]) as TestSettings
-				expect(writtenConfig.mcpServers["test-server"].timeout).toBe(120)
+				expect(writtenConfig.mcpServers["test-server"].timeout).to.equal(120)
 			})
 
 			it("should fallback to default timeout when config has invalid timeout", async () => {
@@ -437,13 +465,13 @@ describe("McpHub", () => {
 				}
 
 				// Mock initial read
-				;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
+				fsMock.readFile.resolves(JSON.stringify(mockConfig))
 
 				// Update with invalid timeout
 				await mcpHub.updateServerTimeout("test-server", 3601)
 
 				// Config is written
-				expect(fs.writeFile).toHaveBeenCalled()
+				expect(fsMock.writeFile.called).to.be.true
 
 				// Setup connection with invalid timeout
 				const mockConnection: McpConnection = {
@@ -458,7 +486,7 @@ describe("McpHub", () => {
 						status: "connected",
 					},
 					client: {
-						request: jest.fn().mockResolvedValue({ content: [] }),
+						request: sinon.stub().resolves({ content: [] }),
 					} as unknown as Client,
 					transport: {} as unknown as StdioClientTransport,
 				}
@@ -469,12 +497,12 @@ describe("McpHub", () => {
 				await mcpHub.callTool("test-server", "test-tool")
 
 				// Verify default timeout was used
-				// eslint-disable-next-line @typescript-eslint/unbound-method
-				expect(mockConnection.client.request as jest.Mock).toHaveBeenCalledWith(
-					expect.anything(),
-					expect.anything(),
-					expect.objectContaining({ timeout: 60000 }), // Default 60 seconds
-				)
+				const requestStub = mockConnection.client.request as sinon.SinonStub
+				expect(requestStub.calledWith(
+					sinon.match.any,
+					sinon.match.any,
+					sinon.match({ timeout: 60000 }), // Default 60 seconds
+				)).to.be.true
 			})
 
 			it("should accept valid timeout values", async () => {
@@ -489,15 +517,15 @@ describe("McpHub", () => {
 					},
 				}
 
-				;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
+				fsMock.readFile.resolves(JSON.stringify(mockConfig))
 
 				// Test valid timeout values
 				const validTimeouts = [1, 60, 3600]
 				for (const timeout of validTimeouts) {
 					await mcpHub.updateServerTimeout("test-server", timeout)
-					expect(fs.writeFile).toHaveBeenCalled()
-					jest.clearAllMocks() // Reset for next iteration
-					;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
+					expect(fsMock.writeFile.called).to.be.true
+					fsMock.writeFile.resetHistory() // Reset for next iteration
+					fsMock.readFile.resolves(JSON.stringify(mockConfig))
 				}
 			})
 
@@ -513,15 +541,15 @@ describe("McpHub", () => {
 					},
 				}
 
-				;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
+				fsMock.readFile.resolves(JSON.stringify(mockConfig))
 
 				await mcpHub.updateServerTimeout("test-server", 120)
 
-				expect(mockProvider.postMessageToWebview).toHaveBeenCalledWith(
-					expect.objectContaining({
+				expect(mockProvider.postMessageToWebview.calledWith(
+					sinon.match({
 						type: "mcpServers",
 					}),
-				)
+				)).to.be.true
 			})
 		})
 	})

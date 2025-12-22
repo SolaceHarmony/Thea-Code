@@ -131,3 +131,58 @@ export async function getAnthropicModels(options?: ApiHandlerOptions) {
   
   return modelsRecord
 }
+
+/**
+ * Get Glama models using the dynamic provider
+ */
+export async function getGlamaModels(options?: ApiHandlerOptions) {
+  const registry = ModelRegistry.getInstance()
+  
+  if (options) {
+    registry.configureProvider("glama", options)
+  }
+  
+  const models = await registry.getModels("glama")
+  
+  // Transform to Record<string, ModelInfo> format expected by frontend
+  const modelsRecord: Record<string, import("../../schemas").ModelInfo> = {}
+  for (const model of models) {
+    modelsRecord[model.id] = model.info
+  }
+  
+  return modelsRecord
+}
+
+/**
+ * Get Ollama models using the dynamic provider
+ */
+export async function getOllamaModels(baseUrl?: string) {
+  const registry = ModelRegistry.getInstance()
+  
+  if (baseUrl) {
+    registry.configureProvider("ollama", { ollamaBaseUrl: baseUrl })
+  }
+  
+  const models = await registry.getModels("ollama")
+  
+  // Transform to string[] format expected by frontend for Ollama (currently)
+  // Note: The frontend expects string[] for Ollama, unlike other providers
+  return models.map(m => m.id)
+}
+
+/**
+ * Get OpenAI models using the dynamic provider
+ */
+export async function getOpenAiModels(options?: ApiHandlerOptions) {
+  const registry = ModelRegistry.getInstance()
+  
+  if (options) {
+    registry.configureProvider("openai", options)
+  }
+  
+  const models = await registry.getModels("openai")
+  
+  // Transform to string[] format expected by frontend for OpenAI (currently)
+  // Note: The frontend expects string[] for OpenAI, unlike other providers
+  return models.map(m => m.id)
+}

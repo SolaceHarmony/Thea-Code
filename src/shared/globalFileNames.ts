@@ -13,4 +13,8 @@ export const GlobalFileNames = {
 	geminiModels: "gemini_models.json",
 	mistralModels: "mistral_models.json",
 	deepseekModels: "deepseek_models.json",
+	ollamaModels: "ollama_models.json",
+	lmStudioModels: "lmstudio_models.json",
+	vsCodeLmModels: "vscode_lm_models.json",
+	openAiModels: "openai_models.json",
 }

@@ -12,14 +12,18 @@ import { modelRegistry } from "./model-registry"
 
 // Dynamic providers
 import { DynamicAnthropicHandler } from "./anthropic-dynamic"
+import { DynamicVertexHandler } from "./vertex-dynamic"
+import { DynamicBedrockHandler } from "./bedrock-dynamic"
+import { DynamicOllamaHandler } from "./ollama-dynamic"
+import { DynamicGeminiHandler } from "./gemini-dynamic"
+import { DynamicMistralHandler } from "./mistral-dynamic"
+import { DynamicDeepSeekHandler } from "./deepseek-dynamic"
+import { DynamicGlamaHandler } from "./glama-dynamic"
 import { AnthropicModelProvider } from "./anthropic-model-provider"
 import { OpenAIModelProvider } from "./openai-model-provider"
+import { DynamicOpenAIHandler } from "./openai-dynamic"
 
-// Legacy providers (to be migrated)
-import { OpenAiHandler } from "./openai"
-import { VertexHandler } from "./vertex"
-import { AwsBedrockHandler } from "./bedrock"
-import { OllamaHandler } from "./ollama"
+
 
 /**
  * Provider factory that creates handlers with dynamic model support
@@ -69,12 +73,7 @@ export class ProviderFactory {
 			modelRegistry.registerProvider("openai", openAiProvider)
 		}
 		
-		// TODO: Register other providers as they are implemented
-		// - Vertex
-		// - Bedrock
-		// - Ollama
-		// - Mistral
-		// - Glama
+		// Note: Other providers register themselves when their dynamic handler is instantiated
 		
 		this.initialized = true
 	}
@@ -100,24 +99,36 @@ createHandler(
 				return new DynamicAnthropicHandler(options)
 			
 			case "openai":
-            // TODO: Create DynamicOpenAIHandler; for now use legacy handler
-            const OpenAiCtor = OpenAiHandler as unknown as new (o: ApiHandlerOptions) => SingleCompletionHandler
-            return new OpenAiCtor(options)
+				// Use dynamic handler for OpenAI
+				return new DynamicOpenAIHandler(options)
 			
 			case "vertex":
-            // TODO: Create DynamicVertexHandler
-            const VertexCtor = VertexHandler as unknown as new (o: ApiHandlerOptions) => SingleCompletionHandler
-            return new VertexCtor(options)
+				// Use dynamic handler for Vertex
+				return new DynamicVertexHandler(options)
 			
 			case "bedrock":
-            // TODO: Create DynamicBedrockHandler
-            const BedrockCtor = AwsBedrockHandler as unknown as new (o: ApiHandlerOptions) => SingleCompletionHandler
-            return new BedrockCtor(options)
+				// Use dynamic handler for Bedrock
+				return new DynamicBedrockHandler(options)
 			
 			case "ollama":
-            // TODO: Create DynamicOllamaHandler
-            const OllamaCtor = OllamaHandler as unknown as new (o: ApiHandlerOptions) => SingleCompletionHandler
-            return new OllamaCtor(options)
+				// Use dynamic handler for Ollama
+				return new DynamicOllamaHandler(options)
+			
+			case "gemini":
+				// Use dynamic handler for Gemini
+				return new DynamicGeminiHandler(options)
+			
+			case "mistral":
+				// Use dynamic handler for Mistral
+				return new DynamicMistralHandler(options)
+			
+			case "deepseek":
+				// Use dynamic handler for DeepSeek
+				return new DynamicDeepSeekHandler(options)
+			
+			case "glama":
+				// Use dynamic handler for Glama
+				return new DynamicGlamaHandler(options)
 			
 			// Add other providers as needed
 			default:
@@ -214,3 +225,4 @@ export async function selectModel(
 	// Return default model
 	return modelRegistry.getDefaultModelId(providerName)
 }
+

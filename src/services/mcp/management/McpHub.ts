@@ -1,3 +1,4 @@
+/// <reference lib="es2022" />
 // TODO: Continue fixing remaining ESLint issues in other methods
 import { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"

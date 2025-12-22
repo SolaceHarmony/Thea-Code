@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 
 // Lightweight imports only - heavy modules will be loaded dynamically
-import { EXTENSION_DISPLAY_NAME, EXTENSION_NAME } from "./shared/config/thea-config"
+import { EXTENSION_DISPLAY_NAME, EXTENSION_NAME, COMMANDS } from "./shared/config/thea-config"
 
 // Type-only imports (don't affect runtime)
 // type-only imports omitted to avoid unused-var warnings in E2E path
@@ -107,25 +107,31 @@ export async function activate(context: vscode.ExtensionContext) {
 			)
 		)
 
-		// Instantiate provider for testing
-		const { TheaProvider } = await import("./core/webview/TheaProvider")
-		const sidebarProvider = new TheaProvider(context, outputChannel, "sidebar")
+		// Register Native Chat Participant
+		const { registerChatParticipant } = await import("./integrations/chat/TheaChatParticipant")
+		context.subscriptions.push(registerChatParticipant(context))
+
+		// Register diff view provider
+		const { DIFF_VIEW_URI_SCHEME } = await import("./integrations/editor/DiffViewProvider")
+		const diffContentProvider = new (class implements vscode.TextDocumentContentProvider {
+			provideTextDocumentContent(uri: vscode.Uri): string {
+				return Buffer.from(uri.query, "base64").toString("utf-8")
+			}
+		})()
 		context.subscriptions.push(
-			vscode.window.registerWebviewViewProvider(String(TheaProvider.sideBarId), sidebarProvider, {
-				webviewOptions: { retainContextWhenHidden: true },
-			}),
+			vscode.workspace.registerTextDocumentContentProvider(DIFF_VIEW_URI_SCHEME, diffContentProvider),
 		)
 
-		// Return a minimal API for tests (avoid unsafe packageJSON access)
-		const pkg = context.extension?.packageJSON as { version?: string } | undefined
-		const minimalApi = {
-			outputChannel,
-			isTestMode: true,
-			version: pkg?.version ?? "",
-			sidebarProvider, // Expose provider for testing
-		}
+		const { handleUri } = await import("./activate")
+		context.subscriptions.push(vscode.window.registerUriHandler({ handleUri }))
 
-		return minimalApi
+		// Initialize terminal
+		const { TerminalRegistry } = await import("./integrations/terminal/TerminalRegistry")
+		TerminalRegistry.initialize()
+
+		// Return the real API for tests
+		const { API } = await import("./exports/api")
+		return new API(outputChannel, sidebarProvider)
 	}
 
 	// Non-E2E activation continues here with lazy loading

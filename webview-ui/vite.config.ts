@@ -10,15 +10,13 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
-			"react": path.resolve(__dirname, "./vendor/react"),
-			"scheduler": path.resolve(__dirname, "./vendor/scheduler"),
 		},
 	},
 	build: {
 		outDir: "build",
 		reportCompressedSize: false,
 		commonjsOptions: {
-			include: [/scheduler/, /node_modules/, /vendor/],
+			include: [/node_modules/],
 		},
 		rollupOptions: {
 			output: {
