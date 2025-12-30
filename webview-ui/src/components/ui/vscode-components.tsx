@@ -74,15 +74,15 @@ export interface VSCodeTextFieldProps extends Omit<ToolkitTextFieldProps, "onInp
 export const VSCodeTextField = forwardRef<ToolkitTextFieldElement, VSCodeTextFieldProps>(
         ({ children, onInput, onChange, ...props }, ref) => {
                 const handleInput = useCallback(
-                        (event: InputEvent) => {
-                                onInput?.(event as unknown as React.ChangeEvent<HTMLInputElement>)
+                        (event: Event) => {
+                                onInput?.(event)
                         },
                         [onInput],
                 )
 
                 const handleChange = useCallback(
                         (event: Event) => {
-                                onChange?.(event as unknown as React.ChangeEvent<HTMLInputElement>)
+                                onChange?.(event)
                         },
                         [onChange],
                 )
