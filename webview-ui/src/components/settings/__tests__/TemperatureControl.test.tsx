@@ -1,8 +1,10 @@
 // npx jest src/components/settings/__tests__/TemperatureControl.test.ts
 
 import { render, screen, fireEvent } from "@testing-library/react"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
 
-import { TemperatureControl } from "../TemperatureControl"
+const proxyquireStrict = proxyquire.noPreserveCache()
 
 class MockResizeObserver {
 	observe() {}
@@ -12,29 +14,43 @@ class MockResizeObserver {
 
 global.ResizeObserver = MockResizeObserver
 
-jest.mock("@/components/ui", () => ({
-	...jest.requireActual("@/components/ui"),
-	Slider: ({
-		value,
-		onValueChange,
-		"data-testid": dataTestId,
-	}: {
-		value: number[]
-		onValueChange: (value: number[]) => void
-		"data-testid"?: string
-	}) => (
-		<input
-			type="range"
-			value={value[0]}
-			onChange={(e) => onValueChange([parseFloat(e.target.value)])}
-			data-testid={dataTestId}
-		/>
-	),
-}))
-
 describe("TemperatureControl", () => {
+	let sandbox: sinon.SinonSandbox
+	let TemperatureControl: typeof import("../TemperatureControl").TemperatureControl
+
+	beforeEach(() => {
+		sandbox = sinon.createSandbox()
+
+		const actualUi = proxyquireStrict("@/components/ui", {}) as typeof import("@/components/ui")
+		TemperatureControl = proxyquireStrict("../TemperatureControl", {
+			"@/components/ui": {
+				...actualUi,
+				Slider: ({
+					value,
+					onValueChange,
+					"data-testid": dataTestId,
+				}: {
+					value: number[]
+					onValueChange: (value: number[]) => void
+					"data-testid"?: string
+				}) => (
+					<input
+						type="range"
+						value={value[0]}
+						onChange={(e) => onValueChange([parseFloat(e.target.value)])}
+						data-testid={dataTestId}
+					/>
+				),
+			},
+		}).TemperatureControl
+	})
+
+	afterEach(() => {
+		sandbox.restore()
+	})
+
 	it("renders with default temperature disabled", () => {
-		const onChange = jest.fn()
+		const onChange = sandbox.stub()
 		render(<TemperatureControl value={undefined} onChange={onChange} />)
 
 		const checkbox = screen.getByRole("checkbox")
@@ -43,7 +59,7 @@ describe("TemperatureControl", () => {
 	})
 
 	it("renders with custom temperature enabled", () => {
-		const onChange = jest.fn()
+		const onChange = sandbox.stub()
 		render(<TemperatureControl value={0.7} onChange={onChange} />)
 
 		const checkbox = screen.getByRole("checkbox")
@@ -55,7 +71,7 @@ describe("TemperatureControl", () => {
 	})
 
 	it("updates when checkbox is toggled", async () => {
-		const onChange = jest.fn()
+		const onChange = sandbox.stub()
 		render(<TemperatureControl value={0.7} onChange={onChange} />)
 
 		const checkbox = screen.getByRole("checkbox")
@@ -65,18 +81,18 @@ describe("TemperatureControl", () => {
 
 		// Waiting for debounce.
 		await new Promise((x) => setTimeout(x, 100))
-		expect(onChange).toHaveBeenCalledWith(null)
+		expect(onChange.calledWith(null)).toBe(true)
 
 		// Check - should restore previous temperature.
 		fireEvent.click(checkbox)
 
 		// Waiting for debounce.
 		await new Promise((x) => setTimeout(x, 100))
-		expect(onChange).toHaveBeenCalledWith(0.7)
+		expect(onChange.calledWith(0.7)).toBe(true)
 	})
 
 	it("syncs checkbox state when value prop changes", () => {
-		const onChange = jest.fn()
+		const onChange = sandbox.stub()
 		const { rerender } = render(<TemperatureControl value={0.7} onChange={onChange} />)
 
 		// Initially checked.

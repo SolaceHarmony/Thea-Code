@@ -2,12 +2,10 @@
 
 import { screen, fireEvent, render } from "@testing-library/react"
 import { act } from "react"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
 
-import { ModelPicker } from "../ModelPicker"
-
-jest.mock("../../../context/ExtensionStateContext", () => ({
-	useExtensionState: jest.fn(),
-}))
+const proxyquireStrict = proxyquire.noPreserveCache()
 
 class MockResizeObserver {
 	observe() {}
@@ -17,10 +15,12 @@ class MockResizeObserver {
 
 global.ResizeObserver = MockResizeObserver
 
-Element.prototype.scrollIntoView = jest.fn()
+Element.prototype.scrollIntoView = () => {}
 
 describe("ModelPicker", () => {
-	const mockSetApiConfigurationField = jest.fn()
+	let sandbox: sinon.SinonSandbox
+	let ModelPicker: typeof import("../ModelPicker").ModelPicker
+
 	const modelInfo = {
 		maxTokens: 8192,
 		contextWindow: 200_000,
@@ -36,26 +36,41 @@ describe("ModelPicker", () => {
 		model1: { name: "Model 1", description: "Test model 1", ...modelInfo },
 		model2: { name: "Model 2", description: "Test model 2", ...modelInfo },
 	}
-	const defaultProps = {
-		apiConfiguration: {},
-		defaultModelId: "model1",
-		defaultModelInfo: modelInfo,
-		modelIdKey: "glamaModelId" as const,
-		modelInfoKey: "glamaModelInfo" as const,
-		serviceName: "Test Service",
-		serviceUrl: "https://test.service",
-		recommendedModel: "recommended-model",
-		models: mockModels,
-		setApiConfigurationField: mockSetApiConfigurationField,
-	}
 
 	beforeEach(() => {
-		jest.clearAllMocks()
+		sandbox = sinon.createSandbox()
+		ModelPicker = proxyquireStrict("../ModelPicker", {
+			"../../../context/ExtensionStateContext": {
+				useExtensionState: sandbox.stub().returns({}),
+			},
+		}).ModelPicker
 	})
 
+	afterEach(() => {
+		sandbox.restore()
+	})
+
+	const buildDefaultProps = () => {
+		const mockSetApiConfigurationField = sandbox.stub()
+		return {
+			apiConfiguration: {},
+			defaultModelId: "model1",
+			defaultModelInfo: modelInfo,
+			modelIdKey: "glamaModelId" as const,
+			modelInfoKey: "glamaModelInfo" as const,
+			serviceName: "Test Service",
+			serviceUrl: "https://test.service",
+			recommendedModel: "recommended-model",
+			models: mockModels,
+			setApiConfigurationField: mockSetApiConfigurationField,
+			__mockSetApiConfigurationField: mockSetApiConfigurationField,
+		}
+	}
+
 	it("calls setApiConfigurationField when a model is selected", async () => {
+		const props = buildDefaultProps()
 		await act(async () => {
-			render(<ModelPicker {...defaultProps} />)
+			render(<ModelPicker {...props} />)
 		})
 
 		await act(async () => {
@@ -83,13 +98,14 @@ describe("ModelPicker", () => {
 		})
 
 		// Verify the API config was updated.
-		expect(mockSetApiConfigurationField).toHaveBeenCalledWith(defaultProps.modelIdKey, "model2")
-		expect(mockSetApiConfigurationField).toHaveBeenCalledWith(defaultProps.modelInfoKey, mockModels.model2)
+		expect(props.__mockSetApiConfigurationField.calledWith(props.modelIdKey, "model2")).toBe(true)
+		expect(props.__mockSetApiConfigurationField.calledWith(props.modelInfoKey, mockModels.model2)).toBe(true)
 	})
 
 	it("allows setting a custom model ID that's not in the predefined list", async () => {
+		const props = buildDefaultProps()
 		await act(async () => {
-			render(<ModelPicker {...defaultProps} />)
+			render(<ModelPicker {...props} />)
 		})
 
 		await act(async () => {
@@ -124,11 +140,8 @@ describe("ModelPicker", () => {
 		})
 
 		// Verify the API config was updated with the custom model ID
-		expect(mockSetApiConfigurationField).toHaveBeenCalledWith(defaultProps.modelIdKey, customModelId)
+		expect(props.__mockSetApiConfigurationField.calledWith(props.modelIdKey, customModelId)).toBe(true)
 		// The model info should be set to the default since this is a custom model
-		expect(mockSetApiConfigurationField).toHaveBeenCalledWith(
-			defaultProps.modelInfoKey,
-			defaultProps.defaultModelInfo,
-		)
+		expect(props.__mockSetApiConfigurationField.calledWith(props.modelInfoKey, props.defaultModelInfo)).toBe(true)
 	})
 })

@@ -1,8 +1,8 @@
 import React from "react"
 import { render, waitFor } from "@testing-library/react"
-import ChatView from "../ChatView"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
 import { ExtensionStateContextProvider } from "../../../context/ExtensionStateContext"
-import { vscode } from "../../../utils/vscode"
 
 // Define minimal types needed for testing
 interface ClineMessage {
@@ -24,32 +24,15 @@ interface ExtensionState {
 	[key: string]: unknown
 }
 
-// Mock vscode API
-jest.mock("../../../utils/vscode", () => ({
-	vscode: {
-		postMessage: jest.fn(),
-	},
-}))
+const proxyquireStrict = proxyquire.noPreserveCache()
 
-// Mock components that use ESM dependencies
-jest.mock("../BrowserSessionRow", () => ({
-	__esModule: true,
-	default: function MockBrowserSessionRow({ messages }: { messages: ClineMessage[] }) {
-		return <div data-testid="browser-session">{JSON.stringify(messages)}</div>
-	},
-}))
+const MockBrowserSessionRow = ({ messages }: { messages: ClineMessage[] }) => (
+	<div data-testid="browser-session">{JSON.stringify(messages)}</div>
+)
 
-jest.mock("../ChatRow", () => ({
-	__esModule: true,
-	default: function MockChatRow({ message }: { message: ClineMessage }) {
-		return <div data-testid="chat-row">{JSON.stringify(message)}</div>
-	},
-}))
-
-jest.mock("../AutoApproveMenu", () => ({
-	__esModule: true,
-	default: () => null,
-}))
+const MockChatRow = ({ message }: { message: ClineMessage }) => (
+	<div data-testid="chat-row">{JSON.stringify(message)}</div>
+)
 
 interface ChatTextAreaProps {
 	onSend: (value: string) => void
@@ -60,70 +43,57 @@ interface ChatTextAreaProps {
 	shouldDisableImages?: boolean
 }
 
-jest.mock("../ChatTextArea", () => {
-	// eslint-disable-next-line @typescript-eslint/no-require-imports
-	const mockReact = require("react")
-	return {
-		__esModule: true,
-		default: mockReact.forwardRef(function MockChatTextArea(
-			props: ChatTextAreaProps,
-			ref: React.ForwardedRef<HTMLInputElement>,
-		) {
-			return (
-				<div data-testid="chat-textarea">
-					<input ref={ref} type="text" onChange={(e) => props.onSend(e.target.value)} />
-				</div>
-			)
-		}),
-	}
+const MockChatTextArea = React.forwardRef(function MockChatTextArea(
+	props: ChatTextAreaProps,
+	ref: React.ForwardedRef<HTMLInputElement>,
+) {
+	return (
+		<div data-testid="chat-textarea">
+			<input ref={ref} type="text" onChange={(e) => props.onSend(e.target.value)} />
+		</div>
+	)
 })
 
-jest.mock("../TaskHeader", () => ({
-	__esModule: true,
-	default: function MockTaskHeader({ task }: { task: ClineMessage }) {
-		return <div data-testid="task-header">{JSON.stringify(task)}</div>
-	},
-}))
+const MockTaskHeader = ({ task }: { task: ClineMessage }) => <div data-testid="task-header">{JSON.stringify(task)}</div>
 
-// Mock VSCode components
-jest.mock("@/components/ui/vscode-components", () => ({
-	VSCodeButton: function MockVSCodeButton({
-		children,
-		onClick,
-		appearance,
-	}: {
-		children: React.ReactNode
-		onClick?: () => void
-		appearance?: string
-	}) {
-		return (
-			<button onClick={onClick} data-appearance={appearance}>
-				{children}
-			</button>
-		)
-	},
-	VSCodeTextField: function MockVSCodeTextField({
-		value,
-		onInput,
-		placeholder,
-	}: {
-		value?: string
-		onInput?: (e: { target: { value: string } }) => void
-		placeholder?: string
-	}) {
-		return (
-			<input
-				type="text"
-				value={value}
-				onChange={(e) => onInput?.({ target: { value: e.target.value } })}
-				placeholder={placeholder}
-			/>
-		)
-	},
-	VSCodeLink: function MockVSCodeLink({ children, href }: { children: React.ReactNode; href?: string }) {
-		return <a href={href}>{children}</a>
-	},
-}))
+const MockVSCodeButton = ({
+	children,
+	onClick,
+	appearance,
+}: {
+	children: React.ReactNode
+	onClick?: () => void
+	appearance?: string
+}) => (
+	<button onClick={onClick} data-appearance={appearance}>
+		{children}
+	</button>
+)
+
+const MockVSCodeTextField = ({
+	value,
+	onInput,
+	placeholder,
+}: {
+	value?: string
+	onInput?: (e: { target: { value: string } }) => void
+	placeholder?: string
+}) => (
+	<input
+		type="text"
+		value={value}
+		onChange={(e) => onInput?.({ target: { value: e.target.value } })}
+		placeholder={placeholder}
+	/>
+)
+
+const MockVSCodeLink = ({ children, href }: { children: React.ReactNode; href?: string }) => (
+	<a href={href}>{children}</a>
+)
+
+let sandbox: sinon.SinonSandbox
+let ChatView: typeof import("../ChatView").default
+let vscode: { postMessage: sinon.SinonStub }
 
 // Mock window.postMessage to trigger state hydration
 const mockPostMessage = (state: Partial<ExtensionState>) => {
@@ -144,9 +114,31 @@ const mockPostMessage = (state: Partial<ExtensionState>) => {
 	)
 }
 
+beforeEach(() => {
+	sandbox = sinon.createSandbox()
+	vscode = { postMessage: sandbox.stub() }
+	ChatView = proxyquireStrict("../ChatView", {
+		"../../../utils/vscode": { vscode },
+		"../BrowserSessionRow": { __esModule: true, default: MockBrowserSessionRow },
+		"../ChatRow": { __esModule: true, default: MockChatRow },
+		"../AutoApproveMenu": { __esModule: true, default: () => null },
+		"../ChatTextArea": { __esModule: true, default: MockChatTextArea },
+		"../TaskHeader": { __esModule: true, default: MockTaskHeader },
+		"@/components/ui/vscode-components": {
+			VSCodeButton: MockVSCodeButton,
+			VSCodeTextField: MockVSCodeTextField,
+			VSCodeLink: MockVSCodeLink,
+		},
+	}).default
+})
+
+afterEach(() => {
+	sandbox.restore()
+})
+
 describe("ChatView - Auto Approval Tests", () => {
 	beforeEach(() => {
-		jest.clearAllMocks()
+		sandbox.resetHistory()
 	})
 
 	it("does not auto-approve any actions when autoApprovalEnabled is false", () => {
@@ -225,10 +217,12 @@ describe("ChatView - Auto Approval Tests", () => {
 			})
 
 			// Verify no auto-approval message was sent
-			expect(vscode.postMessage).not.toHaveBeenCalledWith({
-				type: "askResponse",
-				askResponse: "yesButtonClicked",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "askResponse",
+					askResponse: "yesButtonClicked",
+				}),
+			).toBe(false)
 		})
 	})
 
@@ -281,10 +275,12 @@ describe("ChatView - Auto Approval Tests", () => {
 
 		// Wait for the auto-approval message
 		await waitFor(() => {
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "askResponse",
-				askResponse: "yesButtonClicked",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "askResponse",
+					askResponse: "yesButtonClicked",
+				}),
+			).toBe(true)
 		})
 	})
 
@@ -337,10 +333,12 @@ describe("ChatView - Auto Approval Tests", () => {
 
 		// Wait for the auto-approval message
 		await waitFor(() => {
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "askResponse",
-				askResponse: "yesButtonClicked",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "askResponse",
+					askResponse: "yesButtonClicked",
+				}),
+			).toBe(true)
 		})
 	})
 
@@ -396,10 +394,12 @@ describe("ChatView - Auto Approval Tests", () => {
 
 			// Wait for the auto-approval message
 			await waitFor(() => {
-				expect(vscode.postMessage).toHaveBeenCalledWith({
-					type: "askResponse",
-					askResponse: "yesButtonClicked",
-				})
+				expect(
+					vscode.postMessage.calledWith({
+						type: "askResponse",
+						askResponse: "yesButtonClicked",
+					}),
+				).toBe(true)
 			})
 		})
 
@@ -451,10 +451,12 @@ describe("ChatView - Auto Approval Tests", () => {
 			})
 
 			// Verify no auto-approval message was sent
-			expect(vscode.postMessage).not.toHaveBeenCalledWith({
-				type: "askResponse",
-				askResponse: "yesButtonClicked",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "askResponse",
+					askResponse: "yesButtonClicked",
+				}),
+			).toBe(false)
 		})
 	})
 
@@ -509,10 +511,12 @@ describe("ChatView - Auto Approval Tests", () => {
 
 		// Wait for the auto-approval message
 		await waitFor(() => {
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "askResponse",
-				askResponse: "yesButtonClicked",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "askResponse",
+					askResponse: "yesButtonClicked",
+				}),
+			).toBe(true)
 		})
 	})
 
@@ -566,10 +570,12 @@ describe("ChatView - Auto Approval Tests", () => {
 		})
 
 		// Verify no auto-approval message was sent
-		expect(vscode.postMessage).not.toHaveBeenCalledWith({
-			type: "askResponse",
-			askResponse: "yesButtonClicked",
-		})
+		expect(
+			vscode.postMessage.calledWith({
+				type: "askResponse",
+				askResponse: "yesButtonClicked",
+			}),
+		).toBe(false)
 	})
 
 	describe("Command Chaining Tests", () => {
@@ -599,7 +605,7 @@ describe("ChatView - Auto Approval Tests", () => {
 			]
 
 			for (const command of allowedChainedCommands) {
-				jest.clearAllMocks()
+				sandbox.resetHistory()
 
 				// First hydrate state with initial task
 				mockPostMessage({
@@ -640,10 +646,12 @@ describe("ChatView - Auto Approval Tests", () => {
 
 				// Wait for the auto-approval message
 				await waitFor(() => {
-					expect(vscode.postMessage).toHaveBeenCalledWith({
-						type: "askResponse",
-						askResponse: "yesButtonClicked",
-					})
+					expect(
+						vscode.postMessage.calledWith({
+							type: "askResponse",
+							askResponse: "yesButtonClicked",
+						}),
+					).toBe(true)
 				})
 			}
 		})
@@ -713,10 +721,12 @@ describe("ChatView - Auto Approval Tests", () => {
 				})
 
 				// Verify no auto-approval message was sent for chained commands with disallowed parts
-				expect(vscode.postMessage).not.toHaveBeenCalledWith({
-					type: "askResponse",
-					askResponse: "yesButtonClicked",
-				})
+				expect(
+					vscode.postMessage.calledWith({
+						type: "askResponse",
+						askResponse: "yesButtonClicked",
+					}),
+				).toBe(false)
 			})
 		})
 
@@ -748,7 +758,7 @@ describe("ChatView - Auto Approval Tests", () => {
 
 			// Test allowed PowerShell commands
 			for (const command of powershellCommands.allowed) {
-				jest.clearAllMocks()
+				sandbox.resetHistory()
 
 				mockPostMessage({
 					autoApprovalEnabled: true,
@@ -786,16 +796,18 @@ describe("ChatView - Auto Approval Tests", () => {
 				})
 
 				await waitFor(() => {
-					expect(vscode.postMessage).toHaveBeenCalledWith({
-						type: "askResponse",
-						askResponse: "yesButtonClicked",
-					})
+					expect(
+						vscode.postMessage.calledWith({
+							type: "askResponse",
+							askResponse: "yesButtonClicked",
+						}),
+					).toBe(true)
 				})
 			}
 
 			// Test disallowed PowerShell commands
 			for (const command of powershellCommands.disallowed) {
-				jest.clearAllMocks()
+				sandbox.resetHistory()
 
 				mockPostMessage({
 					autoApprovalEnabled: true,
@@ -832,10 +844,12 @@ describe("ChatView - Auto Approval Tests", () => {
 					],
 				})
 
-				expect(vscode.postMessage).not.toHaveBeenCalledWith({
-					type: "askResponse",
-					askResponse: "yesButtonClicked",
-				})
+				expect(
+					vscode.postMessage.calledWith({
+						type: "askResponse",
+						askResponse: "yesButtonClicked",
+					}),
+				).toBe(false)
 			}
 		})
 	})
@@ -843,7 +857,7 @@ describe("ChatView - Auto Approval Tests", () => {
 
 describe("ChatView - Sound Playing Tests", () => {
 	beforeEach(() => {
-		jest.clearAllMocks()
+		sandbox.resetHistory()
 	})
 
 	it("does not play sound for auto-approved browser actions", async () => {
@@ -901,10 +915,12 @@ describe("ChatView - Sound Playing Tests", () => {
 		})
 
 		// Verify no sound was played
-		expect(vscode.postMessage).not.toHaveBeenCalledWith({
-			type: "playSound",
-			audioType: expect.any(String),
-		})
+		expect(
+			vscode.postMessage.calledWithMatch({
+				type: "playSound",
+				audioType: sinon.match.string,
+			}),
+		).toBe(false)
 	})
 
 	it("plays notification sound for non-auto-approved browser actions", async () => {
@@ -963,10 +979,12 @@ describe("ChatView - Sound Playing Tests", () => {
 
 		// Verify notification sound was played
 		await waitFor(() => {
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "playSound",
-				audioType: "notification",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "playSound",
+					audioType: "notification",
+				}),
+			).toBe(true)
 		})
 	})
 
@@ -1022,10 +1040,12 @@ describe("ChatView - Sound Playing Tests", () => {
 
 		// Verify celebration sound was played
 		await waitFor(() => {
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "playSound",
-				audioType: "celebration",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "playSound",
+					audioType: "celebration",
+				}),
+			).toBe(true)
 		})
 	})
 
@@ -1081,10 +1101,12 @@ describe("ChatView - Sound Playing Tests", () => {
 
 		// Verify progress_loop sound was played
 		await waitFor(() => {
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "playSound",
-				audioType: "progress_loop",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "playSound",
+					audioType: "progress_loop",
+				}),
+			).toBe(true)
 		})
 	})
 })

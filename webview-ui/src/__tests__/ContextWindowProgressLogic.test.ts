@@ -1,6 +1,5 @@
 // This test directly tests the logic of the ContextWindowProgress component calculations
 // without needing to render the full component
-import { describe, test, expect } from "@jest/globals"
 import { calculateTokenDistribution } from "../utils/model-utils"
 
 export {} // This makes the file a proper TypeScript module
@@ -8,7 +7,7 @@ export {} // This makes the file a proper TypeScript module
 describe("ContextWindowProgress Logic", () => {
 	// Using the shared utility function from model-utils.ts instead of reimplementing it
 
-	test("calculates correct token distribution with default 20% reservation", () => {
+	it("calculates correct token distribution with default 20% reservation", () => {
 		const contextWindow = 4000
 		const contextTokens = 1000
 
@@ -30,7 +29,7 @@ describe("ContextWindowProgress Logic", () => {
 		expect(result.currentPercent + result.reservedPercent + result.availablePercent).toBeCloseTo(100)
 	})
 
-	test("uses provided maxTokens when available instead of default calculation", () => {
+	it("uses provided maxTokens when available instead of default calculation", () => {
 		const contextWindow = 4000
 		const contextTokens = 1000
 
@@ -66,7 +65,7 @@ describe("ContextWindowProgress Logic", () => {
 		)
 	})
 
-	test("handles negative input values", () => {
+	it("handles negative input values", () => {
 		const contextWindow = 4000
 		const contextTokens = -500 // Negative tokens should be handled gracefully
 
@@ -82,7 +81,7 @@ describe("ContextWindowProgress Logic", () => {
 		expect(result.availablePercent).toBeCloseTo(80) // 3200/4000 * 100 = 80%
 	})
 
-	test("handles zero context window gracefully", () => {
+	it("handles zero context window gracefully", () => {
 		const contextWindow = 0
 		const contextTokens = 1000
 
@@ -98,7 +97,7 @@ describe("ContextWindowProgress Logic", () => {
 		expect(totalPercentage).toBeCloseTo(100)
 	})
 
-	test("handles case where tokens exceed context window", () => {
+	it("handles case where tokens exceed context window", () => {
 		const contextWindow = 4000
 		const contextTokens = 5000 // More tokens than the window size
 

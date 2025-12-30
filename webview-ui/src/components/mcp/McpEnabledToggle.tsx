@@ -1,4 +1,4 @@
-import { Checkbox } from "vscrui"
+import { VSCodeCheckbox } from "../ui/vscode-components"
 import { useExtensionState } from "../../context/ExtensionStateContext"
 import { useAppTranslation } from "../../i18n/TranslationContext"
 import { vscode } from "../../utils/vscode"
@@ -14,9 +14,9 @@ const McpEnabledToggle = () => {
 
 	return (
 		<div style={{ marginBottom: "20px" }}>
-			<Checkbox checked={mcpEnabled} onChange={handleChange}>
-				<span style={{ fontWeight: "500" }}>{t("mcp:enableToggle.title")}</span>
-			</Checkbox>
+                        <VSCodeCheckbox checked={mcpEnabled} onChange={handleChange}>
+                                <span style={{ fontWeight: "500" }}>{t("mcp:enableToggle.title")}</span>
+                        </VSCodeCheckbox>
 			<p
 				style={{
 					fontSize: "12px",

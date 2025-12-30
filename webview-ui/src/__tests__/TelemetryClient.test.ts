@@ -1,13 +1,36 @@
 /**
  * Tests for TelemetryClient
  */
-import { telemetryClient } from "../utils/TelemetryClient"
-import posthog from "posthog-js"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
+
+const proxyquireStrict = proxyquire.noPreserveCache()
 
 describe("TelemetryClient", () => {
-	// Reset all mocks before each test
+	let sandbox: sinon.SinonSandbox
+	let telemetryClient: typeof import("../utils/TelemetryClient").telemetryClient
+	let posthog: {
+		reset: sinon.SinonStub
+		init: sinon.SinonStub
+		identify: sinon.SinonStub
+		capture: sinon.SinonStub
+	}
+
 	beforeEach(() => {
-		jest.clearAllMocks()
+		sandbox = sinon.createSandbox()
+		posthog = {
+			reset: sandbox.stub(),
+			init: sandbox.stub(),
+			identify: sandbox.stub(),
+			capture: sandbox.stub(),
+		}
+		telemetryClient = proxyquireStrict("../utils/TelemetryClient", {
+			"posthog-js": { __esModule: true, default: posthog },
+		}).telemetryClient
+	})
+
+	afterEach(() => {
+		sandbox.restore()
 	})
 
 	/**
@@ -34,7 +57,7 @@ describe("TelemetryClient", () => {
 			telemetryClient.updateTelemetryState("enabled")
 
 			// Assert
-			expect(posthog.reset).toHaveBeenCalled()
+			expect(posthog.reset.called).toBe(true)
 		})
 
 		it("initializes PostHog when telemetry is enabled with API key and distinctId", () => {
@@ -46,21 +69,21 @@ describe("TelemetryClient", () => {
 			telemetryClient.updateTelemetryState("enabled", API_KEY, DISTINCT_ID)
 
 			// Assert
-			expect(posthog.init).toHaveBeenCalledWith(
+			expect(posthog.init.calledWith(
 				API_KEY,
 				expect.objectContaining({
 					api_host: "https://us.i.posthog.com",
 					persistence: "localStorage",
 					loaded: expect.any(Function),
 				}),
-			)
+			)).toBe(true)
 
 			// Instead of trying to extract and call the callback, manually call identify
 			// This simulates what would happen when the loaded callback is triggered
 			posthog.identify(DISTINCT_ID)
 
 			// Now verify identify was called
-			expect(posthog.identify).toHaveBeenCalled()
+			expect(posthog.identify.called).toBe(true)
 		})
 
 		it("doesn't initialize PostHog when telemetry is disabled", () => {
@@ -68,7 +91,7 @@ describe("TelemetryClient", () => {
 			telemetryClient.updateTelemetryState("disabled")
 
 			// Assert
-			expect(posthog.init).not.toHaveBeenCalled()
+			expect(posthog.init.called).toBe(false)
 		})
 
 		it("doesn't initialize PostHog when telemetry is unset", () => {
@@ -76,7 +99,7 @@ describe("TelemetryClient", () => {
 			telemetryClient.updateTelemetryState("unset")
 
 			// Assert
-			expect(posthog.init).not.toHaveBeenCalled()
+			expect(posthog.init.called).toBe(false)
 		})
 	})
 
@@ -87,25 +110,25 @@ describe("TelemetryClient", () => {
 		it("captures events when telemetry is enabled", () => {
 			// Arrange - set telemetry to enabled
 			telemetryClient.updateTelemetryState("enabled", "test-key", "test-user")
-			jest.clearAllMocks() // Clear previous calls
+			posthog.capture.resetHistory()
 
 			// Act
 			telemetryClient.capture("test_event", { property: "value" })
 
 			// Assert
-			expect(posthog.capture).toHaveBeenCalledWith("test_event", { property: "value" })
+			expect(posthog.capture.calledWith("test_event", { property: "value" })).toBe(true)
 		})
 
 		it("doesn't capture events when telemetry is disabled", () => {
 			// Arrange - set telemetry to disabled
 			telemetryClient.updateTelemetryState("disabled")
-			jest.clearAllMocks() // Clear previous calls
+			posthog.capture.resetHistory()
 
 			// Act
 			telemetryClient.capture("test_event")
 
 			// Assert
-			expect(posthog.capture).not.toHaveBeenCalled()
+			expect(posthog.capture.called).toBe(false)
 		})
 
 		/**
@@ -115,13 +138,13 @@ describe("TelemetryClient", () => {
 		it("doesn't capture events when telemetry is unset", () => {
 			// Arrange - set telemetry to unset
 			telemetryClient.updateTelemetryState("unset")
-			jest.clearAllMocks() // Clear previous calls
+			posthog.capture.resetHistory()
 
 			// Act
 			telemetryClient.capture("test_event", { property: "test value" })
 
 			// Assert
-			expect(posthog.capture).not.toHaveBeenCalled()
+			expect(posthog.capture.called).toBe(false)
 		})
 	})
 })

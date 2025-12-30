@@ -1,22 +1,37 @@
 /**
  * Basic tests for TelemetryClient
  */
-import { beforeEach, describe, expect, it, jest } from "@jest/globals"
-import { telemetryClient } from "../TelemetryClient"
-import posthog from "posthog-js"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
 
-// Mock posthog-js
-jest.mock("posthog-js", () => ({
-	reset: jest.fn(),
-	init: jest.fn(),
-	identify: jest.fn(),
-	capture: jest.fn(),
-}))
+const proxyquireStrict = proxyquire.noPreserveCache()
 
 describe("TelemetryClient", () => {
-	// Reset all mocks before each test
+	let sandbox: sinon.SinonSandbox
+	let telemetryClient: typeof import("../TelemetryClient").telemetryClient
+	let posthog: {
+		reset: sinon.SinonStub
+		init: sinon.SinonStub
+		identify: sinon.SinonStub
+		capture: sinon.SinonStub
+	}
+
 	beforeEach(() => {
-		jest.clearAllMocks()
+		sandbox = sinon.createSandbox()
+		posthog = {
+			reset: sandbox.stub(),
+			init: sandbox.stub(),
+			identify: sandbox.stub(),
+			capture: sandbox.stub(),
+		}
+
+		telemetryClient = proxyquireStrict("../TelemetryClient", {
+			"posthog-js": { __esModule: true, default: posthog },
+		}).telemetryClient
+	})
+
+	afterEach(() => {
+		sandbox.restore()
 	})
 
 	it("should be a singleton", () => {
@@ -48,7 +63,7 @@ describe("TelemetryClient", () => {
 		telemetryClient.updateTelemetryState("enabled")
 
 		// Assert
-		expect(posthog.reset).toHaveBeenCalled()
+		expect(posthog.reset.called).toBe(true)
 	})
 
 	it("should initialize PostHog when telemetry is enabled with API key and distinctId", () => {
@@ -60,20 +75,20 @@ describe("TelemetryClient", () => {
 		telemetryClient.updateTelemetryState("enabled", API_KEY, DISTINCT_ID)
 
 		// Assert
-		expect(posthog.init).toHaveBeenCalledWith(
+		expect(posthog.init.calledWith(
 			API_KEY,
 			expect.objectContaining({
 				api_host: "https://us.i.posthog.com",
 				persistence: "localStorage",
 				loaded: expect.any(Function),
 			}),
-		)
+		)).toBe(true)
 
 		// Instead of trying to extract and call the callback, manually call identify
 		// This simulates what would happen when the loaded callback is triggered
 		posthog.identify(DISTINCT_ID)
 
 		// Now verify identify was called
-		expect(posthog.identify).toHaveBeenCalled()
+		expect(posthog.identify.called).toBe(true)
 	})
 })

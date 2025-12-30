@@ -1,7 +1,7 @@
 import { DEFAULT_THINKING_MODEL_MAX_TOKENS, getMaxTokensForModel } from "@/utils/model-utils"
 
 describe("getMaxTokensForModel utility from model-utils", () => {
-	test("should return maxTokens from modelInfo when thinking is false", () => {
+	it("should return maxTokens from modelInfo when thinking is false", () => {
 		const modelInfo = {
 			maxTokens: 2048,
 			thinking: false,
@@ -15,7 +15,7 @@ describe("getMaxTokensForModel utility from model-utils", () => {
 		expect(result).toBe(2048)
 	})
 
-	test("should return modelMaxTokens from apiConfig when thinking is true", () => {
+	it("should return modelMaxTokens from apiConfig when thinking is true", () => {
 		const modelInfo = {
 			maxTokens: 2048,
 			thinking: true,
@@ -29,7 +29,7 @@ describe("getMaxTokensForModel utility from model-utils", () => {
 		expect(result).toBe(4096)
 	})
 
-	test("should fallback to DEFAULT_THINKING_MODEL_MAX_TOKENS when thinking is true but apiConfig.modelMaxTokens is not defined", () => {
+	it("should fallback to DEFAULT_THINKING_MODEL_MAX_TOKENS when thinking is true but apiConfig.modelMaxTokens is not defined", () => {
 		const modelInfo = {
 			maxTokens: 2048,
 			thinking: true,
@@ -41,7 +41,7 @@ describe("getMaxTokensForModel utility from model-utils", () => {
 		expect(result).toBe(DEFAULT_THINKING_MODEL_MAX_TOKENS)
 	})
 
-	test("should handle undefined inputs gracefully", () => {
+	it("should handle undefined inputs gracefully", () => {
 		// Both undefined
 		expect(getMaxTokensForModel(undefined, undefined)).toBeUndefined()
 
@@ -59,7 +59,7 @@ describe("getMaxTokensForModel utility from model-utils", () => {
 		expect(getMaxTokensForModel(undefined, apiConfigOnly)).toBeUndefined()
 	})
 
-	test("should handle missing properties gracefully", () => {
+	it("should handle missing properties gracefully", () => {
 		// modelInfo without maxTokens
 		const modelInfoWithoutMaxTokens = {
 			thinking: true,

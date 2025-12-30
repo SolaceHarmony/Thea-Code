@@ -2,61 +2,83 @@
 
 import { ReactNode } from "react"
 import { render, screen, fireEvent } from "@testing-library/react"
-import { SelectDropdown, DropdownOptionType } from "../select-dropdown"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
 
-// Mock window.postMessage
-const postMessageMock = jest.fn()
-Object.defineProperty(window, "postMessage", {
-	writable: true,
-	value: postMessageMock,
-})
-
-// Mock the Radix UI DropdownMenu component and its children
-jest.mock("../dropdown-menu", () => {
-	return {
-		DropdownMenu: ({ children }: { children: ReactNode }) => <div data-testid="dropdown-root">{children}</div>,
-
-		DropdownMenuTrigger: ({
-			children,
-			disabled,
-			...props
-		}: {
-			children: ReactNode
-			disabled?: boolean
-			[key: string]: unknown
-		}) => (
-			<button data-testid="dropdown-trigger" disabled={disabled} {...props}>
-				{children}
-			</button>
-		),
-
-		DropdownMenuContent: ({ children }: { children: ReactNode }) => (
-			<div data-testid="dropdown-content">{children}</div>
-		),
-
-		DropdownMenuItem: ({
-			children,
-			onClick,
-			disabled,
-		}: {
-			children: ReactNode
-			onClick?: () => void
-			disabled?: boolean
-		}) => (
-			<div data-testid="dropdown-item" onClick={onClick} aria-disabled={disabled}>
-				{children}
-			</div>
-		),
-
-		DropdownMenuSeparator: () => <div data-testid="dropdown-separator" />,
-
-		DropdownMenuShortcut: ({ children }: { children: ReactNode }) => (
-			<span data-testid="dropdown-shortcut">{children}</span>
-		),
-	}
-})
+const proxyquireStrict = proxyquire.noPreserveCache()
 
 describe("SelectDropdown", () => {
+	let sandbox: sinon.SinonSandbox
+	let SelectDropdown: typeof import("../select-dropdown").SelectDropdown
+	let DropdownOptionType: typeof import("../select-dropdown").DropdownOptionType
+	let postMessageMock: sinon.SinonStub
+	let onChangeMock: sinon.SinonStub
+
+	beforeEach(() => {
+		sandbox = sinon.createSandbox()
+
+		postMessageMock = sandbox.stub()
+		Object.defineProperty(window, "postMessage", {
+			writable: true,
+			value: postMessageMock,
+		})
+
+		const dropdownMenuMock = {
+			DropdownMenu: ({ children }: { children: ReactNode }) => <div data-testid="dropdown-root">{children}</div>,
+
+			DropdownMenuTrigger: ({
+				children,
+				disabled,
+				...props
+			}: {
+				children: ReactNode
+				disabled?: boolean
+				[key: string]: unknown
+			}) => (
+				<button data-testid="dropdown-trigger" disabled={disabled} {...props}>
+					{children}
+				</button>
+			),
+
+			DropdownMenuContent: ({ children }: { children: ReactNode }) => (
+				<div data-testid="dropdown-content">{children}</div>
+			),
+
+			DropdownMenuItem: ({
+				children,
+				onClick,
+				disabled,
+			}: {
+				children: ReactNode
+				onClick?: () => void
+				disabled?: boolean
+			}) => (
+				<div data-testid="dropdown-item" onClick={onClick} aria-disabled={disabled}>
+					{children}
+				</div>
+			),
+
+			DropdownMenuSeparator: () => <div data-testid="dropdown-separator" />,
+
+			DropdownMenuShortcut: ({ children }: { children: ReactNode }) => (
+				<span data-testid="dropdown-shortcut">{children}</span>
+			),
+		}
+
+		const selectDropdownModule = proxyquireStrict("../select-dropdown", {
+			"../dropdown-menu": dropdownMenuMock,
+		}) as typeof import("../select-dropdown")
+
+		SelectDropdown = selectDropdownModule.SelectDropdown
+		DropdownOptionType = selectDropdownModule.DropdownOptionType
+
+		onChangeMock = sandbox.stub()
+	})
+
+	afterEach(() => {
+		sandbox.restore()
+	})
+
 	const options = [
 		{ value: "option1", label: "Option 1" },
 		{ value: "option2", label: "Option 2" },
@@ -64,12 +86,6 @@ describe("SelectDropdown", () => {
 		{ value: "sep-1", label: "────", disabled: true },
 		{ value: "action", label: "Action Item" },
 	]
-
-	const onChangeMock = jest.fn()
-
-	beforeEach(() => {
-		jest.clearAllMocks()
-	})
 
 	it("renders correctly with default props", () => {
 		render(<SelectDropdown value="option1" options={options} onChange={onChangeMock} />)
@@ -181,13 +197,15 @@ describe("SelectDropdown", () => {
 			fireEvent.click(dropdownItems[1])
 
 			// Check that postMessage was called with the correct action
-			expect(postMessageMock).toHaveBeenCalledWith({
-				type: "action",
-				action: "settingsButtonClicked",
-			})
+			expect(
+				postMessageMock.calledWith({
+					type: "action",
+					action: "settingsButtonClicked",
+				}),
+			).toBe(true)
 
 			// The onChange callback should not be called for action items
-			expect(onChangeMock).not.toHaveBeenCalled()
+			expect(onChangeMock.called).toBe(false)
 		})
 
 		it("only treats options with explicit ACTION type as actions", () => {
@@ -208,22 +226,24 @@ describe("SelectDropdown", () => {
 			fireEvent.click(dropdownItems[1])
 
 			// Should trigger onChange, not postMessage
-			expect(onChangeMock).toHaveBeenCalledWith("settings-action")
-			expect(postMessageMock).not.toHaveBeenCalled()
+			expect(onChangeMock.calledWith("settings-action")).toBe(true)
+			expect(postMessageMock.called).toBe(false)
 
 			// Reset mocks
-			onChangeMock.mockReset()
-			postMessageMock.mockReset()
+			onChangeMock.resetHistory()
+			postMessageMock.resetHistory()
 
 			// Click the third option (ACTION type)
 			fireEvent.click(dropdownItems[2])
 
 			// Should trigger postMessage with "settingsButtonClicked", not onChange
-			expect(postMessageMock).toHaveBeenCalledWith({
-				type: "action",
-				action: "settingsButtonClicked",
-			})
-			expect(onChangeMock).not.toHaveBeenCalled()
+			expect(
+				postMessageMock.calledWith({
+					type: "action",
+					action: "settingsButtonClicked",
+				}),
+			).toBe(true)
+			expect(onChangeMock.called).toBe(false)
 		})
 
 		it("calls onChange for regular menu items", () => {
@@ -236,10 +256,10 @@ describe("SelectDropdown", () => {
 			fireEvent.click(dropdownItems[1])
 
 			// Check that onChange was called with the correct value
-			expect(onChangeMock).toHaveBeenCalledWith("option2")
+			expect(onChangeMock.calledWith("option2")).toBe(true)
 
 			// postMessage should not be called for regular items
-			expect(postMessageMock).not.toHaveBeenCalled()
+			expect(postMessageMock.called).toBe(false)
 		})
 	})
 })

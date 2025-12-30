@@ -3,101 +3,20 @@
 import React from "react"
 import { render, screen, fireEvent } from "@testing-library/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
 
-import { vscode } from "@/utils/vscode"
 import { ExtensionStateContextProvider } from "@/context/ExtensionStateContext"
 
-import SettingsView from "../SettingsView"
+const proxyquireStrict = proxyquire.noPreserveCache()
 
-// Mock vscode API
-jest.mock("../../../utils/vscode", () => ({
-	vscode: {
-		postMessage: jest.fn(),
-	},
-}))
+class MockResizeObserver {
+	observe() {}
+	unobserve() {}
+	disconnect() {}
+}
 
-// Mock all lucide-react icons with a proxy to handle any icon requested
-jest.mock("lucide-react", () => {
-	return new Proxy(
-		{},
-		{
-			get: function (obj, prop) {
-				// Return a component factory for any icon that's requested
-				if (prop === "__esModule") {
-					return true
-				}
-				return () => <div data-testid={`${String(prop)}-icon`}>{String(prop)}</div>
-			},
-		},
-	)
-})
-
-// Mock ApiConfigManager component
-jest.mock("../ApiConfigManager", () => ({
-	__esModule: true,
-	default: ({ currentApiConfigName }: { [key: string]: unknown }) => (
-		<div data-testid="api-config-management">
-			<span>Current config: {currentApiConfigName as React.ReactNode}</span>
-		</div>
-	),
-}))
-
-// Mock VSCode components
-jest.mock("@/components/ui/vscode-components", () => ({
-	VSCodeButton: ({ children, onClick, appearance, "data-testid": dataTestId }: { [key: string]: unknown }) =>
-		appearance === "icon" ? (
-			<button
-				onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
-				className="codicon codicon-close"
-				aria-label="Remove command"
-				data-testid={dataTestId as string}>
-				<span className="codicon codicon-close" />
-			</button>
-		) : (
-			<button onClick={onClick as React.MouseEventHandler<HTMLButtonElement>} data-appearance={appearance as string} data-testid={dataTestId as string}>
-				{children as React.ReactNode}
-			</button>
-		),
-	VSCodeCheckbox: ({ children, onChange, checked, "data-testid": dataTestId }: { [key: string]: unknown }) => (
-		<label>
-			<input
-				type="checkbox"
-				checked={checked as boolean}
-				onChange={(e) => (onChange as ((event: { target: { checked: boolean } }) => void))?.(({ target: { checked: e.target.checked } }))}
-				aria-label={typeof children === "string" ? children : undefined}
-				data-testid={dataTestId as string}
-			/>
-			{children as React.ReactNode}
-		</label>
-	),
-	VSCodeTextField: ({ value, onInput, placeholder, "data-testid": dataTestId }: { [key: string]: unknown }) => (
-		<input
-			type="text"
-			value={value as string}
-			onChange={(e) => (onInput as ((event: { target: { value: string } }) => void))?.(({ target: { value: e.target.value } }))}
-			placeholder={placeholder as string}
-			data-testid={dataTestId as string}
-		/>
-	),
-	VSCodeLink: ({ children, href }: { [key: string]: unknown }) => <a href={(href as string) || "#"}>{children as React.ReactNode}</a>,
-	VSCodeRadio: ({ value, checked, onChange }: { [key: string]: unknown }) => (
-		<input type="radio" value={value as string} checked={checked as boolean} onChange={onChange as React.ChangeEventHandler<HTMLInputElement>} />
-	),
-	VSCodeRadioGroup: ({ children, onChange }: { [key: string]: unknown }) => <div onChange={onChange as React.FormEventHandler<HTMLDivElement>}>{children as React.ReactNode}</div>,
-}))
-
-// Mock Slider component
-jest.mock("@/components/ui", () => ({
-	...jest.requireActual("@/components/ui"),
-	Slider: ({ value, onValueChange, "data-testid": dataTestId }: { [key: string]: unknown }) => (
-		<input
-			type="range"
-			value={(value as number[])?.[0] || 0}
-			onChange={(e) => (onValueChange as ((value: number[]) => void))?.(([parseFloat(e.target.value)]))}
-			data-testid={dataTestId as string}
-		/>
-	),
-}))
+global.ResizeObserver = MockResizeObserver
 
 // Mock window.postMessage to trigger state hydration
 const mockPostMessage = (state: unknown) => {
@@ -122,35 +41,127 @@ const mockPostMessage = (state: unknown) => {
 	)
 }
 
-class MockResizeObserver {
-	observe() {}
-	unobserve() {}
-	disconnect() {}
-}
-
-global.ResizeObserver = MockResizeObserver
-
-const renderSettingsView = () => {
-	const onDone = jest.fn()
-	const queryClient = new QueryClient()
-
-	render(
-		<ExtensionStateContextProvider>
-			<QueryClientProvider client={queryClient}>
-				<SettingsView onDone={onDone} />
-			</QueryClientProvider>
-		</ExtensionStateContextProvider>,
-	)
-
-	// Hydrate initial state.
-	mockPostMessage({})
-
-	return { onDone }
-}
-
 describe("SettingsView - Sound Settings", () => {
+	let sandbox: sinon.SinonSandbox
+	let SettingsView: typeof import("../SettingsView").default
+	let vscode: { postMessage: sinon.SinonStub }
+
+	const renderSettingsView = () => {
+		const onDone = sandbox.stub()
+		const queryClient = new QueryClient()
+
+		render(
+			<ExtensionStateContextProvider>
+				<QueryClientProvider client={queryClient}>
+					<SettingsView onDone={onDone} />
+				</QueryClientProvider>
+			</ExtensionStateContextProvider>,
+		)
+
+		// Hydrate initial state.
+		mockPostMessage({})
+
+		return { onDone }
+	}
+
 	beforeEach(() => {
-		jest.clearAllMocks()
+		sandbox = sinon.createSandbox()
+		vscode = { postMessage: sandbox.stub() }
+
+		SettingsView = proxyquireStrict("../SettingsView", {
+			"../../../utils/vscode": {
+				vscode,
+			},
+			"lucide-react": new Proxy(
+				{},
+				{
+					get: function (obj, prop) {
+						if (prop === "__esModule") {
+							return true
+						}
+						return () => <div data-testid={`${String(prop)}-icon`}>{String(prop)}</div>
+					},
+				},
+			),
+			"../ApiConfigManager": {
+				__esModule: true,
+				default: ({ currentApiConfigName }: { [key: string]: unknown }) => (
+					<div data-testid="api-config-management">
+						<span>Current config: {currentApiConfigName as React.ReactNode}</span>
+					</div>
+				),
+			},
+			"@/components/ui/vscode-components": {
+				VSCodeButton: ({ children, onClick, appearance, "data-testid": dataTestId }: { [key: string]: unknown }) =>
+					appearance === "icon" ? (
+						<button
+							onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
+							className="codicon codicon-close"
+							aria-label="Remove command"
+							data-testid={dataTestId as string}>
+							<span className="codicon codicon-close" />
+						</button>
+					) : (
+						<button
+							onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
+							data-appearance={appearance as string}
+							data-testid={dataTestId as string}>
+							{children as React.ReactNode}
+						</button>
+					),
+				VSCodeCheckbox: ({ children, onChange, checked, "data-testid": dataTestId }: { [key: string]: unknown }) => (
+					<label>
+						<input
+							type="checkbox"
+							checked={checked as boolean}
+							onChange={(e) => {
+								const handler = onChange as ((...args: unknown[]) => void) | undefined
+								handler?.({ target: { checked: e.target.checked } })
+							}}
+							aria-label={typeof children === "string" ? children : undefined}
+							data-testid={dataTestId as string}
+						/>
+						{children as React.ReactNode}
+					</label>
+				),
+				VSCodeTextField: ({ value, onInput, placeholder, "data-testid": dataTestId }: { [key: string]: unknown }) => (
+					<input
+						type="text"
+						value={value as string}
+						onChange={(e) => {
+							const handler = onInput as ((...args: unknown[]) => void) | undefined
+							handler?.({ target: { value: e.target.value } })
+						}}
+						placeholder={placeholder as string}
+						data-testid={dataTestId as string}
+					/>
+				),
+				VSCodeLink: ({ children, href }: { [key: string]: unknown }) => (
+					<a href={(href as string) || "#"}>{children as React.ReactNode}</a>
+				),
+				VSCodeRadio: ({ value, checked, onChange }: { [key: string]: unknown }) => (
+					<input type="radio" value={value as string} checked={checked as boolean} onChange={onChange as React.ChangeEventHandler<HTMLInputElement>} />
+				),
+				VSCodeRadioGroup: ({ children, onChange }: { [key: string]: unknown }) => (
+					<div onChange={onChange as React.FormEventHandler<HTMLDivElement>}>{children as React.ReactNode}</div>
+				),
+			},
+			"@/components/ui": {
+				...proxyquireStrict("@/components/ui", {}),
+				Slider: ({ value, onValueChange, "data-testid": dataTestId }: { [key: string]: unknown }) => (
+					<input
+						type="range"
+						value={(value as number[])?.[0] || 0}
+						onChange={(e) => (onValueChange as ((value: number[]) => void))?.([parseFloat(e.target.value)])}
+						data-testid={dataTestId as string}
+					/>
+				),
+			},
+		}).default
+	})
+
+	afterEach(() => {
+		sandbox.restore()
 	})
 
 	it("initializes with tts disabled by default", () => {
@@ -186,12 +197,7 @@ describe("SettingsView - Sound Settings", () => {
 		const saveButton = screen.getByTestId("save-button")
 		fireEvent.click(saveButton)
 
-		expect(vscode.postMessage).toHaveBeenCalledWith(
-			expect.objectContaining({
-				type: "ttsEnabled",
-				bool: true,
-			}),
-		)
+		expect(vscode.postMessage.calledWithMatch({ type: "ttsEnabled", bool: true })).toBe(true)
 	})
 
 	it("toggles sound setting and sends message to VSCode", () => {
@@ -207,12 +213,7 @@ describe("SettingsView - Sound Settings", () => {
 		const saveButton = screen.getByTestId("save-button")
 		fireEvent.click(saveButton)
 
-		expect(vscode.postMessage).toHaveBeenCalledWith(
-			expect.objectContaining({
-				type: "soundEnabled",
-				bool: true,
-			}),
-		)
+		expect(vscode.postMessage.calledWithMatch({ type: "soundEnabled", bool: true })).toBe(true)
 	})
 
 	it("shows tts slider when sound is enabled", () => {
@@ -257,10 +258,7 @@ describe("SettingsView - Sound Settings", () => {
 		fireEvent.click(saveButton)
 
 		// Verify message sent to VSCode
-		expect(vscode.postMessage).toHaveBeenCalledWith({
-			type: "ttsSpeed",
-			value: 0.75,
-		})
+		expect(vscode.postMessage.calledWith({ type: "ttsSpeed", value: 0.75 })).toBe(true)
 	})
 
 	it("updates volume and sends message to VSCode when slider changes", () => {
@@ -279,28 +277,13 @@ describe("SettingsView - Sound Settings", () => {
 		fireEvent.click(saveButton)
 
 		// Verify message sent to VSCode
-		expect(vscode.postMessage).toHaveBeenCalledWith({
-			type: "soundVolume",
-			value: 0.75,
-		})
-	})
-})
-
-describe("SettingsView - API Configuration", () => {
-	beforeEach(() => {
-		jest.clearAllMocks()
+		expect(vscode.postMessage.calledWith({ type: "soundVolume", value: 0.75 })).toBe(true)
 	})
 
 	it("renders ApiConfigManagement with correct props", () => {
 		renderSettingsView()
 
 		expect(screen.getByTestId("api-config-management")).toBeInTheDocument()
-	})
-})
-
-describe("SettingsView - Allowed Commands", () => {
-	beforeEach(() => {
-		jest.clearAllMocks()
 	})
 
 	it("shows allowed commands section when alwaysAllowExecute is enabled", () => {
@@ -332,10 +315,7 @@ describe("SettingsView - Allowed Commands", () => {
 		expect(screen.getByText("npm test")).toBeInTheDocument()
 
 		// Verify VSCode message was sent
-		expect(vscode.postMessage).toHaveBeenCalledWith({
-			type: "allowedCommands",
-			commands: ["npm test"],
-		})
+		expect(vscode.postMessage.calledWith({ type: "allowedCommands", commands: ["npm test"] })).toBe(true)
 	})
 
 	it("removes command from the list", () => {
@@ -359,10 +339,7 @@ describe("SettingsView - Allowed Commands", () => {
 		expect(screen.queryByText("npm test")).not.toBeInTheDocument()
 
 		// Verify VSCode message was sent
-		expect(vscode.postMessage).toHaveBeenLastCalledWith({
-			type: "allowedCommands",
-			commands: [],
-		})
+		expect(vscode.postMessage.calledWith({ type: "allowedCommands", commands: [] })).toBe(true)
 	})
 
 	it("prevents duplicate commands", () => {
@@ -407,11 +384,6 @@ describe("SettingsView - Allowed Commands", () => {
 		fireEvent.click(saveButton)
 
 		// Verify VSCode messages were sent
-		expect(vscode.postMessage).toHaveBeenCalledWith(
-			expect.objectContaining({
-				type: "allowedCommands",
-				commands: ["npm test"],
-			}),
-		)
+		expect(vscode.postMessage.calledWithMatch({ type: "allowedCommands", commands: ["npm test"] })).toBe(true)
 	})
 })

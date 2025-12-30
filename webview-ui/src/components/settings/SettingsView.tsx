@@ -1,6 +1,6 @@
 import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
 import { useAppTranslation } from "@/i18n/TranslationContext"
-import { Button as VSCodeButton } from "vscrui"
+import { VSCodeButton } from "@/components/ui/vscode-components"
 import {
 	CheckCheck,
 	SquareMousePointer,

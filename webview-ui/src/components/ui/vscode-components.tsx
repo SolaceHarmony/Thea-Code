@@ -1,342 +1,240 @@
-import React from "react"
+import React, { useCallback, forwardRef } from "react"
 
-interface VSCodeButtonProps {
-	children?: React.ReactNode
-	onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
-	appearance?: string
-	disabled?: boolean
-	className?: string
-	style?: React.CSSProperties
-	title?: string
-	"data-testid"?: string
+import {
+        VSCodeButton as ToolkitButton,
+        VSCodeCheckbox as ToolkitCheckbox,
+        VSCodeDropdown as ToolkitDropdown,
+        VSCodeLink as ToolkitLink,
+        VSCodeOption as ToolkitOption,
+        VSCodePanelTab as ToolkitPanelTab,
+        VSCodePanelView as ToolkitPanelView,
+        VSCodePanels as ToolkitPanels,
+        VSCodeRadio as ToolkitRadio,
+        VSCodeRadioGroup as ToolkitRadioGroup,
+        VSCodeTextArea as ToolkitTextArea,
+        VSCodeTextField as ToolkitTextField,
+} from "@vscode/webview-ui-toolkit/react"
+import type { Checkbox } from "@vscode/webview-ui-toolkit"
+
+type ToolkitButtonProps = React.ComponentProps<typeof ToolkitButton>
+
+export interface VSCodeButtonProps extends Omit<ToolkitButtonProps, "onClick"> {
+        onClick?: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
 }
 
-interface VSCodeCheckboxProps {
-	children?: React.ReactNode
-	onChange?: (checked: boolean) => void
-	checked?: boolean
-	disabled?: boolean
-	className?: string
-	style?: React.CSSProperties
-	title?: string
-	"data-testid"?: string
+export const VSCodeButton: React.FC<VSCodeButtonProps> = ({ children, onClick, ...props }) => {
+        const handleClick = useCallback(
+                (event: MouseEvent) => {
+                        onClick?.(event as unknown as React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>)
+                },
+                [onClick],
+        )
+
+        return (
+                <ToolkitButton {...props} onClick={handleClick as ToolkitButtonProps["onClick"]}>
+                        {children}
+                </ToolkitButton>
+        )
 }
 
-interface VSCodeTextFieldProps {
-	children?: React.ReactNode
-	value?: string | number
-	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
-	onInput?: (e: React.ChangeEvent<HTMLInputElement>) => void
-	onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
-	placeholder?: string
-	disabled?: boolean
-	className?: string
-	style?: React.CSSProperties
-	title?: string
-	type?: string
-	"data-testid"?: string
+type ToolkitCheckboxProps = React.ComponentProps<typeof ToolkitCheckbox>
+
+export interface VSCodeCheckboxProps extends Omit<ToolkitCheckboxProps, "onChange"> {
+        onChange?: (checked: boolean) => void
 }
 
-interface VSCodeLinkProps {
-	children?: React.ReactNode
-	href?: string
-	onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void
-	className?: string
-	style?: React.CSSProperties
-	title?: string
+export const VSCodeCheckbox: React.FC<VSCodeCheckboxProps> = ({ children, onChange, ...props }) => {
+        const handleChange = useCallback(
+                (event: Event) => {
+                        if (!onChange) {
+                                return
+                        }
+
+                        const target = event.target as Checkbox | null
+                        onChange(Boolean(target?.checked))
+                },
+                [onChange],
+        )
+
+        return (
+                <ToolkitCheckbox {...props} onChange={handleChange as ToolkitCheckboxProps["onChange"]}>
+                        {children}
+                </ToolkitCheckbox>
+        )
 }
 
-interface VSCodeTextAreaProps {
-	value?: string
-	onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
-	disabled?: boolean
-	className?: string
-	style?: React.CSSProperties
-	title?: string
-	placeholder?: string
-	rows?: number
-	resize?: string
-	"data-testid"?: string
+type ToolkitTextFieldProps = React.ComponentProps<typeof ToolkitTextField>
+type ToolkitTextFieldElement = React.ElementRef<typeof ToolkitTextField>
+
+export interface VSCodeTextFieldProps extends Omit<ToolkitTextFieldProps, "onInput" | "onChange"> {
+        onInput?: (event: React.ChangeEvent<HTMLInputElement>) => void
+        onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-interface VSCodeDropdownProps {
-	children?: React.ReactNode
-	value?: string
-	onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void
-	disabled?: boolean
-	className?: string
-	style?: React.CSSProperties
-	title?: string
-}
+export const VSCodeTextField = forwardRef<ToolkitTextFieldElement, VSCodeTextFieldProps>(
+        ({ children, onInput, onChange, ...props }, ref) => {
+                const handleInput = useCallback(
+                        (event: InputEvent) => {
+                                onInput?.(event as unknown as React.ChangeEvent<HTMLInputElement>)
+                        },
+                        [onInput],
+                )
 
-interface VSCodeOptionProps {
-	children?: React.ReactNode
-	value?: string | number
-	checked?: boolean
-}
+                const handleChange = useCallback(
+                        (event: Event) => {
+                                onChange?.(event as unknown as React.ChangeEvent<HTMLInputElement>)
+                        },
+                        [onChange],
+                )
 
-interface VSCodeRadioProps {
-	children?: React.ReactNode
-	value?: string
-	checked?: boolean
-	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
-	disabled?: boolean
-	className?: string
-	style?: React.CSSProperties
-	title?: string
-}
-
-interface VSCodeRadioGroupProps {
-	children?: React.ReactNode
-	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
-	className?: string
-	style?: React.CSSProperties
-	title?: string
-}
-
-interface VSCodePanelsProps {
-	children?: React.ReactNode
-	className?: string
-	style?: React.CSSProperties
-	title?: string
-}
-
-interface VSCodePanelTabProps {
-	children?: React.ReactNode
-	id: string
-	className?: string
-	style?: React.CSSProperties
-	title?: string
-}
-
-interface VSCodePanelViewProps {
-	children?: React.ReactNode
-	id: string
-	className?: string
-	style?: React.CSSProperties
-	title?: string
-}
-
-export const VSCodeButton: React.FC<VSCodeButtonProps> = ({
-	children,
-	onClick,
-	appearance,
-	disabled,
-	className,
-	style,
-	title,
-	...props
-}) => {
-	const buttonClassName = `vscode-button ${appearance === "primary" ? "primary" : appearance === "secondary" ? "secondary" : ""} ${className || ""}`
-
-	return (
-		<button
-			className={buttonClassName}
-			onClick={onClick}
-			disabled={disabled}
-			style={style}
-			title={title}
-			{...props}>
-			{children}
-		</button>
-	)
-}
-
-export const VSCodeCheckbox: React.FC<VSCodeCheckboxProps> = ({
-	children,
-	onChange,
-	checked,
-	disabled,
-	className,
-	style,
-	title,
-	...props
-}) => {
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (onChange) {
-			onChange(e.target.checked)
-		}
-	}
-
-	return (
-		<label className={`vscode-checkbox ${className || ""}`} style={style} title={title}>
-			<input type="checkbox" checked={checked} onChange={handleChange} disabled={disabled} {...props} />
-			{children && <span>{children}</span>}
-		</label>
-	)
-}
-
-export const VSCodeTextField = React.forwardRef<HTMLInputElement, VSCodeTextFieldProps>(
-	({ children, value, onInput, onKeyDown, placeholder, disabled, className, style, title, ...props }, ref) => {
-		return (
-			<div
-				className={`vscode-textfield ${className || ""}`}
-				style={{ position: "relative", display: "inline-block", width: "100%", ...style }}>
-				<input
-					ref={ref}
-					type="text"
-					value={value}
-					onChange={onInput}
-					onKeyDown={onKeyDown}
-					placeholder={placeholder}
-					disabled={disabled}
-					title={title}
-					{...props}
-				/>
-				{children}
-			</div>
-		)
-	},
+                return (
+                        <ToolkitTextField
+                                {...props}
+                                ref={ref}
+                                onInput={handleInput as ToolkitTextFieldProps["onInput"]}
+                                onChange={handleChange as ToolkitTextFieldProps["onChange"]}>
+                                {children}
+                        </ToolkitTextField>
+                )
+        },
 )
 
-export const VSCodeLink: React.FC<VSCodeLinkProps> = ({
-	children,
-	href,
-	className,
-	style,
-	title,
-	onClick,
-	...props
-}) => {
-	return (
-		<a
-			href={href || "#"}
-			className={`vscode-link ${className || ""}`}
-			style={style}
-			title={title}
-			onClick={onClick}
-			{...props}>
-			{children}
-		</a>
-	)
+type ToolkitLinkProps = React.ComponentProps<typeof ToolkitLink>
+
+export interface VSCodeLinkProps extends Omit<ToolkitLinkProps, "onClick"> {
+        onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void
 }
 
-export const VSCodeTextArea: React.FC<VSCodeTextAreaProps> = ({
-	value,
-	onChange,
-	disabled,
-	className,
-	style,
-	title,
-	placeholder,
-	...props
-}) => {
-	return (
-		<textarea
-			value={value}
-			onChange={onChange}
-			disabled={disabled}
-			className={`vscode-textarea ${className || ""}`}
-			style={style}
-			title={title}
-			placeholder={placeholder}
-			{...props}
-		/>
-	)
+export const VSCodeLink: React.FC<VSCodeLinkProps> = ({ children, onClick, ...props }) => {
+        const handleClick = useCallback(
+                (event: MouseEvent) => {
+                        onClick?.(event as unknown as React.MouseEvent<HTMLAnchorElement>)
+                },
+                [onClick],
+        )
+
+        return (
+                <ToolkitLink {...props} onClick={handleClick as ToolkitLinkProps["onClick"]}>
+                        {children}
+                </ToolkitLink>
+        )
 }
 
-export const VSCodeDropdown: React.FC<VSCodeDropdownProps> = ({
-	children,
-	value,
-	onChange,
-	disabled,
-	className,
-	style,
-	title,
-	...props
-}) => {
-	return (
-		<select
-			value={value}
-			onChange={onChange}
-			disabled={disabled}
-			className={`vscode-dropdown ${className || ""}`}
-			style={style}
-			title={title}
-			{...props}>
-			{children}
-		</select>
-	)
+type ToolkitTextAreaProps = React.ComponentProps<typeof ToolkitTextArea>
+
+export interface VSCodeTextAreaProps extends Omit<ToolkitTextAreaProps, "onInput" | "onChange"> {
+        onInput?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void
+        onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void
 }
 
-export const VSCodeOption: React.FC<VSCodeOptionProps> = ({ children, value, ...props }) => {
-	return (
-		<option value={value} {...props}>
-			{children}
-		</option>
-	)
+export const VSCodeTextArea: React.FC<VSCodeTextAreaProps> = ({ children, onInput, onChange, ...props }) => {
+        const handleInput = useCallback(
+                (event: InputEvent) => {
+                        onInput?.(event as unknown as React.ChangeEvent<HTMLTextAreaElement>)
+                },
+                [onInput],
+        )
+
+        const handleChange = useCallback(
+                (event: Event) => {
+                        onChange?.(event as unknown as React.ChangeEvent<HTMLTextAreaElement>)
+                },
+                [onChange],
+        )
+
+        return (
+                <ToolkitTextArea
+                        {...props}
+                        onInput={handleInput as ToolkitTextAreaProps["onInput"]}
+                        onChange={handleChange as ToolkitTextAreaProps["onChange"]}>
+                        {children}
+                </ToolkitTextArea>
+        )
 }
 
-export const VSCodeRadio: React.FC<VSCodeRadioProps> = ({
-	children,
-	value,
-	checked,
-	onChange,
-	disabled,
-	className,
-	style,
-	title,
-	...props
-}) => {
-	return (
-		<label
-			className={`vscode-radio ${className || ""}`}
-			style={{ display: "inline-flex", alignItems: "center", ...style }}
-			title={title}>
-			<input type="radio" value={value} checked={checked} onChange={onChange} disabled={disabled} {...props} />
-			{children && <span style={{ marginLeft: "4px" }}>{children}</span>}
-		</label>
-	)
+type ToolkitDropdownProps = React.ComponentProps<typeof ToolkitDropdown>
+
+export interface VSCodeDropdownProps extends Omit<ToolkitDropdownProps, "onChange"> {
+        onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void
 }
 
-export const VSCodeRadioGroup: React.FC<VSCodeRadioGroupProps> = ({
-	children,
-	onChange,
-	className,
-	style,
-	title,
-	...props
-}) => {
-	return (
-		<div
-			role="radiogroup"
-			onChange={onChange}
-			className={`vscode-radiogroup ${className || ""}`}
-			style={style}
-			title={title}
-			{...props}>
-			{children}
-		</div>
-	)
+export const VSCodeDropdown: React.FC<VSCodeDropdownProps> = ({ children, onChange, ...props }) => {
+        const handleChange = useCallback(
+                (event: Event) => {
+                        onChange?.(event as unknown as React.ChangeEvent<HTMLSelectElement>)
+                },
+                [onChange],
+        )
+
+        return (
+                <ToolkitDropdown {...props} onChange={handleChange as ToolkitDropdownProps["onChange"]}>
+                        {children}
+                </ToolkitDropdown>
+        )
 }
 
-export const VSCodePanels: React.FC<VSCodePanelsProps> = ({ children, className, style, title, ...props }) => {
-	return (
-		<div className={`vscode-panels ${className || ""}`} style={style} title={title} {...props}>
-			{children}
-		</div>
-	)
+export type VSCodeOptionProps = React.ComponentProps<typeof ToolkitOption>
+
+export const VSCodeOption: React.FC<VSCodeOptionProps> = ({ children, ...props }) => (
+        <ToolkitOption {...props}>{children}</ToolkitOption>
+)
+
+type ToolkitRadioProps = React.ComponentProps<typeof ToolkitRadio>
+
+export interface VSCodeRadioProps extends Omit<ToolkitRadioProps, "onChange"> {
+        onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-export const VSCodePanelTab: React.FC<VSCodePanelTabProps> = ({ children, id, className, style, title, ...props }) => {
-	return (
-		<div id={id} className={`vscode-panel-tab ${className || ""}`} style={style} title={title} {...props}>
-			{children}
-		</div>
-	)
+export const VSCodeRadio: React.FC<VSCodeRadioProps> = ({ children, onChange, ...props }) => {
+        const handleChange = useCallback(
+                (event: Event) => {
+                        onChange?.(event as unknown as React.ChangeEvent<HTMLInputElement>)
+                },
+                [onChange],
+        )
+
+        return (
+                <ToolkitRadio {...props} onChange={handleChange as ToolkitRadioProps["onChange"]}>
+                        {children}
+                </ToolkitRadio>
+        )
 }
 
-export const VSCodePanelView: React.FC<VSCodePanelViewProps> = ({
-	children,
-	id,
-	className,
-	style,
-	title,
-	...props
-}) => {
-	return (
-		<div id={id} className={`vscode-panel-view ${className || ""}`} style={style} title={title} {...props}>
-			{children}
-		</div>
-	)
+type ToolkitRadioGroupProps = React.ComponentProps<typeof ToolkitRadioGroup>
+
+export interface VSCodeRadioGroupProps extends Omit<ToolkitRadioGroupProps, "onChange"> {
+        onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
+
+export const VSCodeRadioGroup: React.FC<VSCodeRadioGroupProps> = ({ children, onChange, ...props }) => {
+        const handleChange = useCallback(
+                (event: Event) => {
+                        onChange?.(event as unknown as React.ChangeEvent<HTMLInputElement>)
+                },
+                [onChange],
+        )
+
+        return (
+                <ToolkitRadioGroup {...props} onChange={handleChange as ToolkitRadioGroupProps["onChange"]}>
+                        {children}
+                </ToolkitRadioGroup>
+        )
+}
+
+export type VSCodePanelsProps = React.ComponentProps<typeof ToolkitPanels>
+
+export const VSCodePanels: React.FC<VSCodePanelsProps> = ({ children, ...props }) => (
+        <ToolkitPanels {...props}>{children}</ToolkitPanels>
+)
+
+export type VSCodePanelTabProps = React.ComponentProps<typeof ToolkitPanelTab>
+
+export const VSCodePanelTab: React.FC<VSCodePanelTabProps> = ({ children, ...props }) => (
+        <ToolkitPanelTab {...props}>{children}</ToolkitPanelTab>
+)
+
+export type VSCodePanelViewProps = React.ComponentProps<typeof ToolkitPanelView>
+
+export const VSCodePanelView: React.FC<VSCodePanelViewProps> = ({ children, ...props }) => (
+        <ToolkitPanelView {...props}>{children}</ToolkitPanelView>
+)

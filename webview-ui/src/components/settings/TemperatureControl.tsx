@@ -1,4 +1,4 @@
-import { Checkbox } from "vscrui"
+import { VSCodeCheckbox } from "@/components/ui/vscode-components"
 import { useEffect, useState } from "react"
 import { useAppTranslation } from "@/i18n/TranslationContext"
 import { useDebounce } from "react-use"
@@ -28,19 +28,20 @@ export const TemperatureControl = ({ value, onChange, maxValue = 1 }: Temperatur
 	return (
 		<>
 			<div>
-				<Checkbox
-					checked={isCustomTemperature}
-					onChange={(checked: boolean) => {
-						setIsCustomTemperature(checked)
+                                <VSCodeCheckbox
+                                        checked={isCustomTemperature}
+                                        onChange={(checked: boolean) => {
+                                                setIsCustomTemperature(checked)
 
-						if (!checked) {
+                                                if (!checked) {
 							setInputValue(null) // Unset the temperature, note that undefined is unserializable.
 						} else {
 							setInputValue(value ?? 0) // Use the value from apiConfiguration, if set.
 						}
-					}}>
-					<label className="block font-medium mb-1">{t("settings:temperature.useCustom")}</label>
-				</Checkbox>
+                                        }}
+                                        data-testid="temperature-custom-toggle">
+                                        <label className="block font-medium mb-1">{t("settings:temperature.useCustom")}</label>
+                                </VSCodeCheckbox>
 				<div className="text-sm text-vscode-descriptionForeground mt-1">
 					{t("settings:temperature.description")}
 				</div>

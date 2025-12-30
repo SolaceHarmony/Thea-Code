@@ -1,6 +1,7 @@
 // cd webview-ui && npx jest src/context/__tests__/ExtensionStateContext.test.tsx
 
 import { render, screen, act } from "@testing-library/react"
+import sinon from "sinon"
 
 import { ExtensionState } from "../../../../src/shared/ExtensionMessage"
 import { ExtensionStateContextProvider, useExtensionState, mergeExtensionState } from "../ExtensionStateContext"
@@ -107,14 +108,13 @@ describe("ExtensionStateContext", () => {
 
 	it("throws error when used outside provider", () => {
 		// Suppress console.error for this test since we expect an error
-		const consoleSpy = jest.spyOn(console, "error")
-		consoleSpy.mockImplementation(() => {})
+		const consoleSpy = sinon.stub(console, "error")
 
 		expect(() => {
 			render(<TestComponent />)
 		}).toThrow("useExtensionState must be used within an ExtensionStateContextProvider")
 
-		consoleSpy.mockRestore()
+		consoleSpy.restore()
 	})
 
 	it("updates apiConfiguration through setApiConfiguration", () => {

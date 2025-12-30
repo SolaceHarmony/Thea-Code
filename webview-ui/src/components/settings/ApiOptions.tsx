@@ -4,24 +4,8 @@ import { Trans } from "react-i18next"
 import { getRequestyAuthUrl, getOpenRouterAuthUrl, getGlamaAuthUrl } from "@/oauth/urls.ts"
 import { useDebounce, useEvent } from "react-use"
 import { LanguageModelChatSelector } from "vscode"
-import { Checkbox } from "vscrui"
 import { Button } from "@/components/ui"
-import { VSCodeTextField, VSCodeLink } from "../ui/vscode-components"
-// Simple replacements for VSCodeRadio and VSCodeRadioGroup
-const VSCodeRadio: React.FC<{ value: string; children: React.ReactNode }> = ({ value, children, ...props }) => (
-	<label style={{ display: "inline-flex", alignItems: "center", margin: "4px 0" }}>
-		<input type="radio" value={value} {...props} />
-		<span style={{ marginLeft: "4px" }}>{children}</span>
-	</label>
-)
-const VSCodeRadioGroup: React.FC<{
-	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
-	children: React.ReactNode
-}> = ({ onChange, children, ...props }) => (
-	<div role="radiogroup" onChange={onChange} {...props}>
-		{children}
-	</div>
-)
+import { VSCodeCheckbox, VSCodeLink, VSCodeRadio, VSCodeRadioGroup, VSCodeTextField } from "../ui/vscode-components"
 import { ExternalLinkIcon } from "@radix-ui/react-icons"
 
 import {
@@ -450,17 +434,18 @@ const ApiOptions = ({
 					{!fromWelcomeView && (
 						<>
 							<div>
-								<Checkbox
-									checked={openRouterBaseUrlSelected}
-									onChange={(checked: boolean) => {
-										setOpenRouterBaseUrlSelected(checked)
+                                                                <VSCodeCheckbox
+                                                                        checked={openRouterBaseUrlSelected}
+                                                                        onChange={(checked: boolean) => {
+                                                                                setOpenRouterBaseUrlSelected(checked)
 
-										if (!checked) {
-											setApiConfigurationField("openRouterBaseUrl", "")
-										}
-									}}>
-									{t("settings:providers.useCustomBaseUrl")}
-								</Checkbox>
+                                                                                if (!checked) {
+                                                                                        setApiConfigurationField("openRouterBaseUrl", "")
+                                                                                }
+                                                                        }}
+                                                                        data-testid="openrouter-use-custom-base-url">
+                                                                        {t("settings:providers.useCustomBaseUrl")}
+                                                                </VSCodeCheckbox>
 								{openRouterBaseUrlSelected && (
 									<VSCodeTextField
 										value={apiConfiguration?.openRouterBaseUrl || ""}
@@ -471,12 +456,12 @@ const ApiOptions = ({
 									/>
 								)}
 							</div>
-							<Checkbox
-								checked={apiConfiguration?.openRouterUseMiddleOutTransform ?? true}
-								onChange={handleInputChange("openRouterUseMiddleOutTransform", noTransform)}>
-								<Trans
-									i18nKey="settings:providers.openRouterTransformsText"
-									components={{
+                                                        <VSCodeCheckbox
+                                                                checked={apiConfiguration?.openRouterUseMiddleOutTransform ?? true}
+                                                                onChange={handleInputChange("openRouterUseMiddleOutTransform", noTransform)}>
+                                                                <Trans
+                                                                        i18nKey="settings:providers.openRouterTransformsText"
+                                                                        components={{
 										a: (
 											<a
 												href="https://openrouter.ai/docs/transforms"
@@ -486,7 +471,7 @@ const ApiOptions = ({
 										),
 									}}
 								/>
-							</Checkbox>
+                                                        </VSCodeCheckbox>
 						</>
 					)}
 				</>
@@ -510,18 +495,18 @@ const ApiOptions = ({
 							{t("settings:providers.getAnthropicApiKey")}
 						</VSCodeButtonLink>
 					)}
-					<div>
-						<Checkbox
-							checked={anthropicBaseUrlSelected}
-							onChange={(checked: boolean) => {
-								setAnthropicBaseUrlSelected(checked)
+                                        <div>
+                                                <VSCodeCheckbox
+                                                        checked={anthropicBaseUrlSelected}
+                                                        onChange={(checked: boolean) => {
+                                                                setAnthropicBaseUrlSelected(checked)
 
-								if (!checked) {
-									setApiConfigurationField("anthropicBaseUrl", "")
-								}
-							}}>
-							{t("settings:providers.useCustomBaseUrl")}
-						</Checkbox>
+                                                                if (!checked) {
+                                                                        setApiConfigurationField("anthropicBaseUrl", "")
+                                                                }
+                                                        }}>
+                                                        {t("settings:providers.useCustomBaseUrl")}
+                                                </VSCodeCheckbox>
 						{anthropicBaseUrlSelected && (
 							<VSCodeTextField
 								value={apiConfiguration?.anthropicBaseUrl || ""}
@@ -711,11 +696,11 @@ const ApiOptions = ({
 							</SelectContent>
 						</Select>
 					</div>
-					<Checkbox
+					<VSCodeCheckbox
 						checked={apiConfiguration?.awsUseCrossRegionInference || false}
 						onChange={handleInputChange("awsUseCrossRegionInference", noTransform)}>
 						{t("settings:providers.awsCrossRegion")}
-					</Checkbox>
+					</VSCodeCheckbox>
 				</>
 			)}
 
@@ -807,7 +792,7 @@ const ApiOptions = ({
 						</VSCodeButtonLink>
 					)}
 					<div>
-						<Checkbox
+						<VSCodeCheckbox
 							checked={googleGeminiBaseUrlSelected}
 							onChange={(checked: boolean) => {
 								setGoogleGeminiBaseUrlSelected(checked)
@@ -817,7 +802,7 @@ const ApiOptions = ({
 								}
 							}}>
 							{t("settings:providers.useCustomBaseUrl")}
-						</Checkbox>
+						</VSCodeCheckbox>
 						{googleGeminiBaseUrlSelected && (
 							<VSCodeTextField
 								value={apiConfiguration?.googleGeminiBaseUrl || ""}
@@ -864,18 +849,18 @@ const ApiOptions = ({
 						onChange={handleInputChange("openAiR1FormatEnabled", noTransform)}
 						openAiR1FormatEnabled={apiConfiguration?.openAiR1FormatEnabled ?? false}
 					/>
-					<Checkbox
+					<VSCodeCheckbox
 						checked={apiConfiguration?.openAiStreamingEnabled ?? true}
 						onChange={handleInputChange("openAiStreamingEnabled", noTransform)}>
 						{t("settings:modelInfo.enableStreaming")}
-					</Checkbox>
-					<Checkbox
+					</VSCodeCheckbox>
+					<VSCodeCheckbox
 						checked={apiConfiguration?.openAiUseAzure ?? false}
 						onChange={handleInputChange("openAiUseAzure", noTransform)}>
 						{t("settings:modelInfo.useAzure")}
-					</Checkbox>
+					</VSCodeCheckbox>
 					<div>
-						<Checkbox
+						<VSCodeCheckbox
 							checked={azureApiVersionSelected}
 							onChange={(checked: boolean) => {
 								setAzureApiVersionSelected(checked)
@@ -885,7 +870,7 @@ const ApiOptions = ({
 								}
 							}}>
 							{t("settings:modelInfo.azureApiVersion")}
-						</Checkbox>
+						</VSCodeCheckbox>
 						{azureApiVersionSelected && (
 							<VSCodeTextField
 								value={apiConfiguration?.azureApiVersion || ""}
@@ -988,7 +973,7 @@ const ApiOptions = ({
 
 						<div>
 							<div className="flex items-center gap-1">
-								<Checkbox
+								<VSCodeCheckbox
 									checked={
 										apiConfiguration?.openAiCustomModelInfo?.supportsImages ??
 										openAiModelInfoSaneDefaults.supportsImages
@@ -1002,7 +987,7 @@ const ApiOptions = ({
 									<span className="font-medium">
 										{t("settings:providers.customModel.imageSupport.label")}
 									</span>
-								</Checkbox>
+								</VSCodeCheckbox>
 								<i
 									className="codicon codicon-info text-vscode-descriptionForeground"
 									title={t("settings:providers.customModel.imageSupport.description")}
@@ -1016,7 +1001,7 @@ const ApiOptions = ({
 
 						<div>
 							<div className="flex items-center gap-1">
-								<Checkbox
+								<VSCodeCheckbox
 									checked={apiConfiguration?.openAiCustomModelInfo?.supportsComputerUse ?? false}
 									onChange={handleInputChange("openAiCustomModelInfo", (checked) => {
 										return {
@@ -1027,7 +1012,7 @@ const ApiOptions = ({
 									<span className="font-medium">
 										{t("settings:providers.customModel.computerUse.label")}
 									</span>
-								</Checkbox>
+								</VSCodeCheckbox>
 								<i
 									className="codicon codicon-info text-vscode-descriptionForeground"
 									title={t("settings:providers.customModel.computerUse.description")}
@@ -1041,7 +1026,7 @@ const ApiOptions = ({
 
 						<div>
 							<div className="flex items-center gap-1">
-								<Checkbox
+								<VSCodeCheckbox
 									checked={apiConfiguration?.openAiCustomModelInfo?.supportsPromptCache ?? false}
 									onChange={handleInputChange("openAiCustomModelInfo", (checked) => {
 										return {
@@ -1052,7 +1037,7 @@ const ApiOptions = ({
 									<span className="font-medium">
 										{t("settings:providers.customModel.promptCache.label")}
 									</span>
-								</Checkbox>
+								</VSCodeCheckbox>
 								<i
 									className="codicon codicon-info text-vscode-descriptionForeground"
 									title={t("settings:providers.customModel.promptCache.description")}
@@ -1286,13 +1271,13 @@ const ApiOptions = ({
 							))}
 						</VSCodeRadioGroup>
 					)}
-					<Checkbox
+					<VSCodeCheckbox
 						checked={apiConfiguration?.lmStudioSpeculativeDecodingEnabled === true}
 						onChange={(checked) => {
 							setApiConfigurationField("lmStudioSpeculativeDecodingEnabled", checked)
 						}}>
 						{t("settings:providers.lmStudio.speculativeDecoding")}
-					</Checkbox>
+					</VSCodeCheckbox>
 					{apiConfiguration?.lmStudioSpeculativeDecodingEnabled && (
 						<>
 							<div>

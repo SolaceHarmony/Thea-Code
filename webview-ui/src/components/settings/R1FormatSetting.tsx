@@ -1,4 +1,4 @@
-import { Checkbox } from "vscrui"
+import { VSCodeCheckbox } from "@/components/ui/vscode-components"
 
 import { useAppTranslation } from "@/i18n/TranslationContext"
 
@@ -13,9 +13,9 @@ export const R1FormatSetting = ({ onChange, openAiR1FormatEnabled }: R1FormatSet
 	return (
 		<div>
 			<div className="flex items-center gap-2">
-				<Checkbox checked={openAiR1FormatEnabled} onChange={onChange}>
-					<span className="font-medium">{t("settings:modelInfo.enableR1Format")}</span>
-				</Checkbox>
+                                <VSCodeCheckbox checked={openAiR1FormatEnabled} onChange={onChange}>
+                                        <span className="font-medium">{t("settings:modelInfo.enableR1Format")}</span>
+                                </VSCodeCheckbox>
 			</div>
 			<p className="text-vscode-descriptionForeground text-sm mt-0">
 				{t("settings:modelInfo.enableR1FormatTips")}

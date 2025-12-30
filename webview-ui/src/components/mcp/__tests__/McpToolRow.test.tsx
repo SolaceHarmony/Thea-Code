@@ -1,48 +1,15 @@
 import React from "react"
 import { render, fireEvent, screen } from "@testing-library/react"
-import McpToolRow from "../McpToolRow"
-import { vscode } from "../../../utils/vscode"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
 
-// Mock the translation hook
-jest.mock("../../../i18n/TranslationContext", () => ({
-	useAppTranslation: () => ({
-		t: (key: string) => {
-			const translations: Record<string, string> = {
-				"mcp:tool.alwaysAllow": "Always allow",
-				"mcp:tool.parameters": "Parameters",
-				"mcp:tool.noDescription": "No description",
-			}
-			return translations[key] || key
-		},
-	}),
-}))
-
-jest.mock("../../../utils/vscode", () => ({
-	vscode: {
-		postMessage: jest.fn(),
-	},
-}))
-
-jest.mock("@/components/ui/vscode-components", () => ({
-	VSCodeCheckbox: function MockVSCodeCheckbox({
-		children,
-		checked,
-		onChange,
-	}: {
-		children?: React.ReactNode
-		checked?: boolean
-		onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
-	}) {
-		return (
-			<label>
-				<input type="checkbox" checked={checked} onChange={onChange} />
-				{children}
-			</label>
-		)
-	},
-}))
+const proxyquireStrict = proxyquire.noPreserveCache()
 
 describe("McpToolRow", () => {
+	let sandbox: sinon.SinonSandbox
+	let McpToolRow: typeof import("../McpToolRow").default
+	let vscode: { postMessage: sinon.SinonStub }
+
 	const mockTool = {
 		name: "test-tool",
 		description: "A test tool",
@@ -50,7 +17,48 @@ describe("McpToolRow", () => {
 	}
 
 	beforeEach(() => {
-		jest.clearAllMocks()
+		sandbox = sinon.createSandbox()
+		vscode = { postMessage: sandbox.stub() }
+
+		McpToolRow = proxyquireStrict("../McpToolRow", {
+			"../../../i18n/TranslationContext": {
+				useAppTranslation: () => ({
+					t: (key: string) => {
+						const translations: Record<string, string> = {
+							"mcp:tool.alwaysAllow": "Always allow",
+							"mcp:tool.parameters": "Parameters",
+							"mcp:tool.noDescription": "No description",
+						}
+						return translations[key] || key
+					},
+				}),
+			},
+			"../../../utils/vscode": {
+				vscode,
+			},
+			"@/components/ui/vscode-components": {
+				VSCodeCheckbox: function MockVSCodeCheckbox({
+					children,
+					checked,
+					onChange,
+				}: {
+					children?: React.ReactNode
+					checked?: boolean
+					onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+				}) {
+					return (
+						<label>
+							<input type="checkbox" checked={checked} onChange={onChange} />
+							{children}
+						</label>
+					)
+				},
+			},
+		}).default
+	})
+
+	afterEach(() => {
+		sandbox.restore()
 	})
 
 	it("renders tool name and description", () => {
@@ -78,13 +86,15 @@ describe("McpToolRow", () => {
 		const checkbox = screen.getByRole("checkbox")
 		fireEvent.click(checkbox)
 
-		expect(vscode.postMessage).toHaveBeenCalledWith({
-			type: "toggleToolAlwaysAllow",
-			serverName: "test-server",
-			toolName: "test-tool",
-			alwaysAllow: true,
-			source: "global",
-		})
+		expect(
+			vscode.postMessage.calledWith({
+				type: "toggleToolAlwaysAllow",
+				serverName: "test-server",
+				toolName: "test-tool",
+				alwaysAllow: true,
+				source: "global",
+			}),
+		).toBe(true)
 	})
 
 	it("reflects always allow state in checkbox", () => {
@@ -100,7 +110,7 @@ describe("McpToolRow", () => {
 	})
 
 	it("prevents event propagation when clicking the checkbox", () => {
-		const mockOnClick = jest.fn()
+		const mockOnClick = sandbox.stub()
 		render(
 			<div onClick={mockOnClick}>
 				<McpToolRow tool={mockTool} serverName="test-server" alwaysAllowMcp={true} />
@@ -110,7 +120,7 @@ describe("McpToolRow", () => {
 		const container = screen.getByTestId("tool-row-container")
 		fireEvent.click(container)
 
-		expect(mockOnClick).not.toHaveBeenCalled()
+		expect(mockOnClick.called).toBe(false)
 	})
 
 	it("displays input schema parameters when provided", () => {

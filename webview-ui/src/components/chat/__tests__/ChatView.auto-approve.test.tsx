@@ -1,70 +1,29 @@
 import React from "react"
 import { render, waitFor } from "@testing-library/react"
-import ChatView from "../ChatView"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
 import { ExtensionStateContextProvider } from "../../../context/ExtensionStateContext"
-import { vscode } from "../../../utils/vscode"
 import { TheaMessage } from "../../../../../src/shared/ExtensionMessage"
 
-// Mock vscode API
-jest.mock("../../../utils/vscode", () => ({
-	vscode: {
-		postMessage: jest.fn(),
-	},
-}))
+const proxyquireStrict = proxyquire.noPreserveCache()
 
-// Mock all problematic dependencies
-jest.mock("rehype-highlight", () => ({
-	__esModule: true,
-	default: () => () => {},
-}))
+const MockBrowserSessionRow = ({ messages }: { messages: TheaMessage[] }) => (
+	<div data-testid="browser-session">{JSON.stringify(messages)}</div>
+)
 
-jest.mock("hast-util-to-text", () => ({
-	__esModule: true,
-	default: () => "",
-}))
+const MockChatRow = ({ message }: { message: TheaMessage }) => (
+	<div data-testid="chat-row">{JSON.stringify(message)}</div>
+)
 
-// Mock components that use ESM dependencies
-jest.mock("../BrowserSessionRow", () => ({
-	__esModule: true,
-	default: function MockBrowserSessionRow({ messages }: { messages: TheaMessage[] }) {
-		return <div data-testid="browser-session">{JSON.stringify(messages)}</div>
-	},
-}))
+const MockTaskHeader = ({ task }: { task: TheaMessage }) => <div data-testid="task-header">{JSON.stringify(task)}</div>
 
-jest.mock("../ChatRow", () => ({
-	__esModule: true,
-	default: function MockChatRow({ message }: { message: TheaMessage }) {
-		return <div data-testid="chat-row">{JSON.stringify(message)}</div>
-	},
-}))
+const MockCodeBlock = () => null
 
-jest.mock("../TaskHeader", () => ({
-	__esModule: true,
-	default: function MockTaskHeader({ task }: { task: TheaMessage }) {
-		return <div data-testid="task-header">{JSON.stringify(task)}</div>
-	},
-}))
+const MockCodeAccordian = () => null
 
-jest.mock("../AutoApproveMenu", () => ({
-	__esModule: true,
-	default: () => null,
-}))
-
-jest.mock("../../common/CodeBlock", () => ({
-	__esModule: true,
-	default: () => null,
-	CODE_BLOCK_BG_COLOR: "rgb(30, 30, 30)",
-}))
-
-jest.mock("../../common/CodeAccordian", () => ({
-	__esModule: true,
-	default: () => null,
-}))
-
-jest.mock("../ContextMenu", () => ({
-	__esModule: true,
-	default: () => null,
-}))
+let sandbox: sinon.SinonSandbox
+let ChatView: typeof import("../ChatView").default
+let vscode: { postMessage: sinon.SinonStub }
 
 // Mock window.postMessage to trigger state hydration
 const mockPostMessage = (state: Partial<Record<string, unknown>>) => {
@@ -86,9 +45,34 @@ const mockPostMessage = (state: Partial<Record<string, unknown>>) => {
 	)
 }
 
+beforeEach(() => {
+	sandbox = sinon.createSandbox()
+	vscode = { postMessage: sandbox.stub() }
+	ChatView = proxyquireStrict("../ChatView", {
+		"../../../utils/vscode": { vscode },
+		"rehype-highlight": { __esModule: true, default: () => () => {} },
+		"hast-util-to-text": { __esModule: true, default: () => "" },
+		"../BrowserSessionRow": { __esModule: true, default: MockBrowserSessionRow },
+		"../ChatRow": { __esModule: true, default: MockChatRow },
+		"../TaskHeader": { __esModule: true, default: MockTaskHeader },
+		"../AutoApproveMenu": { __esModule: true, default: () => null },
+		"../../common/CodeBlock": {
+			__esModule: true,
+			default: MockCodeBlock,
+			CODE_BLOCK_BG_COLOR: "rgb(30, 30, 30)",
+		},
+		"../../common/CodeAccordian": { __esModule: true, default: MockCodeAccordian },
+		"../ContextMenu": { __esModule: true, default: () => null },
+	}).default
+})
+
+afterEach(() => {
+	sandbox.restore()
+})
+
 describe("ChatView - Auto Approval Tests", () => {
 	beforeEach(() => {
-		jest.clearAllMocks()
+		sandbox.resetHistory()
 	})
 
 	it("auto-approves read operations when enabled", async () => {
@@ -140,10 +124,12 @@ describe("ChatView - Auto Approval Tests", () => {
 
 		// Wait for the auto-approval message
 		await waitFor(() => {
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "askResponse",
-				askResponse: "yesButtonClicked",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "askResponse",
+					askResponse: "yesButtonClicked",
+				}),
+			).toBe(true)
 		})
 	})
 
@@ -228,10 +214,12 @@ describe("ChatView - Auto Approval Tests", () => {
 
 		// Wait for the auto-approval message
 		await waitFor(() => {
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "askResponse",
-				askResponse: "yesButtonClicked",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "askResponse",
+					askResponse: "yesButtonClicked",
+				}),
+			).toBe(true)
 		})
 	})
 
@@ -291,10 +279,12 @@ describe("ChatView - Auto Approval Tests", () => {
 
 		// Wait a short time and verify no auto-approval message was sent
 		await new Promise((resolve) => setTimeout(resolve, 100))
-		expect(vscode.postMessage).not.toHaveBeenCalledWith({
-			type: "askResponse",
-			askResponse: "yesButtonClicked",
-		})
+		expect(
+			vscode.postMessage.calledWith({
+				type: "askResponse",
+				askResponse: "yesButtonClicked",
+			}),
+		).toBe(false)
 	})
 
 	it("does not auto-approve when autoApprovalEnabled is false", async () => {
@@ -345,10 +335,12 @@ describe("ChatView - Auto Approval Tests", () => {
 		})
 
 		// Verify no auto-approval message was sent
-		expect(vscode.postMessage).not.toHaveBeenCalledWith({
-			type: "askResponse",
-			askResponse: "yesButtonClicked",
-		})
+		expect(
+			vscode.postMessage.calledWith({
+				type: "askResponse",
+				askResponse: "yesButtonClicked",
+			}),
+		).toBe(false)
 	})
 
 	it("auto-approves write operations when enabled", async () => {
@@ -402,10 +394,12 @@ describe("ChatView - Auto Approval Tests", () => {
 
 		// Wait for the auto-approval message
 		await waitFor(() => {
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "askResponse",
-				askResponse: "yesButtonClicked",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "askResponse",
+					askResponse: "yesButtonClicked",
+				}),
+			).toBe(true)
 		})
 	})
 
@@ -467,10 +461,12 @@ describe("ChatView - Auto Approval Tests", () => {
 
 		// Wait for the auto-approval message
 		await waitFor(() => {
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "askResponse",
-				askResponse: "yesButtonClicked",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "askResponse",
+					askResponse: "yesButtonClicked",
+				}),
+			).toBe(true)
 		})
 	})
 
@@ -533,10 +529,12 @@ describe("ChatView - Auto Approval Tests", () => {
 
 		// Wait a short time and verify no auto-approval message was sent
 		await new Promise((resolve) => setTimeout(resolve, 100))
-		expect(vscode.postMessage).not.toHaveBeenCalledWith({
-			type: "askResponse",
-			askResponse: "yesButtonClicked",
-		})
+		expect(
+			vscode.postMessage.calledWith({
+				type: "askResponse",
+				askResponse: "yesButtonClicked",
+			}),
+		).toBe(false)
 	})
 
 	it("auto-approves browser actions when enabled", async () => {
@@ -588,10 +586,12 @@ describe("ChatView - Auto Approval Tests", () => {
 
 		// Wait for the auto-approval message
 		await waitFor(() => {
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "askResponse",
-				askResponse: "yesButtonClicked",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "askResponse",
+					askResponse: "yesButtonClicked",
+				}),
+			).toBe(true)
 		})
 	})
 
@@ -644,10 +644,12 @@ describe("ChatView - Auto Approval Tests", () => {
 
 		// Wait for the auto-approval message
 		await waitFor(() => {
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "askResponse",
-				askResponse: "yesButtonClicked",
-			})
+			expect(
+				vscode.postMessage.calledWith({
+					type: "askResponse",
+					askResponse: "yesButtonClicked",
+				}),
+			).toBe(true)
 		})
 	})
 
@@ -699,10 +701,12 @@ describe("ChatView - Auto Approval Tests", () => {
 		})
 
 		// Verify no auto-approval message was sent
-		expect(vscode.postMessage).not.toHaveBeenCalledWith({
-			type: "askResponse",
-			askResponse: "yesButtonClicked",
-		})
+		expect(
+			vscode.postMessage.calledWith({
+				type: "askResponse",
+				askResponse: "yesButtonClicked",
+			}),
+		).toBe(false)
 	})
 
 	it("does not auto-approve mode switch when auto-approval is disabled", async () => {
@@ -753,9 +757,11 @@ describe("ChatView - Auto Approval Tests", () => {
 		})
 
 		// Verify no auto-approval message was sent
-		expect(vscode.postMessage).not.toHaveBeenCalledWith({
-			type: "askResponse",
-			askResponse: "yesButtonClicked",
-		})
+		expect(
+			vscode.postMessage.calledWith({
+				type: "askResponse",
+				askResponse: "yesButtonClicked",
+			}),
+		).toBe(false)
 	})
 })

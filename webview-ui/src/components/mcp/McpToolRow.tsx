@@ -1,4 +1,4 @@
-import { Checkbox } from "vscrui"
+import { VSCodeCheckbox } from "../ui/vscode-components"
 import { McpTool } from "../../../../src/shared/mcp"
 import { useAppTranslation } from "../../i18n/TranslationContext"
 import { vscode } from "../../utils/vscode"
@@ -37,11 +37,14 @@ const McpToolRow = ({ tool, serverName, serverSource, alwaysAllowMcp }: McpToolR
 					<span className="codicon codicon-symbol-method" style={{ marginRight: "6px" }}></span>
 					<span style={{ fontWeight: 500 }}>{tool.name}</span>
 				</div>
-				{serverName && alwaysAllowMcp && (
-					<Checkbox checked={tool.alwaysAllow} onChange={handleAlwaysAllowChange} data-tool={tool.name}>
-						{t("mcp:tool.alwaysAllow")}
-					</Checkbox>
-				)}
+                                {serverName && alwaysAllowMcp && (
+                                        <VSCodeCheckbox
+                                                checked={tool.alwaysAllow}
+                                                onChange={handleAlwaysAllowChange}
+                                                data-tool={tool.name}>
+                                                {t("mcp:tool.alwaysAllow")}
+                                        </VSCodeCheckbox>
+                                )}
 			</div>
 			{tool.description && (
 				<div

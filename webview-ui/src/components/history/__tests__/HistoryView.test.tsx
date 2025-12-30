@@ -2,71 +2,83 @@
 
 import React from "react"
 import { render, screen, fireEvent, within, act } from "@testing-library/react"
-import HistoryView from "../HistoryView"
-import { useExtensionState } from "../../../context/ExtensionStateContext"
-import { vscode } from "../../../utils/vscode"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
 
-jest.mock("../../../context/ExtensionStateContext")
-jest.mock("../../../utils/vscode")
-jest.mock("../../../i18n/TranslationContext")
-jest.mock("react-virtuoso", () => ({
-	Virtuoso: ({
-		data,
-		itemContent,
-	}: {
-		data: Array<Record<string, unknown>>
-		itemContent: (index: number, item: Record<string, unknown>) => React.ReactNode
-	}) => (
-		<div data-testid="virtuoso-container">
-			{data.map((item: Record<string, unknown>, index: number) => (
-				<div key={item.id as string} data-testid={`virtuoso-item-${item.id as string}`}>
-					{itemContent(index, item)}
-				</div>
-			))}
-		</div>
-	),
-}))
-
-const mockTaskHistory = [
-	{
-		id: "1",
-		number: 0,
-		task: "Test task 1",
-		ts: new Date("2022-02-16T00:00:00").getTime(),
-		tokensIn: 100,
-		tokensOut: 50,
-		totalCost: 0.002,
-	},
-	{
-		id: "2",
-		number: 0,
-		task: "Test task 2",
-		ts: new Date("2022-02-17T00:00:00").getTime(),
-		tokensIn: 200,
-		tokensOut: 100,
-		cacheWrites: 50,
-		cacheReads: 25,
-	},
-]
+const proxyquireStrict = proxyquire.noPreserveCache()
 
 describe("HistoryView", () => {
-	beforeAll(() => {
-		jest.useFakeTimers()
-	})
+	let sandbox: sinon.SinonSandbox
+	let HistoryView: typeof import("../HistoryView").default
+	let useExtensionState: sinon.SinonStub
+	let vscode: { postMessage: sinon.SinonStub }
+	let clock: sinon.SinonFakeTimers
 
-	afterAll(() => {
-		jest.useRealTimers()
-	})
+	const mockTaskHistory = [
+		{
+			id: "1",
+			number: 0,
+			task: "Test task 1",
+			ts: new Date("2022-02-16T00:00:00").getTime(),
+			tokensIn: 100,
+			tokensOut: 50,
+			totalCost: 0.002,
+		},
+		{
+			id: "2",
+			number: 0,
+			task: "Test task 2",
+			ts: new Date("2022-02-17T00:00:00").getTime(),
+			tokensIn: 200,
+			tokensOut: 100,
+			cacheWrites: 50,
+			cacheReads: 25,
+		},
+	]
 
 	beforeEach(() => {
-		jest.clearAllMocks()
-		;(useExtensionState as jest.Mock).mockReturnValue({
-			taskHistory: mockTaskHistory,
-		})
+		sandbox = sinon.createSandbox()
+		vscode = { postMessage: sandbox.stub() }
+		useExtensionState = sandbox.stub().returns({ taskHistory: mockTaskHistory })
+
+		HistoryView = proxyquireStrict("../HistoryView", {
+			"../../../context/ExtensionStateContext": {
+				useExtensionState,
+			},
+			"../../../utils/vscode": {
+				vscode,
+			},
+			"../../../i18n/TranslationContext": {
+				useAppTranslation: () => ({ t: (key: string) => key }),
+			},
+			"react-virtuoso": {
+				Virtuoso: ({
+					data,
+					itemContent,
+				}: {
+					data: Array<Record<string, unknown>>
+					itemContent: (index: number, item: Record<string, unknown>) => React.ReactNode
+				}) => (
+					<div data-testid="virtuoso-container">
+						{data.map((item: Record<string, unknown>, index: number) => (
+							<div key={item.id as string} data-testid={`virtuoso-item-${item.id as string}`}>
+								{itemContent(index, item)}
+							</div>
+						))}
+					</div>
+				),
+			},
+		}).default
+
+		clock = sandbox.useFakeTimers()
+	})
+
+	afterEach(() => {
+		sandbox.restore()
 	})
 
 	it("renders history items correctly", () => {
-		const onDone = jest.fn()
+		const onDone = sandbox.stub()
 		render(<HistoryView onDone={onDone} />)
 
 		// Check if both tasks are rendered
@@ -79,11 +91,11 @@ describe("HistoryView", () => {
 	it("handles search functionality", () => {
 		// Setup clipboard mock that resolves immediately
 		const mockClipboard = {
-			writeText: jest.fn().mockResolvedValue(undefined),
+			writeText: sandbox.stub().resolves(undefined),
 		}
 		Object.assign(navigator, { clipboard: mockClipboard })
 
-		const onDone = jest.fn()
+		const onDone = sandbox.stub()
 		render(<HistoryView onDone={onDone} />)
 
 		// Get search input and radio group
@@ -94,7 +106,7 @@ describe("HistoryView", () => {
 		fireEvent.input(searchInput, { target: { value: "task 1" } })
 
 		// Advance timers to process search state update
-		jest.advanceTimersByTime(100)
+		clock.tick(100)
 
 		// Check if sort option automatically changes to "Most Relevant"
 		const mostRelevantRadio = within(radioGroup).getByTestId("radio-most-relevant")
@@ -104,7 +116,7 @@ describe("HistoryView", () => {
 		fireEvent.click(mostRelevantRadio)
 
 		// Advance timers to process radio button state update
-		jest.advanceTimersByTime(100)
+		clock.tick(100)
 
 		// Verify radio button is checked
 		const updatedRadio = within(radioGroup).getByTestId("radio-most-relevant")
@@ -116,11 +128,11 @@ describe("HistoryView", () => {
 		const copyButton = within(taskContainer).getByTestId("copy-prompt-button")
 		fireEvent.click(copyButton)
 		const taskContent = within(taskContainer).getByTestId("task-content")
-		expect(navigator.clipboard.writeText).toHaveBeenCalledWith(taskContent.textContent)
+		expect(mockClipboard.writeText.calledWith(taskContent.textContent)).toBe(true)
 	})
 
 	it("handles sort options correctly", async () => {
-		const onDone = jest.fn()
+		const onDone = sandbox.stub()
 		render(<HistoryView onDone={onDone} />)
 
 		const radioGroup = screen.getByRole("radiogroup")
@@ -142,22 +154,19 @@ describe("HistoryView", () => {
 	})
 
 	it("handles task selection", () => {
-		const onDone = jest.fn()
+		const onDone = sandbox.stub()
 		render(<HistoryView onDone={onDone} />)
 
 		// Click on first task
 		fireEvent.click(screen.getByText("Test task 1"))
 
 		// Verify vscode message was sent
-		expect(vscode.postMessage).toHaveBeenCalledWith({
-			type: "showTaskWithId",
-			text: "1",
-		})
+		expect(vscode.postMessage.calledWith({ type: "showTaskWithId", text: "1" })).toBe(true)
 	})
 
 	describe("task deletion", () => {
 		it("shows confirmation dialog on regular click", () => {
-			const onDone = jest.fn()
+			const onDone = sandbox.stub()
 			render(<HistoryView onDone={onDone} />)
 
 			// Find and hover over first task
@@ -177,14 +186,11 @@ describe("HistoryView", () => {
 			fireEvent.click(confirmDeleteButton)
 
 			// Verify vscode message was sent
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "deleteTaskWithId",
-				text: "1",
-			})
+			expect(vscode.postMessage.calledWith({ type: "deleteTaskWithId", text: "1" })).toBe(true)
 		})
 
 		it("deletes immediately on shift-click without confirmation", () => {
-			const onDone = jest.fn()
+			const onDone = sandbox.stub()
 			render(<HistoryView onDone={onDone} />)
 
 			// Find and hover over first task
@@ -199,21 +205,18 @@ describe("HistoryView", () => {
 			expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument()
 
 			// Verify vscode message was sent
-			expect(vscode.postMessage).toHaveBeenCalledWith({
-				type: "deleteTaskWithId",
-				text: "1",
-			})
+			expect(vscode.postMessage.calledWith({ type: "deleteTaskWithId", text: "1" })).toBe(true)
 		})
 	})
 
 	it("handles task copying", async () => {
 		// Setup clipboard mock that resolves immediately
 		const mockClipboard = {
-			writeText: jest.fn().mockResolvedValue(undefined),
+			writeText: sandbox.stub().resolves(undefined),
 		}
 		Object.assign(navigator, { clipboard: mockClipboard })
 
-		const onDone = jest.fn()
+		const onDone = sandbox.stub()
 		render(<HistoryView onDone={onDone} />)
 
 		// Find and hover over first task
@@ -232,11 +235,11 @@ describe("HistoryView", () => {
 		})
 
 		// Verify clipboard was called
-		expect(navigator.clipboard.writeText).toHaveBeenCalledWith("Test task 1")
+		expect(mockClipboard.writeText.calledWith("Test task 1")).toBe(true)
 
 		// Advance timer to trigger the setTimeout for modal disappearance
 		act(() => {
-			jest.advanceTimersByTime(2000)
+			clock.tick(2000)
 		})
 
 		// Verify modal is gone
@@ -244,7 +247,7 @@ describe("HistoryView", () => {
 	})
 
 	it("formats dates correctly", () => {
-		const onDone = jest.fn()
+		const onDone = sandbox.stub()
 		render(<HistoryView onDone={onDone} />)
 
 		// Find first task container and check date format
@@ -256,7 +259,7 @@ describe("HistoryView", () => {
 	})
 
 	it("displays token counts correctly", () => {
-		const onDone = jest.fn()
+		const onDone = sandbox.stub()
 		render(<HistoryView onDone={onDone} />)
 
 		// Find first task container
@@ -269,7 +272,7 @@ describe("HistoryView", () => {
 	})
 
 	it("displays cache information when available", () => {
-		const onDone = jest.fn()
+		const onDone = sandbox.stub()
 		render(<HistoryView onDone={onDone} />)
 
 		// Find second task container
@@ -282,7 +285,7 @@ describe("HistoryView", () => {
 	})
 
 	it("handles export functionality", () => {
-		const onDone = jest.fn()
+		const onDone = sandbox.stub()
 		render(<HistoryView onDone={onDone} />)
 
 		// Find and hover over second task
@@ -293,9 +296,6 @@ describe("HistoryView", () => {
 		fireEvent.click(exportButton)
 
 		// Verify vscode message was sent
-		expect(vscode.postMessage).toHaveBeenCalledWith({
-			type: "exportTaskWithId",
-			text: "2",
-		})
+		expect(vscode.postMessage.calledWith({ type: "exportTaskWithId", text: "2" })).toBe(true)
 	})
 })

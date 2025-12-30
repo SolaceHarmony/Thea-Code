@@ -1,6 +1,6 @@
 import { HTMLAttributes } from "react"
 import { useAppTranslation } from "@/i18n/TranslationContext"
-import { Checkbox } from "vscrui"
+import { VSCodeCheckbox } from "@/components/ui/vscode-components"
 import { Bell } from "lucide-react"
 
 import { SetCachedStateField } from "./types"
@@ -36,12 +36,12 @@ export const NotificationSettings = ({
 
 			<Section>
 				<div>
-					<Checkbox
-						checked={ttsEnabled}
-						onChange={(checked: boolean) => setCachedStateField("ttsEnabled", checked)}
-						data-testid="tts-enabled-checkbox">
-						<span className="font-medium">{t("settings:notifications.tts.label")}</span>
-					</Checkbox>
+                                        <VSCodeCheckbox
+                                                checked={ttsEnabled}
+                                                onChange={(checked: boolean) => setCachedStateField("ttsEnabled", checked)}
+                                                data-testid="tts-enabled-checkbox">
+                                                <span className="font-medium">{t("settings:notifications.tts.label")}</span>
+                                        </VSCodeCheckbox>
 					<div className="text-vscode-descriptionForeground text-sm mt-1">
 						{t("settings:notifications.tts.description")}
 					</div>
@@ -69,12 +69,12 @@ export const NotificationSettings = ({
 				)}
 
 				<div>
-					<Checkbox
-						checked={soundEnabled}
-						onChange={(checked: boolean) => setCachedStateField("soundEnabled", checked)}
-						data-testid="sound-enabled-checkbox">
-						<span className="font-medium">{t("settings:notifications.sound.label")}</span>
-					</Checkbox>
+                                        <VSCodeCheckbox
+                                                checked={soundEnabled}
+                                                onChange={(checked: boolean) => setCachedStateField("soundEnabled", checked)}
+                                                data-testid="sound-enabled-checkbox">
+                                                <span className="font-medium">{t("settings:notifications.sound.label")}</span>
+                                        </VSCodeCheckbox>
 					<div className="text-vscode-descriptionForeground text-sm mt-1">
 						{t("settings:notifications.sound.description")}
 					</div>

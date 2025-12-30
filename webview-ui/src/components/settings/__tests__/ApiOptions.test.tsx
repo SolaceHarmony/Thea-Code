@@ -3,116 +3,159 @@
 import React from "react"
 import { render, screen } from "@testing-library/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
 
 import { ExtensionStateContextProvider } from "@/context/ExtensionStateContext"
 
-import ApiOptions from "../ApiOptions"
-
-// Mock VSCode components
-jest.mock("@/components/ui/vscode-components", () => ({
-	VSCodeTextField: ({ children, value, onBlur }: { [key: string]: unknown }) => (
-		<div>
-			{children as React.ReactNode}
-			<input type="text" value={value as string} onChange={onBlur as React.ChangeEventHandler<HTMLInputElement>} />
-		</div>
-	),
-	VSCodeLink: ({ children, href }: { [key: string]: unknown }) => <a href={href as string}>{children as React.ReactNode}</a>,
-	VSCodeRadio: ({ value, checked }: { [key: string]: unknown }) => (
-		<input type="radio" value={value as string} checked={checked as boolean} />
-	),
-	VSCodeRadioGroup: ({ children }: { [key: string]: unknown }) => <div>{children as React.ReactNode}</div>,
-	VSCodeButton: ({ children }: { [key: string]: unknown }) => <div>{children as React.ReactNode}</div>,
-}))
-
-// Mock other components
-jest.mock("vscrui", () => ({
-	Checkbox: ({ children, checked, onChange }: { [key: string]: unknown }) => (
-		<label>
-			<input type="checkbox" checked={checked as boolean} onChange={(e) => (onChange as ((checked: boolean) => void))?.(e.target.checked)} />
-			{children as React.ReactNode}
-		</label>
-	),
-	Button: ({ children, onClick }: { [key: string]: unknown }) => <button onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}>{children as React.ReactNode}</button>,
-}))
-
-// Mock @shadcn/ui components
-jest.mock("@/components/ui", () => ({
-	Select: ({ children, value, onValueChange }: { [key: string]: unknown }) => (
-		<div className="select-mock">
-			<select value={value as string} onChange={(e) => (onValueChange as ((value: string) => void))?.(e.target.value)}>
-				{children as React.ReactNode}
-			</select>
-		</div>
-	),
-	SelectTrigger: ({ children }: { [key: string]: unknown }) => <div className="select-trigger-mock">{children as React.ReactNode}</div>,
-	SelectValue: ({ children }: { [key: string]: unknown }) => <div className="select-value-mock">{children as React.ReactNode}</div>,
-	SelectContent: ({ children }: { [key: string]: unknown }) => <div className="select-content-mock">{children as React.ReactNode}</div>,
-	SelectItem: ({ children, value }: { [key: string]: unknown }) => (
-		<option value={value as string} className="select-item-mock">
-			{children as React.ReactNode}
-		</option>
-	),
-	SelectSeparator: ({ children }: { [key: string]: unknown }) => (
-		<div className="select-separator-mock">{children as React.ReactNode}</div>
-	),
-	Button: ({ children, onClick }: { [key: string]: unknown }) => (
-		<button onClick={onClick as React.MouseEventHandler<HTMLButtonElement>} className="button-mock">
-			{children as React.ReactNode}
-		</button>
-	),
-}))
-
-jest.mock("../TemperatureControl", () => ({
-	TemperatureControl: ({ value, onChange }: { [key: string]: unknown }) => (
-		<div data-testid="temperature-control">
-			<input
-				type="range"
-				value={(value as number) || 0}
-				onChange={(e) => (onChange as ((value: number) => void))?.(parseFloat(e.target.value))}
-				min={0}
-				max={2}
-				step={0.1}
-			/>
-		</div>
-	),
-}))
-
-// Mock ThinkingBudget component
-jest.mock("../ThinkingBudget", () => ({
-	ThinkingBudget: ({
-		apiConfiguration,
-		modelInfo,
-		provider,
-	}: {
-		[key: string]: unknown
-	}) =>
-		(modelInfo as { thinking?: boolean })?.thinking ? (
-			<div data-testid="thinking-budget" data-provider={provider}>
-				<input data-testid="thinking-tokens" value={(apiConfiguration as { modelMaxThinkingTokens?: number })?.modelMaxThinkingTokens} />
-			</div>
-		) : null,
-}))
-
-const renderApiOptions = (props = {}) => {
-	const queryClient = new QueryClient()
-
-	render(
-		<ExtensionStateContextProvider>
-			<QueryClientProvider client={queryClient}>
-				<ApiOptions
-					errorMessage={undefined}
-					setErrorMessage={() => {}}
-					uriScheme={undefined}
-					apiConfiguration={{}}
-					setApiConfigurationField={() => {}}
-					{...props}
-				/>
-			</QueryClientProvider>
-		</ExtensionStateContextProvider>,
-	)
-}
+const proxyquireStrict = proxyquire.noPreserveCache()
 
 describe("ApiOptions", () => {
+	let sandbox: sinon.SinonSandbox
+	let ApiOptions: typeof import("../ApiOptions").default
+
+	beforeEach(() => {
+		sandbox = sinon.createSandbox()
+
+		const SelectItemMock = ({ children, value }: { [key: string]: unknown }) => (
+			<option value={value as string} className="select-item-mock">
+				{children as React.ReactNode}
+			</option>
+		)
+
+		const collectOptions = (nodes: React.ReactNode): React.ReactElement[] => {
+			const options: React.ReactElement[] = []
+			React.Children.forEach(nodes, (child) => {
+				if (!React.isValidElement(child)) {
+					return
+				}
+				if (child.type === SelectItemMock) {
+					options.push(child as React.ReactElement)
+					return
+				}
+				if (child.props && child.props.children) {
+					options.push(...collectOptions(child.props.children))
+				}
+			})
+			return options
+		}
+
+		const SelectMock = ({ children, value, onValueChange }: { [key: string]: unknown }) => {
+			const options = collectOptions(children as React.ReactNode)
+			return (
+				<select
+					value={(value as string) ?? ""}
+					onChange={(e) => (onValueChange as ((value: string) => void) | undefined)?.(e.target.value)}
+					data-testid="select-mock">
+					{options.map((option) => React.cloneElement(option, { key: option.props.value }))}
+				</select>
+			)
+		}
+
+		ApiOptions = proxyquireStrict("../ApiOptions", {
+			"@/components/ui/vscode-components": {
+				VSCodeTextField: ({ children, value, onBlur }: { [key: string]: unknown }) => (
+					<div>
+						{children as React.ReactNode}
+						<input
+							type="text"
+							value={value as string}
+							onChange={(event) =>
+								(onBlur as React.ChangeEventHandler<HTMLInputElement> | undefined)?.(event)
+							}
+						/>
+					</div>
+				),
+				VSCodeLink: ({ children, href }: { [key: string]: unknown }) => (
+					<a href={href as string}>{children as React.ReactNode}</a>
+				),
+				VSCodeRadio: ({ value, checked }: { [key: string]: unknown }) => (
+					<input type="radio" value={value as string} checked={checked as boolean} />
+				),
+				VSCodeRadioGroup: ({ children }: { [key: string]: unknown }) => <div>{children as React.ReactNode}</div>,
+				VSCodeButton: ({ children }: { [key: string]: unknown }) => <div>{children as React.ReactNode}</div>,
+				VSCodeCheckbox: ({ children, checked, onChange }: { [key: string]: unknown }) => (
+					<label>
+						<input
+							type="checkbox"
+							checked={checked as boolean}
+							onChange={(e) => (onChange as ((checked: boolean) => void))?.(e.target.checked)}
+						/>
+						{children as React.ReactNode}
+					</label>
+				),
+			},
+			"@/components/ui": {
+				Select: SelectMock,
+				SelectTrigger: ({ children }: { [key: string]: unknown }) => <>{children as React.ReactNode}</>,
+				SelectValue: ({ children }: { [key: string]: unknown }) => <>{children as React.ReactNode}</>,
+				SelectContent: ({ children }: { [key: string]: unknown }) => <>{children as React.ReactNode}</>,
+				SelectItem: SelectItemMock,
+				SelectSeparator: () => null,
+				Button: ({ children, onClick }: { [key: string]: unknown }) => (
+					<button onClick={onClick as React.MouseEventHandler<HTMLButtonElement>} className="button-mock">
+						{children as React.ReactNode}
+					</button>
+				),
+			},
+			"../TemperatureControl": {
+				TemperatureControl: ({ value, onChange }: { [key: string]: unknown }) => (
+					<div data-testid="temperature-control">
+						<input
+							type="range"
+							value={(value as number) || 0}
+							onChange={(e) => (onChange as ((value: number) => void))?.(parseFloat(e.target.value))}
+							min={0}
+							max={2}
+							step={0.1}
+						/>
+					</div>
+				),
+			},
+			"../ThinkingBudget": {
+				ThinkingBudget: ({
+					apiConfiguration,
+					modelInfo,
+					provider,
+				}: {
+					[key: string]: unknown
+				}) =>
+					(modelInfo as { thinking?: boolean })?.thinking ? (
+						<div data-testid="thinking-budget" data-provider={provider}>
+							<input
+								data-testid="thinking-tokens"
+								value={(apiConfiguration as { modelMaxThinkingTokens?: number })?.modelMaxThinkingTokens}
+								readOnly
+							/>
+						</div>
+					) : null,
+			},
+		}).default
+	})
+
+	afterEach(() => {
+		sandbox.restore()
+	})
+
+	const renderApiOptions = (props = {}) => {
+		const queryClient = new QueryClient()
+
+		render(
+			<ExtensionStateContextProvider>
+				<QueryClientProvider client={queryClient}>
+					<ApiOptions
+						errorMessage={undefined}
+						setErrorMessage={() => {}}
+						uriScheme={undefined}
+						apiConfiguration={{}}
+						setApiConfigurationField={() => {}}
+						{...props}
+					/>
+				</QueryClientProvider>
+			</ExtensionStateContextProvider>,
+		)
+	}
+
 	it("shows temperature control by default", () => {
 		renderApiOptions()
 		expect(screen.getByTestId("temperature-control")).toBeInTheDocument()

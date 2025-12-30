@@ -1,43 +1,48 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
-import PromptsView from "../PromptsView"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
 import { ExtensionStateContext, ExtensionStateContextType } from "../../../context/ExtensionStateContext"
-import { vscode } from "../../../utils/vscode"
 
-// Mock vscode API
-jest.mock("../../../utils/vscode", () => ({
-	vscode: {
-		postMessage: jest.fn(),
-	},
-}))
-
-const mockExtensionState = {
-	customModePrompts: {},
-	listApiConfigMeta: [
-		{ id: "config1", name: "Config 1" },
-		{ id: "config2", name: "Config 2" },
-	],
-	enhancementApiConfigId: "",
-	setEnhancementApiConfigId: jest.fn(),
-	mode: "code",
-	customInstructions: "Initial instructions",
-	setCustomInstructions: jest.fn(),
-}
-
-const renderPromptsView = (props = {}) => {
-	const mockOnDone = jest.fn()
-	return render(
-		<ExtensionStateContext.Provider
-			value={
-				{ ...mockExtensionState, ...props } as Partial<ExtensionStateContextType> as ExtensionStateContextType
-			}>
-			<PromptsView onDone={mockOnDone} />
-		</ExtensionStateContext.Provider>,
-	)
-}
+const proxyquireStrict = proxyquire.noPreserveCache()
 
 describe("PromptsView", () => {
+	let sandbox: sinon.SinonSandbox
+	let PromptsView: typeof import("../PromptsView").default
+	let vscode: { postMessage: sinon.SinonStub }
+
+	const buildMockExtensionState = () => ({
+		customModePrompts: {},
+		listApiConfigMeta: [
+			{ id: "config1", name: "Config 1" },
+			{ id: "config2", name: "Config 2" },
+		],
+		enhancementApiConfigId: "",
+		setEnhancementApiConfigId: sandbox.stub(),
+		mode: "code",
+		customInstructions: "Initial instructions",
+		setCustomInstructions: sandbox.stub(),
+	})
+
+	const renderPromptsView = (props = {}) => {
+		const mockOnDone = sandbox.stub()
+		const state = { ...buildMockExtensionState(), ...props } as Partial<ExtensionStateContextType>
+		return render(
+			<ExtensionStateContext.Provider value={state as ExtensionStateContextType}>
+				<PromptsView onDone={mockOnDone} />
+			</ExtensionStateContext.Provider>,
+		)
+	}
+
 	beforeEach(() => {
-		jest.clearAllMocks()
+		sandbox = sinon.createSandbox()
+		vscode = { postMessage: sandbox.stub() }
+		PromptsView = proxyquireStrict("../PromptsView", {
+			"../../../utils/vscode": { vscode },
+		}).default
+	})
+
+	afterEach(() => {
+		sandbox.restore()
 	})
 
 	it("renders all mode tabs", () => {
@@ -60,15 +65,16 @@ describe("PromptsView", () => {
 	})
 
 	it("switches between tabs correctly", async () => {
+		const state = buildMockExtensionState()
 		const { rerender } = render(
 			<ExtensionStateContext.Provider
 				value={
 					{
-						...mockExtensionState,
+						...state,
 						mode: "code",
 					} as Partial<ExtensionStateContextType> as ExtensionStateContextType
 				}>
-				<PromptsView onDone={jest.fn()} />
+				<PromptsView onDone={sandbox.stub()} />
 			</ExtensionStateContext.Provider>,
 		)
 
@@ -87,11 +93,11 @@ describe("PromptsView", () => {
 			<ExtensionStateContext.Provider
 				value={
 					{
-						...mockExtensionState,
+						...state,
 						mode: "ask",
 					} as Partial<ExtensionStateContextType> as ExtensionStateContextType
 				}>
-				<PromptsView onDone={jest.fn()} />
+				<PromptsView onDone={sandbox.stub()} />
 			</ExtensionStateContext.Provider>,
 		)
 
@@ -105,11 +111,11 @@ describe("PromptsView", () => {
 			<ExtensionStateContext.Provider
 				value={
 					{
-						...mockExtensionState,
+						...state,
 						mode: "architect",
 					} as Partial<ExtensionStateContextType> as ExtensionStateContextType
 				}>
-				<PromptsView onDone={jest.fn()} />
+				<PromptsView onDone={sandbox.stub()} />
 			</ExtensionStateContext.Provider>,
 		)
 
@@ -127,11 +133,13 @@ describe("PromptsView", () => {
 			target: { value: "New prompt value" },
 		})
 
-		expect(vscode.postMessage).toHaveBeenCalledWith({
-			type: "updatePrompt",
-			promptMode: "code",
-			customPrompt: { roleDefinition: "New prompt value" },
-		})
+		expect(
+			vscode.postMessage.calledWith({
+				type: "updatePrompt",
+				promptMode: "code",
+				customPrompt: { roleDefinition: "New prompt value" },
+			}),
+		).toBe(true)
 	})
 
 	it("resets role definition only for built-in modes", async () => {
@@ -147,12 +155,12 @@ describe("PromptsView", () => {
 			<ExtensionStateContext.Provider
 				value={
 					{
-						...mockExtensionState,
+						...buildMockExtensionState(),
 						mode: "code",
 						customModes: [customMode],
 					} as Partial<ExtensionStateContextType> as ExtensionStateContextType
 				}>
-				<PromptsView onDone={jest.fn()} />
+				<PromptsView onDone={sandbox.stub()} />
 			</ExtensionStateContext.Provider>,
 		)
 
@@ -162,11 +170,13 @@ describe("PromptsView", () => {
 		fireEvent.click(resetButton)
 
 		// Verify it only resets role definition
-		expect(vscode.postMessage).toHaveBeenCalledWith({
-			type: "updatePrompt",
-			promptMode: "code",
-			customPrompt: { roleDefinition: undefined },
-		})
+		expect(
+			vscode.postMessage.calledWith({
+				type: "updatePrompt",
+				promptMode: "code",
+				customPrompt: { roleDefinition: undefined },
+			}),
+		).toBe(true)
 
 		// Cleanup before testing custom mode
 		unmount()
@@ -176,12 +186,12 @@ describe("PromptsView", () => {
 			<ExtensionStateContext.Provider
 				value={
 					{
-						...mockExtensionState,
+						...buildMockExtensionState(),
 						mode: "custom-mode",
 						customModes: [customMode],
 					} as Partial<ExtensionStateContextType> as ExtensionStateContextType
 				}>
-				<PromptsView onDone={jest.fn()} />
+				<PromptsView onDone={sandbox.stub()} />
 			</ExtensionStateContext.Provider>,
 		)
 
@@ -190,7 +200,8 @@ describe("PromptsView", () => {
 	})
 
 	it("handles API configuration selection", async () => {
-		renderPromptsView()
+		const state = buildMockExtensionState()
+		renderPromptsView(state)
 
 		// Click the ENHANCE tab first to show the API config dropdown
 		const enhanceTab = screen.getByTestId("ENHANCE-tab")
@@ -202,17 +213,14 @@ describe("PromptsView", () => {
 			target: { value: "config1" },
 		})
 
-		expect(mockExtensionState.setEnhancementApiConfigId).toHaveBeenCalledWith("config1")
-		expect(vscode.postMessage).toHaveBeenCalledWith({
-			type: "enhancementApiConfigId",
-			text: "config1",
-		})
+		expect(state.setEnhancementApiConfigId.calledWith("config1")).toBe(true)
+		expect(vscode.postMessage.calledWith({ type: "enhancementApiConfigId", text: "config1" })).toBe(true)
 	})
 
 	it("handles clearing custom instructions correctly", async () => {
-		const setCustomInstructions = jest.fn()
+		const setCustomInstructions = sandbox.stub()
 		renderPromptsView({
-			...mockExtensionState,
+			...buildMockExtensionState(),
 			customInstructions: "Initial instructions",
 			setCustomInstructions,
 		})
@@ -222,10 +230,7 @@ describe("PromptsView", () => {
 			target: { value: "" },
 		})
 
-		expect(setCustomInstructions).toHaveBeenCalledWith(undefined)
-		expect(vscode.postMessage).toHaveBeenCalledWith({
-			type: "customInstructions",
-			text: undefined,
-		})
+		expect(setCustomInstructions.calledWith(undefined)).toBe(true)
+		expect(vscode.postMessage.calledWith({ type: "customInstructions", text: undefined })).toBe(true)
 	})
 })

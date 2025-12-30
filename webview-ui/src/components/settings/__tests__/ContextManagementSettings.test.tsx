@@ -1,8 +1,10 @@
 // npx jest src/components/settings/__tests__/ContextManagementSettings.test.ts
 
 import { render, screen, fireEvent } from "@testing-library/react"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
 
-import { ContextManagementSettings } from "../ContextManagementSettings"
+const proxyquireStrict = proxyquire.noPreserveCache()
 
 class MockResizeObserver {
 	observe() {}
@@ -12,39 +14,49 @@ class MockResizeObserver {
 
 global.ResizeObserver = MockResizeObserver
 
-jest.mock("@/components/ui", () => ({
-	...jest.requireActual("@/components/ui"),
-	Slider: ({
-		value,
-		onValueChange,
-		"data-testid": dataTestId,
-	}: {
-		value: number[]
-		onValueChange: (value: number[]) => void
-		"data-testid"?: string
-	}) => (
-		<input
-			type="range"
-			value={value[0]}
-			onChange={(e) => onValueChange([parseFloat(e.target.value)])}
-			data-testid={dataTestId}
-		/>
-	),
-}))
-
 describe("ContextManagementSettings", () => {
-	const defaultProps = {
+	let sandbox: sinon.SinonSandbox
+	let ContextManagementSettings: typeof import("../ContextManagementSettings").ContextManagementSettings
+
+	beforeEach(() => {
+		sandbox = sinon.createSandbox()
+		const actualUi = proxyquireStrict("@/components/ui", {}) as typeof import("@/components/ui")
+		ContextManagementSettings = proxyquireStrict("../ContextManagementSettings", {
+			"@/components/ui": {
+				...actualUi,
+				Slider: ({
+					value,
+					onValueChange,
+					"data-testid": dataTestId,
+				}: {
+					value: number[]
+					onValueChange: (value: number[]) => void
+					"data-testid"?: string
+				}) => (
+					<input
+						type="range"
+						value={value[0]}
+						onChange={(e) => onValueChange([parseFloat(e.target.value)])}
+						data-testid={dataTestId}
+					/>
+				),
+			},
+		}).ContextManagementSettings
+	})
+
+	afterEach(() => {
+		sandbox.restore()
+	})
+
+	const buildDefaultProps = () => ({
 		maxOpenTabsContext: 20,
 		maxWorkspaceFiles: 200,
 		showTheaIgnoredFiles: false,
-		setCachedStateField: jest.fn(),
-	}
-
-	beforeEach(() => {
-		jest.clearAllMocks()
+		setCachedStateField: sandbox.stub(),
 	})
 
 	it("renders all controls", () => {
+		const defaultProps = buildDefaultProps()
 		render(<ContextManagementSettings {...defaultProps} />)
 
 		// Open tabs context limit
@@ -62,29 +74,32 @@ describe("ContextManagementSettings", () => {
 	})
 
 	it("updates open tabs context limit", () => {
+		const defaultProps = buildDefaultProps()
 		render(<ContextManagementSettings {...defaultProps} />)
 
 		const slider = screen.getByTestId("open-tabs-limit-slider")
 		fireEvent.change(slider, { target: { value: "50" } })
 
-		expect(defaultProps.setCachedStateField).toHaveBeenCalledWith("maxOpenTabsContext", 50)
+		expect(defaultProps.setCachedStateField.calledWith("maxOpenTabsContext", 50)).toBe(true)
 	})
 
 	it("updates workspace files contextlimit", () => {
+		const defaultProps = buildDefaultProps()
 		render(<ContextManagementSettings {...defaultProps} />)
 
 		const slider = screen.getByTestId("workspace-files-limit-slider")
 		fireEvent.change(slider, { target: { value: "50" } })
 
-		expect(defaultProps.setCachedStateField).toHaveBeenCalledWith("maxWorkspaceFiles", 50)
+		expect(defaultProps.setCachedStateField.calledWith("maxWorkspaceFiles", 50)).toBe(true)
 	})
 
 	it("updates show theaignored files setting", () => {
+		const defaultProps = buildDefaultProps()
 		render(<ContextManagementSettings {...defaultProps} />)
 
 		const checkbox = screen.getByTestId("show-theaignored-files-checkbox")
 		fireEvent.click(checkbox)
 
-		expect(defaultProps.setCachedStateField).toHaveBeenCalledWith("showTheaIgnoredFiles", true)
+		expect(defaultProps.setCachedStateField.calledWith("showTheaIgnoredFiles", true)).toBe(true)
 	})
 })

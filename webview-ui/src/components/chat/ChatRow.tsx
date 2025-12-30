@@ -1,4 +1,4 @@
-import { Button } from "vscrui"
+import { VSCodeButton } from "../ui/vscode-components"
 import { Badge } from "../ui/badge"
 import { Progress } from "@radix-ui/react-progress"
 import deepEqual from "fast-deep-equal"
@@ -685,25 +685,26 @@ export const ChatRowContent = ({
 								<span style={{ display: "block", flexGrow: 1, padding: "4px" }}>
 									{highlightMentions(message.text)}
 								</span>
-								<Button
-									appearance="icon"
-									style={{
-										padding: "3px",
-										flexShrink: 0,
+                                                                <VSCodeButton
+                                                                        appearance="icon"
+                                                                        style={{
+                                                                                padding: "3px",
+                                                                                flexShrink: 0,
 										height: "24px",
 										marginTop: "-3px",
 										marginBottom: "-3px",
 										marginRight: "-6px",
 									}}
-									disabled={isStreaming}
-									onClick={() => {
-										vscode.postMessage({
-											type: "deleteMessage",
-											value: message.ts,
-										})
-									}}>
-									<span className="codicon codicon-trash"></span>
-								</Button>
+                                                                        disabled={isStreaming}
+                                                                        onClick={() => {
+                                                                                vscode.postMessage({
+                                                                                        type: "deleteMessage",
+                                                                                        value: message.ts,
+                                                                                })
+                                                                        }}
+                                                                        title={t("chat:deleteMessage") ?? undefined}>
+                                                                        <span className="codicon codicon-trash"></span>
+                                                                </VSCodeButton>
 							</div>
 							{message.images && message.images.length > 0 && (
 								<Thumbnails images={message.images} style={{ marginTop: "8px" }} />
@@ -1091,12 +1092,12 @@ const Markdown = memo(({ markdown, partial }: { markdown?: string; partial?: boo
 							}
 						`}
 					</style>
-					<Button
-						className="copy-button"
-						appearance="icon"
-						style={{
-							height: "24px",
-							border: "none",
+                                        <VSCodeButton
+                                                className="copy-button"
+                                                appearance="icon"
+                                                style={{
+                                                        height: "24px",
+                                                        border: "none",
 							background: "var(--vscode-editor-background)",
 							transition: "background 0.2s ease-in-out",
 						}}
@@ -1110,11 +1111,11 @@ const Markdown = memo(({ markdown, partial }: { markdown?: string; partial?: boo
 										button.style.background = ""
 									}, 200)
 								}
-							}
-						}}
-						title="Copy as markdown">
-						<span className="codicon codicon-copy"></span>
-					</Button>
+                                                        }
+                                                }}
+                                                title="Copy as markdown">
+                                                <span className="codicon codicon-copy"></span>
+                                        </VSCodeButton>
 				</div>
 			)}
 		</div>

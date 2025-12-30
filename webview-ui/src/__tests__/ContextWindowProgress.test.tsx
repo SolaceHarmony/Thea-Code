@@ -1,39 +1,46 @@
 import React from "react"
 import { render, screen } from "@testing-library/react"
 import "@testing-library/jest-dom"
-import TaskHeader from "../components/chat/TaskHeader"
+import sinon from "sinon"
+import proxyquire from "proxyquire"
 
-// Mock formatLargeNumber function
-jest.mock("@/utils/format", () => ({
-	formatLargeNumber: jest.fn((num) => num.toString()),
-}))
-
-// Mock ExtensionStateContext since we use useExtensionState
-jest.mock("../context/ExtensionStateContext", () => ({
-	useExtensionState: jest.fn(() => ({
-		apiConfiguration: {
-			apiProvider: "openai",
-			// Add other needed properties
-		},
-		currentTaskItem: {
-			id: "test-id",
-			number: 1,
-			size: 1024,
-		},
-	})),
-}))
-
-// Mock highlighting function to avoid JSX parsing issues in tests
-jest.mock("../components/chat/TaskHeader", () => {
-	const originalModule = jest.requireActual("../components/chat/TaskHeader")
-	return {
-		__esModule: true,
-		...originalModule,
-		highlightMentions: jest.fn((text) => text),
-	}
-})
+const proxyquireStrict = proxyquire.noPreserveCache()
 
 describe("ContextWindowProgress", () => {
+	let sandbox: sinon.SinonSandbox
+	let TaskHeader: typeof import("../components/chat/TaskHeader").default
+
+	beforeEach(() => {
+		sandbox = sinon.createSandbox()
+
+		TaskHeader = proxyquireStrict("../components/chat/TaskHeader", {
+			"@/utils/format": {
+				formatLargeNumber: sandbox.stub().callsFake((num: number) => num.toString()),
+			},
+			"../context/ExtensionStateContext": {
+				useExtensionState: sandbox.stub().returns({
+					apiConfiguration: {
+						apiProvider: "openai",
+					},
+					currentTaskItem: {
+						id: "test-id",
+						number: 1,
+						size: 1024,
+					},
+				}),
+			},
+			"@/utils/vscode": {
+				vscode: {
+					postMessage: sandbox.stub(),
+				},
+			},
+		}).default
+	})
+
+	afterEach(() => {
+		sandbox.restore()
+	})
+
 	// Helper function to render just the ContextWindowProgress part through TaskHeader
 	const renderComponent = (props: Record<string, unknown>) => {
 		// Create a simple mock of the task that avoids importing the actual types
@@ -51,17 +58,13 @@ describe("ContextWindowProgress", () => {
 			doesModelSupportPromptCache: true,
 			totalCost: 0.001,
 			contextTokens: 1000,
-			onClose: jest.fn(),
+			onClose: sandbox.stub(),
 		}
 
 		return render(<TaskHeader {...defaultProps} {...props} />)
 	}
 
-	beforeEach(() => {
-		jest.clearAllMocks()
-	})
-
-	test("renders correctly with valid inputs", () => {
+	it("renders correctly with valid inputs", () => {
 		renderComponent({
 			contextTokens: 1000,
 			contextWindow: 4000,
@@ -75,7 +78,7 @@ describe("ContextWindowProgress", () => {
 		expect(screen.getByTestId("context-window-size")).toHaveTextContent(/(4000|128000)/) // contextWindow
 	})
 
-	test("handles zero context window gracefully", () => {
+	it("handles zero context window gracefully", () => {
 		renderComponent({
 			contextTokens: 0,
 			contextWindow: 0,
@@ -87,7 +90,7 @@ describe("ContextWindowProgress", () => {
 		expect(screen.getByTestId("context-tokens-count")).toHaveTextContent("0")
 	})
 
-	test("handles edge cases with negative values", () => {
+	it("handles edge cases with negative values", () => {
 		renderComponent({
 			contextTokens: -100, // Should be treated as 0
 			contextWindow: 4000,
@@ -99,7 +102,7 @@ describe("ContextWindowProgress", () => {
 		expect(screen.getByTestId("context-window-size")).toHaveTextContent(/(4000|128000)/)
 	})
 
-	test("calculates percentages correctly", () => {
+	it("calculates percentages correctly", () => {
 		const contextTokens = 1000
 		const contextWindow = 4000
 
