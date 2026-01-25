@@ -57,6 +57,7 @@
         "name": "Thea",
         "description": "Ask Thea Code for help with your development tasks.",
         "icon": "assets/icons/icon.svg",
+        "isSticky": true,
         "commands": [
           {
             "name": "thea",
@@ -204,15 +205,6 @@
         "command": "thea-code.chat.respond",
         "title": "Thea Chat: Respond",
         "category": "Thea Code"
-      }
-    ],
-    "chatParticipants": [
-      {
-        "id": "thea-code.thea",
-        "name": "thea",
-        "fullName": "Thea Code",
-        "description": "A whole dev team of AI agents in your editor.",
-        "isSticky": true
       }
     ],
     "menus": {

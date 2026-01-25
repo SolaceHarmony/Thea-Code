@@ -20,7 +20,6 @@ import { openFile, openImage } from "../../integrations/misc/open-file"
 import { getTheme } from "../../integrations/theme/getTheme"
 import { discoverChromeHostUrl, tryChromeHostUrl } from "../../services/browser/browserDiscovery"
 import { searchWorkspaceFiles } from "../../services/search/file-search"
-import { fileExistsAtPath } from "../../utils/fs"
 import { playSound, setSoundEnabled, setSoundVolume } from "../../utils/sound"
 import { playTts, setTtsEnabled, setTtsSpeed, stopTts } from "../../utils/tts"
 import { singleCompletionHandler } from "../../utils/single-completion-handler"
@@ -51,7 +50,7 @@ import { Mode, defaultModeSlug, getModeBySlug, getGroupName } from "../../shared
 import { getDiffStrategy } from "../diff/DiffStrategy"
 import { SYSTEM_PROMPT } from "../prompts/system"
 import { buildApiHandler } from "../../api"
-import { EXTENSION_CONFIG_DIR, configSection, HOMEPAGE_URL } from "../../shared/config/thea-config"
+import { configSection, HOMEPAGE_URL } from "../../shared/config/thea-config"
 
 // Export for testing
 export const webviewMessageHandler = async (provider: TheaProvider, message: WebviewMessage) => {
