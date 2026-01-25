@@ -17,9 +17,9 @@ export type RegisterCommandOptions = {
 	provider: TheaProvider
 }
 
-export const registerCommands = ({ context, outputChannel, provider }: RegisterCommandOptions) => {
+export const registerCommands = ({ context, provider }: RegisterCommandOptions) => {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const commandHandlers: Record<string, (...args: any[]) => Promise<unknown> | unknown> = {
+	const commandHandlers: Record<string, (...args: any[]) => Promise<void> | void> = {
 		[`${EXTENSION_NAME}.activationCompleted`]: () => {},
 		[COMMANDS.PLUS_BUTTON]: async () => {
 			await vscode.commands.executeCommand("thea-code.newTask")
@@ -395,7 +395,7 @@ async function openGlobalMcpSettings(provider: TheaProvider) {
 	await openFileInEditor(pathOrUndefined, JSON.stringify({ mcpServers: {} }, null, 2))
 }
 
-async function openProjectMcpSettings(provider: TheaProvider) {
+async function openProjectMcpSettings(_provider: TheaProvider) {
 	if (!vscode.workspace.workspaceFolders?.length) {
 		await vscode.window.showErrorMessage("Open a workspace to manage project MCP settings.")
 		return

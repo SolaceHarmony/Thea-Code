@@ -4,7 +4,10 @@ import { memo } from "react"
 import { useAppTranslation } from "@/i18n/TranslationContext"
 import { Trans } from "react-i18next"
 import { vscode } from "../../utils/vscode"
-import { API_REFERENCES } from "../../../../src/shared/config/thea-config"
+
+// URLs defined here to avoid cross-boundary import from extension code
+const DISCORD_URL = "https://discord.gg/EmberHarmony"
+const REDDIT_URL = "https://reddit.com/r/SolaceHarmony"
 
 interface AnnouncementProps {
 	version: string
@@ -18,13 +21,13 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 
 	const discordLink = (
 		<VSCodeLink
-			href={API_REFERENCES.DISCORD_URL}
+			href={DISCORD_URL}
 			onClick={(e) => {
 				e.preventDefault()
 				vscode.postMessage({
 					type: "action",
 					action: "openExternal",
-					values: { url: API_REFERENCES.DISCORD_URL },
+					values: { url: DISCORD_URL },
 				})
 			}}>
 			Discord
@@ -33,13 +36,13 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 
 	const redditLink = (
 		<VSCodeLink
-			href={API_REFERENCES.REDDIT_URL}
+			href={REDDIT_URL}
 			onClick={(e) => {
 				e.preventDefault()
 				vscode.postMessage({
 					type: "action",
 					action: "openExternal",
-					values: { url: API_REFERENCES.REDDIT_URL },
+					values: { url: REDDIT_URL },
 				})
 			}}>
 			Reddit

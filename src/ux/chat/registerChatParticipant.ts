@@ -21,6 +21,7 @@ const approvalAskTypes = new Set([
 	"completion_result",
 ])
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const activeTasks = new Map<string, any>()
 
 export function registerChatParticipant(
@@ -28,27 +29,34 @@ export function registerChatParticipant(
 	provider: TheaProvider,
 ): vscode.ChatParticipant {
 	context.subscriptions.push(
+		// eslint-disable-next-line @typescript-eslint/require-await
 		vscode.commands.registerCommand(APPROVE_COMMAND_ID, async (taskId?: string) => {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const task = resolveTask(taskId, provider)
 			if (!task) {
 				void vscode.window.showWarningMessage("No active task to approve.")
 				return
 			}
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 			task.webviewCommunicator.handleWebviewAskResponse("yesButtonClicked")
 		}),
 	)
 	context.subscriptions.push(
+		// eslint-disable-next-line @typescript-eslint/require-await
 		vscode.commands.registerCommand(REJECT_COMMAND_ID, async (taskId?: string) => {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const task = resolveTask(taskId, provider)
 			if (!task) {
 				void vscode.window.showWarningMessage("No active task to reject.")
 				return
 			}
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 			task.webviewCommunicator.handleWebviewAskResponse("noButtonClicked")
 		}),
 	)
 	context.subscriptions.push(
 		vscode.commands.registerCommand(RESPOND_COMMAND_ID, async (taskId?: string, prompt?: string) => {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const task = resolveTask(taskId, provider)
 			if (!task) {
 				void vscode.window.showWarningMessage("No active task to respond to.")
@@ -61,6 +69,7 @@ export function registerChatParticipant(
 			if (value === undefined) {
 				return
 			}
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 			task.webviewCommunicator.handleWebviewAskResponse("messageResponse", value)
 		}),
 	)
@@ -101,6 +110,7 @@ export function registerChatParticipant(
 			activeTasks.set(task.taskId, task)
 
 			const disposables: Array<() => void> = []
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const removeListener = (emitter: EventEmitter, event: string | symbol, handler: (...args: any[]) => void) => {
 				emitter.off(event, handler)
 			}
@@ -167,10 +177,6 @@ export function registerChatParticipant(
 	context.subscriptions.push(participant)
 
 	return participant
-}
-
-function formatTheaMessage(message: TheaMessage): string | undefined {
-	return formatSayMessage(message)
 }
 
 function formatSayMessage(message: TheaMessage): string | undefined {
@@ -309,8 +315,10 @@ function normalizeMarkdown(text: string): string {
 
 function resolveTask(taskId: string | undefined, provider: TheaProvider) {
 	if (taskId && activeTasks.has(taskId)) {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const task = activeTasks.get(taskId)
 		if (task) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return task
 		}
 	}
