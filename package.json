@@ -66,16 +66,6 @@
         ]
       }
     ],
-    "submenus": [
-      {
-        "id": "thea-code.contextMenu",
-        "label": "Thea Code"
-      },
-      {
-        "id": "thea-code.terminalMenu",
-        "label": "Thea Code"
-      }
-    ],
     "viewsContainers": {
       "activitybar": [
         {
@@ -88,13 +78,22 @@
     "views": {
       "thea-code-ActivityBar": [
         {
-          "type": "webview",
-          "icon": "assets/icons/icon.svg",
-          "id": "thea-code.SidebarProvider",
-          "name": ""
+          "id": "thea-code.sidebarView",
+          "name": "Thea",
+          "icon": "assets/icons/icon.svg"
         }
       ]
     },
+    "submenus": [
+      {
+        "id": "thea-code.contextMenu",
+        "label": "Thea Code"
+      },
+      {
+        "id": "thea-code.terminalMenu",
+        "label": "Thea Code"
+      }
+    ],
     "commands": [
       {
         "command": "thea-code.plusButtonClicked",
@@ -339,9 +338,8 @@
     }
   },
   "scripts": {
-    "build": "npm run lint && npm run clean && npm run build:extension && npm run build:webui",
+    "build": "npm run lint && npm run clean && npm run build:extension",
     "build:extension": "node esbuild.mjs",
-    "build:webui": "cd webview-ui && npm run build",
     "semantic-release": "semantic-release",
     "clean": "rimraf out",
     "precompile": "cross-os precompile",
@@ -360,12 +358,10 @@
     "version": "npm run package && npm run verify",
     "generate-types": "tsx scripts/generate-types.mts",
     "generateChatCommandsClass": "node -e \"require('./scripts/generate-types.mjs').generateChatCommandsClass();\"",
-    "dev": "npm run webview:dev",
-    "webview:watch": "cd webview-ui && vite build --watch",
-    "webview:dev": "cd webview-ui && npm run dev",
+    "dev": "npm run watch:esbuild",
     "pretty": "prettier --write --ignore-unknown \"**/*\"",
     "pretty:check": "prettier --check --ignore-unknown \"**/*\"",
-    "package": "npm run clean && npm run build:extension && npm run build:webui && vsce package --out bin/thea-code-$npm_package_version.vsix",
+    "package": "npm run clean && npm run build:extension && vsce package --out bin/thea-code-$npm_package_version.vsix",
     "test": "npm run build:extension && cd src/e2e && npm test",
     "test:extension-harness": "node test/extension-api-harness/runTest.js",
     "test:integration": "cd src/e2e && npm run test",
@@ -376,7 +372,7 @@
     "test:compile": "cd src/e2e && npm run compile",
     "test:types": "tsc --noEmit",
     "start-generic-mock": "tsx test/generic-provider-mock/server.ts",
-    "install:all": "npm install && cd webview-ui && npm install && cd ../src/e2e && npm install && cd ../../",
+    "install:all": "npm install && cd src/e2e && npm install && cd ../../",
     "generate:checklist": "tsx scripts/generate-master-list.ts",
     "watch:esbuild": "node esbuild.mjs --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",

@@ -1,7 +1,11 @@
-import { EventEmitter } from "events"
+/**
+ * VS Code Chat Participant for Thea Code.
+ * Uses native VS Code Chat API instead of webview.
+ */
 import * as vscode from "vscode"
 
-import type { TheaProvider } from "../../core/webview/TheaProvider"
+import { TaskManager } from "../../core/TaskManager"
+import { TheaTask } from "../../core/TheaTask"
 import type { TheaMessage } from "../../shared/ExtensionMessage"
 
 const CHAT_PARTICIPANT_ID = "thea-code.thea"
@@ -21,43 +25,44 @@ const approvalAskTypes = new Set([
 	"completion_result",
 ])
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const activeTasks = new Map<string, any>()
+const activeTasks = new Map<string, TheaTask>()
 
+/**
+ * Registers the Thea chat participant using native VS Code Chat API.
+ * This replaces the webview-based UI with native chat integration.
+ */
 export function registerChatParticipant(
 	context: vscode.ExtensionContext,
-	provider: TheaProvider,
+	taskManager: TaskManager,
 ): vscode.ChatParticipant {
+	// Register approval command
 	context.subscriptions.push(
-		// eslint-disable-next-line @typescript-eslint/require-await
-		vscode.commands.registerCommand(APPROVE_COMMAND_ID, async (taskId?: string) => {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			const task = resolveTask(taskId, provider)
+		vscode.commands.registerCommand(APPROVE_COMMAND_ID, (taskId?: string) => {
+			const task = resolveTask(taskId, taskManager)
 			if (!task) {
 				void vscode.window.showWarningMessage("No active task to approve.")
 				return
 			}
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 			task.webviewCommunicator.handleWebviewAskResponse("yesButtonClicked")
 		}),
 	)
+
+	// Register rejection command
 	context.subscriptions.push(
-		// eslint-disable-next-line @typescript-eslint/require-await
-		vscode.commands.registerCommand(REJECT_COMMAND_ID, async (taskId?: string) => {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			const task = resolveTask(taskId, provider)
+		vscode.commands.registerCommand(REJECT_COMMAND_ID, (taskId?: string) => {
+			const task = resolveTask(taskId, taskManager)
 			if (!task) {
 				void vscode.window.showWarningMessage("No active task to reject.")
 				return
 			}
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 			task.webviewCommunicator.handleWebviewAskResponse("noButtonClicked")
 		}),
 	)
+
+	// Register respond command
 	context.subscriptions.push(
 		vscode.commands.registerCommand(RESPOND_COMMAND_ID, async (taskId?: string, prompt?: string) => {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			const task = resolveTask(taskId, provider)
+			const task = resolveTask(taskId, taskManager)
 			if (!task) {
 				void vscode.window.showWarningMessage("No active task to respond to.")
 				return
@@ -69,16 +74,17 @@ export function registerChatParticipant(
 			if (value === undefined) {
 				return
 			}
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 			task.webviewCommunicator.handleWebviewAskResponse("messageResponse", value)
 		}),
 	)
 
+	// Create the chat participant
 	const participant = vscode.chat.createChatParticipant(
 		CHAT_PARTICIPANT_ID,
 		async (request, _chatContext, response, token) => {
 			const promptCandidate = request.prompt ?? ""
 			const prompt = request.command ? `${request.command} ${promptCandidate}`.trim() : promptCandidate.trim()
+
 			if (!prompt) {
 				response.markdown("Hi! Ask me something about your workspace or run `/thea` with a question.")
 				return { metadata: { preview: true } }
@@ -88,33 +94,31 @@ export function registerChatParticipant(
 				return { metadata: { cancelled: true } }
 			}
 
-			response.progress("Starting Thea task…")
+			response.progress("Starting Thea task...")
 
-			let task: Awaited<ReturnType<typeof provider.initWithTask>> | undefined
+			let task: TheaTask | undefined
 			try {
-				await provider.removeFromStack()
-				// Note: VS Code ChatRequest may not have images property - pass undefined for now
-				task = await provider.initWithTask(prompt, undefined)
+				// Remove any existing task first
+				await taskManager.removeFromStack()
+				// Create new task using TaskManager directly
+				task = await taskManager.createTask(prompt, undefined)
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error)
-				response.markdown(`❌ Failed to start task: ${message}`)
+				response.markdown(`Failed to start task: ${message}`)
 				return { metadata: { error: true } }
 			}
 
 			if (!task) {
-				response.markdown("⚠️ Task did not start. Try again.")
+				response.markdown("Task did not start. Try again.")
 				return { metadata: { error: true } }
 			}
 
-			response.markdown(`🧠 **Task ${task.taskId}** started`) // Provide immediate feedback
+			response.markdown(`**Task ${task.taskId}** started`)
 			activeTasks.set(task.taskId, task)
 
-			const disposables: Array<() => void> = []
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const removeListener = (emitter: EventEmitter, event: string | symbol, handler: (...args: any[]) => void) => {
-				emitter.off(event, handler)
-			}
+			const disposables: vscode.Disposable[] = []
 
+			// Handle messages from task
 			const handleMessage = ({ message }: { taskId: string; action: "created" | "updated"; message: TheaMessage }) => {
 				if (message.partial) {
 					return
@@ -134,40 +138,53 @@ export function registerChatParticipant(
 				}
 			}
 
+			// Handle task completion
 			const handleTaskCompleted = (_taskId: string, usage?: { totalCost?: number }) => {
 				if (usage) {
 					const cost = typeof usage.totalCost === "number" ? ` (est. $${usage.totalCost.toFixed(4)})` : ""
-					response.markdown(`✅ Task completed${cost}`)
+					response.markdown(`Task completed${cost}`)
 				} else {
-					response.markdown("✅ Task completed")
+					response.markdown("Task completed")
 				}
 				activeTasks.delete(task.taskId)
-				disposeListeners()
+				cleanup()
 			}
 
+			// Handle task abort
 			const handleTaskAborted = () => {
-				response.markdown("⚠️ Task aborted")
+				response.markdown("Task aborted")
 				activeTasks.delete(task.taskId)
-				disposeListeners()
+				cleanup()
 			}
 
-			const disposeListeners = () => {
-				disposables.splice(0).forEach((dispose) => dispose())
+			// Cleanup function
+			const cleanup = () => {
+				disposables.forEach((d) => {
+					d.dispose()
+				})
+				disposables.length = 0
 			}
 
+			// Subscribe to task events
 			task.on("message", handleMessage)
 			task.once("taskCompleted", handleTaskCompleted)
 			task.once("taskAborted", handleTaskAborted)
 
-			disposables.push(() => removeListener(task, "message", handleMessage))
-			disposables.push(() => removeListener(task, "taskCompleted", handleTaskCompleted))
-			disposables.push(() => removeListener(task, "taskAborted", handleTaskAborted))
+			// Track listeners for cleanup
+			disposables.push({
+				dispose: () => {
+					task.off("message", handleMessage)
+					task.off("taskCompleted", handleTaskCompleted)
+					task.off("taskAborted", handleTaskAborted)
+				},
+			})
 
+			// Handle cancellation
 			token.onCancellationRequested(() => {
-				disposeListeners()
-				void provider.cancelTask()
+				cleanup()
+				void taskManager.cancelTask()
 				activeTasks.delete(task.taskId)
-				response.markdown("⏹️ Task cancelled")
+				response.markdown("Task cancelled")
 			})
 
 			return { metadata: { taskId: task.taskId } }
@@ -192,33 +209,33 @@ function formatSayMessage(message: TheaMessage): string | undefined {
 			case "error":
 				return message.text ? normalizeMarkdown(message.text) : undefined
 			case "api_req_started":
-				return "⏳ Calling API…"
+				return "Calling API..."
 			case "api_req_finished":
-				return "✅ API request finished"
+				return "API request finished"
 			case "api_req_retry_delayed":
-				return message.text ? `🔁 Retry delayed: ${normalizeMarkdown(message.text)}` : "🔁 Retry delayed"
+				return message.text ? `Retry delayed: ${normalizeMarkdown(message.text)}` : "Retry delayed"
 			case "api_req_retried":
-				return "🔁 Retrying API request"
+				return "Retrying API request"
 			case "task":
-				return message.text ? `📝 ${normalizeMarkdown(message.text)}` : undefined
+				return message.text ? normalizeMarkdown(message.text) : undefined
 			case "completion_result":
-				return message.text ? `💡 ${normalizeMarkdown(message.text)}` : undefined
+				return message.text ? normalizeMarkdown(message.text) : undefined
 			case "user_feedback":
 			case "user_feedback_diff":
-				return message.text ? `🗣️ ${normalizeMarkdown(message.text)}` : undefined
+				return message.text ? normalizeMarkdown(message.text) : undefined
 			case "mcp_server_request_started":
-				return "🛰️ Contacting MCP server…"
+				return "Contacting MCP server..."
 			case "mcp_server_response":
-				return message.text ? `🛰️ ${normalizeMarkdown(message.text)}` : "🛰️ MCP server responded"
+				return message.text ? normalizeMarkdown(message.text) : "MCP server responded"
 			case "new_task":
 			case "new_task_started":
-				return message.text ? `🆕 ${normalizeMarkdown(message.text)}` : undefined
+				return message.text ? normalizeMarkdown(message.text) : undefined
 			case "checkpoint_saved":
-				return message.text ? `💾 ${normalizeMarkdown(message.text)}` : "💾 Checkpoint saved"
+				return message.text ? normalizeMarkdown(message.text) : "Checkpoint saved"
 			case "shell_integration_warning":
-				return message.text ? `⚠️ ${normalizeMarkdown(message.text)}` : "⚠️ Shell integration warning"
+				return message.text ? normalizeMarkdown(message.text) : "Shell integration warning"
 			case "theaignore_error":
-				return message.text ? `⚠️ ${normalizeMarkdown(message.text)}` : "⚠️ .theaignore prevented this action"
+				return message.text ? normalizeMarkdown(message.text) : ".theaignore prevented this action"
 			default:
 				return message.text ? normalizeMarkdown(message.text) : undefined
 		}
@@ -227,23 +244,23 @@ function formatSayMessage(message: TheaMessage): string | undefined {
 	if (message.type === "ask") {
 		switch (message.ask) {
 			case "followup":
-				return message.text ? `🤔 Follow-up: ${normalizeMarkdown(message.text)}` : "🤔 Follow-up question"
+				return message.text ? `Follow-up: ${normalizeMarkdown(message.text)}` : "Follow-up question"
 			case "command":
 			case "command_output":
-				return message.text ? `💻 ${normalizeMarkdown(message.text)}` : "💻 Command action required"
+				return message.text ? normalizeMarkdown(message.text) : "Command action required"
 			case "completion_result":
-				return message.text ? `📄 ${normalizeMarkdown(message.text)}` : "📄 Review completion"
+				return message.text ? normalizeMarkdown(message.text) : "Review completion"
 			case "tool":
-				return message.text ? `🛠️ ${normalizeMarkdown(message.text)}` : "🛠️ Tool approval needed"
+				return message.text ? normalizeMarkdown(message.text) : "Tool approval needed"
 			case "resume_task":
 			case "resume_completed_task":
-				return "▶️ Resume task?"
+				return "Resume task?"
 			case "mistake_limit_reached":
-				return "⚠️ Mistake limit reached"
+				return "Mistake limit reached"
 			case "browser_action_launch":
-				return "🌐 Browser action requested"
+				return "Browser action requested"
 			case "use_mcp_server":
-				return "🛰️ MCP server approval needed"
+				return "MCP server approval needed"
 			default:
 				return message.text ? normalizeMarkdown(message.text) : undefined
 		}
@@ -258,35 +275,31 @@ function formatAskMessage(message: TheaMessage): string | undefined {
 	}
 	switch (message.ask) {
 		case "followup":
-			return message.text ? `🤔 Follow-up: ${normalizeMarkdown(message.text)}` : "🤔 Follow-up question"
+			return message.text ? `Follow-up: ${normalizeMarkdown(message.text)}` : "Follow-up question"
 		case "command":
 		case "command_output":
-			return message.text ? `💻 ${normalizeMarkdown(message.text)}` : "💻 Command input requested"
+			return message.text ? normalizeMarkdown(message.text) : "Command input requested"
 		case "completion_result":
-			return message.text ? `📄 ${normalizeMarkdown(message.text)}` : "📄 Review completion result"
+			return message.text ? normalizeMarkdown(message.text) : "Review completion result"
 		case "tool":
-			return message.text ? `🛠️ ${normalizeMarkdown(message.text)}` : "🛠️ Tool approval needed"
+			return message.text ? normalizeMarkdown(message.text) : "Tool approval needed"
 		case "resume_task":
 		case "resume_completed_task":
-			return "▶️ Resume task?"
+			return "Resume task?"
 		case "mistake_limit_reached":
-			return "⚠️ Mistake limit reached"
+			return "Mistake limit reached"
 		case "browser_action_launch":
-			return "🌐 Browser action requested"
+			return "Browser action requested"
 		case "use_mcp_server":
-			return "🛰️ MCP server approval needed"
+			return "MCP server approval needed"
 		case "finishTask":
-			return message.text ? `🏁 ${normalizeMarkdown(message.text)}` : "🏁 Finish task?"
+			return message.text ? normalizeMarkdown(message.text) : "Finish task?"
 		default:
 			return message.text ? normalizeMarkdown(message.text) : undefined
 	}
 }
 
-function addAskButtons(
-	response: vscode.ChatResponseStream,
-	taskId: string,
-	message: TheaMessage,
-) {
+function addAskButtons(response: vscode.ChatResponseStream, taskId: string, message: TheaMessage) {
 	if (message.type !== "ask") {
 		return
 	}
@@ -303,7 +316,7 @@ function addAskButtons(
 		})
 	}
 	response.button({
-		title: "Respond…",
+		title: "Respond...",
 		command: RESPOND_COMMAND_ID,
 		arguments: [taskId, message.text ?? ""],
 	})
@@ -313,17 +326,15 @@ function normalizeMarkdown(text: string): string {
 	return text.replace(/\r\n/g, "\n").trim()
 }
 
-function resolveTask(taskId: string | undefined, provider: TheaProvider) {
+function resolveTask(taskId: string | undefined, taskManager: TaskManager): TheaTask | undefined {
 	if (taskId && activeTasks.has(taskId)) {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const task = activeTasks.get(taskId)
 		if (task) {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return task
 		}
 	}
 
-	const current = provider.getCurrent()
+	const current = taskManager.getCurrent()
 	if (current && (!taskId || current.taskId === taskId)) {
 		return current
 	}
