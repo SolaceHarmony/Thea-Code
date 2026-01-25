@@ -23,20 +23,29 @@ jest.mock("../../../utils/vscode", () => ({
 	},
 }))
 
-jest.mock("@/components/ui/vscode-components", () => ({
-	VSCodeCheckbox: function MockVSCodeCheckbox({
+// Mock the Radix UI Checkbox component used by McpToolRow
+jest.mock("@/components/ui/checkbox", () => ({
+	Checkbox: function MockCheckbox({
 		children,
 		checked,
-		onChange,
+		onCheckedChange,
+		...props
 	}: {
 		children?: React.ReactNode
 		checked?: boolean
-		onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+		onCheckedChange?: (checked: boolean) => void
+		[key: string]: unknown
 	}) {
 		return (
 			<label>
-				<input type="checkbox" checked={checked} onChange={onChange} />
-				{children}
+				<input
+					type="checkbox"
+					role="checkbox"
+					checked={checked}
+					onChange={(e) => onCheckedChange?.(e.target.checked)}
+					{...props}
+				/>
+				{children && <span>{children}</span>}
 			</label>
 		)
 	},
@@ -95,7 +104,7 @@ describe("McpToolRow", () => {
 
 		render(<McpToolRow tool={alwaysAllowedTool} serverName="test-server" alwaysAllowMcp={true} />)
 
-		const checkbox = screen.getByRole("checkbox")
+		const checkbox = screen.getByRole("checkbox") as HTMLInputElement
 		expect(checkbox.checked).toBe(true)
 	})
 
