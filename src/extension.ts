@@ -129,9 +129,18 @@ export async function activate(context: vscode.ExtensionContext) {
 		const { TerminalRegistry } = await import("./integrations/terminal/TerminalRegistry")
 		TerminalRegistry.initialize()
 
+		// Create a provider for E2E tests that need the API
+		const { TheaProvider } = await import("./core/webview/TheaProvider")
+		const e2eProvider = new TheaProvider(context, outputChannel, "sidebar")
+		context.subscriptions.push(
+			vscode.window.registerWebviewViewProvider(String(TheaProvider.sideBarId), e2eProvider, {
+				webviewOptions: { retainContextWhenHidden: true },
+			}),
+		)
+
 		// Return the real API for tests
 		const { API } = await import("./exports/api")
-		return new API(outputChannel, sidebarProvider)
+		return new API(outputChannel, e2eProvider)
 	}
 
 	// Non-E2E activation continues here with lazy loading
