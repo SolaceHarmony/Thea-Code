@@ -1,11 +1,14 @@
+/**
+ * Command registration using native VS Code APIs.
+ * Uses TaskManager instead of TheaProvider for webview-free operation.
+ */
 import * as vscode from "vscode"
 import fs from "fs/promises"
 import * as path from "path"
 
-import { TheaProvider } from "../core/webview/TheaProvider" // Renamed import
+import { TaskManager } from "../core/TaskManager"
 import { EXTENSION_NAME, HOMEPAGE_URL, COMMANDS, EXTENSION_CONFIG_DIR } from "../shared/config/thea-config"
 import { supportPrompt } from "../shared/support-prompt"
-import type { McpServer } from "../shared/mcp"
 import { importSettings, exportSettings } from "../core/config/importExport"
 import type { GlobalState } from "../schemas"
 
@@ -14,10 +17,10 @@ import { handleNewTask } from "./handleTask"
 export type RegisterCommandOptions = {
 	context: vscode.ExtensionContext
 	outputChannel: vscode.OutputChannel
-	provider: TheaProvider
+	taskManager: TaskManager
 }
 
-export const registerCommands = ({ context, provider }: RegisterCommandOptions) => {
+export const registerCommands = ({ context, taskManager }: RegisterCommandOptions) => {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const commandHandlers: Record<string, (...args: any[]) => Promise<void> | void> = {
 		[`${EXTENSION_NAME}.activationCompleted`]: () => {},
@@ -26,16 +29,16 @@ export const registerCommands = ({ context, provider }: RegisterCommandOptions) 
 		},
 		[COMMANDS.NEW_TASK]: handleNewTask,
 		[COMMANDS.MCP_BUTTON]: async () => {
-			await showMcpServerQuickPick(provider)
+			await showMcpServerQuickPick(taskManager)
 		},
 		[COMMANDS.PROMPTS_BUTTON]: async () => {
-			await showPromptQuickPick(provider)
+			await showPromptQuickPick(taskManager)
 		},
 		[COMMANDS.HISTORY_BUTTON]: async () => {
-			await showHistoryQuickPick(provider)
+			await showHistoryQuickPick(taskManager)
 		},
 		[COMMANDS.SETTINGS_BUTTON]: async () => {
-			await showSettingsQuickPick(provider)
+			await showSettingsQuickPick(taskManager)
 		},
 		[COMMANDS.POPOUT_BUTTON]: async () => {
 			await vscode.commands.executeCommand("workbench.action.openChat.view")
@@ -51,16 +54,16 @@ export const registerCommands = ({ context, provider }: RegisterCommandOptions) 
 			await promptForCustomStoragePath()
 		},
 		[COMMANDS.ADD_TO_CONTEXT]: async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Add to context")
+			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Add to context")
 		},
 		[COMMANDS.EXPLAIN_CODE]: async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Explain code")
+			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Explain code")
 		},
 		[COMMANDS.FIX_CODE]: async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Fix code")
+			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Fix code")
 		},
 		[COMMANDS.IMPROVE_CODE]: async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Improve code")
+			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Improve code")
 		},
 	}
 
@@ -70,38 +73,37 @@ export const registerCommands = ({ context, provider }: RegisterCommandOptions) 
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand(COMMANDS.TERMINAL_ADD_TO_CONTEXT, async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Add terminal to context")
+			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Add terminal to context")
 		}),
 	)
 	context.subscriptions.push(
 		vscode.commands.registerCommand(COMMANDS.TERMINAL_FIX, async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Fix terminal command")
+			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Fix terminal command")
 		}),
 	)
 	context.subscriptions.push(
 		vscode.commands.registerCommand(COMMANDS.TERMINAL_EXPLAIN, async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Explain terminal command")
+			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Explain terminal command")
 		}),
 	)
 	context.subscriptions.push(
 		vscode.commands.registerCommand(COMMANDS.TERMINAL_FIX_CURRENT, async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Fix terminal command (current task)")
+			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Fix terminal command (current task)")
 		}),
 	)
 	context.subscriptions.push(
 		vscode.commands.registerCommand(COMMANDS.TERMINAL_EXPLAIN_CURRENT, async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Explain terminal command (current task)")
+			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Explain terminal command (current task)")
 		}),
 	)
 }
 
-// Legacy panel tracking - kept for backward compatibility during migration
-// Will be removed once fully migrated to Chat Participant API
+// Legacy panel tracking - no-op during migration
 export function setPanel(
 	_panel: vscode.WebviewPanel | vscode.WebviewView | undefined,
 	_type: "sidebar" | "tab",
 ): void {
-	// No-op during migration to native VS Code APIs
+	// No-op - native VS Code Chat API doesn't use panels
 }
 
 interface RunnableQuickPickItem extends vscode.QuickPickItem {
@@ -111,10 +113,9 @@ interface RunnableQuickPickItem extends vscode.QuickPickItem {
 
 type SettingsQuickPickItem = RunnableQuickPickItem
 
-async function showHistoryQuickPick(provider: TheaProvider) {
+async function showHistoryQuickPick(taskManager: TaskManager) {
 	try {
-		const state = await provider.getStateToPostToWebview()
-		const history = state.taskHistory ?? []
+		const history = taskManager.contextProxy.getGlobalState("taskHistory") ?? []
 
 		if (history.length === 0) {
 			await vscode.window.showInformationMessage("No previous tasks found.")
@@ -142,17 +143,21 @@ async function showHistoryQuickPick(provider: TheaProvider) {
 			return
 		}
 
-		await provider.showTaskWithId(selection.taskId)
-		await vscode.window.showInformationMessage(`Reopened task ${selection.label}`)
+		// Find the history item and create a task from it
+		const historyItem = history.find((h) => h.id === selection.taskId)
+		if (historyItem) {
+			await taskManager.createTaskFromHistory(historyItem)
+			await vscode.window.showInformationMessage(`Reopened task ${selection.label}`)
+		}
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error)
 		await vscode.window.showErrorMessage(`Unable to show task history: ${message}`)
 	}
 }
 
-async function showPromptQuickPick(provider: TheaProvider) {
+async function showPromptQuickPick(taskManager: TaskManager) {
 	try {
-		const state = await provider.getStateToPostToWebview()
+		const state = await taskManager.getStateManager().getState()
 		const mergedPrompts = {
 			...supportPrompt.default,
 			...(state.customSupportPrompts ?? {}),
@@ -181,7 +186,7 @@ async function showPromptQuickPick(provider: TheaProvider) {
 
 		await vscode.commands.executeCommand(
 			"thea-code.chat.respond",
-			provider.getCurrent()?.taskId || "",
+			taskManager.getCurrent()?.taskId || "",
 			selection.template,
 		)
 	} catch (error) {
@@ -190,78 +195,46 @@ async function showPromptQuickPick(provider: TheaProvider) {
 	}
 }
 
-async function showMcpServerQuickPick(provider: TheaProvider) {
-	while (true) {
-		try {
-			const servers: McpServer[] = provider.theaMcpManagerInstance.getAllServers()
-			const items: RunnableQuickPickItem[] = []
+async function showMcpServerQuickPick(_taskManager: TaskManager) {
+	// MCP server management - simplified for now
+	// Full MCP management will be added through McpHub access
+	const items: RunnableQuickPickItem[] = [
+		{
+			label: "$(gear) Open global MCP settings",
+			detail: "Open the extension-level MCP configuration file.",
+			run: async () => {
+				await openGlobalMcpSettings()
+			},
+			keepOpen: true,
+		},
+		{
+			label: "$(file-code) Open workspace MCP settings",
+			detail: "Open or create .thea/mcp.json in the current workspace.",
+			run: async () => {
+				await openProjectMcpSettings()
+			},
+			keepOpen: true,
+		},
+	]
 
-			items.push(
-				{
-					label: "$(gear) Open global MCP settings",
-					detail: "Open the extension-level MCP configuration file.",
-					run: async () => {
-						await openGlobalMcpSettings(provider)
-					},
-					keepOpen: true,
-				},
-				{
-					label: "$(file-code) Open workspace MCP settings",
-					detail: "Open or create .thea/mcp.json in the current workspace.",
-					run: async () => {
-						await openProjectMcpSettings(provider)
-					},
-					keepOpen: true,
-				},
-			)
+	const selection = await vscode.window.showQuickPick(items, {
+		placeHolder: "Manage MCP servers",
+		ignoreFocusOut: true,
+	})
 
-			if (servers.length === 0) {
-				items.push({
-					label: "No MCP servers configured",
-					detail: "Use the settings files to add new servers.",
-					run: async () => {},
-				})
-			} else {
-				const serverItems = servers.map<RunnableQuickPickItem>((server) => ({
-					label: `${server.disabled ? "$(circle-slash)" : "$(plug)"} ${server.name}`,
-					description: `${server.status}${server.disabled ? " • disabled" : ""}`,
-					detail: server.config,
-					run: async () => {
-						await showMcpServerActions(provider, server.name)
-					},
-					keepOpen: true,
-				}))
-				items.push(...serverItems)
-			}
+	if (!selection) {
+		return
+	}
 
-			const selection = await vscode.window.showQuickPick(items, {
-				placeHolder: "Manage MCP servers",
-				ignoreFocusOut: true,
-			})
-
-			if (!selection) {
-				return
-			}
-
-			try {
-				await selection.run()
-			} catch (error) {
-				const message = error instanceof Error ? error.message : String(error)
-				await vscode.window.showErrorMessage(`Unable to perform MCP action: ${message}`)
-			}
-
-			if (!selection.keepOpen) {
-				return
-			}
-		} catch (error) {
-			const message = error instanceof Error ? error.message : String(error)
-			await vscode.window.showErrorMessage(`Unable to show MCP servers: ${message}`)
-			return
-		}
+	try {
+		await selection.run()
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error)
+		await vscode.window.showErrorMessage(`Unable to perform MCP action: ${message}`)
 	}
 }
 
-async function showSettingsQuickPick(provider: TheaProvider) {
+async function showSettingsQuickPick(taskManager: TaskManager) {
 	const toggleDescriptors: Array<{ key: keyof GlobalState; label: string; detail?: string }> = [
 		{ key: "autoApprovalEnabled", label: "Auto-approve follow-up actions" },
 		{ key: "alwaysApproveResubmit", label: "Always approve retry requests" },
@@ -286,9 +259,9 @@ async function showSettingsQuickPick(provider: TheaProvider) {
 	]
 
 	while (true) {
-		let state: Awaited<ReturnType<TheaProvider["getStateToPostToWebview"]>>
+		let state: Awaited<ReturnType<typeof taskManager.getStateManager.prototype.getState>>
 		try {
-			state = await provider.getStateToPostToWebview()
+			state = await taskManager.getStateManager().getState()
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error)
 			await vscode.window.showErrorMessage(`Unable to load settings: ${message}`)
@@ -310,13 +283,11 @@ async function showSettingsQuickPick(provider: TheaProvider) {
 				detail: "Merge settings from a saved JSON export",
 				run: async () => {
 					const { success } = await importSettings({
-						providerSettingsManager: provider.providerSettingsManager,
-						contextProxy: provider.contextProxy,
+						providerSettingsManager: taskManager.providerSettingsManager,
+						contextProxy: taskManager.contextProxy,
 					})
 
 					if (success) {
-						provider.settingsImportedAt = Date.now()
-						await provider.postStateToWebview()
 						await vscode.window.showInformationMessage("Settings imported successfully.")
 					}
 				},
@@ -327,8 +298,8 @@ async function showSettingsQuickPick(provider: TheaProvider) {
 				detail: "Save provider profiles and global settings to disk",
 				run: async () => {
 					await exportSettings({
-						providerSettingsManager: provider.providerSettingsManager,
-						contextProxy: provider.contextProxy,
+						providerSettingsManager: taskManager.providerSettingsManager,
+						contextProxy: taskManager.contextProxy,
 					})
 					await vscode.window.showInformationMessage("Settings exported.")
 				},
@@ -338,7 +309,8 @@ async function showSettingsQuickPick(provider: TheaProvider) {
 				label: "$(trash) Reset Thea state",
 				detail: "Clear stored state and custom modes",
 				run: async () => {
-					await provider.resetState()
+					await taskManager.contextProxy.resetAllState()
+					await vscode.window.showInformationMessage("State reset successfully.")
 				},
 			},
 		)
@@ -353,9 +325,8 @@ async function showSettingsQuickPick(provider: TheaProvider) {
 				description,
 				detail: descriptor.detail,
 				run: async () => {
-					const nextValue = (!currentValue) as GlobalState[typeof descriptor.key]
-					await provider.updateGlobalState(descriptor.key, nextValue)
-					await provider.postStateToWebview()
+					const nextValue = !currentValue
+					await taskManager.contextProxy.updateGlobalState(descriptor.key, nextValue)
 					const status = nextValue ? "enabled" : "disabled"
 					await vscode.window.showInformationMessage(`${descriptor.label} ${status}.`)
 				},
@@ -385,17 +356,21 @@ async function showSettingsQuickPick(provider: TheaProvider) {
 	}
 }
 
-async function openGlobalMcpSettings(provider: TheaProvider) {
-	const pathOrUndefined = await provider.theaMcpManagerInstance.getMcpSettingsFilePath()
-	if (!pathOrUndefined) {
-		await vscode.window.showWarningMessage("No global MCP settings file is available.")
-		return
-	}
+async function openGlobalMcpSettings() {
+	// Get global storage path for MCP settings
+	const homeDir = process.env.HOME || process.env.USERPROFILE || ""
+	const globalMcpPath = path.join(homeDir, ".thea", "mcp.json")
 
-	await openFileInEditor(pathOrUndefined, JSON.stringify({ mcpServers: {} }, null, 2))
+	try {
+		await fs.mkdir(path.dirname(globalMcpPath), { recursive: true })
+		await openFileInEditor(globalMcpPath, JSON.stringify({ mcpServers: {} }, null, 2))
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error)
+		await vscode.window.showErrorMessage(`Unable to open global MCP settings: ${message}`)
+	}
 }
 
-async function openProjectMcpSettings(_provider: TheaProvider) {
+async function openProjectMcpSettings() {
 	if (!vscode.workspace.workspaceFolders?.length) {
 		await vscode.window.showErrorMessage("Open a workspace to manage project MCP settings.")
 		return
@@ -414,211 +389,13 @@ async function openProjectMcpSettings(_provider: TheaProvider) {
 	}
 }
 
-async function showMcpServerActions(provider: TheaProvider, serverName: string) {
-	while (true) {
-		const server = provider.theaMcpManagerInstance.getAllServers().find((s) => s.name === serverName)
-		if (!server) {
-			await vscode.window.showInformationMessage(`Server ${serverName} is no longer available.`)
-			return
-		}
-
-		const items: RunnableQuickPickItem[] = []
-		const isDisabled = Boolean(server.disabled)
-
-		items.push({
-			label: isDisabled ? "$(play) Enable server" : "$(circle-slash) Disable server",
-			description: isDisabled ? "Currently disabled" : "Currently enabled",
-			run: async () => {
-				await provider.theaMcpManagerInstance.toggleServerDisabled(server.name, !isDisabled)
-				await provider.postStateToWebview()
-				await vscode.window.showInformationMessage(
-					`Server ${server.name} ${isDisabled ? "enabled" : "disabled"}.`,
-				)
-			},
-			keepOpen: true,
-		})
-
-		items.push({
-			label: "$(refresh) Restart connection",
-			description: server.status === "connecting" ? "Currently connecting" : undefined,
-			run: async () => {
-				await provider.theaMcpManagerInstance.restartConnection(server.name)
-				await vscode.window.showInformationMessage(`Restarted connection for ${server.name}.`)
-			},
-			keepOpen: true,
-		})
-
-		if (server.tools?.length) {
-			items.push({
-				label: "$(checklist) Toggle tool approvals",
-				detail: "Enable or disable always-allow for server tools.",
-				run: async () => {
-					await showMcpToolQuickPick(provider, server.name, server.source ?? "global")
-				},
-				keepOpen: true,
-			})
-		}
-
-		items.push({
-			label: "$(comment-discussion) Send summary to chat",
-			detail: "Post server details into the active Thea task.",
-			run: async () => {
-				const summary = formatMcpServerSummary(server)
-				await vscode.commands.executeCommand(
-					"thea-code.chat.respond",
-					provider.getCurrent()?.taskId || "",
-					summary,
-				)
-			},
-			keepOpen: true,
-		})
-
-		items.push({
-			label: "$(trash) Delete server",
-			detail: "Remove this server from configuration.",
-			run: async () => {
-				const choice = await vscode.window.showWarningMessage(
-					`Delete MCP server ${server.name}?`,
-					{ modal: true },
-					"Delete",
-				)
-				if (choice !== "Delete") {
-					return
-				}
-				await provider.theaMcpManagerInstance.deleteServer(server.name)
-				await provider.postStateToWebview()
-				await vscode.window.showInformationMessage(`Deleted MCP server ${server.name}.`)
-			},
-		})
-
-		items.push({
-			label: "$(arrow-left) Back",
-			run: async () => {},
-		})
-
-		const selection = await vscode.window.showQuickPick(items, {
-			placeHolder: `Manage ${server.name}`,
-			ignoreFocusOut: true,
-		})
-
-		if (!selection) {
-			return
-		}
-
-		try {
-			await selection.run()
-		} catch (error) {
-			const message = error instanceof Error ? error.message : String(error)
-			await vscode.window.showErrorMessage(`Unable to update ${server.name}: ${message}`)
-		}
-
-		if (!selection.keepOpen) {
-			return
-		}
-	}
-}
-
-async function showMcpToolQuickPick(
-	provider: TheaProvider,
-	serverName: string,
-	source: "global" | "project",
-) {
-	while (true) {
-		const server = provider.theaMcpManagerInstance.getAllServers().find((s) => s.name === serverName)
-		if (!server) {
-			await vscode.window.showInformationMessage(`Server ${serverName} is no longer available.`)
-			return
-		}
-
-		const tools = server.tools ?? []
-		if (tools.length === 0) {
-			await vscode.window.showInformationMessage(`Server ${serverName} has no tools to manage.`)
-			return
-		}
-
-		const hub = provider.theaMcpManagerInstance.getMcpHub()
-		if (!hub) {
-			await vscode.window.showErrorMessage("MCP hub is not ready; cannot toggle tools.")
-			return
-		}
-
-		const items: RunnableQuickPickItem[] = tools.map((tool) => {
-			const alwaysAllow = Boolean(tool.alwaysAllow)
-			return {
-				label: `${alwaysAllow ? "$(check)" : "$(circle-large-outline)"} ${tool.name}`,
-				description: alwaysAllow ? "Always allow" : "Requires approval",
-				detail: tool.description,
-				run: async () => {
-					await hub.toggleToolAlwaysAllow(server.name, source, tool.name, !alwaysAllow)
-					await provider.postStateToWebview()
-					await vscode.window.showInformationMessage(
-						`${tool.name} is now ${!alwaysAllow ? "always allowed" : "approval required"}.`,
-					)
-				},
-				keepOpen: true,
-			}
-		})
-
-		items.push({
-			label: "$(arrow-left) Back",
-			run: async () => {},
-		})
-
-		const selection = await vscode.window.showQuickPick(items, {
-			placeHolder: `Toggle tools for ${serverName}`,
-			ignoreFocusOut: true,
-		})
-
-		if (!selection) {
-			return
-		}
-
-		try {
-			await selection.run()
-		} catch (error) {
-			const message = error instanceof Error ? error.message : String(error)
-			await vscode.window.showErrorMessage(`Unable to toggle tool: ${message}`)
-		}
-
-		if (!selection.keepOpen) {
-			return
-		}
-	}
-}
-
-function formatMcpServerSummary(server: McpServer): string {
-	const lines = [
-		`MCP Server: ${server.name}`,
-		`Status: ${server.status}${server.disabled ? " (disabled)" : ""}`,
-		`Source: ${server.source ?? "global"}`,
-		`Config: ${server.config}`,
-	]
-
-	if (server.tools?.length) {
-		lines.push(`Tools: ${server.tools.length}`)
-	}
-
-	if (server.resources?.length || server.resourceTemplates?.length) {
-		const count = (server.resources?.length ?? 0) + (server.resourceTemplates?.length ?? 0)
-		lines.push(`Resources: ${count}`)
-	}
-
-	return lines.join("\n")
-}
-
-async function openFileInEditor(filePath: string, defaultContent?: string) {
-	const uri = vscode.Uri.file(filePath)
+async function openFileInEditor(filePath: string, defaultContent: string) {
 	try {
-		await fs.mkdir(path.dirname(filePath), { recursive: true })
-	} catch {}
-
-	try {
-		await vscode.workspace.fs.stat(uri)
+		await fs.access(filePath)
 	} catch {
-		const content = Buffer.from(defaultContent ?? "", "utf8")
-		await vscode.workspace.fs.writeFile(uri, content)
+		await fs.writeFile(filePath, defaultContent, "utf-8")
 	}
 
-	const document = await vscode.workspace.openTextDocument(uri)
-	await vscode.window.showTextDocument(document, { preview: false })
+	const doc = await vscode.workspace.openTextDocument(filePath)
+	await vscode.window.showTextDocument(doc)
 }
