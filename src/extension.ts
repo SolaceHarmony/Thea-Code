@@ -2,6 +2,7 @@ import * as vscode from "vscode"
 
 // Lightweight imports only - heavy modules will be loaded dynamically
 import { EXTENSION_DISPLAY_NAME, EXTENSION_NAME } from "./shared/config/thea-config"
+import { registerUx } from "./ux"
 
 // Type-only imports (don't affect runtime)
 // type-only imports omitted to avoid unused-var warnings in E2E path
@@ -144,6 +145,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	}
 
 	// Non-E2E activation continues here with lazy loading
+	outputChannel.appendLine("Starting lazy initialization...")
 
 	// Load heavy modules dynamically
 	try {
@@ -201,6 +203,9 @@ export async function activate(context: vscode.ExtensionContext) {
 		const theaProvider = new TheaProvider(context, outputChannel, "sidebar")
 		outputChannel.appendLine("TheaProvider created")
 		telemetryService.setProvider(theaProvider)
+
+		outputChannel.appendLine("Registering Thea chat participant (preview)...")
+			registerUx({ context, provider: theaProvider, outputChannel })
 
 		context.subscriptions.push(
 			vscode.window.registerWebviewViewProvider(String(TheaProvider.sideBarId), theaProvider, {

@@ -17,7 +17,6 @@ import { checkExistKey } from "../../shared/checkExistApiConfig"
 import { EXPERIMENT_IDS, experimentDefault } from "../../shared/experiments"
 import { Terminal } from "../../integrations/terminal/Terminal"
 import { openFile, openImage } from "../../integrations/misc/open-file"
-import { selectImages } from "../../integrations/misc/process-images"
 import { getTheme } from "../../integrations/theme/getTheme"
 import { discoverChromeHostUrl, tryChromeHostUrl } from "../../services/browser/browserDiscovery"
 import { searchWorkspaceFiles } from "../../services/search/file-search"
@@ -26,7 +25,7 @@ import { playSound, setSoundEnabled, setSoundVolume } from "../../utils/sound"
 import { playTts, setTtsEnabled, setTtsSpeed, stopTts } from "../../utils/tts"
 import { singleCompletionHandler } from "../../utils/single-completion-handler"
 import { searchCommits } from "../../utils/git"
-import { exportSettings, importSettings } from "../config/importExport"
+import { logger } from "../../utils/logging"
 import { OpenRouterHandler } from "../../api/providers/openrouter"
 import { getUnboundModels } from "../../api/providers/unbound"
 import { getRequestyModels } from "../../api/providers/requesty"
@@ -67,7 +66,6 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			// Post state to webview (even if already posted during setup, this ensures 
 			// any updates during initialization are reflected)
 			await provider.postStateToWebview()
-			void provider.workspaceTracker?.initializeFilePaths()
 
 			// Mark view as launched
 			provider.isViewLaunched = true
@@ -309,18 +307,6 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			break
 		}
 
-		case "newTask": {
-			// Code that should run in response to the hello message command
-			//vscode.window.showInformationMessage(message.text!)
-
-			// Send a message to our webview.
-			// You can send any JSON serializable data.
-			// Could also do this in extension .ts
-			//provider.postMessageToWebview({ type: "text", text: `Extension: ${Date.now()}` })
-			// initializing new instance of Cline will make sure that any agentically running promises in old instance don't affect our new task. this essentially creates a fresh slate for the new task
-			await provider.initWithTask(message.text, message.images)
-			break
-		}
 		case "apiConfiguration": {
 			if (message.apiConfiguration) {
 				await provider.updateApiConfiguration(message.apiConfiguration)
@@ -333,151 +319,19 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			await provider.updateCustomInstructions(message.text)
 			break
 		}
-		case "alwaysAllowReadOnly": {
-			await provider.updateGlobalState("alwaysAllowReadOnly", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		}
-		case "alwaysAllowReadOnlyOutsideWorkspace": {
-			await provider.updateGlobalState("alwaysAllowReadOnlyOutsideWorkspace", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		}
-		case "alwaysAllowWrite": {
-			await provider.updateGlobalState("alwaysAllowWrite", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		}
-		case "alwaysAllowWriteOutsideWorkspace": {
-			await provider.updateGlobalState("alwaysAllowWriteOutsideWorkspace", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		}
-		case "alwaysAllowExecute": {
-			await provider.updateGlobalState("alwaysAllowExecute", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		}
-		case "alwaysAllowBrowser": {
-			await provider.updateGlobalState("alwaysAllowBrowser", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		}
-		case "alwaysAllowMcp": {
-			await provider.updateGlobalState("alwaysAllowMcp", message.bool)
-			await provider.postStateToWebview()
-			break
-		}
+		case "alwaysAllowReadOnly":
+		case "alwaysAllowReadOnlyOutsideWorkspace":
+		case "alwaysAllowWrite":
+		case "alwaysAllowWriteOutsideWorkspace":
+		case "alwaysAllowExecute":
+		case "alwaysAllowBrowser":
+		case "alwaysAllowMcp":
 		case "alwaysAllowModeSwitch":
-			await provider.updateGlobalState("alwaysAllowModeSwitch", message.bool)
-			await provider.postStateToWebview()
-			break
 		case "alwaysAllowSubtasks":
-			await provider.updateGlobalState("alwaysAllowSubtasks", message.bool)
-			await provider.postStateToWebview()
-			break
-		case "askResponse":
-			provider
-				.getCurrent()
-				?.webviewCommunicator.handleWebviewAskResponse(message.askResponse!, message.text, message.images) // Use communicator
-			break
-		case "clearTask":
-			// clear task resets the current session and allows for a new task to be started, if this session is a subtask - it allows the parent task to be resumed
-			await provider.finishSubTask(t("common:tasks.canceled"))
-			await provider.postStateToWebview()
-			break
-		case "didShowAnnouncement":
-			await provider.updateGlobalState("lastShownAnnouncementId", provider.latestAnnouncementId)
-			await provider.postStateToWebview()
-			break
-		case "selectImages": {
-			const images = await selectImages()
-			await provider.postMessageToWebview({ type: "selectedImages", images })
-			break
-		}
-		case "exportCurrentTask": {
-			const currentTaskId = provider.getCurrent()?.taskId
-			if (currentTaskId) {
-				await provider.exportTaskWithId(currentTaskId)
-			}
-			break
-		}
-		case "showTaskWithId":
-			await provider.showTaskWithId(message.text!)
-			break
-		case "deleteTaskWithId":
-			await provider.deleteTaskWithId(message.text!)
-			break
-		case "deleteMultipleTasksWithIds": {
-			const ids = message.ids
-
-			if (Array.isArray(ids)) {
-				// Process in batches of 20 (or another reasonable number)
-				const batchSize = 20
-				const results = []
-
-				// Only log start and end of the operation
-				console.log(`Batch deletion started: ${ids.length} tasks total`)
-
-				for (let i = 0; i < ids.length; i += batchSize) {
-					const batch = ids.slice(i, i + batchSize)
-
-					const batchPromises = batch.map(async (id) => {
-						try {
-							await provider.deleteTaskWithId(id)
-							return { id, success: true }
-						} catch (error) {
-							// Keep error logging for debugging purposes
-							console.log(
-								`Failed to delete task ${id}: ${error instanceof Error ? error.message : String(error)}`,
-							)
-							return { id, success: false }
-						}
-					})
-
-					// Process each batch in parallel but wait for completion before starting the next batch
-					const batchResults = await Promise.all(batchPromises)
-					results.push(...batchResults)
-
-					// Update the UI after each batch to show progress
-					await provider.postStateToWebview()
-				}
-
-				// Log final results
-				const successCount = results.filter((r) => r.success).length
-				const failCount = results.length - successCount
-				console.log(
-					`Batch deletion completed: ${successCount}/${ids.length} tasks successful, ${failCount} tasks failed`,
-				)
-			}
-			break
-		}
-		case "exportTaskWithId":
-			await provider.exportTaskWithId(message.text!)
-			break
-		case "importSettings": {
-			const { success } = await importSettings({
-				providerSettingsManager: provider.providerSettingsManager,
-				contextProxy: provider.contextProxy,
-			})
-
-			if (success) {
-				provider.settingsImportedAt = Date.now()
-				await provider.postStateToWebview()
-				await vscode.window.showInformationMessage(t("common:info.settings_imported"))
-			}
-
-			break
-		}
+		case "importSettings":
 		case "exportSettings":
-			await exportSettings({
-				providerSettingsManager: provider.providerSettingsManager,
-				contextProxy: provider.contextProxy,
-			})
-
-			break
 		case "resetState":
-			await provider.resetState()
+			logger.warn(`Received legacy settings message "${message.type}" after native migration; ignoring.`)
 			break
 		case "refreshOpenRouterModels": {
 			const { apiConfiguration: configForRefresh } = await provider.getState()
@@ -739,35 +593,16 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				.update("allowedCommands", message.commands, vscode.ConfigurationTarget.Global)
 			break
 		}
-		case "openMcpSettings": {
-			const mcpSettingsFilePath = await provider.mcpHub?.getMcpSettingsFilePath()
-			if (mcpSettingsFilePath) {
-				await openFile(mcpSettingsFilePath)
-			}
+		case "openMcpSettings":
+		case "openProjectMcpSettings":
+		case "deleteMcpServer":
+		case "restartMcpServer":
+		case "toggleToolAlwaysAllow":
+		case "toggleMcpServer":
+		case "mcpEnabled":
+		case "enableMcpServerCreation":
+			logger.warn(`Received legacy MCP message "${message.type}" after native migration; ignoring.`)
 			break
-		}
-		case "openProjectMcpSettings": {
-			if (!vscode.workspace.workspaceFolders?.length) {
-				vscode.window.showErrorMessage(t("common:errors.no_workspace"))
-				return
-			}
-
-			const workspaceFolder = vscode.workspace.workspaceFolders[0]
-			const configDir = path.join(workspaceFolder.uri.fsPath, EXTENSION_CONFIG_DIR)
-			const mcpPath = path.join(configDir, "mcp.json") // Use renamed variable
-
-			try {
-				await fs.mkdir(configDir, { recursive: true })
-				const exists = await fileExistsAtPath(mcpPath)
-				if (!exists) {
-					await fs.writeFile(mcpPath, JSON.stringify({ mcpServers: {} }, null, 2))
-				}
-				await openFile(mcpPath)
-			} catch (error: unknown) {
-				vscode.window.showErrorMessage(t("common:errors.create_mcp_json", { error: String(error) }))
-			}
-			break
-		}
 		case "openCustomModesSettings": {
 			const customModesFilePath = await provider.customModesManager.getCustomModesFilePath()
 			if (customModesFilePath) {
@@ -775,73 +610,6 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 			}
 			break
 		}
-		case "deleteMcpServer": {
-			if (!message.serverName) {
-				break
-			}
-
-			try {
-				provider.outputChannel.appendLine(`Attempting to delete MCP server: ${message.serverName}`)
-				await provider.mcpHub?.deleteServer(message.serverName, message.source as "global" | "project")
-				provider.outputChannel.appendLine(`Successfully deleted MCP server: ${message.serverName}`)
-			} catch (error: unknown) {
-				const errorMessage = error instanceof Error ? error.message : String(error)
-				provider.outputChannel.appendLine(`Failed to delete MCP server: ${errorMessage}`)
-				// Error messages are already handled by McpHub.deleteServer
-			}
-			break
-		}
-		case "restartMcpServer": {
-			try {
-				await provider.mcpHub?.restartConnection(message.text!, message.source as "global" | "project")
-			} catch (error: unknown) {
-				provider.outputChannel.appendLine(
-					`Failed to retry connection for ${message.text}: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
-				)
-			}
-			break
-		}
-		case "toggleToolAlwaysAllow": {
-			try {
-				if (provider.mcpHub) {
-					await provider.mcpHub.toggleToolAlwaysAllow(
-						message.serverName!,
-						message.source as "global" | "project",
-						message.toolName!,
-						Boolean(message.alwaysAllow),
-					)
-				}
-			} catch (error: unknown) {
-				provider.outputChannel.appendLine(
-					`Failed to toggle auto-approve for tool ${message.toolName}: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
-				)
-			}
-			break
-		}
-		case "toggleMcpServer": {
-			try {
-				await provider.mcpHub?.toggleServerDisabled(
-					message.serverName!,
-					message.disabled!,
-					message.source as "global" | "project",
-				)
-			} catch (error: unknown) {
-				provider.outputChannel.appendLine(
-					`Failed to toggle MCP server ${message.serverName}: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
-				)
-			}
-			break
-		}
-		case "mcpEnabled": {
-			const mcpEnabled = message.bool ?? true
-			await provider.updateGlobalState("mcpEnabled", mcpEnabled)
-			await provider.postStateToWebview()
-			break
-		}
-		case "enableMcpServerCreation":
-			await provider.updateGlobalState("enableMcpServerCreation", message.bool ?? true)
-			await provider.postStateToWebview()
-			break
 		case "playSound":
 			if (message.audioType) {
 				const soundPath = path.join(provider.context.extensionPath, "audio", `${message.audioType}.wav`)
