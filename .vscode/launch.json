@@ -42,11 +42,14 @@
 			"presentation": { "hidden": false, "group": "extension", "order": 4 }
 		},
 		{
-			"name": "Run Extension (watch)",
+			"name": "Run Extension (Sandbox)",
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"${workspaceFolder}/sandbox"
+			],
 			"sourceMaps": true,
 			"outFiles": ["${workspaceFolder}/dist/**/*.js"],
 			"preLaunchTask": "watch",

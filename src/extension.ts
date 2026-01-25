@@ -34,29 +34,6 @@ export async function activate(context: vscode.ExtensionContext) {
 async function activateE2EMode(context: vscode.ExtensionContext) {
 	outputChannel.appendLine("E2E mode detected: Performing lightweight activation")
 
-	// Register minimal commands for tests
-	const testCommands = [
-		`${EXTENSION_NAME}.plusButtonClicked`,
-		`${EXTENSION_NAME}.mcpButtonClicked`,
-		`${EXTENSION_NAME}.historyButtonClicked`,
-		`${EXTENSION_NAME}.popoutButtonClicked`,
-		`${EXTENSION_NAME}.settingsButtonClicked`,
-		`${EXTENSION_NAME}.helpButtonClicked`,
-		`${EXTENSION_NAME}.openInNewTab`,
-		`${EXTENSION_NAME}.explainCode`,
-		`${EXTENSION_NAME}.fixCode`,
-		`${EXTENSION_NAME}.improveCode`,
-		`${EXTENSION_NAME}.promptsButtonClicked`,
-	]
-
-	for (const command of testCommands) {
-		context.subscriptions.push(
-			vscode.commands.registerCommand(command, () => {
-				outputChannel.appendLine(`Test stub command executed: ${command}`)
-			}),
-		)
-	}
-
 	// Browser capture command for E2E tests
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
@@ -111,9 +88,15 @@ async function activateE2EMode(context: vscode.ExtensionContext) {
 	const taskManager = new TaskManager(context, outputChannel)
 	await taskManager.initialize()
 
-	// Register chat participant
-	const { registerChatParticipant } = await import("./ux/chat/registerChatParticipant")
-	context.subscriptions.push(registerChatParticipant(context, taskManager))
+	// Register chat participant and sidebar
+	const { registerUx } = await import("./ux")
+	const { chatParticipant, sidebarView } = registerUx({ context, taskManager, outputChannel })
+	context.subscriptions.push(chatParticipant)
+	context.subscriptions.push(sidebarView)
+
+	// Register commands (using real handlers, not stubs)
+	const { registerCommands } = await import("./activate")
+	registerCommands({ context, outputChannel, taskManager })
 
 	// Register diff view provider
 	const { DIFF_VIEW_URI_SCHEME } = await import("./integrations/editor/DiffViewProvider")
