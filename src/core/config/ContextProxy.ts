@@ -53,7 +53,8 @@ export class ContextProxy {
 	public async initialize() {
 		for (const key of GLOBAL_STATE_KEYS) {
 			try {
-				this.stateCache[key] = this.originalContext.globalState.get<GlobalState[typeof key]>(key)
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				;(this.stateCache as any)[key] = this.originalContext.globalState.get(key)
 			} catch (error) {
 				logger.error(`Error loading global ${key}: ${error instanceof Error ? error.message : String(error)}`)
 			}
