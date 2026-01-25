@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as fs from "fs"
-import { execSync, spawn } from "child_process"
-import { runTests, downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePath } from "@vscode/test-electron"
+import { execSync } from "child_process"
+import { runTests } from "@vscode/test-electron"
 
 async function main() {
   try {

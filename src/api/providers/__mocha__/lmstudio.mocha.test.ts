@@ -23,14 +23,14 @@ describe('LmStudioHandler (local)', function () {
     }
     const handler = new LmStudioHandler(options)
 
-    const result = await Promise.race([
-      handler.completePrompt('Hello from test'),
-      new Promise<string>((_, reject) => setTimeout(() => reject(new Error('local lmstudio timeout')), 5000)),
-    ]).catch((err) => {
-      // If local provider is slow, skip to keep suite fast
-      this.test?.skip()
-      return ''
-    })
+	    const result = await Promise.race([
+	      handler.completePrompt('Hello from test'),
+	      new Promise<string>((_, reject) => setTimeout(() => reject(new Error('local lmstudio timeout')), 5000)),
+	    ]).catch((_err) => {
+	      // If local provider is slow, skip to keep suite fast
+	      this.test?.skip()
+	      return ''
+	    })
     assert.ok(typeof result === 'string')
     assert.ok(result.length >= 0)
   })

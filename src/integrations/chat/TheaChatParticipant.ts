@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { VsCodeLmHandler } from "../../api/providers/vscode-lm"
-import { NeutralConversationHistory, NeutralMessage } from "../../shared/neutral-history"
+import { NeutralConversationHistory } from "../../shared/neutral-history"
 import { EXTENSION_DISPLAY_NAME } from "../../shared/config/thea-config"
 
 export function registerChatParticipant(context: vscode.ExtensionContext): vscode.Disposable {

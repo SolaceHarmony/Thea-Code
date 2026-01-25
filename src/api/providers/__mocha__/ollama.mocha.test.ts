@@ -22,13 +22,13 @@ describe('OllamaHandler (local)', function () {
     }
     const handler = new OllamaHandler(options)
 
-    const result = await Promise.race([
-      handler.completePrompt('Hello from test'),
-      new Promise<string>((_, reject) => setTimeout(() => reject(new Error('local ollama timeout')), 5000)),
-    ]).catch((err) => {
-      this.test?.skip()
-      return ''
-    })
+	    const result = await Promise.race([
+	      handler.completePrompt('Hello from test'),
+	      new Promise<string>((_, reject) => setTimeout(() => reject(new Error('local ollama timeout')), 5000)),
+	    ]).catch((_err) => {
+	      this.test?.skip()
+	      return ''
+	    })
     assert.ok(typeof result === 'string')
     assert.ok(result.length >= 0)
   })

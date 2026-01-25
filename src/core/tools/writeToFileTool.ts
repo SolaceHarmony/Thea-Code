@@ -155,16 +155,16 @@ export async function writeToFileTool(
 			// if isEditingFile false, that means we have the full contents of the file already.
 			// it's important to note how cline function works, you can't make the assumption that the block.partial conditional will always be called since it may immediately get complete, non-partial data. So cline part of the logic will always be called.
 			// in other words, you must always repeat the block.partial logic here
-			if (!theaTask.diffViewProvider.isEditing) {
-				// show gui message before showing edit animation
-				const partialMessage = JSON.stringify(sharedMessageProps)
-				await theaTask.webviewCommunicator.ask("tool", partialMessage, true).catch(() => { }) // Use communicator
-				await theaTask.diffViewProvider.open(relPath as string)
-			}
-			await theaTask.diffViewProvider.update(
-				dependencies.extractText.everyLineHasLineNumbers(newContent as string) ? dependencies.extractText.stripLineNumbers(newContent as string) : (newContent as string),
-				true,
-			)
+				if (!theaTask.diffViewProvider.isEditing) {
+					// show gui message before showing edit animation
+					const partialMessage = JSON.stringify(sharedMessageProps)
+					await theaTask.webviewCommunicator.ask("tool", partialMessage, true).catch(() => { }) // Use communicator
+					await theaTask.diffViewProvider.open(relPath)
+				}
+				await theaTask.diffViewProvider.update(
+					dependencies.extractText.everyLineHasLineNumbers(newContent) ? dependencies.extractText.stripLineNumbers(newContent) : newContent,
+					true,
+				)
 			await delay(300) // wait for diff view to update
 			theaTask.diffViewProvider.scrollToFirstDiff()
 

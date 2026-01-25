@@ -27,97 +27,21 @@ describe("OllamaHandler", () => {
 		assert.ok(model.id, "Model should have an id")
 	})
 
-	it("should have countTokens method", async () => {
-		const config = {
-			apiKey: "test-key",
-			apiModelId: "ollama:llama2",
-			ollamaBaseUrl: "http://localhost:11434",
-		}
+		it("should have countTokens method", async () => {
+			const config = {
+				apiKey: "test-key",
+				apiModelId: "ollama:llama2",
+				ollamaBaseUrl: "http://localhost:11434",
+			}
 
-		const handler = new OllamaHandler(config)
-		const content: NeutralConversationHistory = [{ type: "text", text: "test content" }]
-		
-		const tokenCount = await handler.countTokens(content)
-		assert.strictEqual(typeof tokenCount, "number", "Token count should be a number")
-		assert.ok(tokenCount >= 0, "Token count should be non-negative")
+			const handler = new OllamaHandler(config)
+			const content: NeutralConversationHistory = [{ type: "text", text: "test content" }]
+			
+			const tokenCount = await handler.countTokens(content)
+			assert.strictEqual(typeof tokenCount, "number", "Token count should be a number")
+			assert.ok(tokenCount >= 0, "Token count should be non-negative")
+		})
 	})
-})
-
-			final: jest.fn().mockImplementation((text: string) => {
-				if (text) {
-					return [{ matched: false, type: "text", data: text, text: text }]
-				}
-				return []
-			}),
-		})),
-	}
-})
-
-// Mock the XmlMatcher
-jest.mock("../../utils/xml-matcher", () => {
-	return {
-		XmlMatcher: jest.fn().mockImplementation(() => ({
-			update: jest.fn().mockImplementation((text: string) => {
-				if (text.includes("<think>")) {
-					return [{ matched: true, type: "reasoning", data: text.replace(/<\/?think>/g, "") }]
-				}
-				return [{ matched: false, type: "text", data: text, text: text }]
-			}),
-			final: jest.fn().mockImplementation((text: string) => {
-				if (text) {
-					return [{ matched: false, type: "text", data: text, text: text }]
-				}
-				return []
-			}),
-		})),
-	}
-})
-
-// Mock the OpenAI client for integration testing
-jest.mock("openai", () => {
-	// Create a more realistic mock that simulates Ollama's behavior
-	const mockCreate = jest
-		.fn()
-		.mockImplementation(
-			({ messages, stream }: { messages: OpenAI.Chat.ChatCompletionMessageParam[]; stream: boolean }) => {
-				// Simulate streaming response
-				if (stream) {
-					return {
-						[Symbol.asyncIterator]: function* () {
-							// eslint-disable-next-line @typescript-eslint/no-unused-vars
-							const hasSystemMessage = messages.some(
-								(msg: OpenAI.Chat.ChatCompletionMessageParam) => msg.role === "system",
-							)
-
-							// Check for specific test cases based on user message content
-
-							const userMessage =
-								messages.find((msg: OpenAI.Chat.ChatCompletionMessageParam) => msg.role === "user")
-									?.content || ""
-
-							if (typeof userMessage === "string" && userMessage.includes("reasoning")) {
-								// Test case for reasoning/thinking
-								yield {
-									choices: [
-										{
-											delta: { content: "I need to think about this. " },
-											index: 0,
-											finish_reason: null,
-										},
-									],
-									id: "chatcmpl-reasoning-1",
-									created: 1678886400,
-									model: "llama2",
-									object: "chat.completion.chunk" as const,
-								}
-								yield {
-									choices: [
-										{
-											delta: {
-												content:
-													"<think>This is a reasoning block where I analyze the problem.</think>",
-											},
-											index: 0,
 											finish_reason: null,
 										},
 									],

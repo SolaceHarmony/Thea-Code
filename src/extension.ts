@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 
 // Lightweight imports only - heavy modules will be loaded dynamically
-import { EXTENSION_DISPLAY_NAME, EXTENSION_NAME, COMMANDS } from "./shared/config/thea-config"
+import { EXTENSION_DISPLAY_NAME, EXTENSION_NAME } from "./shared/config/thea-config"
 
 // Type-only imports (don't affect runtime)
 // type-only imports omitted to avoid unused-var warnings in E2E path
@@ -88,7 +88,7 @@ export async function activate(context: vscode.ExtensionContext) {
 						const session = new BrowserSession(context)
 						await session.launchBrowser()
 						if (Array.isArray(payload.urls) && payload.urls.length > 0) {
-							const steps = [] as any[]
+								const steps: unknown[] = []
 							for (const u of payload.urls) {
 								steps.push(await session.navigateToUrl(u))
 							}

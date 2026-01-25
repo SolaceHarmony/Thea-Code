@@ -690,8 +690,8 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
 		// The JS file from the React build output
 		const scriptUri = getUri(webview, this.contextProxy.extensionUri, ["webview-ui", "build", "assets", "index.js"])
 
-		console.log(`[TheaProvider] mainStylesUri: ${mainStylesUri}`)
-		console.log(`[TheaProvider] scriptUri: ${scriptUri}`)
+			console.log(`[TheaProvider] mainStylesUri: ${mainStylesUri.toString()}`)
+			console.log(`[TheaProvider] scriptUri: ${scriptUri.toString()}`)
 
 		// The codicon font from the React build output
 		// https://github.com/microsoft/vscode-extension-samples/blob/main/webview-codicons-sample/src/extension.ts
