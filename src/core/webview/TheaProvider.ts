@@ -728,16 +728,9 @@ export class TheaProvider extends EventEmitter<TheaProviderEvents> implements vs
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
             <meta name="theme-color" content="#000000">
-<<<<<<< HEAD
-            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data:; script-src 'nonce-${nonce}' https://us-assets.i.posthog.com; connect-src https://openrouter.ai https://us.i.posthog.com https://us-assets.i.posthog.com;">
+            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data:; script-src 'nonce-${nonce}' https://us-assets.i.posthog.com; connect-src https://openrouter.ai https://api.requesty.ai https://us.i.posthog.com https://us-assets.i.posthog.com;">
             <link rel="stylesheet" type="text/css" href="${vendorStylesUri.toString()}">
             <link rel="stylesheet" type="text/css" href="${mainStylesUri.toString()}">
-			<!-- <link href="codiconsUri" rel="stylesheet" /> -->
-=======
-            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data:; script-src 'nonce-${nonce}' https://us-assets.i.posthog.com; connect-src https://openrouter.ai https://api.requesty.ai https://us.i.posthog.com https://us-assets.i.posthog.com;">
-            <link rel="stylesheet" type="text/css" href="${stylesUri.toString()}">
-			<link href="${codiconsUri.toString()}" rel="stylesheet" />
->>>>>>> 907c6f523 (chore: scaffold native chat UX and remove legacy tests)
 			<script nonce="${nonce}">
                 window.onerror = function(message, source, lineno, colno, error) {
                     try {

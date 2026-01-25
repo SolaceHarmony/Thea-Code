@@ -18,7 +18,8 @@ export type RegisterCommandOptions = {
 }
 
 export const registerCommands = ({ context, outputChannel, provider }: RegisterCommandOptions) => {
-const commandHandlers: Record<string, () => Promise<unknown> | unknown> = {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const commandHandlers: Record<string, (...args: any[]) => Promise<unknown> | unknown> = {
 		[`${EXTENSION_NAME}.activationCompleted`]: () => {},
 		[COMMANDS.PLUS_BUTTON]: async () => {
 			await vscode.commands.executeCommand("thea-code.newTask")
@@ -73,25 +74,34 @@ const commandHandlers: Record<string, () => Promise<unknown> | unknown> = {
 		}),
 	)
 	context.subscriptions.push(
-		vscode.commands.registerCommand(COMMANDS.TERMINAL_FIX_COMMAND, async () => {
+		vscode.commands.registerCommand(COMMANDS.TERMINAL_FIX, async () => {
 			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Fix terminal command")
 		}),
 	)
 	context.subscriptions.push(
-		vscode.commands.registerCommand(COMMANDS.TERMINAL_EXPLAIN_COMMAND, async () => {
+		vscode.commands.registerCommand(COMMANDS.TERMINAL_EXPLAIN, async () => {
 			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Explain terminal command")
 		}),
 	)
 	context.subscriptions.push(
-		vscode.commands.registerCommand(COMMANDS.TERMINAL_FIX_COMMAND_IN_CURRENT_TASK, async () => {
+		vscode.commands.registerCommand(COMMANDS.TERMINAL_FIX_CURRENT, async () => {
 			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Fix terminal command (current task)")
 		}),
 	)
 	context.subscriptions.push(
-		vscode.commands.registerCommand(COMMANDS.TERMINAL_EXPLAIN_COMMAND_IN_CURRENT_TASK, async () => {
+		vscode.commands.registerCommand(COMMANDS.TERMINAL_EXPLAIN_CURRENT, async () => {
 			await vscode.commands.executeCommand("thea-code.chat.respond", provider.getCurrent()?.taskId || "", "Explain terminal command (current task)")
 		}),
 	)
+}
+
+// Legacy panel tracking - kept for backward compatibility during migration
+// Will be removed once fully migrated to Chat Participant API
+export function setPanel(
+	_panel: vscode.WebviewPanel | vscode.WebviewView | undefined,
+	_type: "sidebar" | "tab",
+): void {
+	// No-op during migration to native VS Code APIs
 }
 
 interface RunnableQuickPickItem extends vscode.QuickPickItem {
@@ -117,9 +127,9 @@ async function showHistoryQuickPick(provider: TheaProvider) {
 			.map((item) => {
 				const date = new Date(item.ts)
 				return {
-					label: item.title || item.task || "Untitled task",
+					label: item.task || "Untitled task",
 					description: date.toLocaleString(),
-					detail: item.task,
+					detail: `Task #${item.number}`,
 					taskId: item.id,
 				}
 			})

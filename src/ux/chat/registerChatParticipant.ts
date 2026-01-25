@@ -15,7 +15,6 @@ const approvalAskTypes = new Set([
 	"command_output",
 	"browser_action_launch",
 	"use_mcp_server",
-	"api_req_failed",
 	"mistake_limit_reached",
 	"resume_task",
 	"resume_completed_task",
@@ -85,7 +84,8 @@ export function registerChatParticipant(
 			let task: Awaited<ReturnType<typeof provider.initWithTask>> | undefined
 			try {
 				await provider.removeFromStack()
-				task = await provider.initWithTask(prompt, request.images)
+				// Note: VS Code ChatRequest may not have images property - pass undefined for now
+				task = await provider.initWithTask(prompt, undefined)
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error)
 				response.markdown(`❌ Failed to start task: ${message}`)
@@ -189,8 +189,6 @@ function formatSayMessage(message: TheaMessage): string | undefined {
 				return "⏳ Calling API…"
 			case "api_req_finished":
 				return "✅ API request finished"
-			case "api_req_failed":
-				return message.text ? `❌ API request failed: ${normalizeMarkdown(message.text)}` : "❌ API request failed"
 			case "api_req_retry_delayed":
 				return message.text ? `🔁 Retry delayed: ${normalizeMarkdown(message.text)}` : "🔁 Retry delayed"
 			case "api_req_retried":
@@ -231,8 +229,6 @@ function formatSayMessage(message: TheaMessage): string | undefined {
 				return message.text ? `📄 ${normalizeMarkdown(message.text)}` : "📄 Review completion"
 			case "tool":
 				return message.text ? `🛠️ ${normalizeMarkdown(message.text)}` : "🛠️ Tool approval needed"
-			case "api_req_failed":
-				return message.text ? `❌ API request failed: ${normalizeMarkdown(message.text)}` : "❌ API request failed"
 			case "resume_task":
 			case "resume_completed_task":
 				return "▶️ Resume task?"
@@ -264,8 +260,6 @@ function formatAskMessage(message: TheaMessage): string | undefined {
 			return message.text ? `📄 ${normalizeMarkdown(message.text)}` : "📄 Review completion result"
 		case "tool":
 			return message.text ? `🛠️ ${normalizeMarkdown(message.text)}` : "🛠️ Tool approval needed"
-		case "api_req_failed":
-			return message.text ? `❌ ${normalizeMarkdown(message.text)}` : "❌ API request failed"
 		case "resume_task":
 		case "resume_completed_task":
 			return "▶️ Resume task?"
