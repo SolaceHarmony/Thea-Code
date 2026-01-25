@@ -47,7 +47,7 @@ async function main() {
 
         // Create isolated sandbox workspace and user data dirs
         const testRoot = path.resolve(repoRoot, ".vscode-test")
-        const workspaceDir = process.env.E2E_WORKSPACE_DIR ?? path.join(testRoot, "dev-workspace")
+        const workspaceDir = process.env.E2E_WORKSPACE_DIR ?? path.join(repoRoot, "sandbox")
         const userDataDir = path.join(testRoot, "dev-user-data")
         const extensionsDir = path.join(testRoot, "dev-extensions")
 
