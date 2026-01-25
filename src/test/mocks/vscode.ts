@@ -62,10 +62,10 @@ export const EventEmitter = class {
 }
 
 export const Disposable = class {
-    static from(...disposables: any[]) {
-        return { dispose: () => { } }
-    }
-    dispose() { }
+	    static from(..._disposables: unknown[]) {
+	        return { dispose: () => { } }
+	    }
+	    dispose() { }
 }
 
 export const ThemeColor = class {

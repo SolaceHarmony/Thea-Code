@@ -48,12 +48,10 @@ import {
 import { getApiMetrics } from "../shared/getApiMetrics"
 import { convertTheaMessagesToNeutralForMetrics } from "../shared/convertTheaMessagesToNeutral"
 import { HistoryItem } from "../shared/HistoryItem"
-import {
-	defaultModeSlug, // Kept as it's used in the file
-	Mode,
-	getModeBySlug,
-	getToolsForMode,
-} from "../shared/modes"
+	import {
+		defaultModeSlug, // Kept as it's used in the file
+		getModeBySlug,
+	} from "../shared/modes"
 import { getFullModeDetails } from "./config/ModeUtils"
 import { EXPERIMENT_IDS, experiments as Experiments, ExperimentId } from "../shared/experiments"
 import { calculateApiCostAnthropic } from "../utils/cost"

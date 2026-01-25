@@ -3,7 +3,6 @@ import * as sinon from 'sinon'
 
 import { AwsBedrockHandler } from '../bedrock'
 import type { ApiHandlerOptions } from '../../../shared/api'
-import type { ApiStreamChunk } from '../../transform/stream'
 import { mockBedrock } from '../../../../test/generic-provider-mock/server'
 import type { ConverseCommandInput, ConverseCommandOutput } from '@aws-sdk/client-bedrock-runtime'
 import { BedrockRuntimeClient } from '@aws-sdk/client-bedrock-runtime'

@@ -10,6 +10,8 @@ import { ApiConfiguration } from "../../shared/api"
 import { supportPrompt } from "../../shared/support-prompt"
 import { GlobalFileNames } from "../../shared/globalFileNames"
 
+import type { ExtensionMessage } from "../../shared/ExtensionMessage"
+
 import { checkoutDiffPayloadSchema, checkoutRestorePayloadSchema, openExternalPayloadSchema, WebviewMessage } from "../../shared/WebviewMessage"
 import { checkExistKey } from "../../shared/checkExistApiConfig"
 import { EXPERIMENT_IDS, experimentDefault } from "../../shared/experiments"
@@ -1592,9 +1594,7 @@ export const webviewMessageHandler = async (provider: TheaProvider, message: Web
 				case "chatButtonClicked": {
 					// These actions are for tab switching within the webview
 					// Relay back to webview for handling
-					// Type assertion is safe here since we're in a switch case that validates the action
-					type TabSwitchAction = "settingsButtonClicked" | "historyButtonClicked" | "mcpButtonClicked" | "promptsButtonClicked" | "chatButtonClicked"
-					await provider.postMessageToWebview({ type: "action", action: action as TabSwitchAction })
+					await provider.postMessageToWebview({ type: "action", action: action as ExtensionMessage["action"] })
 					break
 				}
 				default:

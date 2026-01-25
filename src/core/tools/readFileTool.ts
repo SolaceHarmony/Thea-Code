@@ -152,16 +152,15 @@ export async function readFileTool(
 				// If file is too large, only read the first maxReadFileLine lines
 				isFileTruncated = true
 
-				const res = await Promise.all([
-					maxReadFileLine > 0 ? readLines(absolutePath, maxReadFileLine - 1, 0) : "",
-					parseSourceCodeDefinitionsForFile(absolutePath, theaTask.theaIgnoreController),
-				])
+					const [firstLines, result] = await Promise.all([
+						maxReadFileLine > 0 ? readLines(absolutePath, maxReadFileLine - 1, 0) : Promise.resolve(""),
+						parseSourceCodeDefinitionsForFile(absolutePath, theaTask.theaIgnoreController),
+					])
 
-				content = res[0].length > 0 ? addLineNumbers(res[0]) : ""
-				const result = res[1]
-				if (result) {
-					sourceCodeDef = `\n\n${result}`
-				}
+					content = firstLines.length > 0 ? addLineNumbers(firstLines) : ""
+					if (result) {
+						sourceCodeDef = `\n\n${result}`
+					}
 			} else {
 				// Read entire file
 				content = await extractTextFromFile(absolutePath)

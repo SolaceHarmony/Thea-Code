@@ -8,25 +8,32 @@ import openaiSetup, { openAIMock } from '../../../../test/openai-mock/setup.ts'
 import { openaiTeardown } from '../../../../test/openai-mock/teardown.ts'
 
 describe('OpenAiHandler (Mocha)', () => {
-  let requestBody: unknown
-  let capturedHeaders: Record<string, string | string[]> = {}
-  let handler: OpenAiHandler
-  let mockOptions: ApiHandlerOptions
+	let capturedHeaders: Record<string, string | string[]> = {}
+	let handler: OpenAiHandler
+	let mockOptions: ApiHandlerOptions
 
-  beforeEach(async () => {
-    await openaiTeardown()
-    await openaiSetup()
-    requestBody = undefined
-    capturedHeaders = {}
-    ;(openAIMock)!.addCustomEndpoint('POST', '/v1/chat/completions', function (_uri: any, body: any) {
-      // @ts-expect-error req provided by nock
-      capturedHeaders = this.req.headers as Record<string, string | string[]>
-      requestBody = body
+	const getHeader = (headers: Record<string, string | string[]>, name: string): string | undefined => {
+		const lower = name.toLowerCase()
+		for (const [key, value] of Object.entries(headers)) {
+			if (key.toLowerCase() !== lower) continue
+			if (typeof value === 'string') return value
+			return value[0]
+		}
+		return undefined
+	}
 
-      if (!body.stream) {
-        return [
-          200,
-          {
+	beforeEach(async () => {
+		await openaiTeardown()
+		await openaiSetup()
+		capturedHeaders = {}
+		openAIMock?.addCustomEndpoint('POST', '/v1/chat/completions', function (_uri, body) {
+			capturedHeaders = this.req.headers
+
+			const payload = body as { stream?: boolean }
+			if (!payload.stream) {
+				return [
+					200,
+					{
             id: 'test-completion',
             choices: [
               {
@@ -37,11 +44,11 @@ describe('OpenAiHandler (Mocha)', () => {
               },
             ],
             usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
-          },
-        ]
-      }
+				},
+			] satisfies [number, unknown]
+		}
 
-      const stream = new Readable({ read() {} })
+		const stream = new Readable({ read() {} })
       const chunk1 = {
         id: 'chatcmpl-test-1',
         created: 1678886400,
@@ -62,8 +69,8 @@ describe('OpenAiHandler (Mocha)', () => {
       stream.push(`data: ${JSON.stringify(chunk2)}\n\n`)
       stream.push('data: [DONE]\n\n')
       stream.push(null)
-      return [200, stream]
-    })
+		return [200, stream] satisfies [number, unknown]
+		})
 
     mockOptions = {
       openAiApiKey: 'test-api-key',
@@ -82,16 +89,16 @@ describe('OpenAiHandler (Mocha)', () => {
     assert.strictEqual(handler.getModel().id, mockOptions.openAiModelId)
   })
 
-  it('sets default headers correctly', async function () {
-    await handler.completePrompt('Hi')
-    // Header keys may be normalized; check case-insensitively
-    const referer = (capturedHeaders['http-referer'] || (capturedHeaders as any)['HTTP-Referer']) as string | undefined
-    const title = (capturedHeaders['x-title'] || (capturedHeaders as any)['X-Title']) as string | undefined
-    if (!referer || !title) {
-      // Some environments/mocks may not expose request headers reliably; do not fail the suite
-      this.test?.skip()
-      return
-    }
+	it('sets default headers correctly', async function () {
+		await handler.completePrompt('Hi')
+		// Header keys may be normalized; check case-insensitively
+		const referer = getHeader(capturedHeaders, 'HTTP-Referer')
+		const title = getHeader(capturedHeaders, 'X-Title')
+		if (!referer || !title) {
+			// Some environments/mocks may not expose request headers reliably; do not fail the suite
+			this.test?.skip()
+			return
+		}
     assert.strictEqual(referer, API_REFERENCES.HOMEPAGE)
     assert.strictEqual(title, API_REFERENCES.APP_TITLE)
   })

@@ -54,12 +54,11 @@ async function generatePrompt(
 	const modeConfig = getModeBySlug(mode, customModeConfigs) || modes.find((m) => m.slug === mode) || modes[0]
 	const roleDefinition = promptComponent?.roleDefinition || modeConfig.roleDefinition
 
-	const [modesSection, mcpServersSection] = await Promise.all([
-		getModesSection(context),
-		modeConfig.groups.some((groupEntry) => getGroupName(groupEntry) === "mcp")
+		const modesSection = await getModesSection(context)
+		const mcpServersSection = modeConfig.groups.some((groupEntry) => getGroupName(groupEntry) === "mcp")
 			? getMcpServersSection(mcpHub, effectiveDiffStrategy, enableMcpServerCreation)
-			: Promise.resolve(""),
-	])
+			: ""
+		const capabilitiesSection = getCapabilitiesSection(cwd, supportsComputerUse, mcpHub, effectiveDiffStrategy)
 
 	const basePrompt = `${roleDefinition}
 
@@ -80,7 +79,7 @@ ${getToolUseGuidelinesSection()}
 
 ${mcpServersSection}
 
-${getCapabilitiesSection(cwd, supportsComputerUse, mcpHub, effectiveDiffStrategy)}
+	${capabilitiesSection}
 
 ${modesSection}
 
