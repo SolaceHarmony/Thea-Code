@@ -6,6 +6,7 @@ import * as vscode from "vscode"
 
 import { TaskManager } from "../../core/TaskManager"
 import { COMMANDS } from "../../shared/config/thea-config"
+import type { McpServer } from "../../shared/mcp"
 
 type SidebarItemType = "action" | "task" | "mcp" | "info"
 
@@ -144,20 +145,49 @@ export class TheaSidebarProvider implements vscode.TreeDataProvider<SidebarItem>
 			),
 		)
 
-		// MCP Section
-		items.push(
-			new SidebarItem(
-				{
-					type: "mcp",
-					id: "mcp-servers",
-					label: "MCP Servers",
-					description: "Manage servers",
-					icon: "server",
-					command: COMMANDS.MCP_BUTTON,
-				},
-				vscode.TreeItemCollapsibleState.None,
-			),
-		)
+		// MCP Section - show as expandable if we have an MCP hub
+		const mcpHub = this.taskManager.getTaskContext().mcpHub
+		const mcpServers = mcpHub?.getAllServers() ?? []
+
+		if (mcpServers.length > 0) {
+			// Create children for each server
+			const serverChildren: SidebarItemData[] = mcpServers.map((server: McpServer) => ({
+				type: "mcp" as const,
+				id: `mcp-server-${server.name}`,
+				label: server.name,
+				description: server.disabled ? "Disabled" : (server.status === "connected" ? "Connected" : server.status),
+				icon: server.disabled ? "circle-slash" : (server.status === "connected" ? "pass-filled" : "circle-outline"),
+			}))
+
+			items.push(
+				new SidebarItem(
+					{
+						type: "mcp",
+						id: "mcp-servers",
+						label: "MCP Servers",
+						description: `${mcpServers.filter((s: McpServer) => !s.disabled && s.status === "connected").length}/${mcpServers.length} connected`,
+						icon: "server",
+						command: COMMANDS.MCP_BUTTON,
+						children: serverChildren,
+					},
+					vscode.TreeItemCollapsibleState.Collapsed,
+				),
+			)
+		} else {
+			items.push(
+				new SidebarItem(
+					{
+						type: "mcp",
+						id: "mcp-servers",
+						label: "MCP Servers",
+						description: "Configure servers",
+						icon: "server",
+						command: COMMANDS.MCP_BUTTON,
+					},
+					vscode.TreeItemCollapsibleState.None,
+				),
+			)
+		}
 
 		// Settings Section
 		items.push(
