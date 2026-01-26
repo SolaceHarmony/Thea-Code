@@ -14,6 +14,12 @@ import { CustomModesManager } from "./config/CustomModesManager"
 import { McpHub } from "../services/mcp/management/McpHub"
 import { McpServerManager } from "../services/mcp/management/McpServerManager"
 import { HistoryItem } from "../shared/HistoryItem"
+import { getSettingsDirectoryPath } from "../shared/storagePathManager"
+import { EXTENSION_DISPLAY_NAME } from "../shared/config/thea-config"
+import { preferLocalConfig, getPreferredMcpServersDir } from "../shared/config/paths"
+import * as fs from "fs/promises"
+import * as path from "path"
+import * as os from "os"
 import { TokenUsage } from "../schemas"
 import { TheaMessage } from "../shared/ExtensionMessage"
 import { PromptComponent } from "../shared/modes"
@@ -350,6 +356,37 @@ export class TaskManager extends EventEmitter<TaskManagerEvents> {
 
 			log: (message: string) => {
 				manager.outputChannel.appendLine(message)
+			},
+
+			// MCP directory methods needed by McpHub
+			ensureMcpServersDirectoryExists: async () => {
+				// Prefer sandboxed local config in tests or when explicitly requested
+				if (preferLocalConfig()) {
+					const workspaceRoot = await import("vscode").then((v) => v.workspace.workspaceFolders?.[0]?.uri.fsPath)
+					const localDir = getPreferredMcpServersDir({ context: manager.context, workspaceRoot })
+					await fs.mkdir(localDir, { recursive: true })
+					return localDir
+				}
+
+				// Legacy home-directory locations outside tests
+				let mcpServersDir: string
+				if (process.platform === "win32") {
+					mcpServersDir = path.join(os.homedir(), "AppData", "Roaming", String(EXTENSION_DISPLAY_NAME), "MCP")
+				} else if (process.platform === "darwin") {
+					mcpServersDir = path.join(os.homedir(), "Documents", String(EXTENSION_DISPLAY_NAME), "MCP")
+				} else {
+					mcpServersDir = path.join(os.homedir(), ".config", String(EXTENSION_DISPLAY_NAME), "MCP")
+				}
+
+				await fs.mkdir(mcpServersDir, { recursive: true })
+				return mcpServersDir
+			},
+
+			ensureSettingsDirectoryExists: async () => {
+				const globalStoragePath = manager.context.globalStorageUri.fsPath
+				const settingsDir = await getSettingsDirectoryPath(globalStoragePath)
+				await fs.mkdir(settingsDir, { recursive: true })
+				return settingsDir
 			},
 		} as unknown as TheaTaskOptions["provider"]
 	}
