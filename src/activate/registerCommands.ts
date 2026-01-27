@@ -272,6 +272,14 @@ async function showSettingsQuickPick(taskManager: TaskManager) {
 
 		items.push(
 			{
+				label: "$(plug) Configure API Provider",
+				detail: "Set up Ollama, OpenAI, Anthropic, or other AI providers",
+				run: async () => {
+					await showApiProviderQuickPick(taskManager)
+				},
+				keepOpen: true,
+			},
+			{
 				label: "$(gear) Open extension settings",
 				detail: "Manage settings via VS Code's Settings UI",
 				run: async () => {
@@ -398,4 +406,148 @@ async function openFileInEditor(filePath: string, defaultContent: string) {
 
 	const doc = await vscode.workspace.openTextDocument(filePath)
 	await vscode.window.showTextDocument(doc)
+}
+
+async function showApiProviderQuickPick(taskManager: TaskManager) {
+	const providers: Array<{ label: string; value: string; detail: string }> = [
+		{ label: "$(cloud) Ollama (Local)", value: "ollama", detail: "Run models locally with Ollama" },
+		{ label: "$(cloud) Ollama (Remote)", value: "ollama-remote", detail: "Connect to a remote Ollama server" },
+		{ label: "$(key) Anthropic", value: "anthropic", detail: "Use Claude models via Anthropic API" },
+		{ label: "$(key) OpenAI", value: "openai", detail: "Use GPT models via OpenAI API" },
+		{ label: "$(globe) OpenRouter", value: "openrouter", detail: "Access multiple providers via OpenRouter" },
+		{ label: "$(server) LM Studio", value: "lmstudio", detail: "Use LM Studio local server" },
+	]
+
+	const selection = await vscode.window.showQuickPick(providers, {
+		placeHolder: "Select an API provider",
+	})
+
+	if (!selection) {
+		return
+	}
+
+	if (selection.value === "ollama" || selection.value === "ollama-remote") {
+		await configureOllama(taskManager, selection.value === "ollama-remote")
+	} else if (selection.value === "anthropic") {
+		await configureWithApiKey(taskManager, "anthropic", "Anthropic API Key", "sk-ant-...")
+	} else if (selection.value === "openai") {
+		await configureWithApiKey(taskManager, "openai", "OpenAI API Key", "sk-...")
+	} else if (selection.value === "openrouter") {
+		await configureWithApiKey(taskManager, "openrouter", "OpenRouter API Key", "sk-or-...")
+	} else if (selection.value === "lmstudio") {
+		await configureLmStudio(taskManager)
+	}
+}
+
+async function configureOllama(taskManager: TaskManager, isRemote: boolean) {
+	// Get base URL
+	let baseUrl = "http://localhost:11434"
+	if (isRemote) {
+		const url = await vscode.window.showInputBox({
+			prompt: "Enter Ollama server URL",
+			value: "http://localhost:11434",
+			placeHolder: "http://your-server:11434",
+		})
+		if (!url) {
+			return
+		}
+		baseUrl = url
+	}
+
+	// Get model name
+	const modelId = await vscode.window.showInputBox({
+		prompt: "Enter model name (e.g., llama3.2, glm4, qwen2.5)",
+		value: "glm4",
+		placeHolder: "Model name from 'ollama list'",
+	})
+
+	if (!modelId) {
+		return
+	}
+
+	// Save the configuration
+	try {
+		await taskManager.providerSettingsManager.saveConfig("ollama", {
+			apiProvider: "ollama",
+			ollamaBaseUrl: baseUrl,
+			ollamaModelId: modelId,
+		})
+
+		await taskManager.contextProxy.updateGlobalState("currentApiConfigName", "ollama")
+		await vscode.window.showInformationMessage(`Configured Ollama with model: ${modelId}`)
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error)
+		await vscode.window.showErrorMessage(`Failed to configure Ollama: ${message}`)
+	}
+}
+
+async function configureWithApiKey(
+	taskManager: TaskManager,
+	provider: "anthropic" | "openai" | "openrouter",
+	keyPrompt: string,
+	placeholder: string,
+) {
+	const apiKey = await vscode.window.showInputBox({
+		prompt: keyPrompt,
+		password: true,
+		placeHolder: placeholder,
+	})
+
+	if (!apiKey) {
+		return
+	}
+
+	try {
+		const config: Record<string, unknown> = { apiProvider: provider }
+
+		if (provider === "anthropic") {
+			config.anthropicApiKey = apiKey
+		} else if (provider === "openai") {
+			config.openAiApiKey = apiKey
+		} else if (provider === "openrouter") {
+			config.openRouterApiKey = apiKey
+		}
+
+		await taskManager.providerSettingsManager.saveConfig(provider, config)
+		await taskManager.contextProxy.updateGlobalState("currentApiConfigName", provider)
+		await vscode.window.showInformationMessage(`Configured ${provider} provider`)
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error)
+		await vscode.window.showErrorMessage(`Failed to configure ${provider}: ${message}`)
+	}
+}
+
+async function configureLmStudio(taskManager: TaskManager) {
+	const baseUrl = await vscode.window.showInputBox({
+		prompt: "Enter LM Studio server URL",
+		value: "http://localhost:1234",
+		placeHolder: "http://localhost:1234",
+	})
+
+	if (!baseUrl) {
+		return
+	}
+
+	const modelId = await vscode.window.showInputBox({
+		prompt: "Enter model name",
+		placeHolder: "Model loaded in LM Studio",
+	})
+
+	if (!modelId) {
+		return
+	}
+
+	try {
+		await taskManager.providerSettingsManager.saveConfig("lmstudio", {
+			apiProvider: "lmstudio",
+			lmStudioBaseUrl: baseUrl,
+			lmStudioModelId: modelId,
+		})
+
+		await taskManager.contextProxy.updateGlobalState("currentApiConfigName", "lmstudio")
+		await vscode.window.showInformationMessage(`Configured LM Studio with model: ${modelId}`)
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error)
+		await vscode.window.showErrorMessage(`Failed to configure LM Studio: ${message}`)
+	}
 }
