@@ -74,7 +74,9 @@ export class TheaSidebarProvider implements vscode.TreeDataProvider<SidebarItem>
 				(child) =>
 					new SidebarItem(
 						child,
-						child.children ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+						child.children
+							? vscode.TreeItemCollapsibleState.Collapsed
+							: vscode.TreeItemCollapsibleState.None,
 					),
 			)
 		}
@@ -155,8 +157,12 @@ export class TheaSidebarProvider implements vscode.TreeDataProvider<SidebarItem>
 				type: "mcp" as const,
 				id: `mcp-server-${server.name}`,
 				label: server.name,
-				description: server.disabled ? "Disabled" : (server.status === "connected" ? "Connected" : server.status),
-				icon: server.disabled ? "circle-slash" : (server.status === "connected" ? "pass-filled" : "circle-outline"),
+				description: server.disabled ? "Disabled" : server.status === "connected" ? "Connected" : server.status,
+				icon: server.disabled
+					? "circle-slash"
+					: server.status === "connected"
+						? "pass-filled"
+						: "circle-outline",
 			}))
 
 			items.push(
@@ -251,6 +257,14 @@ export function registerSidebarView(
 	context.subscriptions.push(
 		vscode.commands.registerCommand("thea-code.refreshSidebar", () => {
 			sidebarProvider.refresh()
+		}),
+	)
+
+	// Register focus command for the sidebar view
+	// VS Code automatically creates {viewId}.focus, but we register an alias for backward compatibility
+	context.subscriptions.push(
+		vscode.commands.registerCommand("thea-code.SidebarProvider.focus", async () => {
+			await vscode.commands.executeCommand("thea-code.sidebarView.focus")
 		}),
 	)
 

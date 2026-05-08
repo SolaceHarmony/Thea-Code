@@ -54,16 +54,32 @@ export const registerCommands = ({ context, taskManager }: RegisterCommandOption
 			await promptForCustomStoragePath()
 		},
 		[COMMANDS.ADD_TO_CONTEXT]: async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Add to context")
+			await vscode.commands.executeCommand(
+				"thea-code.chat.respond",
+				taskManager.getCurrent()?.taskId || "",
+				"Add to context",
+			)
 		},
 		[COMMANDS.EXPLAIN_CODE]: async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Explain code")
+			await vscode.commands.executeCommand(
+				"thea-code.chat.respond",
+				taskManager.getCurrent()?.taskId || "",
+				"Explain code",
+			)
 		},
 		[COMMANDS.FIX_CODE]: async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Fix code")
+			await vscode.commands.executeCommand(
+				"thea-code.chat.respond",
+				taskManager.getCurrent()?.taskId || "",
+				"Fix code",
+			)
 		},
 		[COMMANDS.IMPROVE_CODE]: async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Improve code")
+			await vscode.commands.executeCommand(
+				"thea-code.chat.respond",
+				taskManager.getCurrent()?.taskId || "",
+				"Improve code",
+			)
 		},
 	}
 
@@ -73,42 +89,60 @@ export const registerCommands = ({ context, taskManager }: RegisterCommandOption
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand(COMMANDS.TERMINAL_ADD_TO_CONTEXT, async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Add terminal to context")
+			await vscode.commands.executeCommand(
+				"thea-code.chat.respond",
+				taskManager.getCurrent()?.taskId || "",
+				"Add terminal to context",
+			)
 		}),
 	)
 	context.subscriptions.push(
 		vscode.commands.registerCommand(COMMANDS.TERMINAL_FIX, async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Fix terminal command")
+			await vscode.commands.executeCommand(
+				"thea-code.chat.respond",
+				taskManager.getCurrent()?.taskId || "",
+				"Fix terminal command",
+			)
 		}),
 	)
 	context.subscriptions.push(
 		vscode.commands.registerCommand(COMMANDS.TERMINAL_EXPLAIN, async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Explain terminal command")
+			await vscode.commands.executeCommand(
+				"thea-code.chat.respond",
+				taskManager.getCurrent()?.taskId || "",
+				"Explain terminal command",
+			)
 		}),
 	)
 	context.subscriptions.push(
 		vscode.commands.registerCommand(COMMANDS.TERMINAL_FIX_CURRENT, async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Fix terminal command (current task)")
+			await vscode.commands.executeCommand(
+				"thea-code.chat.respond",
+				taskManager.getCurrent()?.taskId || "",
+				"Fix terminal command (current task)",
+			)
 		}),
 	)
 	context.subscriptions.push(
 		vscode.commands.registerCommand(COMMANDS.TERMINAL_EXPLAIN_CURRENT, async () => {
-			await vscode.commands.executeCommand("thea-code.chat.respond", taskManager.getCurrent()?.taskId || "", "Explain terminal command (current task)")
+			await vscode.commands.executeCommand(
+				"thea-code.chat.respond",
+				taskManager.getCurrent()?.taskId || "",
+				"Explain terminal command (current task)",
+			)
 		}),
 	)
 }
 
 // Legacy panel tracking - no-op during migration
-export function setPanel(
-	_panel: vscode.WebviewPanel | vscode.WebviewView | undefined,
-	_type: "sidebar" | "tab",
-): void {
+export function setPanel(_panel: vscode.WebviewPanel | vscode.WebviewView | undefined, _type: "sidebar" | "tab"): void {
 	// No-op - native VS Code Chat API doesn't use panels
 }
 
 interface RunnableQuickPickItem extends vscode.QuickPickItem {
-	run: () => Promise<void>
+	run: () => Promise<void | boolean>
 	keepOpen?: boolean
+	isCategory?: boolean
 }
 
 type SettingsQuickPickItem = RunnableQuickPickItem
@@ -235,39 +269,84 @@ async function showMcpServerQuickPick(_taskManager: TaskManager) {
 }
 
 async function showSettingsQuickPick(taskManager: TaskManager) {
-	const toggleDescriptors: Array<{ key: keyof GlobalState; label: string; detail?: string }> = [
-		{ key: "autoApprovalEnabled", label: "Auto-approve follow-up actions" },
-		{ key: "alwaysApproveResubmit", label: "Always approve retry requests" },
-		{ key: "alwaysAllowReadOnly", label: "Always allow read-only operations" },
-		{ key: "alwaysAllowReadOnlyOutsideWorkspace", label: "Always allow read-only outside workspace" },
-		{ key: "alwaysAllowWrite", label: "Always allow write operations" },
-		{ key: "alwaysAllowWriteOutsideWorkspace", label: "Always allow write outside workspace" },
-		{ key: "alwaysAllowExecute", label: "Always allow command execution" },
-		{ key: "alwaysAllowBrowser", label: "Always allow browser control" },
-		{ key: "alwaysAllowMcp", label: "Always allow MCP access" },
-		{ key: "alwaysAllowModeSwitch", label: "Always allow mode switches" },
-		{ key: "alwaysAllowSubtasks", label: "Always allow subtasks" },
-		{ key: "browserToolEnabled", label: "Enable browser tool" },
-		{ key: "mcpEnabled", label: "Enable MCP support" },
-		{ key: "enableMcpServerCreation", label: "Allow MCP server creation" },
-		{ key: "enableCheckpoints", label: "Enable checkpoints" },
-		{ key: "diffEnabled", label: "Enable diff viewer" },
-		{ key: "soundEnabled", label: "Enable sounds" },
-		{ key: "ttsEnabled", label: "Enable text-to-speech" },
-		{ key: "remoteBrowserEnabled", label: "Enable remote browser" },
-		{ key: "showTheaIgnoredFiles", label: "Show Thea ignored files" },
+	const securitySettings: Array<{ key: keyof GlobalState; label: string; detail?: string }> = [
+		{
+			key: "autoApprovalEnabled",
+			label: "Auto-approve follow-up actions",
+			detail: "Automatically approve follow-up questions and actions",
+		},
+		{
+			key: "alwaysApproveResubmit",
+			label: "Always approve retry requests",
+			detail: "Skip approval for retry attempts",
+		},
+		{
+			key: "alwaysAllowSubtasks",
+			label: "Always allow subtasks",
+			detail: "Automatically approve spawning of subtasks",
+		},
+		{
+			key: "alwaysAllowModeSwitch",
+			label: "Always allow mode switches",
+			detail: "Automatically approve mode transitions",
+		},
+	]
+
+	const permissionSettings: Array<{ key: keyof GlobalState; label: string; detail?: string }> = [
+		{
+			key: "alwaysAllowReadOnly",
+			label: "Always allow read-only operations",
+			detail: "Skip approval for read operations",
+		},
+		{
+			key: "alwaysAllowReadOnlyOutsideWorkspace",
+			label: "Always allow read-only outside workspace",
+			detail: "Read files outside project directory",
+		},
+		{
+			key: "alwaysAllowWrite",
+			label: "Always allow write operations",
+			detail: "Skip approval for write operations",
+		},
+		{
+			key: "alwaysAllowWriteOutsideWorkspace",
+			label: "Always allow write outside workspace",
+			detail: "Write files outside project directory",
+		},
+		{
+			key: "alwaysAllowExecute",
+			label: "Always allow command execution",
+			detail: "Skip approval for terminal commands",
+		},
+		{
+			key: "alwaysAllowBrowser",
+			label: "Always allow browser control",
+			detail: "Skip approval for browser automation",
+		},
+		{ key: "alwaysAllowMcp", label: "Always allow MCP access", detail: "Skip approval for MCP tool calls" },
+	]
+
+	const featureSettings: Array<{ key: keyof GlobalState; label: string; detail?: string }> = [
+		{
+			key: "browserToolEnabled",
+			label: "Enable browser tool",
+			detail: "Enable web scraping and browser automation",
+		},
+		{ key: "mcpEnabled", label: "Enable MCP support", detail: "Enable MCP (Model Context Protocol) integrations" },
+		{
+			key: "enableMcpServerCreation",
+			label: "Allow MCP server creation",
+			detail: "Create new MCP servers during tasks",
+		},
+		{ key: "enableCheckpoints", label: "Enable checkpoints", detail: "Create automatic task checkpoints" },
+		{ key: "diffEnabled", label: "Enable diff viewer", detail: "Show file comparison before changes" },
+		{ key: "soundEnabled", label: "Enable sounds", detail: "Play notification sounds" },
+		{ key: "ttsEnabled", label: "Enable text-to-speech", detail: "Read responses aloud" },
+		{ key: "remoteBrowserEnabled", label: "Enable remote browser", detail: "Use remote browser for automation" },
+		{ key: "showTheaIgnoredFiles", label: "Show Thea ignored files", detail: "Display files ignored by Thea" },
 	]
 
 	while (true) {
-		let state: Awaited<ReturnType<typeof taskManager.getStateManager.prototype.getState>>
-		try {
-			state = await taskManager.getStateManager().getState()
-		} catch (error) {
-			const message = error instanceof Error ? error.message : String(error)
-			await vscode.window.showErrorMessage(`Unable to load settings: ${message}`)
-			return
-		}
-
 		const items: SettingsQuickPickItem[] = []
 
 		items.push(
@@ -323,24 +402,47 @@ async function showSettingsQuickPick(taskManager: TaskManager) {
 			},
 		)
 
-		for (const descriptor of toggleDescriptors) {
-			const currentValue = Boolean((state as Record<string, unknown>)[descriptor.key])
-			const icon = currentValue ? "$(check)" : "$(circle-large-outline)"
-			const description = currentValue ? "Enabled" : "Disabled"
+		// Category: Security Settings
+		items.push({
+			label: "$(shield) Security Settings",
+			detail: "Auto-approval and workflow settings",
+			isCategory: true,
+			run: async () => {
+				await showCategoryQuickPick(taskManager, "security", securitySettings)
+			},
+			keepOpen: true,
+		})
 
-			items.push({
-				label: `${icon} ${descriptor.label}`,
-				description,
-				detail: descriptor.detail,
-				run: async () => {
-					const nextValue = !currentValue
-					await taskManager.contextProxy.updateGlobalState(descriptor.key, nextValue)
-					const status = nextValue ? "enabled" : "disabled"
-					await vscode.window.showInformationMessage(`${descriptor.label} ${status}.`)
-				},
-				keepOpen: true,
-			})
-		}
+		// Category: Permission Settings
+		items.push({
+			label: "$(key) Permission Settings",
+			detail: "Control what operations Thea can perform",
+			isCategory: true,
+			run: async () => {
+				await showCategoryQuickPick(taskManager, "permissions", permissionSettings)
+			},
+			keepOpen: true,
+		})
+
+		// Category: Feature Settings
+		items.push({
+			label: "$(tools) Feature Settings",
+			detail: "Enable or disable specific features",
+			isCategory: true,
+			run: async () => {
+				await showCategoryQuickPick(taskManager, "features", featureSettings)
+			},
+			keepOpen: true,
+		})
+
+		// VS Code Settings
+		items.push({
+			label: "$(settings-gear) Open VS Code Settings",
+			detail: "Edit Thea configuration in settings.json",
+			run: async () => {
+				await vscode.commands.executeCommand("workbench.action.openSettings", "thea-code")
+			},
+		})
 
 		const selection = await vscode.window.showQuickPick<SettingsQuickPickItem>(items, {
 			placeHolder: "Thea settings",
@@ -360,6 +462,62 @@ async function showSettingsQuickPick(taskManager: TaskManager) {
 
 		if (!selection.keepOpen) {
 			return
+		}
+	}
+}
+
+async function showCategoryQuickPick(
+	taskManager: TaskManager,
+	categoryName: string,
+	settings: Array<{ key: keyof GlobalState; label: string; detail?: string }>,
+) {
+	// Store the parent state at the time the category was entered
+	const stateSnapshot = await taskManager.getStateManager().getState()
+
+	while (true) {
+		const items: SettingsQuickPickItem[] = []
+
+		for (const descriptor of settings) {
+			const currentValue = Boolean((stateSnapshot as Record<string, unknown>)[descriptor.key])
+			const icon = currentValue ? "$(check)" : "$(circle-large-outline)"
+			const description = currentValue ? "Enabled" : "Disabled"
+
+			items.push({
+				label: `${icon} ${descriptor.label}`,
+				description,
+				detail: descriptor.detail || "",
+				run: async () => {
+					const nextValue = !currentValue
+					await taskManager.contextProxy.updateGlobalState(descriptor.key, nextValue)
+					return nextValue
+				},
+				keepOpen: true,
+			})
+		}
+
+		const selection = await vscode.window.showQuickPick<SettingsQuickPickItem>(items, {
+			placeHolder: `${categoryName} settings`,
+			ignoreFocusOut: true,
+		})
+
+		if (!selection) {
+			// Back to main menu
+			return
+		}
+
+		try {
+			// NOTE: Run the toggle and get the new value
+			const newValue = (await selection.run()) as boolean
+			// Update the snapshot for the next iteration if we stay in this view
+			;(stateSnapshot as Record<string, unknown>)[settings.find((s) => selection.label.includes(s.label))!.key] =
+				newValue
+
+			if (!selection.keepOpen) {
+				return
+			}
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error)
+			await vscode.window.showErrorMessage(`Unable to apply setting: ${message}`)
 		}
 	}
 }

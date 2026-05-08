@@ -102,14 +102,25 @@ export class TaskManager extends EventEmitter<TaskManagerEvents> {
 		// Initialize MCP Hub
 		try {
 			// Create a minimal provider-like interface for McpServerManager
+			// eslint-disable-next-line @typescript-eslint/no-this-alias
+			const manager = this
 			const minimalProvider = {
 				context: this.context,
 				outputChannel: this.outputChannel,
 				contextProxy: this.contextProxy,
 				postMessageToWebview: async () => {},
 				postStateToWebview: async () => {},
+				ensureSettingsDirectoryExists: async () => {
+					const globalStoragePath = manager.context.globalStorageUri.fsPath
+					const settingsDir = await getSettingsDirectoryPath(globalStoragePath)
+					await fs.mkdir(settingsDir, { recursive: true })
+					return settingsDir
+				},
 			}
-			this.mcpHub = await McpServerManager.getInstance(this.context, minimalProvider as unknown as Parameters<typeof McpServerManager.getInstance>[1])
+			this.mcpHub = await McpServerManager.getInstance(
+				this.context,
+				minimalProvider as unknown as Parameters<typeof McpServerManager.getInstance>[1],
+			)
 			this.outputChannel.appendLine("MCP Hub initialized in TaskManager")
 		} catch (error) {
 			this.outputChannel.appendLine(`Failed to initialize MCP Hub: ${error}`)
@@ -144,7 +155,10 @@ export class TaskManager extends EventEmitter<TaskManagerEvents> {
 				await this.contextProxy.updateGlobalState("taskHistory", history)
 			},
 			getState: () => this.stateManager.getState(),
-			setValue: async <K extends Parameters<typeof this.stateManager.setValue>[0]>(key: K, value: Parameters<typeof this.stateManager.setValue>[1]) => {
+			setValue: async <K extends Parameters<typeof this.stateManager.setValue>[0]>(
+				key: K,
+				value: Parameters<typeof this.stateManager.setValue>[1],
+			) => {
 				await this.stateManager.setValue(key, value)
 			},
 		}
@@ -212,7 +226,9 @@ export class TaskManager extends EventEmitter<TaskManagerEvents> {
 	/**
 	 * Creates a task from a history item.
 	 */
-	async createTaskFromHistory(historyItem: HistoryItem & { rootTask?: TheaTask; parentTask?: TheaTask }): Promise<TheaTask> {
+	async createTaskFromHistory(
+		historyItem: HistoryItem & { rootTask?: TheaTask; parentTask?: TheaTask },
+	): Promise<TheaTask> {
 		if (!this.isInitialized) {
 			await this.initialize()
 		}
@@ -362,7 +378,9 @@ export class TaskManager extends EventEmitter<TaskManagerEvents> {
 			ensureMcpServersDirectoryExists: async () => {
 				// Prefer sandboxed local config in tests or when explicitly requested
 				if (preferLocalConfig()) {
-					const workspaceRoot = await import("vscode").then((v) => v.workspace.workspaceFolders?.[0]?.uri.fsPath)
+					const workspaceRoot = await import("vscode").then(
+						(v) => v.workspace.workspaceFolders?.[0]?.uri.fsPath,
+					)
 					const localDir = getPreferredMcpServersDir({ context: manager.context, workspaceRoot })
 					await fs.mkdir(localDir, { recursive: true })
 					return localDir

@@ -65,7 +65,7 @@
 			}
 		},
 		{
-			"name": "Run Extension + Webview UI (watch)",
+			"name": "Run Extension",
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",

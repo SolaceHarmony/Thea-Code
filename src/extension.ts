@@ -49,7 +49,8 @@ async function activateE2EMode(context: vscode.ExtensionContext) {
 				try {
 					if (
 						!payload ||
-						((!payload.url || payload.url.length === 0) && (!Array.isArray(payload.urls) || payload.urls.length === 0))
+						((!payload.url || payload.url.length === 0) &&
+							(!Array.isArray(payload.urls) || payload.urls.length === 0))
 					) {
 						throw new Error("Invalid payload: { url: string } or { urls: string[] } required")
 					}
@@ -98,14 +99,19 @@ async function activateE2EMode(context: vscode.ExtensionContext) {
 	const { registerCommands } = await import("./activate")
 	registerCommands({ context, outputChannel, taskManager })
 
-	// Register diff view provider
-	const { DIFF_VIEW_URI_SCHEME } = await import("./integrations/editor/DiffViewProvider")
-	const diffContentProvider = new (class implements vscode.TextDocumentContentProvider {
-		provideTextDocumentContent(uri: vscode.Uri): string {
-			return Buffer.from(uri.query, "base64").toString("utf-8")
-		}
+	// Return API for tests
+	return {
+		outputChannel,
+		taskManager,
+		sidebarView,
+		isTestMode: true,
+		version: (context.extension?.packageJSON as { version?: string })?.version ?? "",
+	}
+}
 	})()
-	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(DIFF_VIEW_URI_SCHEME, diffContentProvider))
+	context.subscriptions.push(
+		vscode.workspace.registerTextDocumentContentProvider(DIFF_VIEW_URI_SCHEME, diffContentProvider),
+	)
 
 	// URI handler
 	const { handleUri } = await import("./activate")
@@ -181,6 +187,13 @@ async function activateProductionMode(context: vscode.ExtensionContext) {
 		const taskManager = new TaskManager(context, outputChannel)
 		await taskManager.initialize()
 		outputChannel.appendLine("TaskManager created and initialized")
+
+		// Initialize SettingsSyncManager
+		outputChannel.appendLine("Initializing SettingsSyncManager...")
+		const { SettingsSyncManager } = await import("./core/config/SettingsSyncManager")
+		const settingsSyncManager = new SettingsSyncManager(context, taskManager.contextProxy)
+		await settingsSyncManager.initialize()
+		outputChannel.appendLine("SettingsSyncManager initialized")
 
 		// Register chat participant using native VS Code Chat API
 		outputChannel.appendLine("Registering Thea chat participant...")

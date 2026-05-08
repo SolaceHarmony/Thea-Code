@@ -5,8 +5,7 @@
 			"label": "watch",
 			"dependsOn": [
 				"npm: watch:esbuild",
-				"npm: watch:tsc",
-				"npm: webview:watch"
+				"npm: watch:tsc"
 			],
 			"presentation": {
 				"reveal": "always"
@@ -14,28 +13,6 @@
 			"group": {
 				"kind": "build",
 				"isDefault": true
-			}
-		},
-		{
-			"label": "npm: webview:watch",
-			"type": "npm",
-			"script": "webview:watch",
-			"group": "build",
-			"problemMatcher": {
-				"owner": "vite",
-				"pattern": {
-					"regexp": "^$"
-				},
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": ".*building.*",
-					"endsPattern": ".*built in .*"
-				}
-			},
-			"isBackground": true,
-			"presentation": {
-				"group": "webview-ui",
-				"reveal": "always"
 			}
 		},
 		{
@@ -83,28 +60,6 @@
 			"group": "test",
 			"presentation": {
 				"group": "tests",
-				"reveal": "always"
-			}
-		},
-		{
-			"label": "npm: dev",
-			"type": "npm",
-			"script": "dev",
-			"group": "build",
-			"problemMatcher": {
-				"owner": "vite",
-				"pattern": {
-					"regexp": "^$"
-				},
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": ".*VITE.*",
-					"endsPattern": ".*Local:.*"
-				}
-			},
-			"isBackground": true,
-			"presentation": {
-				"group": "webview-ui",
 				"reveal": "always"
 			}
 		},
