@@ -42,10 +42,10 @@
 		"fzf": "^0.5.2",
 		"globals": "^16.4.0",
 		"i18next": "^25.5.2",
-		"i18next-http-backend": "^3.0.2",
+		"i18next-http-backend": "^3.0.5",
 		"knuth-shuffle-seeded": "^1.0.6",
 		"lucide-react": "^0.544.0",
-		"mermaid": "^11.11.0",
+		"mermaid": "^11.15.0",
 		"posthog-js": "^1.266.0",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
@@ -96,10 +96,30 @@
 		"storybook-dark-mode": "^4.0.2",
 		"ts-jest": "^29.3.4",
 		"typescript": "^5.9.2",
-		"vite": "7.1.5"
+		"vite": "7.3.3"
 	},
 	"overrides": {
-		"glob": "^11.0.2",
-		"jsdom": "^26.1.0"
+		"glob": "^11.1.0",
+		"jsdom": "^26.1.0",
+		"rollup": ">=4.59.0",
+		"flatted": ">=3.4.2",
+		"tar": ">=7.5.11",
+		"lodash": ">=4.18.0",
+		"lodash-es": ">=4.18.0",
+		"minimatch": ">=9.0.7",
+		"picomatch": ">=4.0.4",
+		"preact": ">=10.26.10",
+		"postcss": ">=8.5.10",
+		"uuid": ">=11.1.1",
+		"ws": ">=8.20.1",
+		"mdast-util-to-hast": ">=13.2.1",
+		"ajv": ">=6.14.0",
+		"js-yaml": ">=4.1.1",
+		"@storybook/core": {
+			"storybook": ">=8.6.17"
+		},
+		"storybook-dark-mode": {
+			"storybook": ">=8.6.17"
+		}
 	}
 }
