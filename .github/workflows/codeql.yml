@@ -63,7 +63,7 @@ jobs:
 
             # Install dependencies
             - name: Install dependencies
-              run: npm ci --no-audit
+              run: npm ci --no-audit --legacy-peer-deps
 
             # Build the main extension (TypeScript compilation)
             - name: Build extension
