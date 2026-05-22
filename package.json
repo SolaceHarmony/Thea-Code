@@ -502,6 +502,11 @@
     ]
   },
   "extensionSecretsPrefix": "thea_code_config_",
+  "pnpm": {
+    "overrides": {
+      "@aws-sdk/xml-builder>fast-xml-parser": "5.3.5"
+    }
+  },
   "overrides": {
     "node-domexception": "^2.0.0",
     "jsdom": "^27.0.0",
