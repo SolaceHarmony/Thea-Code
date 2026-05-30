@@ -522,22 +522,22 @@
 		"@google-cloud/vertexai": "^1.10.0",
 		"@google/generative-ai": "^0.24.1",
 		"@mistralai/mistralai": "^1.10.0",
-		"@modelcontextprotocol/sdk": "^1.18.0",
+		"@modelcontextprotocol/sdk": "^1.26.0",
 		"@types/clone-deep": "^4.0.4",
 		"@types/pdf-parse": "^1.1.5",
 		"@types/tmp": "^0.2.6",
 		"@vscode/codicons": "^0.0.40",
-		"axios": "1.12.2",
+		"axios": "^1.15.2",
 		"cheerio": "^1.1.2",
 		"chokidar": "^4.0.3",
 		"clone-deep": "^4.0.1",
 		"data-urls": "^6.0.0",
 		"default-shell": "^2.2.0",
 		"delay": "^6.0.0",
-		"diff": "^8.0.2",
+		"diff": "^8.0.3",
 		"diff-match-patch": "^1.0.5",
 		"fast-deep-equal": "^3.1.3",
-		"fast-xml-parser": "^5.2.5",
+		"fast-xml-parser": "^5.5.6",
 		"fastest-levenshtein": "^1.0.16",
 		"formdata-node": "^6.0.3",
 		"fzf": "^0.5.2",
@@ -550,7 +550,7 @@
 		"jsdom": "^27.0.0",
 		"jsonc-parser": "^3.3.1",
 		"lru-cache": "^11.2.1",
-		"mammoth": "^1.10.0",
+		"mammoth": "^1.11.0",
 		"monaco-vscode-textmate-theme-converter": "^0.1.7",
 		"node-html-markdown": "^1.3.0",
 		"openai": "^5.20.2",
@@ -558,7 +558,7 @@
 		"p-wait-for": "^5.0.2",
 		"pdf-parse": "^1.1.1",
 		"pkce-challenge": "^5.0.0",
-		"playwright": "^1.55.0",
+		"playwright": "^1.55.1",
 		"posthog-node": "^5.8.4",
 		"pretty-bytes": "^7.0.1",
 		"puppeteer-chromium-resolver": "^24.0.1",
@@ -566,11 +566,11 @@
 		"reconnecting-eventsource": "^1.6.4",
 		"say": "^0.16.0",
 		"serialize-error": "^12.0.0",
-		"simple-git": "^3.28.0",
+		"simple-git": "^3.36.0",
 		"sound-play": "^1.1.0",
 		"strip-ansi": "^7.1.2",
 		"strip-bom": "^5.0.0",
-		"tmp": "^0.2.5",
+		"tmp": "^0.2.6",
 		"tree-sitter-wasms": "^0.1.12",
 		"web-tree-sitter": "^0.25.9",
 		"zod": "^4.1.8"
@@ -602,7 +602,7 @@
 		"eslint-plugin-react-hooks": "^5.2.0",
 		"execa": "^9.6.0",
 		"express": "^5.1.0",
-		"glob": "^11.0.3",
+		"glob": "^11.1.0",
 		"husky": "^9.1.7",
 		"knip": "^5.63.1",
 		"lint-staged": "^16.1.6",
@@ -627,16 +627,36 @@
 		],
 		"src/**/*.{ts,tsx}": [
 			"npx eslint --max-warnings=0 --fix --config eslint.config.mjs"
-		],
-		"webview-ui/**/*.{ts,tsx}": [
-			"npx eslint --max-warnings=0 --fix --config webview-ui/eslint.config.mjs"
 		]
 	},
 	"extensionSecretsPrefix": "thea_code_config_",
+	"pnpm": {
+		"overrides": {
+			"@aws-sdk/xml-builder>fast-xml-parser": "5.3.5"
+		}
+	},
 	"overrides": {
 		"node-domexception": "^2.0.0",
 		"jsdom": "^27.0.0",
 		"formdata-node": "^6.0.3",
-		"glob": "^11.0.3"
+		"glob": "^11.1.0",
+		"basic-ftp": ">=5.3.1",
+		"@xmldom/xmldom": ">=0.8.13",
+		"flatted": ">=3.4.2",
+		"rollup": ">=4.59.0",
+		"fast-xml-parser": "^5.5.6",
+		"@isaacs/brace-expansion": ">=5.0.1",
+		"path-to-regexp": ">=8.4.0",
+		"jws": ">=4.0.1",
+		"picomatch": ">=4.0.4",
+		"serialize-javascript": ">=7.0.3",
+		"minimatch": ">=9.0.7",
+		"underscore": ">=1.13.8",
+		"undici": ">=7.24.0",
+		"ajv": ">=6.14.0",
+		"js-yaml": ">=3.14.2",
+		"ws": ">=8.20.1",
+		"yaml": ">=2.8.3",
+		"smol-toml": ">=1.6.1"
 	}
 }

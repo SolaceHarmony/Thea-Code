@@ -108,27 +108,6 @@ async function activateE2EMode(context: vscode.ExtensionContext) {
 		version: (context.extension?.packageJSON as { version?: string })?.version ?? "",
 	}
 }
-	})()
-	context.subscriptions.push(
-		vscode.workspace.registerTextDocumentContentProvider(DIFF_VIEW_URI_SCHEME, diffContentProvider),
-	)
-
-	// URI handler
-	const { handleUri } = await import("./activate")
-	context.subscriptions.push(vscode.window.registerUriHandler({ handleUri }))
-
-	// Initialize terminal
-	const { TerminalRegistry } = await import("./integrations/terminal/TerminalRegistry")
-	TerminalRegistry.initialize()
-
-	// Return API for tests
-	return {
-		outputChannel,
-		taskManager,
-		isTestMode: true,
-		version: (context.extension?.packageJSON as { version?: string })?.version ?? "",
-	}
-}
 
 /**
  * Production mode activation - full feature set.
