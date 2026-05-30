@@ -19,6 +19,9 @@ thea-code-*.vsix
 .test_env
 .vscode-test/
 
+# Development sandbox
+sandbox/
+
 # Docs
 docs/_site/
 
