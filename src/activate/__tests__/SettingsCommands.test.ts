@@ -5,7 +5,7 @@ import { TaskManager } from "../../core/TaskManager"
 import { ProviderSettingsManager } from "../../core/config/ProviderSettingsManager"
 import { ContextProxy } from "../../core/config/ContextProxy"
 import { EXTENSION_NAME } from "../../shared/config/thea-config"
-import { showApiProviderQuickPick } from "../../activate/registerCommands"
+import * as registerCommands from "../../activate/registerCommands"
 
 // Mock VSCode APIs
 const mockInputBox = jest.fn()
@@ -65,6 +65,13 @@ describe("Settings Commands - API Provider Configuration", () => {
 	describe("API Provider QuickPick", () => {
 		it("should show API provider options", async () => {
 			mockShowQuickPick.mockResolvedValue(undefined)
+
+			const showApiProviderQuickPick =
+				(registerCommands as any).showApiProviderQuickPick ??
+				(registerCommands as any).default?.showApiProviderQuickPick
+			if (typeof showApiProviderQuickPick !== "function") {
+				throw new Error("showApiProviderQuickPick is not exported as a function from ../../activate/registerCommands")
+			}
 
 			await showApiProviderQuickPick(taskManager)
 
