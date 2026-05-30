@@ -439,7 +439,7 @@
     "sound-play": "^1.1.0",
     "strip-ansi": "^7.1.2",
     "strip-bom": "^5.0.0",
-    "tmp": "^0.2.5",
+    "tmp": "^0.2.6",
     "tree-sitter-wasms": "^0.1.12",
     "web-tree-sitter": "^0.25.9",
     "zod": "^4.1.8"
