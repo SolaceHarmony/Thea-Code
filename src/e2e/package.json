@@ -27,6 +27,10 @@
 		"typescript": "^5.9.2"
 	},
 	"overrides": {
-		"glob": "^11.0.2"
+		"glob": "^11.0.2",
+		"minimatch": ">=10.2.5",
+		"picomatch": ">=4.0.4",
+		"serialize-javascript": ">=7.0.5",
+		"js-yaml": ">=4.1.1"
 	}
 }

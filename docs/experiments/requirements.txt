@@ -3,7 +3,7 @@ torch>=2.0.0
 ray[default]>=2.0.0
 
 # LFM2-style training (exact versions from their colab)
-transformers==4.54.0
+transformers>=4.57.1
 trl>=0.18.2
 peft>=0.15.2
 
