@@ -35,8 +35,8 @@ suite("BrowserSession PNG screenshot (primary path)", function () {
     )
     assert.ok(typeof r.logs === "string", "Expected logs string field to be present")
     assert.ok(
-      typeof r.currentUrl === "string" && r.currentUrl.includes("example.com"),
-      "URL should include example.com"
+      typeof r.currentUrl === "string" && new URL(r.currentUrl).hostname === "example.com",
+      "URL should have hostname example.com"
     )
   })
 })

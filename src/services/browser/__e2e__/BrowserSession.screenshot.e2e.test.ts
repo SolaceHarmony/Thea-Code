@@ -26,6 +26,6 @@ suite("BrowserSession real browser screenshot", function () {
 
     assert.ok(typeof r.screenshot === "string" && r.screenshot.startsWith("data:image/"), "Expected image data URL")
     assert.ok(typeof r.logs === "string", "Expected logs string")
-    assert.ok(typeof r.currentUrl === "string" && r.currentUrl.includes("example.com"), "URL should include example.com")
+    assert.ok(typeof r.currentUrl === "string" && new URL(r.currentUrl).hostname === "example.com", "URL should have hostname example.com")
   })
 })
