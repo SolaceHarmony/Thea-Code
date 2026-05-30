@@ -422,8 +422,8 @@ export class TaskManager extends EventEmitter<TaskManagerEvents> {
 	private getTaskByIndex(index: number): TheaTask | undefined {
 		const stack = this.taskStack.getTaskStack()
 		if (index >= 0 && index < stack.length) {
-			// We need to access the actual task, not just the ID
-			// This is a limitation - we'd need to expose the stack array
+			// FIXME: Expose a method on taskStack to retrieve a task by its ID or index
+			// instead of always returning the current active task.
 			return this.taskStack.getCurrentTheaTask()
 		}
 		return undefined
