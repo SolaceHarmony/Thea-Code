@@ -635,7 +635,6 @@
 		"node-domexception": "^2.0.0",
 		"jsdom": "^27.0.0",
 		"formdata-node": "^6.0.3",
-		"glob": "^11.1.0",
 		"basic-ftp": ">=6.0.1",
 		"@xmldom/xmldom": ">=0.9.10",
 		"flatted": ">=3.4.2",
