@@ -63,15 +63,19 @@ describe("Settings Commands - API Provider Configuration", () => {
 	})
 
 	describe("API Provider QuickPick", () => {
-		it("should show API provider options", async () => {
-			mockShowQuickPick.mockResolvedValue(undefined)
+		let showApiProviderQuickPick: any
 
-			const showApiProviderQuickPick =
+		beforeEach(() => {
+			showApiProviderQuickPick =
 				(registerCommands as any).showApiProviderQuickPick ??
 				(registerCommands as any).default?.showApiProviderQuickPick
 			if (typeof showApiProviderQuickPick !== "function") {
 				throw new Error("showApiProviderQuickPick is not exported as a function from ../../activate/registerCommands")
 			}
+		})
+
+		it("should show API provider options", async () => {
+			mockShowQuickPick.mockResolvedValue(undefined)
 
 			await showApiProviderQuickPick(taskManager)
 
