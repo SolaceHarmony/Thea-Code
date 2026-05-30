@@ -64,8 +64,8 @@ suite("BrowserSession reload on same URL", function () {
     assert.ok(second.reloaded, "Second navigation to same URL should trigger a reload")
 
     // URL assertions (normalized equality)
-    assert.ok(typeof first.currentUrl === "string" && first.currentUrl.includes("example.com"))
-    assert.ok(typeof second.currentUrl === "string" && second.currentUrl.includes("example.com"))
+    assert.ok(typeof first.currentUrl === "string" && new URL(first.currentUrl).hostname === "example.com")
+    assert.ok(typeof second.currentUrl === "string" && new URL(second.currentUrl).hostname === "example.com")
 
     // Page count should remain stable across reload
     if (typeof first.pageCount === "number" && typeof second.pageCount === "number") {

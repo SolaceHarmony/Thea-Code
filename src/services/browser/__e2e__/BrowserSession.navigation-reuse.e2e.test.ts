@@ -63,7 +63,7 @@ suite("BrowserSession navigation reuse (same root domain)", function () {
     assert.ok(second.reusedTab, "Second navigation within same domain should reuse the tab")
 
     // URL assertions
-    assert.ok(typeof second.currentUrl === "string" && second.currentUrl.includes("example.com"), "URL should include example.com")
+    assert.ok(typeof second.currentUrl === "string" && new URL(second.currentUrl).hostname === "example.com", "URL should have hostname example.com")
     assert.ok(second.currentUrl.includes("/foo"), "Second URL should reflect the /foo path")
 
     // Page count should remain the same between steps when reusing the same tab
