@@ -120,14 +120,8 @@ export class SettingsSyncManager {
 
 		if (updateTarget === "both" || updateTarget === "settings") {
 			// Update VS Code settings.json
-			const updatePromise = config.update(key, value, vscode.ConfigurationTarget.Global)
-			// Convert Thenable to Promise
-			await new Promise<void>((resolve, reject) => {
-				updatePromise.then(
-					() => resolve(),
-					(err) => reject(err),
-				)
-			})
+			// Update VS Code settings.json
+			await config.update(key, value, vscode.ConfigurationTarget.Global)
 		}
 
 		if (updateTarget === "both" || updateTarget === "state") {
